@@ -3,6 +3,19 @@
 require_once('PHPUnit.php');
 require_once('PHPUnit/GUI/HTML.php');
 
+/**
+ * Load the tests that are defined in the named modules.
+ *
+ * @param test_dir: The root of the test hierarchy. Must end with a /
+ *
+ * @param test_names: The names of the modules in which the tests are
+ *     defined. This should not include the root of the test hierarchy.
+ *
+ * If you have Tests/Foo.php which defines a test class called Tests_Foo, the
+ * call would look like:
+ *
+ * loadTests('Tests/', array('Foo'))
+ */
 function loadTests($test_dir, $test_names) {
 	$suites = array();
 
