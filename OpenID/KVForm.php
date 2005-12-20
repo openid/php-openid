@@ -31,29 +31,37 @@ class OpenID_KVForm {
 
 		$last = array_pop($lines);
 		if ($last !== '') {
-			// Log error (no newline at end)
+			trigger_error('No newline at end of kv string:' . addslashes($kvs),
+						  E_USER_WARNING);
 			array_push($lines, $last);
 		}
 
 		$values = array();
 
-		foreach ($lines as $line) {
+		for ($lineno = 0; $lineno < count($lines); $lineno++) {
+			$line = $lines[$lineno];
 			$kv = explode(':', $line, 2);
 			if (count($kv) != 2) {
-				// Log error (no colon on line)
+				$esc = addslashes($line);
+				trigger_error("No colon on line $lineno: $esc",
+							  E_USER_WARNING);
 				continue;
 			}
 
 			$key = $kv[0];
 			$tkey = trim($key);
 			if ($tkey != $key) {
-				// Log error (whitespace on key)
+				$esc = addslashes($key);
+				trigger_error("Whitespace in key on line $lineno: '$esc'",
+							  E_USER_WARNING);
 			}
 
 			$value = $kv[1];
 			$tval = trim($value);
 			if ($tval != $value) {
-				// Log error (whitespace on value)
+				$esc = addslashes($value);
+				trigger_error("Whitespace in value on line $lineno: '$esc'",
+							  E_USER_WARNING);
 			}
 
 			$values[$tkey] = $tval;
