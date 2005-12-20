@@ -4,14 +4,23 @@ class OpenID_KVForm {
 	function arrayToKV($values) {
 		$serialized = '';
 		foreach ($values as $key => $value) {
-			if (
-				strpos($key, ':') !== FALSE ||
-				strpos($key, "\n") !== FALSE ||
-				strpos($value, "\n") !== FALSE
-				) {
+			if (strpos($key, ':') !== FALSE) {
+				trigger_error('":" in key:' . addslashes($key),
+							  E_USER_WARNING);
 				return NULL;
 			}
 
+			if (strpos($key, "\n") !== FALSE) {
+				trigger_error('"\n" in key:' . addslashes($key),
+							  E_USER_WARNING);
+				return NULL;
+			}
+
+			if (strpos($value, "\n") !== FALSE) {
+				trigger_error('"\n" in value:' . addslashes($key),
+							  E_USER_WARNING);
+				return NULL;
+			}
 			$serialized .= "$key:$value\n";
 		}
 		return $serialized;
