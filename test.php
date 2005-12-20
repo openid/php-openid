@@ -34,6 +34,7 @@ function loadTests($test_dir, $test_names) {
 	return $suites;
 }
 
+// Load OpenID library tests
 $test_dir = 'Tests' . DIRECTORY_SEPARATOR . 'OpenID' . DIRECTORY_SEPARATOR;
 $test_names = array(
 	'KVForm',
@@ -42,6 +43,7 @@ $test_names = array(
 
 $suites = loadTests($test_dir, $test_names);
 
+// Create and run the user interface
 $gui = new PHPUnit_GUI_HTML();
 $gui->addSuites($suites);
 $gui->show();
