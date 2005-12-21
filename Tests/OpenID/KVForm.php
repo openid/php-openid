@@ -183,6 +183,18 @@ class Tests_OpenID_KVForm extends PHPUnit_TestSuite {
 				  "str" => " k :v\n",
 				  "errors" => 2,
 				  ),
+			array("name" => "array ordering 1",
+				  "arr" => array("a" => "x",
+								 "b" => "x",
+								 "c" => "x"),
+				  "str" => "a:x\nb:x\nc:x\n",
+				  ),
+			array("name" => "array ordering 2",
+				  "arr" => array("a" => "x",
+								 "c" => "x",
+								 "b" => "x"),
+				  "str" => "a:x\nc:x\nb:x\n",
+				  ),
 			);
 
 		foreach ($testdata_list as $testdata) {
