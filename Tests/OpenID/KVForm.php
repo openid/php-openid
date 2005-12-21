@@ -3,14 +3,14 @@
 require_once('PHPUnit.php');
 require_once('OpenID/KVForm.php');
 
-$Tests_OpenID_KVForm_num_errors = 0;
+$Tests_OpenID_KVForm_errors = NULL;
 
 /**
  * Count the number of logged errors
  */
 function Tests_OpenID_KVForm_err($errno, $errmsg, $filename, $linenum, $vars) {
-	global $Tests_OpenID_KVForm_num_errors;
-	$Tests_OpenID_KVForm_num_errors += 1;
+	global $Tests_OpenID_KVForm_errors;
+	$Tests_OpenID_KVForm_errors[] = $errmsg;
 }
 
 class Tests_OpenID_KVForm_TestCase extends PHPUnit_TestCase {
@@ -24,10 +24,10 @@ class Tests_OpenID_KVForm_TestCase extends PHPUnit_TestCase {
 
 	function runTest() {
 		// Re-set the number of logged errors
-		global $Tests_OpenID_KVForm_num_errors;
-		$Tests_OpenID_KVForm_num_errors = 0;
+		global $Tests_OpenID_KVForm_errors;
+		$Tests_OpenID_KVForm_errors = array();
 
-		$old_handler = set_error_handler("Tests_OpenID_KVForm_err");
+		set_error_handler("Tests_OpenID_KVForm_err");
 
 		// Do one parse, after which arrayToKV and kvToArray should be
 		// inverses.
@@ -55,23 +55,32 @@ class Tests_OpenID_KVForm_TestCase extends PHPUnit_TestCase {
 		$this->assertEquals($parsed2, $parsed3);
 
 		// Check to make sure we have the expected number of logged errors
-		$this->assertEquals($this->errs, $Tests_OpenID_KVForm_num_errors);
+		$this->assertEquals($this->errs, count($Tests_OpenID_KVForm_errors));
 
-		// Restore error handler
-		if (isset($old_handler)) {
-			set_error_handler($old_handler);
-		}
+		restore_error_handler();
 	}
 }
 
 class Tests_OpenID_KVForm_TestCase_Null extends PHPUnit_TestCase {
-	function Tests_OpenID_KVForm_TestCase_Null($arr) {
+	function Tests_OpenID_KVForm_TestCase_Null($arr, $errs) {
 		$this->arr = $arr;
+		$this->errs = $errs;
 	}
 
 	function runTest() {
+		// Re-set the logged errors
+		global $Tests_OpenID_KVForm_errors;
+		$Tests_OpenID_KVForm_errors = array();
+
+		set_error_handler("Tests_OpenID_KVForm_err");
+
 		$serialized = OpenID_KVForm::arrayToKV($this->arr);
 		$this->assertTrue($serialized === NULL);
+
+		// Check to make sure we have the expected number of logged errors
+		$this->assertEquals($this->errs, count($Tests_OpenID_KVForm_errors));
+
+		restore_error_handler();
 	}
 }
 
@@ -158,12 +167,15 @@ class Tests_OpenID_KVForm extends PHPUnit_TestSuite {
 				  ),
 			array("name" => "colon in key",
 				  "arr" => array("k:k" => 'v'),
+				  "errors" => 1,
 				  ),
 			array("name" => "newline in key",
 				  "arr" => array("k\nk" => 'v'),
+				  "errors" => 1,
 				  ),
 			array("name" => "newline in value",
 				  "arr" => array('k' => "v\nv"),
+				  "errors" => 1,
 				  ),
 			array("name" => "array whitespace",
 				  "arr" => array(" k " => "v"),
@@ -188,7 +200,7 @@ class Tests_OpenID_KVForm extends PHPUnit_TestSuite {
 				$test = new Tests_OpenID_KVForm_TestCase(
 					$arr, $str, $lossy, $errs);
 			} else {
-				$test = new Tests_OpenID_KVForm_TestCase_Null($arr);
+				$test = new Tests_OpenID_KVForm_TestCase_Null($arr, $errs);
 			}
 			$test->setName($testdata["name"]);
 			$this->addTest($test);
