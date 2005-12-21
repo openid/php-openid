@@ -3,14 +3,32 @@
 require_once('PHPUnit.php');
 require_once('OpenID/KVForm.php');
 
+$Tests_OpenID_KVForm_num_errors = 0;
+
+/**
+ * Count the number of logged errors
+ */
+function Tests_OpenID_KVForm_err($errno, $errmsg, $filename, $linenum, $vars) {
+	global $Tests_OpenID_KVForm_num_errors;
+	$Tests_OpenID_KVForm_num_errors += 1;
+}
+
 class Tests_OpenID_KVForm_TestCase extends PHPUnit_TestCase {
-	function Tests_OpenID_KVForm_TestCase($arr, $str, $lossy) {
+
+	function Tests_OpenID_KVForm_TestCase($arr, $str, $lossy, $errs) {
 		$this->arr = $arr;
 		$this->str = $str;
 		$this->lossy = $lossy;
+		$this->errs = $errs;
 	}
 
 	function runTest() {
+		// Re-set the number of logged errors
+		global $Tests_OpenID_KVForm_num_errors;
+		$Tests_OpenID_KVForm_num_errors = 0;
+
+		$old_handler = set_error_handler("Tests_OpenID_KVForm_err");
+
 		// Do one parse, after which arrayToKV and kvToArray should be
 		// inverses.
 		$parsed1 = OpenID_KVForm::kvToArray($this->str);
@@ -35,6 +53,14 @@ class Tests_OpenID_KVForm_TestCase extends PHPUnit_TestCase {
 
 		// Check to make sure that they're inverses.
 		$this->assertEquals($parsed2, $parsed3);
+
+		// Check to make sure we have the expected number of logged errors
+		$this->assertEquals($this->errs, $Tests_OpenID_KVForm_num_errors);
+
+		// Restore error handler
+		if (isset($old_handler)) {
+			set_error_handler($old_handler);
+		}
 	}
 }
 
@@ -65,16 +91,19 @@ class Tests_OpenID_KVForm extends PHPUnit_TestSuite {
 				  "str" => "\n",
 				  "arr" => array(),
 				  "lossy" => "str",
+				  "errors" => 1,
 				  ),
 			array("name" => "empty (double newline)", 
 				  "str" => "\n\n",
 				  "arr" => array(),
 				  "lossy" => "str",
+				  "errors" => 2,
 				  ),
 			array("name" => "empty (no colon)", 
 				  "str" => "East is least\n",
 				  "arr" => array(),
 				  "lossy" => "str",
+				  "errors" => 1,
 				  ),
 			array("name" => "two keys", 
 				  "str" => "city:claremont\nstate:CA\n",
@@ -100,27 +129,32 @@ class Tests_OpenID_KVForm extends PHPUnit_TestSuite {
 				  "str" => " street:foothill blvd\n",
 				  "arr" => array('street'=>'foothill blvd'),
 				  "lossy" => "str",
+				  "errors" => 1,
 				  ),
 			array("name" => "whitespace at front of value", 
 				  "str" => "major: computer science\n",
 				  "arr" => array('major'=>'computer science'),
 				  "lossy" => "str",
+				  "errors" => 1,
 				  ),
 			array("name" => "whitespace around key and value", 
 				  "str" => " dorm : east \n",
 				  "arr" => array('dorm'=>'east'),
 				  "lossy" => "str",
+				  "errors" => 2,
 				  ),
 			array("name" => "missing trailing newline", 
 				  "str" => "e^(i*pi)+1:0",
 				  "arr" => array('e^(i*pi)+1'=>'0'),
 				  "lossy" => "str",
+				  "errors" => 1,
 				  ),
 			array("name" => "missing trailing newline (two key)", 
 				  "str" => "east:west\nnorth:south",
 				  "arr" => array('east'=>'west',
 								 'north'=>'south'),
 				  "lossy" => "str",
+				  "errors" => 1,
 				  ),
 			array("name" => "colon in key",
 				  "arr" => array("k:k" => 'v'),
@@ -135,18 +169,24 @@ class Tests_OpenID_KVForm extends PHPUnit_TestSuite {
 				  "arr" => array(" k " => "v"),
 				  "lossy" => "both",
 				  "str" => " k :v\n",
+				  "errors" => 2,
 				  ),
 			);
 
 		foreach ($testdata_list as $testdata) {
 			$arr = $testdata["arr"];
 			$str = $testdata["str"];
+			$errs = $testdata["errors"];
+			if (!isset($errs)) {
+				$errs = 0;
+			}
 			if (isset($str)) {
 				$lossy = $testdata["lossy"];
 				if (!isset($lossy)) {
 					$lossy = 'neither';
 				}					
-				$test = new Tests_OpenID_KVForm_TestCase($arr, $str, $lossy);
+				$test = new Tests_OpenID_KVForm_TestCase(
+					$arr, $str, $lossy, $errs);
 			} else {
 				$test = new Tests_OpenID_KVForm_TestCase_Null($arr);
 			}
