@@ -6,7 +6,7 @@ require_once('OpenID/KVForm.php');
 $Tests_OpenID_KVForm_errors = NULL;
 
 /**
- * Count the number of logged errors
+ * Keep a list of the logged errors
  */
 function Tests_OpenID_KVForm_err($errno, $errmsg, $filename, $linenum, $vars) {
 	global $Tests_OpenID_KVForm_errors;
