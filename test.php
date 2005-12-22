@@ -39,6 +39,7 @@ $test_dir = 'Tests' . DIRECTORY_SEPARATOR . 'OpenID' . DIRECTORY_SEPARATOR;
 $test_names = array(
 	'KVForm',
 	'CryptUtil',
+	'DiffieHellman',
 	);
 
 $suites = loadTests($test_dir, $test_names);
