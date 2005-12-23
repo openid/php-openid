@@ -64,12 +64,14 @@ class Tests_Net_OpenID_DiffieHellman extends PHPUnit_TestSuite {
         $sanity->setName('Check parsing of test data');
         $this->addTest($sanity);
 
-        for ($i = 0; $i < count($cases); $i++) {
-            $case = $cases[$i];
-            $one = new Tests_Net_OpenID_DiffieHellman_OneCase(
-                $i, $case[0], $case[1]);
-            $this->addTest($one);
-        }
+		if (defined('Net_OpenID_math_type')) {
+			for ($i = 0; $i < count($cases); $i++) {
+				$case = $cases[$i];
+				$one = new Tests_Net_OpenID_DiffieHellman_OneCase(
+					$i, $case[0], $case[1]);
+				$this->addTest($one);
+			}
+		}
     }
 }
 
