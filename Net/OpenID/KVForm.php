@@ -1,6 +1,6 @@
 <?php
 
-class OpenID_KVForm {
+class Net_OpenID_KVForm {
 	function arrayToKV($values) {
 		$serialized = '';
 		foreach ($values as $key => $value) {

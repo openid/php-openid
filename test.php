@@ -1,5 +1,7 @@
 <?php
 
+error_reporting(E_STRICT | E_ALL);
+
 require_once('PHPUnit.php');
 require_once('PHPUnit/GUI/HTML.php');
 
@@ -35,7 +37,7 @@ function loadTests($test_dir, $test_names) {
 }
 
 // Load OpenID library tests
-$test_dir = 'Tests' . DIRECTORY_SEPARATOR . 'OpenID' . DIRECTORY_SEPARATOR;
+$test_dir = 'Tests/Net/OpenID/';
 $test_names = array(
 	'KVForm',
 	'CryptUtil',

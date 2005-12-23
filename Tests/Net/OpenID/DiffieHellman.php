@@ -1,10 +1,10 @@
 <?php
 
 require_once('PHPUnit.php');
-require_once('OpenID/DiffieHellman.php');
+require_once('Net/OpenID/DiffieHellman.php');
 
-class Tests_OpenID_DiffieHellman_CheckCases extends PHPUnit_TestCase {
-    function Tests_OpenID_DiffieHellman_CheckCases($cases) {
+class Tests_Net_OpenID_DiffieHellman_CheckCases extends PHPUnit_TestCase {
+    function Tests_Net_OpenID_DiffieHellman_CheckCases($cases) {
         $this->cases = $cases;
     }
 
@@ -13,20 +13,20 @@ class Tests_OpenID_DiffieHellman_CheckCases extends PHPUnit_TestCase {
     }
 }
 
-class Tests_OpenID_DiffieHellman_OneCase extends PHPUnit_TestCase {
-    function Tests_OpenID_DiffieHellman_OneCase($name, $input, $expected) {
+class Tests_Net_OpenID_DiffieHellman_OneCase extends PHPUnit_TestCase {
+    function Tests_Net_OpenID_DiffieHellman_OneCase($name, $input, $expected) {
         $this->setName("$name");
         $this->input = $input;
         $this->expected = $expected;
     }
 
     function runTest() {
-        $dh = new OpenID_DiffieHellman(NULL, NULL, $this->input);
+        $dh = new Net_OpenID_DiffieHellman(NULL, NULL, $this->input);
         $this->assertEquals($this->expected, $dh->getPublicKey());
     }
 }
 
-class Tests_OpenID_DiffieHellman extends PHPUnit_TestSuite {
+class Tests_Net_OpenID_DiffieHellman extends PHPUnit_TestSuite {
     function _readTestCases() {
         $path = dirname(realpath(__FILE__));
         $dh_test_data_file = $path . DIRECTORY_SEPARATOR . 'dhpriv';
@@ -56,17 +56,17 @@ class Tests_OpenID_DiffieHellman extends PHPUnit_TestSuite {
         return $cases;
     }
 
-    function Tests_OpenID_DiffieHellman($name) {
+    function Tests_Net_OpenID_DiffieHellman($name) {
         $this->setName($name);
 
-        $cases = Tests_OpenID_DiffieHellman::_readTestCases();
-        $sanity = new Tests_OpenID_DiffieHellman_CheckCases($cases);
+        $cases = Tests_Net_OpenID_DiffieHellman::_readTestCases();
+        $sanity = new Tests_Net_OpenID_DiffieHellman_CheckCases($cases);
         $sanity->setName('Check parsing of test data');
         $this->addTest($sanity);
 
         for ($i = 0; $i < count($cases); $i++) {
             $case = $cases[$i];
-            $one = new Tests_OpenID_DiffieHellman_OneCase(
+            $one = new Tests_Net_OpenID_DiffieHellman_OneCase(
                 $i, $case[0], $case[1]);
             $this->addTest($one);
         }

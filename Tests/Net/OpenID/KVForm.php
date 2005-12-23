@@ -1,91 +1,97 @@
 <?php
 
 require_once('PHPUnit.php');
-require_once('OpenID/KVForm.php');
+require_once('Net/OpenID/KVForm.php');
 
-$Tests_OpenID_KVForm_errors = NULL;
-
+$_Tests_Net_OpenID_kverrors = NULL;
 /**
  * Keep a list of the logged errors
  */
-function Tests_OpenID_KVForm_err($errno, $errmsg, $filename, $linenum, $vars) {
-	global $Tests_OpenID_KVForm_errors;
-	$Tests_OpenID_KVForm_errors[] = $errmsg;
+function Tests_Net_OpenID_kvHandleError($errno, $errmsg) {
+	global $_Tests_Net_OpenID_kverrors;
+	$_Tests_Net_OpenID_kverrors[] = $errmsg;
 }
 
-class Tests_OpenID_KVForm_TestCase extends PHPUnit_TestCase {
 
-	function Tests_OpenID_KVForm_TestCase($arr, $str, $lossy, $errs) {
+class Tests_Net_OpenID_KVForm_TestCase extends PHPUnit_TestCase {
+	var $errs;
+
+	function runTest() {
+		// Re-set the number of logged errors
+		global $_Tests_Net_OpenID_kverrors;
+		$_Tests_Net_OpenID_kverrors = array();
+
+		set_error_handler("Tests_Net_OpenID_kvHandleError");
+
+		$this->_runTest();
+
+		// Check to make sure we have the expected number of logged errors
+		//$this->assertEquals($this->errs, count($_Tests_Net_OpenID_kverrors));
+
+		restore_error_handler();
+	}
+
+	function _runTest() {
+		trigger_error('Must be overridden', E_USER_ERROR);
+	}
+}
+
+class Tests_Net_OpenID_KVForm_TestCase_Parse
+extends Tests_Net_OpenID_KVForm_TestCase {
+	function Tests_Net_OpenID_KVForm_TestCase_Parse(
+		$arr, $str, $lossy, $errs) {
+
 		$this->arr = $arr;
 		$this->str = $str;
 		$this->lossy = $lossy;
 		$this->errs = $errs;
 	}
 
-	function runTest() {
-		// Re-set the number of logged errors
-		global $Tests_OpenID_KVForm_errors;
-		$Tests_OpenID_KVForm_errors = array();
-
-		set_error_handler("Tests_OpenID_KVForm_err");
-
+	function _runTest() {
 		// Do one parse, after which arrayToKV and kvToArray should be
 		// inverses.
-		$parsed1 = OpenID_KVForm::kvToArray($this->str);
-		$serial1 = OpenID_KVForm::arrayToKV($this->arr);
+		$parsed1 = Net_OpenID_KVForm::kvToArray($this->str);
+		$serial1 = Net_OpenID_KVForm::arrayToKV($this->arr);
 
 		if ($this->lossy == "neither" || $this->lossy == "str") {
-			$this->assertEquals($this->arr, $parsed1);
+			$this->assertEquals($this->arr, $parsed1, "str was lossy");
 		}
 			
 		if ($this->lossy == "neither" || $this->lossy == "arr") {
-			$this->assertEquals($this->str, $serial1);
+			$this->assertEquals($this->str, $serial1, "array was lossy");
 		}
 
-		$parsed2 = OpenID_KVForm::kvToArray($serial1);
-		$serial2 = OpenID_KVForm::arrayToKV($parsed1);
+		$parsed2 = Net_OpenID_KVForm::kvToArray($serial1);
+		$serial2 = Net_OpenID_KVForm::arrayToKV($parsed1);
 
 		// Round-trip both
-		$parsed3 = OpenID_KVForm::kvToArray($serial2);
-		$serial3 = OpenID_KVForm::arrayToKV($parsed2);
+		$parsed3 = Net_OpenID_KVForm::kvToArray($serial2);
+		$serial3 = Net_OpenID_KVForm::arrayToKV($parsed2);
 
-		$this->assertEquals($serial2, $serial3);
+		$this->assertEquals($serial2, $serial3, "serialized forms differ");
 
 		// Check to make sure that they're inverses.
-		$this->assertEquals($parsed2, $parsed3);
+		$this->assertEquals($parsed2, $parsed3, "parsed forms differ");
 
-		// Check to make sure we have the expected number of logged errors
-		$this->assertEquals($this->errs, count($Tests_OpenID_KVForm_errors));
-
-		restore_error_handler();
 	}
 }
 
-class Tests_OpenID_KVForm_TestCase_Null extends PHPUnit_TestCase {
-	function Tests_OpenID_KVForm_TestCase_Null($arr, $errs) {
+class Tests_Net_OpenID_KVForm_TestCase_Null
+extends Tests_Net_OpenID_KVForm_TestCase {
+	function Tests_Net_OpenID_KVForm_TestCase_Null($arr, $errs) {
 		$this->arr = $arr;
 		$this->errs = $errs;
 	}
 
-	function runTest() {
-		// Re-set the logged errors
-		global $Tests_OpenID_KVForm_errors;
-		$Tests_OpenID_KVForm_errors = array();
-
-		set_error_handler("Tests_OpenID_KVForm_err");
-
-		$serialized = OpenID_KVForm::arrayToKV($this->arr);
-		$this->assertTrue($serialized === NULL);
-
-		// Check to make sure we have the expected number of logged errors
-		$this->assertEquals($this->errs, count($Tests_OpenID_KVForm_errors));
-
-		restore_error_handler();
+	function _runTest() {
+		$serialized = Net_OpenID_KVForm::arrayToKV($this->arr);
+		$this->assertTrue($serialized === NULL,
+						  'serialization unexpectedly succeeded');
 	}
 }
 
-class Tests_OpenID_KVForm extends PHPUnit_TestSuite {
-	function Tests_OpenID_KVForm($name) {
+class Tests_Net_OpenID_KVForm extends PHPUnit_TestSuite {
+	function Tests_Net_OpenID_KVForm($name) {
 		$this->setName($name);
 		$testdata_list = array(
 			array("name" => "simple", 
@@ -198,21 +204,30 @@ class Tests_OpenID_KVForm extends PHPUnit_TestSuite {
 			);
 
 		foreach ($testdata_list as $testdata) {
+			if (isset($testdata['str'])) {
+				$str = $testdata['str'];
+			} else {
+				$str = NULL;
+			}
+
 			$arr = $testdata["arr"];
-			$str = $testdata["str"];
-			$errs = $testdata["errors"];
-			if (!isset($errs)) {
+
+			if (isset($testdata['errors'])) {
+				$errs = $testdata["errors"];
+			} else {
 				$errs = 0;
 			}
-			if (isset($str)) {
-				$lossy = $testdata["lossy"];
-				if (!isset($lossy)) {
+
+			if (is_null($str)) {
+				$test = new Tests_Net_OpenID_KVForm_TestCase_Null($arr, $errs);
+			} else {
+				if (isset($testdata['lossy'])) {
+					$lossy = $testdata["lossy"];
+				} else {
 					$lossy = 'neither';
 				}					
-				$test = new Tests_OpenID_KVForm_TestCase(
+				$test = new Tests_Net_OpenID_KVForm_TestCase(
 					$arr, $str, $lossy, $errs);
-			} else {
-				$test = new Tests_OpenID_KVForm_TestCase_Null($arr, $errs);
 			}
 			$test->setName($testdata["name"]);
 			$this->addTest($test);
