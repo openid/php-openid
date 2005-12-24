@@ -36,20 +36,18 @@ function loadTests($test_dir, $test_names) {
 	return $suites;
 }
 
-// Load OpenID library tests
-$test_dir = 'Tests/Net/OpenID/';
-$test_names = array(
+$_test_dir = 'Tests/Net/OpenID/';
+$_test_names = array(
 	'KVForm',
 	'CryptUtil',
 	'DiffieHellman',
 	'HMACSHA1',
 	);
 
-$suites = loadTests($test_dir, $test_names);
-
-// Create and run the user interface
-$gui = new PHPUnit_GUI_HTML();
-$gui->addSuites($suites);
-$gui->show();
-
+// Load OpenID library tests
+function loadSuite() {
+	global $_test_names;
+	global $_test_dir;
+	return loadTests($_test_dir, $_test_names);
+}
 ?>
