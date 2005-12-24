@@ -36,6 +36,14 @@ function microtime_float()
    return ((float)$usec + (float)$sec);
 }
 
+// Drop $argv[0] (command name)
+array_shift($argv);
+
+$t = array_search('thorough', $argv);
+if ($t !== FALSE && $t !== NULL) {
+	define('Tests_Net_OpenID_DH_thorough', TRUE);
+}
+
 $suites = loadSuite();
 
 $totals = array(
