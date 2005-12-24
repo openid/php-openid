@@ -42,6 +42,7 @@ $test_names = array(
 	'KVForm',
 	'CryptUtil',
 	'DiffieHellman',
+	'HMACSHA1',
 	);
 
 $suites = loadTests($test_dir, $test_names);
