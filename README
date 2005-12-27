@@ -1,0 +1,15 @@
+This is the PHP OpenID library.
+
+DOCUMENTATION
+=============
+
+This library's code documentation strives to conform to the PEAR
+standard, detailed at:
+
+  http://www.pear.php.net/manual/en/standards.header.php
+
+The directives found in the documentation blocks are phpDocumentor
+directives:
+
+  http://www.phpdoc.org/
+
