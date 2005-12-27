@@ -8,231 +8,231 @@ $_Tests_Net_OpenID_kverrors = NULL;
  * Keep a list of the logged errors
  */
 function Tests_Net_OpenID_kvHandleError($errno, $errmsg) {
-	global $_Tests_Net_OpenID_kverrors;
-	$_Tests_Net_OpenID_kverrors[] = $errmsg;
+    global $_Tests_Net_OpenID_kverrors;
+    $_Tests_Net_OpenID_kverrors[] = $errmsg;
 }
 
 
 class Tests_Net_OpenID_KVForm_TestCase extends PHPUnit_TestCase {
-	var $errs;
+    var $errs;
 
-	function runTest() {
-		// Re-set the number of logged errors
-		global $_Tests_Net_OpenID_kverrors;
-		$_Tests_Net_OpenID_kverrors = array();
+    function runTest() {
+        // Re-set the number of logged errors
+        global $_Tests_Net_OpenID_kverrors;
+        $_Tests_Net_OpenID_kverrors = array();
 
-		set_error_handler("Tests_Net_OpenID_kvHandleError");
+        set_error_handler("Tests_Net_OpenID_kvHandleError");
 
-		$this->_runTest();
+        $this->_runTest();
 
-		// Check to make sure we have the expected number of logged errors
-		//$this->assertEquals($this->errs, count($_Tests_Net_OpenID_kverrors));
+        // Check to make sure we have the expected number of logged errors
+        //$this->assertEquals($this->errs, count($_Tests_Net_OpenID_kverrors));
 
-		restore_error_handler();
-	}
+        restore_error_handler();
+    }
 
-	function _runTest() {
-		trigger_error('Must be overridden', E_USER_ERROR);
-	}
+    function _runTest() {
+        trigger_error('Must be overridden', E_USER_ERROR);
+    }
 }
 
 class Tests_Net_OpenID_KVForm_TestCase_Parse
 extends Tests_Net_OpenID_KVForm_TestCase {
-	function Tests_Net_OpenID_KVForm_TestCase_Parse(
-		$arr, $str, $lossy, $errs) {
+    function Tests_Net_OpenID_KVForm_TestCase_Parse(
+        $arr, $str, $lossy, $errs) {
 
-		$this->arr = $arr;
-		$this->str = $str;
-		$this->lossy = $lossy;
-		$this->errs = $errs;
-	}
+        $this->arr = $arr;
+        $this->str = $str;
+        $this->lossy = $lossy;
+        $this->errs = $errs;
+    }
 
-	function _runTest() {
-		// Do one parse, after which arrayToKV and kvToArray should be
-		// inverses.
-		$parsed1 = Net_OpenID_KVForm::kvToArray($this->str);
-		$serial1 = Net_OpenID_KVForm::arrayToKV($this->arr);
+    function _runTest() {
+        // Do one parse, after which arrayToKV and kvToArray should be
+        // inverses.
+        $parsed1 = Net_OpenID_KVForm::kvToArray($this->str);
+        $serial1 = Net_OpenID_KVForm::arrayToKV($this->arr);
 
-		if ($this->lossy == "neither" || $this->lossy == "str") {
-			$this->assertEquals($this->arr, $parsed1, "str was lossy");
-		}
-			
-		if ($this->lossy == "neither" || $this->lossy == "arr") {
-			$this->assertEquals($this->str, $serial1, "array was lossy");
-		}
+        if ($this->lossy == "neither" || $this->lossy == "str") {
+            $this->assertEquals($this->arr, $parsed1, "str was lossy");
+        }
+            
+        if ($this->lossy == "neither" || $this->lossy == "arr") {
+            $this->assertEquals($this->str, $serial1, "array was lossy");
+        }
 
-		$parsed2 = Net_OpenID_KVForm::kvToArray($serial1);
-		$serial2 = Net_OpenID_KVForm::arrayToKV($parsed1);
+        $parsed2 = Net_OpenID_KVForm::kvToArray($serial1);
+        $serial2 = Net_OpenID_KVForm::arrayToKV($parsed1);
 
-		// Round-trip both
-		$parsed3 = Net_OpenID_KVForm::kvToArray($serial2);
-		$serial3 = Net_OpenID_KVForm::arrayToKV($parsed2);
+        // Round-trip both
+        $parsed3 = Net_OpenID_KVForm::kvToArray($serial2);
+        $serial3 = Net_OpenID_KVForm::arrayToKV($parsed2);
 
-		$this->assertEquals($serial2, $serial3, "serialized forms differ");
+        $this->assertEquals($serial2, $serial3, "serialized forms differ");
 
-		// Check to make sure that they're inverses.
-		$this->assertEquals($parsed2, $parsed3, "parsed forms differ");
+        // Check to make sure that they're inverses.
+        $this->assertEquals($parsed2, $parsed3, "parsed forms differ");
 
-	}
+    }
 }
 
 class Tests_Net_OpenID_KVForm_TestCase_Null
 extends Tests_Net_OpenID_KVForm_TestCase {
-	function Tests_Net_OpenID_KVForm_TestCase_Null($arr, $errs) {
-		$this->arr = $arr;
-		$this->errs = $errs;
-	}
+    function Tests_Net_OpenID_KVForm_TestCase_Null($arr, $errs) {
+        $this->arr = $arr;
+        $this->errs = $errs;
+    }
 
-	function _runTest() {
-		$serialized = Net_OpenID_KVForm::arrayToKV($this->arr);
-		$this->assertTrue($serialized === NULL,
-						  'serialization unexpectedly succeeded');
-	}
+    function _runTest() {
+        $serialized = Net_OpenID_KVForm::arrayToKV($this->arr);
+        $this->assertTrue($serialized === NULL,
+                          'serialization unexpectedly succeeded');
+    }
 }
 
 class Tests_Net_OpenID_KVForm extends PHPUnit_TestSuite {
-	function Tests_Net_OpenID_KVForm($name) {
-		$this->setName($name);
-		$testdata_list = array(
-			array("name" => "simple", 
-				  "str" => "college:harvey mudd\n",
-				  "arr" => array("college" => "harvey mudd"),
-				  ),
-			array("name" => "empty", 
-				  "str" => "",
-				  "arr" => array(),
-				  ),
-			array("name" => "empty (just newline)", 
-				  "str" => "\n",
-				  "arr" => array(),
-				  "lossy" => "str",
-				  "errors" => 1,
-				  ),
-			array("name" => "empty (double newline)", 
-				  "str" => "\n\n",
-				  "arr" => array(),
-				  "lossy" => "str",
-				  "errors" => 2,
-				  ),
-			array("name" => "empty (no colon)", 
-				  "str" => "East is least\n",
-				  "arr" => array(),
-				  "lossy" => "str",
-				  "errors" => 1,
-				  ),
-			array("name" => "two keys", 
-				  "str" => "city:claremont\nstate:CA\n",
-				  "arr" => array('city' => 'claremont',
-								 'state' => 'CA'),
-				  ),
-			array("name" => "real life", 
-				  "str" => "is_valid:true\ninvalidate_handle:" .
-				  "{HMAC-SHA1:2398410938412093}\n",
-				  "arr" => array('is_valid' => 'true',
-								 'invalidate_handle' =>
-								 '{HMAC-SHA1:2398410938412093}'),
-				  ),
-			array("name" => "empty key and value", 
-				  "str" => ":\n",
-				  "arr" => array(''=>''),
-				  ),
-			array("name" => "empty key, not value", 
-				  "str" => ":missing key\n",
-				  "arr" => array(''=>'missing key'),
-				  ),
-			array("name" => "whitespace at front of key",
-				  "str" => " street:foothill blvd\n",
-				  "arr" => array('street'=>'foothill blvd'),
-				  "lossy" => "str",
-				  "errors" => 1,
-				  ),
-			array("name" => "whitespace at front of value", 
-				  "str" => "major: computer science\n",
-				  "arr" => array('major'=>'computer science'),
-				  "lossy" => "str",
-				  "errors" => 1,
-				  ),
-			array("name" => "whitespace around key and value", 
-				  "str" => " dorm : east \n",
-				  "arr" => array('dorm'=>'east'),
-				  "lossy" => "str",
-				  "errors" => 2,
-				  ),
-			array("name" => "missing trailing newline", 
-				  "str" => "e^(i*pi)+1:0",
-				  "arr" => array('e^(i*pi)+1'=>'0'),
-				  "lossy" => "str",
-				  "errors" => 1,
-				  ),
-			array("name" => "missing trailing newline (two key)", 
-				  "str" => "east:west\nnorth:south",
-				  "arr" => array('east'=>'west',
-								 'north'=>'south'),
-				  "lossy" => "str",
-				  "errors" => 1,
-				  ),
-			array("name" => "colon in key",
-				  "arr" => array("k:k" => 'v'),
-				  "errors" => 1,
-				  ),
-			array("name" => "newline in key",
-				  "arr" => array("k\nk" => 'v'),
-				  "errors" => 1,
-				  ),
-			array("name" => "newline in value",
-				  "arr" => array('k' => "v\nv"),
-				  "errors" => 1,
-				  ),
-			array("name" => "array whitespace",
-				  "arr" => array(" k " => "v"),
-				  "lossy" => "both",
-				  "str" => " k :v\n",
-				  "errors" => 2,
-				  ),
-			array("name" => "array ordering 1",
-				  "arr" => array("a" => "x",
-								 "b" => "x",
-								 "c" => "x"),
-				  "str" => "a:x\nb:x\nc:x\n",
-				  ),
-			array("name" => "array ordering 2",
-				  "arr" => array("a" => "x",
-								 "c" => "x",
-								 "b" => "x"),
-				  "str" => "a:x\nc:x\nb:x\n",
-				  ),
-			);
+    function Tests_Net_OpenID_KVForm($name) {
+        $this->setName($name);
+        $testdata_list = array(
+            array("name" => "simple", 
+                  "str" => "college:harvey mudd\n",
+                  "arr" => array("college" => "harvey mudd"),
+                  ),
+            array("name" => "empty", 
+                  "str" => "",
+                  "arr" => array(),
+                  ),
+            array("name" => "empty (just newline)", 
+                  "str" => "\n",
+                  "arr" => array(),
+                  "lossy" => "str",
+                  "errors" => 1,
+                  ),
+            array("name" => "empty (double newline)", 
+                  "str" => "\n\n",
+                  "arr" => array(),
+                  "lossy" => "str",
+                  "errors" => 2,
+                  ),
+            array("name" => "empty (no colon)", 
+                  "str" => "East is least\n",
+                  "arr" => array(),
+                  "lossy" => "str",
+                  "errors" => 1,
+                  ),
+            array("name" => "two keys", 
+                  "str" => "city:claremont\nstate:CA\n",
+                  "arr" => array('city' => 'claremont',
+                                 'state' => 'CA'),
+                  ),
+            array("name" => "real life", 
+                  "str" => "is_valid:true\ninvalidate_handle:" .
+                  "{HMAC-SHA1:2398410938412093}\n",
+                  "arr" => array('is_valid' => 'true',
+                                 'invalidate_handle' =>
+                                 '{HMAC-SHA1:2398410938412093}'),
+                  ),
+            array("name" => "empty key and value", 
+                  "str" => ":\n",
+                  "arr" => array(''=>''),
+                  ),
+            array("name" => "empty key, not value", 
+                  "str" => ":missing key\n",
+                  "arr" => array(''=>'missing key'),
+                  ),
+            array("name" => "whitespace at front of key",
+                  "str" => " street:foothill blvd\n",
+                  "arr" => array('street'=>'foothill blvd'),
+                  "lossy" => "str",
+                  "errors" => 1,
+                  ),
+            array("name" => "whitespace at front of value", 
+                  "str" => "major: computer science\n",
+                  "arr" => array('major'=>'computer science'),
+                  "lossy" => "str",
+                  "errors" => 1,
+                  ),
+            array("name" => "whitespace around key and value", 
+                  "str" => " dorm : east \n",
+                  "arr" => array('dorm'=>'east'),
+                  "lossy" => "str",
+                  "errors" => 2,
+                  ),
+            array("name" => "missing trailing newline", 
+                  "str" => "e^(i*pi)+1:0",
+                  "arr" => array('e^(i*pi)+1'=>'0'),
+                  "lossy" => "str",
+                  "errors" => 1,
+                  ),
+            array("name" => "missing trailing newline (two key)", 
+                  "str" => "east:west\nnorth:south",
+                  "arr" => array('east'=>'west',
+                                 'north'=>'south'),
+                  "lossy" => "str",
+                  "errors" => 1,
+                  ),
+            array("name" => "colon in key",
+                  "arr" => array("k:k" => 'v'),
+                  "errors" => 1,
+                  ),
+            array("name" => "newline in key",
+                  "arr" => array("k\nk" => 'v'),
+                  "errors" => 1,
+                  ),
+            array("name" => "newline in value",
+                  "arr" => array('k' => "v\nv"),
+                  "errors" => 1,
+                  ),
+            array("name" => "array whitespace",
+                  "arr" => array(" k " => "v"),
+                  "lossy" => "both",
+                  "str" => " k :v\n",
+                  "errors" => 2,
+                  ),
+            array("name" => "array ordering 1",
+                  "arr" => array("a" => "x",
+                                 "b" => "x",
+                                 "c" => "x"),
+                  "str" => "a:x\nb:x\nc:x\n",
+                  ),
+            array("name" => "array ordering 2",
+                  "arr" => array("a" => "x",
+                                 "c" => "x",
+                                 "b" => "x"),
+                  "str" => "a:x\nc:x\nb:x\n",
+                  ),
+            );
 
-		foreach ($testdata_list as $testdata) {
-			if (isset($testdata['str'])) {
-				$str = $testdata['str'];
-			} else {
-				$str = NULL;
-			}
+        foreach ($testdata_list as $testdata) {
+            if (isset($testdata['str'])) {
+                $str = $testdata['str'];
+            } else {
+                $str = NULL;
+            }
 
-			$arr = $testdata["arr"];
+            $arr = $testdata["arr"];
 
-			if (isset($testdata['errors'])) {
-				$errs = $testdata["errors"];
-			} else {
-				$errs = 0;
-			}
+            if (isset($testdata['errors'])) {
+                $errs = $testdata["errors"];
+            } else {
+                $errs = 0;
+            }
 
-			if (is_null($str)) {
-				$test = new Tests_Net_OpenID_KVForm_TestCase_Null($arr, $errs);
-			} else {
-				if (isset($testdata['lossy'])) {
-					$lossy = $testdata["lossy"];
-				} else {
-					$lossy = 'neither';
-				}					
-				$test = new Tests_Net_OpenID_KVForm_TestCase(
-					$arr, $str, $lossy, $errs);
-			}
-			$test->setName($testdata["name"]);
-			$this->addTest($test);
-		}
-	}
+            if (is_null($str)) {
+                $test = new Tests_Net_OpenID_KVForm_TestCase_Null($arr, $errs);
+            } else {
+                if (isset($testdata['lossy'])) {
+                    $lossy = $testdata["lossy"];
+                } else {
+                    $lossy = 'neither';
+                }                   
+                $test = new Tests_Net_OpenID_KVForm_TestCase(
+                    $arr, $str, $lossy, $errs);
+            }
+            $test->setName($testdata["name"]);
+            $this->addTest($test);
+        }
+    }
 }
 
 ?>
