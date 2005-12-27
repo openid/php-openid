@@ -56,7 +56,7 @@ extends Tests_Net_OpenID_KVForm_TestCase {
         if ($this->lossy == "neither" || $this->lossy == "str") {
             $this->assertEquals($this->arr, $parsed1, "str was lossy");
         }
-            
+
         if ($this->lossy == "neither" || $this->lossy == "arr") {
             $this->assertEquals($this->str, $serial1, "array was lossy");
         }
@@ -94,49 +94,49 @@ class Tests_Net_OpenID_KVForm extends PHPUnit_TestSuite {
     function Tests_Net_OpenID_KVForm($name) {
         $this->setName($name);
         $testdata_list = array(
-            array("name" => "simple", 
+            array("name" => "simple",
                   "str" => "college:harvey mudd\n",
                   "arr" => array("college" => "harvey mudd"),
                   ),
-            array("name" => "empty", 
+            array("name" => "empty",
                   "str" => "",
                   "arr" => array(),
                   ),
-            array("name" => "empty (just newline)", 
+            array("name" => "empty (just newline)",
                   "str" => "\n",
                   "arr" => array(),
                   "lossy" => "str",
                   "errors" => 1,
                   ),
-            array("name" => "empty (double newline)", 
+            array("name" => "empty (double newline)",
                   "str" => "\n\n",
                   "arr" => array(),
                   "lossy" => "str",
                   "errors" => 2,
                   ),
-            array("name" => "empty (no colon)", 
+            array("name" => "empty (no colon)",
                   "str" => "East is least\n",
                   "arr" => array(),
                   "lossy" => "str",
                   "errors" => 1,
                   ),
-            array("name" => "two keys", 
+            array("name" => "two keys",
                   "str" => "city:claremont\nstate:CA\n",
                   "arr" => array('city' => 'claremont',
                                  'state' => 'CA'),
                   ),
-            array("name" => "real life", 
+            array("name" => "real life",
                   "str" => "is_valid:true\ninvalidate_handle:" .
                   "{HMAC-SHA1:2398410938412093}\n",
                   "arr" => array('is_valid' => 'true',
                                  'invalidate_handle' =>
                                  '{HMAC-SHA1:2398410938412093}'),
                   ),
-            array("name" => "empty key and value", 
+            array("name" => "empty key and value",
                   "str" => ":\n",
                   "arr" => array(''=>''),
                   ),
-            array("name" => "empty key, not value", 
+            array("name" => "empty key, not value",
                   "str" => ":missing key\n",
                   "arr" => array(''=>'missing key'),
                   ),
@@ -146,25 +146,25 @@ class Tests_Net_OpenID_KVForm extends PHPUnit_TestSuite {
                   "lossy" => "str",
                   "errors" => 1,
                   ),
-            array("name" => "whitespace at front of value", 
+            array("name" => "whitespace at front of value",
                   "str" => "major: computer science\n",
                   "arr" => array('major'=>'computer science'),
                   "lossy" => "str",
                   "errors" => 1,
                   ),
-            array("name" => "whitespace around key and value", 
+            array("name" => "whitespace around key and value",
                   "str" => " dorm : east \n",
                   "arr" => array('dorm'=>'east'),
                   "lossy" => "str",
                   "errors" => 2,
                   ),
-            array("name" => "missing trailing newline", 
+            array("name" => "missing trailing newline",
                   "str" => "e^(i*pi)+1:0",
                   "arr" => array('e^(i*pi)+1'=>'0'),
                   "lossy" => "str",
                   "errors" => 1,
                   ),
-            array("name" => "missing trailing newline (two key)", 
+            array("name" => "missing trailing newline (two key)",
                   "str" => "east:west\nnorth:south",
                   "arr" => array('east'=>'west',
                                  'north'=>'south'),
@@ -225,7 +225,7 @@ class Tests_Net_OpenID_KVForm extends PHPUnit_TestSuite {
                     $lossy = $testdata["lossy"];
                 } else {
                     $lossy = 'neither';
-                }                   
+                }
                 $test = new Tests_Net_OpenID_KVForm_TestCase(
                     $arr, $str, $lossy, $errs);
             }

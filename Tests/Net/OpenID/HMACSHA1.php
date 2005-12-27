@@ -106,7 +106,7 @@ class Tests_Net_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
             if (strlen($clean["data"]) != $case["data_len"]) {
                 trigger_error("Bad data length", E_USER_ERROR);
             }
-            
+
             $clean["digest"] =
                 Tests_Net_OpenID_HMACSHA1::_strConvert($case["digest"]);
             if (strlen($clean["digest"]) != 20) {

@@ -18,7 +18,7 @@ class TextTestResult extends PHPUnit_TestResult {
         parent::addPassedTest($test);
         echo ".";
     }
-    
+
     function dumpBadResults() {
         foreach ($this->failures() as $failure) {
             echo $failure->toString();

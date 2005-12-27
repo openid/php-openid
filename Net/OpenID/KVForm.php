@@ -66,7 +66,7 @@ class Net_OpenID_KVForm {
 
             $values[$tkey] = $tval;
         }
-        
+
         return $values;
     }
 }
