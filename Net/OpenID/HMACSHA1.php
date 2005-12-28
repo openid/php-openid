@@ -1,5 +1,22 @@
 <?php
 
+/**
+ * This is the HMACSHA1 implementation for the OpenID library.
+ *
+ * PHP versions 4 and 5
+ *
+ * LICENSE: See the COPYING file included in this distribution.
+ *
+ * @package OpenID
+ * @author JanRain, Inc. <openid@janrain.com>
+ * @copyright 2005 Janrain, Inc.
+ * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ */
+
+/**
+ * SHA1_BLOCKSIZE is this module's SHA1 blocksize used by the fallback
+ * implementation.
+ */
 define('SHA1_BLOCKSIZE', 64);
 
 if (FALSE && function_exists('mhash')) {
@@ -24,6 +41,11 @@ if (FALSE && function_exists('mhash')) {
         }
     }
 
+    /**
+     * Compute an HMAC/SHA1 hash.
+     *
+     * @ignore
+     */
     function Net_OpenID_HMACSHA1($key, $text) {
         if (strlen($key) > SHA1_BLOCKSIZE) {
             $key = sha1_raw($key, TRUE);
