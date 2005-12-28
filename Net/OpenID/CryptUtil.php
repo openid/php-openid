@@ -1,11 +1,11 @@
 <?php
 
-if (!defined(Net_OpenID_RAND_SOURCE)) {
-	/**
-	 * The filename for a source of random bytes. Define this yourself if you
-	 * have a different source of randomness.
-	 */
-	define('Net_OpenID_RAND_SOURCE', '/dev/urandom');
+if (!defined('Net_OpenID_RAND_SOURCE')) {
+    /**
+     * The filename for a source of random bytes. Define this yourself
+     * if you have a different source of randomness.
+     */
+    define('Net_OpenID_RAND_SOURCE', '/dev/urandom');
 }
 
 /**
@@ -13,18 +13,19 @@ if (!defined(Net_OpenID_RAND_SOURCE)) {
  */
 class Net_OpenID_CryptUtil {
     /** 
-	 * Get the specified number of random bytes.
-	 *
-	 * Attempts to use a cryptographically secure (not predictable) source of
-	 * randomness if available. If there is no high-entropy randomness source
-	 * available, it will fail. As a last resort, for non-critical systems,
-	 * define <code>Net_OpenID_USE_INSECURE_RAND</code>, and the code will
-	 * fall back on a pseudo-random number generator.
-	 *
-	 * @static
-	 * @param int $num_bytes The length of the return value
-	 * @return string $num_bytes random bytes
-	 */
+     * Get the specified number of random bytes.
+     *
+     * Attempts to use a cryptographically secure (not predictable)
+     * source of randomness if available. If there is no high-entropy
+     * randomness source available, it will fail. As a last resort,
+     * for non-critical systems, define
+     * <code>Net_OpenID_USE_INSECURE_RAND</code>, and the code will
+     * fall back on a pseudo-random number generator.
+     *
+     * @static
+     * @param int $num_bytes The length of the return value
+     * @return string $num_bytes random bytes
+     */
     function getBytes($num_bytes) {
         $f = @fopen("/dev/urandom", "r");
         if ($f === FALSE) {
