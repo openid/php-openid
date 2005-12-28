@@ -19,6 +19,7 @@
  * mechanisms that the OpenID library needs, for both servers and
  * consumers.
  *
+ * @package OpenID
  * @author JanRain, Inc. <openid@janrain.com>
  */
 class Net_OpenID_OpenIDStore {

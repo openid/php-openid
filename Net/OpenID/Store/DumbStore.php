@@ -11,9 +11,12 @@
  * @package OpenID
  * @author JanRain, Inc. <openid@janrain.com>
  * @copyright 2005 Janrain, Inc.
- * @license: http://www.gnu.org/copyleft/lesser.html LGPL
+ * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
+/**
+ * Import the interface for creating a new store class.
+ */
 require('Interface.php');
 require('Net/OpenID/CryptUtil.php');
 
@@ -26,6 +29,8 @@ require('Net/OpenID/CryptUtil.php');
  *
  * Most of the methods of this class are implementation details.
  * Users of this class need to worry only about the constructor.
+ *
+ * @package OpenID
  */
 class Net_OpenID_DumbStore extends Net_OpenID_OpenIDStore {
 

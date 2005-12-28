@@ -11,7 +11,7 @@
  * @package OpenID
  * @author JanRain, Inc. <openid@janrain.com>
  * @copyright 2005 Janrain, Inc.
- * @license: http://www.gnu.org/copyleft/lesser.html LGPL
+ * @license http://www.gnu.org/copyleft/lesser.html LGPL
  *
  */
 
