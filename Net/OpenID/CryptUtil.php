@@ -1,5 +1,24 @@
 <?php
 
+/**
+ * CryptUtil: A suite of wrapper utility functions for the OpenID
+ * library.
+ *
+ * PHP versions 4 and 5
+ *
+ * LICENSE: See the COPYING file included in this distribution.
+ *
+ * @package OpenID
+ * @author JanRain, Inc. <openid@janrain.com>
+ * @copyright 2005 Janrain, Inc.
+ * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ */
+
+/**
+ * Require the HMAC/SHA-1 implementation for creating such hashes.
+ */
+require('HMACSHA1.php');
+
 if (!defined('Net_OpenID_RAND_SOURCE')) {
     /**
      * The filename for a source of random bytes. Define this yourself
@@ -8,12 +27,15 @@ if (!defined('Net_OpenID_RAND_SOURCE')) {
     define('Net_OpenID_RAND_SOURCE', '/dev/urandom');
 }
 
-require('HMACSHA1.php');
-
+/**
+ * An array of duplicate information for the randrange function.
+ */
 $Net_OpenID_CryptUtil_duplicate_cache = array();
 
 /**
- * Cryptographic utility functions
+ * Net_OpenID_CryptUtil houses static utility functions.
+ *
+ * @package OpenID
  */
 class Net_OpenID_CryptUtil {
     /** 
