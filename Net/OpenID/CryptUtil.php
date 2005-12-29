@@ -17,7 +17,7 @@
 /**
  * Require the HMAC/SHA-1 implementation for creating such hashes.
  */
-require('HMACSHA1.php');
+require_once('HMACSHA1.php');
 
 if (!defined('Net_OpenID_RAND_SOURCE')) {
     /**

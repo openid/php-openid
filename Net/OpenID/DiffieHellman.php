@@ -14,135 +14,72 @@
  */
 
 /**
- * Check to see if GMP or Bcmath are available and supply the
- * appropriate implementation.
+ * Require CryptUtil because we need to get a math library wrapper
+ * object.
  */
-if (extension_loaded('gmp') || @dl('gmp.' . PHP_SHLIB_SUFFIX) ||
-    @dl('php_gmp.' . PHP_SHLIB_SUFFIX)) {
+require_once('CryptUtil.php');
 
-    define('Net_OpenID_math_type', 'gmp');
+/**
+ * The Diffie-Hellman key exchange class.  This class relies on
+ * Net_OpenID_MathLibrary to perform large number operations.
+ *
+ * @package OpenID
+ */
+class Net_OpenID_DiffieHellman {
+    var $DEFAULT_MOD = '155172898181473697471232257763715539915724801966915404479707795314057629378541917580651227423698188993727816152646631438561595825688188889951272158842675419950341258706556549803580104870537681476726513255747040765857479291291572334510643245094715007229621094194349783925984760375594985848253359305585439638443';
 
-    /**
-     * The Diffie-Hellman key exchange class.
-     *
-     * @package OpenID
-     */
-    class Net_OpenID_DiffieHellman {
-        var $DEFAULT_MOD = '155172898181473697471232257763715539915724801966915404479707795314057629378541917580651227423698188993727816152646631438561595825688188889951272158842675419950341258706556549803580104870537681476726513255747040765857479291291572334510643245094715007229621094194349783925984760375594985848253359305585439638443';
+    var $DEFAULT_GEN = '2';
 
-        var $DEFAULT_GEN = '2';
+    var $mod;
+    var $gen;
+    var $private;
+    var $lib = null;
 
-        var $mod;
-        var $gen;
-        var $private;
+    function Net_OpenID_DiffieHellman($mod = NULL, $gen = NULL, $private = NULL) {
 
-        function generateRandom() {
-            // XXX: not cryptographically secure (potentially predictable)
-            $limb_cnt = 31;
-            do {
-                $rdm = gmp_random($limb_cnt--);
-            } while (gmp_cmp( $minval, $rdm) > 0);
-            return $rdm;
+        $this->lib =& Net_OpenID_MathLibrary::getLibWrapper();
+
+        if (!$this->lib) {
+            // This should NEVER occur, but if there's a bug in
+            // Net_OpenID_MathLibrary::getLibWrapper, it might.
+            trigger_error("Big integer fallback implementation unavailable.", E_USER_ERROR);
         }
 
-        function Net_OpenID_DiffieHellman($mod=NULL, $gen=NULL, $private=NULL) {
-            if ($mod === NULL) {
-                $this->mod = gmp_init($this->DEFAULT_MOD, 10);
-            } else {
-                $this->mod = $mod;
-            }
-
-            if ($gen === NULL) {
-                $this->gen = gmp_init($this->DEFAULT_GEN, 10);
-            } else {
-                $this->gen = $gen;
-            }
-
-            $this->private =
-                $private === NULL ? $this->generateRandom() : $private;
-
-            $this->public = user_error("not implemented", E_USER_ERROR);
+        if ($mod === NULL) {
+            $this->mod = $this->lib->init($this->DEFAULT_MOD);
+        } else {
+            $this->mod = $mod;
         }
 
-        function createKeyExchange( ) {
-            return Net_OpenID_BigInt::powm( $this->g, $this->x, $this->p);
+        if ($gen === NULL) {
+            $this->gen = $this->lib->init($this->DEFAULT_GEN);
+        } else {
+            $this->gen = $gen;
         }
 
-        function decryptKeyExchange( $keyEx ) {
-            return Net_OpenID_BigInt::powm( $keyEx, $this->x, $this->p );
-        }
+        $this->private =
+            ($private === NULL) ? $this->generateRandom() : $private;
+
+        $this->public = $this->lib->powmod($this->gen, $this->private, $this->mod);
     }
 
-} elseif (extension_loaded('bcmath') || @dl('bcmath.' . PHP_SHLIB_SUFFIX) ||
-          @dl('php_bcmath.' . PHP_SHLIB_SUFFIX)) {
-
-    /**
-     * @ignore
-     */
-    define('Net_OpenID_math_type', 'bcmath');
-
-    if (!function_exists('bcpowmod')) {
-        // PHP4 does not expose bcpowmod, so we have to implement it here
-        /**
-         * (base ^ exponent) % modulus
-         */
-        function bcpowmod($base, $exponent, $modulus) {
-            $square = bcmod($base, $modulus);
-            $result = '1';
-            while( bccomp( $exponent, 0 ) > 0 ) {
-                if (bcmod($exponent, 2)) {
-                    // result = (result * square) % modulus
-                    $result = bcmod(bcmul($result, $square), $modulus);
-                }
-                $square = bcmod(bcmul($square, $square), $modulus);
-                $exponent = bcdiv($exponent, 2);
-            }
-            return $result;
-        }
+    function generateRandom() {
+        return $this->lib->random(1, $this->mod);
     }
 
-    /**
-     * @ignore
-     * @package OpenID
-     */
-    class Net_OpenID_DiffieHellman {
-        var $DEFAULT_MOD = '155172898181473697471232257763715539915724801966915404479707795314057629378541917580651227423698188993727816152646631438561595825688188889951272158842675419950341258706556549803580104870537681476726513255747040765857479291291572334510643245094715007229621094194349783925984760375594985848253359305585439638443';
-
-        var $DEFAULT_GEN = '2';
-
-        var $mod;
-        var $gen;
-        var $private;
-        var $public;
-
-        function Net_OpenID_DiffieHellman($mod=NULL, $gen=NULL, $private=NULL) {
-            $this->mod = $mod === NULL ? $this->DEFAULT_MOD : $mod;
-            $this->gen = $gen === NULL ? $this->DEFAULT_GEN : $gen;
-            $this->private =
-                $private === NULL ? $this->generateRandom() : $private;
-
-            $this->public = bcpowmod($this->gen, $this->private, $this->mod);
-        }
-
-        function generateRandom() {
-            // XXX: not cryptographically secure (predictable!!!)
-            // XXX: also, way too small (usually)
-            // FIXME
-            return mt_rand(1, $this->mod);
-        }
-
-        function getSharedSecret($composite) {
-            return bcpowmod($composite, $this->private, $this->mod);
-        }
-
-        function getPublicKey() {
-            return $this->public;
-        }
-
+    function createKeyExchange() {
+        return $this->lib->powmod($this->g, $this->x, $this->p);
     }
 
-} else {
-    trigger_error("No usable big int library present (gmp or bcmath). " .
-                  "Only dumb mode OpenID is available.",
-                  E_USER_NOTICE);
+    function decryptKeyExchange($keyEx) {
+        return $this->lib->powmod($keyEx, $this->x, $this->p);
+    }
+
+    function getSharedSecret($composite) {
+        return $this->lib->powmod($composite, $this->private, $this->mod);
+    }
+
+    function getPublicKey() {
+        return $this->public;
+    }
 }
