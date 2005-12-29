@@ -335,7 +335,7 @@ class Net_OpenID_MathLibrary {
                                   'class' => 'Net_OpenID_BcMathWrapper')
                             );
 
-    function getLibWrapper() {
+    function &getLibWrapper() {
         static $lib = null;
 
         if (!$lib) {
@@ -358,13 +358,13 @@ class Net_OpenID_MathLibrary {
 
                 if ($loaded) {
                     $classname = $extension['class'];
-                    $lib = $classname();
+                    $lib =& new $classname();
                     break;
                 }
             }
 
             if (!$lib) {
-                $lib = new Net_OpenID_MathWrapper();
+                $lib =& new Net_OpenID_MathWrapper();
             }
         }
 
