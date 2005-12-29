@@ -202,6 +202,8 @@ class Net_OpenID_CryptUtil {
 /**
  * Net_OpenID_MathWrapper is a base class that defines the interface
  * to whatever large number math library is available, if any.
+ *
+ * @package OpenID
  */
 class Net_OpenID_MathWrapper {
     var $type = 'dumb';
@@ -254,6 +256,8 @@ class Net_OpenID_MathWrapper {
  * Net_OpenID_BcMathWrapper implements the Net_OpenID_MathWrapper
  * interface and wraps the functionality provided by the BCMath
  * library.
+ *
+ * @package OpenID
  */
 class Net_OpenID_BcMathWrapper extends Net_OpenID_MathWrapper {
     var $type = 'bcmath';
@@ -286,6 +290,8 @@ class Net_OpenID_BcMathWrapper extends Net_OpenID_MathWrapper {
 /**
  * Net_OpenID_GmpMathWrapper implements the Net_OpenID_MathWrapper
  * interface and wraps the functionality provided by the GMP library.
+ *
+ * @package OpenID
  */
 class Net_OpenID_GmpMathWrapper extends Net_OpenID_MathWrapper {
     var $type = 'gmp';
@@ -323,6 +329,8 @@ class Net_OpenID_GmpMathWrapper extends Net_OpenID_MathWrapper {
  * Net_OpenID_MathLibrary implements the Singleton pattern to generate
  * the appropriate Net_OpenID_MathWrapper instance for use by crypto
  * code.
+ *
+ * @package OpenID
  */
 class Net_OpenID_MathLibrary {
 
@@ -364,6 +372,10 @@ class Net_OpenID_MathLibrary {
             }
 
             if (!$lib) {
+                trigger_error("No usable big integer library present (gmp or bcmath). " .
+                              "Only dumb mode OpenID is available.",
+                              E_USER_NOTICE);
+
                 $lib =& new Net_OpenID_MathWrapper();
             }
         }
