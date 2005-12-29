@@ -199,4 +199,177 @@ class Net_OpenID_CryptUtil {
     }
 }
 
+/**
+ * Net_OpenID_MathWrapper is a base class that defines the interface
+ * to whatever large number math library is available, if any.
+ */
+class Net_OpenID_MathWrapper {
+    var $type = 'dumb';
+
+    function random($min, $max) {
+        return mt_rand($min, $max);
+    }
+
+    function cmp($x, $y) {
+        if ($x > $y) {
+            return 1;
+        } else if ($x < $y) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+
+    function init($number, $base = 10) {
+        return $number;
+    }
+
+    function mod($base, $modulus) {
+        return $base % $modulus;
+    }
+
+    function mul($x, $y) {
+        return $x * $y;
+    }
+
+    function div($x, $y) {
+        return $x / $y;
+    }
+
+    function powmod($base, $exponent, $modulus) {
+        $square = $this->mod($base, $modulus);
+        $result = '1';
+        while($this->cmp($exponent, 0) > 0) {
+            if ($this->mod($exponent, 2)) {
+                $result = $this->mod($this->mul($result, $square), $modulus);
+            }
+            $square = $this->mod($this->mul($square, $square), $modulus);
+            $exponent = $this->div($exponent, 2);
+        }
+        return $result;
+    }
+}
+
+/**
+ * Net_OpenID_BcMathWrapper implements the Net_OpenID_MathWrapper
+ * interface and wraps the functionality provided by the BCMath
+ * library.
+ */
+class Net_OpenID_BcMathWrapper extends Net_OpenID_MathWrapper {
+    var $type = 'bcmath';
+
+    function random($min, $max) {
+        return mt_rand($min, $max);
+    }
+
+    function cmp($x, $y) {
+        return bccomp($x, $y);
+    }
+
+    function init($number, $base = 10) {
+        return $number;
+    }
+
+    function mod($base, $modulus) {
+        return bcmod($base, $modulus);
+    }
+
+    function mul($x, $y) {
+        return bcmul($x, $y);
+    }
+
+    function div($x, $y) {
+        return bcdiv($x, $y);
+    }
+}
+
+/**
+ * Net_OpenID_GmpMathWrapper implements the Net_OpenID_MathWrapper
+ * interface and wraps the functionality provided by the GMP library.
+ */
+class Net_OpenID_GmpMathWrapper extends Net_OpenID_MathWrapper {
+    var $type = 'gmp';
+
+    function random($min, $max) {
+        return gmp_random($max);
+    }
+
+    function cmp($x, $y) {
+        return gmp_cmp($x, $y);
+    }
+
+    function init($number, $base = 10) {
+        return gmp_init($number, $base);
+    }
+
+    function mod($base, $modulus) {
+        return gmp_mod($base, $modulus);
+    }
+
+    function mul($x, $y) {
+        return gmp_mul($x, $y);
+    }
+
+    function div($x, $y) {
+        return gmp_div($x, $y);
+    }
+
+    function powmod($base, $exponent, $modulus) {
+        return gmp_powm($base, $exponent, $modulus);
+    }
+}
+
+/**
+ * Net_OpenID_MathLibrary implements the Singleton pattern to generate
+ * the appropriate Net_OpenID_MathWrapper instance for use by crypto
+ * code.
+ */
+class Net_OpenID_MathLibrary {
+
+    var $extensions = array(
+                            array('modules' => array('gmp', 'php_gmp'),
+                                  'extension' => 'gmp',
+                                  'class' => 'Net_OpenID_GmpMathWrapper'),
+                            array('modules' => array('bcmath', 'php_bcmath'),
+                                  'extension' => 'bcmath',
+                                  'class' => 'Net_OpenID_BcMathWrapper')
+                            );
+
+    function getLibWrapper() {
+        static $lib = null;
+
+        if (!$lib) {
+            $loaded = false;
+
+            foreach ($extensions as $extension) {
+                if ($extension['extension'] &&
+                    extension_loaded($extension['extension'])) {
+                    $loaded = true;
+                }
+
+                if (!$loaded) {
+                    foreach ($extension['modules'] as $module) {
+                        if (@dl($module . "." . PHP_SHLIB_SUFFIX)) {
+                            $loaded = true;
+                            break;
+                        }
+                    }
+                }
+
+                if ($loaded) {
+                    $classname = $extension['class'];
+                    $lib = $classname();
+                    break;
+                }
+            }
+
+            if (!$lib) {
+                $lib = new Net_OpenID_MathWrapper();
+            }
+        }
+
+        return $lib;
+    }
+}
+
 ?>
