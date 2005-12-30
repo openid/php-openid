@@ -45,6 +45,13 @@ class Net_OpenID_DiffieHellman {
             trigger_error("Big integer fallback implementation unavailable.", E_USER_ERROR);
         }
 
+        if ($this->lib->type == 'dumb') {
+            trigger_error("No usable big integer library present (gmp or bcmath). " .
+                          "Use of this math library wrapper is not permitted without big " .
+                          "integer support.",
+                          E_USER_ERROR);
+        }
+
         if ($mod === NULL) {
             $this->mod = $this->lib->init($this->DEFAULT_MOD);
         } else {
