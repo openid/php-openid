@@ -72,6 +72,21 @@ class Net_OpenID_CryptUtil {
         return $bytes;
     }
 
+    function maxint() {
+        /**
+         * quick-and-dirty function for PHP int size -- assumes
+         * largest integer is of form 2^n - 1
+         */
+        $to_test = pow(2, 16);
+        while (1) {
+            $last = $to_test;
+            $to_test = 2 * $to_test;
+            if (($to_test < $last) || (!is_int($to_test))) {
+                return($last + ($last - 1));
+            }
+        }
+    }
+
     /**
      * Computes the SHA1 hash.
      *
