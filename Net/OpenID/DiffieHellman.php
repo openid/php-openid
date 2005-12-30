@@ -14,7 +14,7 @@
  */
 
 /**
- * Require CryptUtil because we need to get a math library wrapper
+ * Require CryptUtil because we need to get a Net_OpenID_MathWrapper
  * object.
  */
 require_once('CryptUtil.php');
@@ -40,7 +40,9 @@ class Net_OpenID_DiffieHellman {
         $this->lib =& Net_OpenID_MathLibrary::getLibWrapper();
 
         if (!$this->lib) {
-            // This should NEVER occur, but if there's a bug in
+            // This should NEVER occur because even if no math
+            // extensions can be found, we should get an instance of
+            // Net_OpenID_MathWrapper, but if there's a bug in
             // Net_OpenID_MathLibrary::getLibWrapper, it might.
             trigger_error("Big integer fallback implementation unavailable.", E_USER_ERROR);
         }
