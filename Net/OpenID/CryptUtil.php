@@ -278,6 +278,14 @@ class Net_OpenID_MathWrapper {
         return mt_rand($min, $max);
     }
 
+    function pow($base, $exponent) {
+        return pow($base, $exponent);
+    }
+
+    function add($x, $y) {
+        return $x + $y;
+    }
+
     function cmp($x, $y) {
         if ($x > $y) {
             return 1;
@@ -298,6 +306,10 @@ class Net_OpenID_MathWrapper {
 
     function mul($x, $y) {
         return $x * $y;
+    }
+
+    function sub($x, $y) {
+        return $x - $y;
     }
 
     function div($x, $y) {
@@ -332,6 +344,18 @@ class Net_OpenID_BcMathWrapper extends Net_OpenID_MathWrapper {
         return mt_rand($min, $max);
     }
 
+    function add($x, $y) {
+        return bcadd($x, $y);
+    }
+
+    function sub($x, $y) {
+        return bcsub($x, $y);
+    }
+
+    function pow($base, $exponent) {
+        return bcpow($base, $exponent);
+    }
+
     function cmp($x, $y) {
         return bccomp($x, $y);
     }
@@ -364,6 +388,18 @@ class Net_OpenID_GmpMathWrapper extends Net_OpenID_MathWrapper {
 
     function random($min, $max) {
         return gmp_random($max);
+    }
+
+    function add($x, $y) {
+        return gmp_add($x, $y);
+    }
+
+    function sub($x, $y) {
+        return gmp_sub($x, $y);
+    }
+
+    function pow($base, $exponent) {
+        return gmp_pow($base, $exponent);
     }
 
     function cmp($x, $y) {
