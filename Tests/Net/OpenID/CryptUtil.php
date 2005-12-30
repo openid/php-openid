@@ -25,7 +25,9 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
     }
 
     function test_cryptrand() {
-        return;
+
+        $lib =& Net_OpenID_MathLibrary::getLibWrapper();
+
         // It's possible, but HIGHLY unlikely that a correct
         // implementation will fail by returning the same number twice
 
@@ -35,15 +37,18 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
         $this->assertEquals(strlen($t), 32);
         $this->assertFalse($s == $t);
 
-        $a = Net_OpenID_CryptUtil::randrange(pow(2, 128));
-        $b = Net_OpenID_CryptUtil::randrange(pow(2, 128));
-        // assert(is_long($a));
-        // assert(is_long($b));
-        // assert($b != $a);
+        $a = Net_OpenID_CryptUtil::randrange($lib->pow(2, 128));
+        $b = Net_OpenID_CryptUtil::randrange($lib->pow(2, 128));
+
+        // If $a is a float, it's because we're using fallback number
+        // storage (PHP stores overflowed ints as floats).
+        $this->assertFalse(is_float($a));
+        $this->assertFalse(is_float($b));
+        $this->assertFalse($b == $a);
 
         // Make sure that we can generate random numbers that are
         // larger than platform int size
-        // Net_OpenID_CryptUtil::randrange(INT_MAX + 1);
+        Net_OpenID_CryptUtil::randrange($lib->init(Net_OpenID_CryptUtil::maxint() + 1));
     }
 
     function test_strxor() {
@@ -102,6 +107,81 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
             $this->assertEquals($actual, $expected);
             $twice = Net_OpenID_CryptUtil::reversed($actual);
             $this->assertEquals($twice, $case);
+        }
+    }
+
+    function test_binaryLongConvert() {
+        
+        $lib =& Net_OpenID_MathLibrary::getLibWrapper();
+
+        $MAX = Net_OpenID_CryptUtil::maxint();
+        
+        foreach (range(0, 499) as $iteration) {
+            $n = $lib->init(0);
+            foreach (range(0, 9) as $i) {
+                $n = $lib->add($n, $lib->init(Net_OpenID_CryptUtil::randrange($MAX)));
+            }
+
+            $s = Net_OpenID_CryptUtil::longToBinary($n);
+            $this->assertTrue(is_string($s));
+            $n_prime = Net_OpenID_CryptUtil::binaryToLong($s);
+            $this->assertEquals($lib->cmp($n, $n_prime), 0);
+        }
+
+        $cases = array(
+                       array("\x00", 0),
+                       array("\x01", 1),
+                       array("\x00\xFF", 255),
+                       array("\x00\x80", 128),
+                       array("\x00\x81", 129),
+                       array("\x00\x80\x00", 32768),
+                       array("OpenID is cool", "1611215304203901150134421257416556")
+                       );
+
+        foreach ($cases as $case) {
+            list($s, $n) = $case;
+            $n_prime = Net_OpenID_CryptUtil::binaryToLong($s);
+            $s_prime = Net_OpenID_CryptUtil::longToBinary($n);
+            $this->assertEquals($lib->cmp($n, $n_prime), 0);
+            $this->assertTrue($s == $s_prime);
+        }
+    }
+
+    function test_longToBase64() {
+
+        $lib =& Net_OpenID_MathLibrary::getLibWrapper();
+
+        $lines = file_get_contents('Tests/n2b64', true);
+        $this->assertTrue(is_string($lines));
+
+        $lines = explode("\n", $lines);
+
+        foreach ($lines as $line) {
+            if (!$line) {
+                continue;
+            }
+            $parts = explode(' ', $line);
+            $this->assertEquals($parts[0],
+                                Net_OpenID_CryptUtil::longToBase64($lib->init($parts[1])));
+        }
+    }
+
+    function test_base64ToLong() {
+
+        $lib =& Net_OpenID_MathLibrary::getLibWrapper();
+
+        $lines = file_get_contents('Tests/n2b64', true);
+        $this->assertTrue(is_string($lines));
+
+        $lines = explode("\n", $lines);
+
+        foreach ($lines as $line) {
+            if (!$line) {
+                continue;
+            }
+            $parts = explode(' ', $line);
+            $this->assertEquals($lib->init($parts[1]),
+                                Net_OpenID_CryptUtil::base64ToLong($parts[0]));
         }
     }
 }
