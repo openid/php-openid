@@ -28,11 +28,6 @@ if (!defined('Net_OpenID_RAND_SOURCE')) {
 }
 
 /**
- * An array of duplicate information for the randrange function.
- */
-$Net_OpenID_CryptUtil_duplicate_cache = array();
-
-/**
  * Net_OpenID_CryptUtil houses static utility functions.
  *
  * @package OpenID
@@ -50,9 +45,10 @@ class Net_OpenID_CryptUtil {
      *
      * @static
      * @param int $num_bytes The length of the return value
-     * @return string $num_bytes random bytes
+     * @return string $bytes random bytes
      */
     function getBytes($num_bytes) {
+        $bytes = '';
         $f = @fopen("/dev/urandom", "r");
         if ($f === FALSE) {
             if (!defined(Net_OpenID_USE_INSECURE_RAND)) {
@@ -205,14 +201,15 @@ class Net_OpenID_CryptUtil {
 
     function randrange($start, $stop = null, $step = 1) {
 
-        global $Net_OpenID_CryptUtil_duplicate_cache;
+        static $Net_OpenID_CryptUtil_duplicate_cache = array();
+        $lib =& Net_OpenID_MathLibrary::getLibWrapper();
 
         if ($stop == null) {
             $stop = $start;
             $start = 0;
         }
 
-        $r = ($stop - $start);
+        $r = $lib->sub($stop, $start);
 
         if (array_key_exists($r, $Net_OpenID_CryptUtil_duplicate_cache)) {
             list($duplicate, $nbytes) = $Net_OpenID_CryptUtil_duplicate_cache[$r];
@@ -224,11 +221,11 @@ class Net_OpenID_CryptUtil {
                 $nbytes = strlen($rbytes);
             }
 
-            $mxrand = (pow(256, $nbytes));
+            $mxrand = $lib->pow(256, $nbytes);
 
             // If we get a number less than this, then it is in the
             // duplicated range.
-            $duplicate = $mxrand % $r;
+            $duplicate = $lib->mod($mxrand, $r);
 
             if (count($Net_OpenID_CryptUtil_duplicate_cache) > 10) {
                 $Net_OpenID_CryptUtil_duplicate_cache = array();
@@ -238,14 +235,14 @@ class Net_OpenID_CryptUtil {
         }
 
         while (1) {
-            $bytes = '\x00' + Net_OpenID_CryptUtil::getBytes($nbytes);
+            $bytes = '\x00' . Net_OpenID_CryptUtil::getBytes($nbytes);
             $n = Net_OpenID_CryptUtil::binaryToLong($bytes);
             // Keep looping if this value is in the low duplicated range
             if ($n >= $duplicate) {
                 break;
             }
         }
-        return $start + ($n % $r) * $step;
+        return $lib->add($start, $lib->mul($lib->mod($n, $r), $step));
     }
 
     /**
@@ -427,31 +424,33 @@ class Net_OpenID_GmpMathWrapper extends Net_OpenID_MathWrapper {
     }
 }
 
+$Net_OpenID___mathLibrary = null;
+
 /**
- * Net_OpenID_MathLibrary implements the Singleton pattern to generate
- * the appropriate Net_OpenID_MathWrapper instance for use by crypto
- * code.
+ * Net_OpenID_MathLibrary checks for the presence of a module in
+ * Net_OpenID_supported_extensions and supplies an instance of a
+ * wrapper for that extension module.
  *
  * @package OpenID
  */
 class Net_OpenID_MathLibrary {
 
-    var $extensions = array(
-                            array('modules' => array('gmp', 'php_gmp'),
-                                  'extension' => 'gmp',
-                                  'class' => 'Net_OpenID_GmpMathWrapper'),
-                            array('modules' => array('bcmath', 'php_bcmath'),
-                                  'extension' => 'bcmath',
-                                  'class' => 'Net_OpenID_BcMathWrapper')
-                            );
-
     function &getLibWrapper() {
-        static $lib = null;
+        $Net_OpenID_supported_extensions = array(
+                                                 array('modules' => array('gmp', 'php_gmp'),
+                                                       'extension' => 'gmp',
+                                                       'class' => 'Net_OpenID_GmpMathWrapper'),
+                                                 array('modules' => array('bcmath', 'php_bcmath'),
+                                               'extension' => 'bcmath',
+                                                       'class' => 'Net_OpenID_BcMathWrapper')
+                                                 );
 
-        if (!$lib) {
+        global $Net_OpenID___mathLibrary;
+
+        if (!$Net_OpenID___mathLibrary) {
             $loaded = false;
 
-            foreach ($extensions as $extension) {
+            foreach ($Net_OpenID_supported_extensions as $extension) {
                 if ($extension['extension'] &&
                     extension_loaded($extension['extension'])) {
                     $loaded = true;
@@ -468,21 +467,17 @@ class Net_OpenID_MathLibrary {
 
                 if ($loaded) {
                     $classname = $extension['class'];
-                    $lib =& new $classname();
+                    $Net_OpenID___mathLibrary =& new $classname();
                     break;
                 }
             }
 
-            if (!$lib) {
-                trigger_error("No usable big integer library present (gmp or bcmath). " .
-                              "Only dumb mode OpenID is available.",
-                              E_USER_NOTICE);
-
-                $lib =& new Net_OpenID_MathWrapper();
+            if (!$Net_OpenID___mathLibrary) {
+                $Net_OpenID___mathLibrary =& new Net_OpenID_MathWrapper();
             }
         }
 
-        return $lib;
+        return $Net_OpenID___mathLibrary;
     }
 }
 
