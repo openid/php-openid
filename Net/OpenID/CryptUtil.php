@@ -114,11 +114,62 @@ class Net_OpenID_CryptUtil {
     }
 
     function longToBinary($long) {
-        return pack("L", $long);
+
+        $lib =& Net_OpenID_MathLibrary::getLibWrapper();
+
+        if ($lib->cmp($long, 0) < 0) {
+            print "numToBytes takes only positive integers.";
+            return null;
+        }
+
+        if ($long == 0) {
+            return "\x00";
+        }
+
+        $bytes = array();
+
+        while ($long) {
+            array_unshift($bytes, $lib->mod($long, 256));
+            $long = $lib->div($long, pow(2, 8));
+        }
+
+        if ($bytes && ($bytes[0] > 127)) {
+            array_unshift($bytes, 0);
+        }
+
+        $string = '';
+        foreach ($bytes as $byte) {
+            $string .= pack('C', $byte);
+        }
+
+        return $string;
     }
 
     function binaryToLong($str) {
-        return unpack($str, "L");
+
+        $lib =& Net_OpenID_MathLibrary::getLibWrapper();
+
+        if ($str === null) {
+            return null;
+        }
+
+        // Use array_merge to return a zero-indexed array instead of a
+        // one-indexed array.
+        $bytes = array_merge(unpack('C*', $str));
+
+        $n = $lib->init(0);
+
+        if ($bytes && ($bytes[0] > 127)) {
+            print "bytesToNum works only for positive integers.";
+            return null;
+        }
+
+        foreach ($bytes as $byte) {
+            $n = $lib->mul($n, pow(2, 8));
+            $n = $lib->add($n, $byte);
+        }
+
+        return $n;
     }
 
     function base64ToLong($str) {
