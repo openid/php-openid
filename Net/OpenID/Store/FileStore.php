@@ -17,7 +17,7 @@
 
 require('Interface.php');
 
-function mkstemp($dir) {
+function Net_OpenID_mkstemp($dir) {
     foreach (range(0, 4) as $i) {
         $name = tempnam($dir, "php_openid_filestore_");
         $fd = fopen($name, 'x+', 0600);
