@@ -40,6 +40,7 @@ $_test_dir = 'Tests/Net/OpenID/';
 $_test_names = array(
     'KVForm',
     'CryptUtil',
+    'OIDUtil',
     'DiffieHellman',
     'HMACSHA1',
     );
