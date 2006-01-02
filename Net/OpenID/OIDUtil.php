@@ -1,10 +1,35 @@
 <?php
 
+/**
+ * OIDUtil: URL manipulation utility functions for the OpenID library.
+ *
+ * PHP versions 4 and 5
+ *
+ * LICENSE: See the COPYING file included in this distribution.
+ *
+ * @package OpenID
+ * @author JanRain, Inc. <openid@janrain.com>
+ * @copyright 2005 Janrain, Inc.
+ * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ */
+
+/**
+ * Prints the specified message using trigger_error(E_USER_NOTICE).
+ */
 function Net_OpenID_log($message, $unused_level = 0) {
     trigger_error($message, E_USER_NOTICE);
 }
 
-// 'http_build_query' is provided in PHP 5, but not in 4.
+/**
+ * Implements the PHP 5 'http_build_query' functionality.
+ *
+ * @param array $data Either an array key/value pairs or an array of
+ * arrays, each of which holding two values: a key and a value,
+ * sequentially.
+ * @return string $result The result of url-encoding the key/value
+ * pairs from $data into a URL query string
+ * (e.g. "username=bob&id=56").
+ */
 function Net_OpenID_http_build_query($data) {
     $pairs = array();
     foreach ($data as $key => $value) {
@@ -17,6 +42,20 @@ function Net_OpenID_http_build_query($data) {
     return implode("&", $pairs);
 }
 
+/**
+ * "Appends" query arguments onto a URL.  The URL may or may not
+ * already have arguments (following a question mark).
+ *
+ * @param string $url A URL, which may or may not already have
+ * arguments.
+ * @param array $args Either an array key/value pairs or an array of
+ * arrays, each of which holding two values: a key and a value,
+ * sequentially.  If $args is an ordinary key/value array, the
+ * parameters will be added to the URL in sorted alphabetical order;
+ * if $args is an array of arrays, their order will be preserved.
+ * @return string $url The original URL with the new parameters added.
+ *
+ */
 function Net_OpenID_appendArgs($url, $args) {
 
     if (count($args) == 0) {
@@ -46,16 +85,23 @@ function Net_OpenID_appendArgs($url, $args) {
     return $url . $sep . Net_OpenID_http_build_query($args);
 }
 
+/**
+ * Converts the specified string to a base64 representation.
+ */
 function Net_OpenID_toBase64($s) {
     return base64_encode($s);
 }
 
+/**
+ * Returns the original string representation of the specified
+ * base64-encoded string.
+ */
 function Net_OpenID_fromBase64($s) {
     return base64_decode($s);
 }
 
 /**
- * Turn a string into an ASCII string
+ * Turn a string into an ASCII string.
  *
  * Replace non-ascii characters with a %-encoded, UTF-8 encoding. This
  * function will fail if the input is a string and there are
@@ -82,7 +128,20 @@ function Net_OpenID_quoteMinimal($s) {
     return implode('', $res);
 }
 
-function Net_OpenID_urlunparse($scheme, $host, $port, $path, $query, $fragment) {
+/**
+ * Implements python's urlunparse, which is not available in PHP.
+ * Given the specified components of a URL, this function rebuilds and
+ * returns the URL.
+ *
+ * @param string $scheme The scheme (e.g. 'http').  Defaults to 'http'.
+ * @param string $host The host.  Required.
+ * @param string $port The port.
+ * @param string $path The path.
+ * @param string $query The query.
+ * @param string $fragment The fragment.
+ * @return string $url The URL resulting from assembling the specified components.
+ */
+function Net_OpenID_urlunparse($scheme, $host, $port = null, $path = '/', $query = '', $fragment = '') {
 
     if (!$scheme) {
         $scheme = 'http';
@@ -115,6 +174,14 @@ function Net_OpenID_urlunparse($scheme, $host, $port, $path, $query, $fragment) 
     return $result;
 }
 
+/**
+ * Given a URL, this "normalizes" it by adding a trailing slash and /
+ * or a leading http:// scheme where necessary.  Returns null if the
+ * original URL is malformed and cannot be normalized.
+ *
+ * @param string $url The URL to be normalized.
+ * @return mixed $new_url The URL after normalization, or null if $url was malformed.
+ */
 function Net_OpenID_normalizeUrl($url) {
     if ($url === null) {
         return null;
