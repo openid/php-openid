@@ -4,16 +4,38 @@ function Net_OpenID_log($message, $unused_level = 0) {
     trigger_error($message, E_USER_NOTICE);
 }
 
-function Net_OpenID_appendArgs($url, $args) {
-    /*
-    if (is_array($args)) {
-        $args = $args->items();
-        $args->sort();
+// 'http_build_query' is provided in PHP 5, but not in 4.
+function Net_OpenID_http_build_query($data) {
+    $pairs = array();
+    foreach ($data as $key => $value) {
+        if (is_array($value)) {
+            $pairs[] = urlencode($value[0])."=".urlencode($value[1]);
+        } else {
+            $pairs[] = urlencode($key)."=".urlencode($value);
+        }
     }
-    */
+    return implode("&", $pairs);
+}
+
+function Net_OpenID_appendArgs($url, $args) {
 
     if (count($args) == 0) {
         return $url;
+    }
+
+    // Non-empty array; if it is an array of arrays, use multisort;
+    // otherwise use sort.
+    if (array_key_exists(0, $args) &&
+        is_array($args[0])) {
+        // Do nothing here.
+    } else {
+        $keys = array_keys($args);
+        sort($keys);
+        $new_args = array();
+        foreach ($keys as $key) {
+            $new_args[] = array($key, $args[$key]);
+        }
+        $args = $new_args;
     }
 
     $sep = '?';
@@ -21,7 +43,7 @@ function Net_OpenID_appendArgs($url, $args) {
         $sep = '&';
     }
 
-    return $url . $sep . http_build_query($args);
+    return $url . $sep . Net_OpenID_http_build_query($args);
 }
 
 function Net_OpenID_toBase64($s) {
@@ -60,7 +82,7 @@ function Net_OpenID_quoteMinimal($s) {
     return implode('', $res);
 }
 
-function urlunparse($scheme, $host, $port, $path, $query, $fragment) {
+function Net_OpenID_urlunparse($scheme, $host, $port, $path, $query, $fragment) {
 
     if (!$scheme) {
         $scheme = 'http';
@@ -93,15 +115,36 @@ function urlunparse($scheme, $host, $port, $path, $query, $fragment) {
     return $result;
 }
 
-function normalizeUrl($url) {
+function Net_OpenID_normalizeUrl($url) {
     if ($url === null) {
         return null;
     }
 
     assert(is_string($url));
 
-    $url = strip($url);
-    $parsed = urlparse($url);
+    $old_url = $url;
+    $url = trim($url);
+
+    if (strpos($url, "://") === false) {
+        $url = "http://" . $url;
+    }
+
+    $parsed = @parse_url($url);
+
+    if ($parsed === false) {
+        return null;
+    }
+
+    $defaults = array(
+                      'scheme' => '',
+                      'host' => '',
+                      'path' => '',
+                      'query' => '',
+                      'fragment' => '',
+                      'port' => ''
+                      );
+
+    $parsed = array_merge($defaults, $parsed);
 
     if (($parsed['scheme'] == '') ||
         ($parsed['host'] == '')) {
@@ -113,16 +156,18 @@ function normalizeUrl($url) {
 
         $url = 'http://' + $url;
         $parsed = parse_url($url);
+
+        $parsed = array_merge($defaults, $parsed);
     }
 
-    $tail = array_map(Net_OpenID_quoteMinimal, array($parsed['path'],
-                                                     $parsed['query'], $parsed['fragment']));
+    $tail = array_map('Net_OpenID_quoteMinimal', array($parsed['path'],
+                                                       $parsed['query'], $parsed['fragment']));
     if ($tail[0] == '') {
         $tail[0] = '/';
     }
 
-    $url = urlunparse($parsed[0], $parsed['host'], $parsed['port'],
-                      $tail[0], $tail[1], $tail[2]);
+    $url = Net_OpenID_urlunparse($parsed['scheme'], $parsed['host'], $parsed['port'],
+                                 $tail[0], $tail[1], $tail[2]);
 
     assert(is_string($url));
 
