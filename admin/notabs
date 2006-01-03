@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+#
+# Look in the local directory for PHP files that have tabs in them. If
+# there are files with tabs, print the list of files and exit with
+# non-zero status.
+
 tabs=$(find ./ \( -name _darcs \) -prune -o \( -type f -a -name \*.php \) |
             xargs egrep -l '	' | sort)
 allowed=
