@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+test_tabs () {
+    /usr/bin/env bash $(dirname "$0")/notabs
+}
+
+test_php () {
+    /usr/bin/env php texttest.php
+}
+
+tests="tabs php"
+
+failures=
+for test_name in $tests
+  do
+  echo "Running test $test_name" 1>&2
+  if ! eval "test_$test_name"
+      then
+      failures="$failures $test_name"
+  fi
+done
+
+if [ ! -z "$failures" ]
+    then
+    echo "Failures in: $failures" 1>&2
+    exit 1
+fi

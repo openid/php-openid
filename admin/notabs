@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+tabs=$(find ./ \( -name _darcs \) -prune -o \( -type f -a -name \*.php \) |
+            xargs egrep -l '	' | sort)
+allowed=
+
+if [ "$allowed" != "$tabs" ]
+    then
+    cat <<EOF 1>&2
+Found tabs in:
+$tabs
+
+Tabs allowed in:
+$allowed
+EOF
+    exit 1
+fi
+
