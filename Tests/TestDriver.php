@@ -43,6 +43,7 @@ $_test_names = array(
     'OIDUtil',
     'DiffieHellman',
     'HMACSHA1',
+    'Association'
     );
 
 // Load OpenID library tests
