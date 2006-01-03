@@ -95,7 +95,8 @@ class Net_OpenID_Association {
      * this time is C{'HMAC-SHA1'}, but new types may be defined in
      * the future.
      */
-    function Net_OpenID_Association($handle, $secret, $issued, $lifetime, $assoc_type) {
+    function Net_OpenID_Association(
+        $handle, $secret, $issued, $lifetime, $assoc_type) {
         if ($assoc_type != 'HMAC-SHA1') {
             $fmt = 'HMAC-SHA1 is the only supported association type (got %s)';
             trigger_error(sprintf($fmt, $assoc_type), E_USER_ERROR);
@@ -198,10 +199,12 @@ class Net_OpenID_Association {
         $class_vars = get_class_vars($class_name);
         $class_assoc_keys = $class_vars['assoc_keys'];
         if ($keys != $class_assoc_keys) {
-            trigger_error('Unexpected key values: ' . strval($keys), E_USER_ERROR);
+            trigger_error('Unexpected key values: ' . strval($keys),
+                          E_USER_ERROR);
         }
 
-        list($version, $handle, $secret, $issued, $lifetime, $assoc_type) = $values;
+        list($version, $handle, $secret, $issued, $lifetime, $assoc_type) =
+            $values;
 
         if ($version != '2') {
             trigger_error('Unknown version: ' . $version, E_USER_ERROR);
@@ -211,7 +214,8 @@ class Net_OpenID_Association {
         $lifetime = intval($lifetime);
         $secret = Net_OpenID_fromBase64($secret);
 
-        return new $class_name($handle, $secret, $issued, $lifetime, $assoc_type);
+        return new $class_name(
+            $handle, $secret, $issued, $lifetime, $assoc_type);
     }
 
     /**
