@@ -20,8 +20,16 @@
  */
 class Net_OpenID_KVForm {
     function arrayToKV($values) {
+        if ($values === null) {
+            return null;
+        }
+
         $serialized = '';
         foreach ($values as $key => $value) {
+            if (is_array($value)) {
+                list($key, $value) = $value;
+            }
+
             if (strpos($key, ':') !== FALSE) {
                 trigger_error('":" in key:' . addslashes($key),
                               E_USER_WARNING);
