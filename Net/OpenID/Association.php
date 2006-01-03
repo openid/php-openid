@@ -200,14 +200,16 @@ class Net_OpenID_Association {
         $class_assoc_keys = $class_vars['assoc_keys'];
         if ($keys != $class_assoc_keys) {
             trigger_error('Unexpected key values: ' . strval($keys),
-                          E_USER_ERROR);
+                          E_USER_WARNING);
+            return null;
         }
 
         list($version, $handle, $secret, $issued, $lifetime, $assoc_type) =
             $values;
 
         if ($version != '2') {
-            trigger_error('Unknown version: ' . $version, E_USER_ERROR);
+            trigger_error('Unknown version: ' . $version, E_USER_WARNING);
+            return null;
         }
 
         $issued = intval($issued);
@@ -223,7 +225,8 @@ class Net_OpenID_Association {
      *
      * @param array $pairs The pairs to sign, in order.  This is an
      * array of two-tuples.
-     * @return string $signature The binary signature of this sequence of pairs
+     * @return string $signature The binary signature of this sequence
+     * of pairs
      */
     function sign($pairs) {
         assert($this->assoc_type == 'HMAC-SHA1');
