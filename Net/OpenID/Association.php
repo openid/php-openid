@@ -34,17 +34,17 @@ require_once('OIDUtil.php');
 class Net_OpenID_Association {
 
     // This is a HMAC-SHA1 specific value.
-    $SIG_LENGTH = 20
+    var $SIG_LENGTH = 20;
 
     // The ordering and name of keys as stored by serialize
-    $assoc_keys = array(
-                        'version',
-                        'handle',
-                        'secret',
-                        'issued',
-                        'lifetime',
-                        'assoc_type'
-                        );
+    var $assoc_keys = array(
+                            'version',
+                            'handle',
+                            'secret',
+                            'issued',
+                            'lifetime',
+                            'assoc_type'
+                            );
 
     /**
      * This is an alternate constructor used by the OpenID consumer
@@ -173,7 +173,7 @@ class Net_OpenID_Association {
             $pairs[] = array($field_name, $data[$field_name]);
         }
 
-        return Net_OpenID_arrayToKV($pairs, $strict = true);
+        return Net_OpenID_KVForm::arrayToKV($pairs, $strict = true);
     }
 
     /**
@@ -184,16 +184,20 @@ class Net_OpenID_Association {
      * @return Net_OpenID_Association $result instance of this class
      */
     function deserialize($class_name, $assoc_s) {
-        $pairs = Net_OpenID_kvToArray($assoc_s, $strict = true);
+        $pairs = Net_OpenID_KVForm::kvToArray($assoc_s, $strict = true);
         $keys = array();
         $values = array();
-        foreach ($pairs as $pair) {
-            list($k, $v) = $pair;
-            $keys[] = $k;
-            $values[] = $v;
+        foreach ($pairs as $key => $value) {
+            if (is_array($value)) {
+                list($key, $value) = $value;
+            }
+            $keys[] = $key;
+            $values[] = $value;
         }
 
-        if ($keys != $$class_name->assoc_keys) {
+        $class_vars = get_class_vars($class_name);
+        $class_assoc_keys = $class_vars['assoc_keys'];
+        if ($keys != $class_assoc_keys) {
             trigger_error('Unexpected key values: ' . strval($keys), E_USER_ERROR);
         }
 
@@ -203,11 +207,11 @@ class Net_OpenID_Association {
             trigger_error('Unknown version: ' . $version, E_USER_ERROR);
         }
 
-        $issued = int($issued);
-        $lifetime = int($lifetime);
+        $issued = intval($issued);
+        $lifetime = intval($lifetime);
         $secret = Net_OpenID_fromBase64($secret);
 
-        return $class_name($handle, $secret, $issued, $lifetime, $assoc_type);
+        return new $class_name($handle, $secret, $issued, $lifetime, $assoc_type);
     }
 
     /**
@@ -235,7 +239,7 @@ class Net_OpenID_Association {
     function signDict($fields, $data, $prefix = 'openid.') {
         $pairs = array();
         foreach ($fields as $field) {
-            $pairs[] = array($field, $data[$prefix + $field]);
+            $pairs[] = array($field, $data[$prefix . $field]);
         }
 
         return Net_OpenID_toBase64($this->sign($pairs));
@@ -244,15 +248,15 @@ class Net_OpenID_Association {
     function addSignature($fields, $data, $prefix = 'openid.') {
         $sig = self.signDict($fields, $data, $prefix);
         $signed = implode(",", $fields);
-        $data[$prefix + 'sig'] = $sig;
-        $data[$prefix + 'signed'] = $signed;
+        $data[$prefix . 'sig'] = $sig;
+        $data[$prefix . 'signed'] = $signed;
     }
 
     function checkSignature($data, $prefix = 'openid.') {
-        $signed = $data[$prefix + 'signed'];
+        $signed = $data[$prefix . 'signed'];
         $fields = explode(",", $signed);
         $expected_sig = $this->signDict($fields, $data, $prefix);
-        $request_sig = data[$prefix + 'sig'];
+        $request_sig = $data[$prefix . 'sig'];
 
         return ($request_sig == $expected_sig);
     }
