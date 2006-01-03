@@ -27,7 +27,7 @@ class Net_OpenID_OpenIDStore {
      * @var integer The length of the auth key that should be returned
      * by the getAuthKey method.
      */
-    $AUTH_KEY_LEN = 20;
+    var $AUTH_KEY_LEN = 20;
 
     /**
      * This method puts an Association object into storage,
