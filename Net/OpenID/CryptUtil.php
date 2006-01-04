@@ -214,7 +214,8 @@ class Net_OpenID_CryptUtil {
      * @return integer $long A long number
      */
     function base64ToLong($str) {
-        return Net_OpenID_CryptUtil::binaryToLong(Net_OpenID_CryptUtil::fromBase64($str));
+        return Net_OpenID_CryptUtil::binaryToLong(
+                      Net_OpenID_CryptUtil::fromBase64($str));
     }
 
     /**
@@ -224,7 +225,8 @@ class Net_OpenID_CryptUtil {
      * @return string $str The base64-encoded version of $long
      */
     function longToBase64($long) {
-        return Net_OpenID_CryptUtil::toBase64(Net_OpenID_CryptUtil::longToBinary($long));
+        return Net_OpenID_CryptUtil::toBase64(
+                      Net_OpenID_CryptUtil::longToBinary($long));
     }
 
     /**
