@@ -48,7 +48,9 @@ class Tests_Net_OpenID_OIDUtil extends PHPUnit_TestCase {
         // Randomized test
         foreach (range(0, 49) as $i) {
             $n = rand(0, 2048);
-            $s = implode("", array_map('chr', array_map('random_ordinal', range(0, $n))));
+            $s = implode("", array_map('chr',
+                                       array_map('random_ordinal',
+                                                 range(0, $n))));
             $b64 = Net_OpenID_toBase64($s);
             checkEncoded($this, $b64, $allowed_d);
             $s_prime = Net_OpenID_fromBase64($b64);
@@ -57,29 +59,56 @@ class Tests_Net_OpenID_OIDUtil extends PHPUnit_TestCase {
     }
 
     function test_normalizeUrl() {
-        $this->assertEquals("http://foo.com/", Net_OpenID_normalizeUrl("foo.com"));
+        $this->assertEquals("http://foo.com/",
+                            Net_OpenID_normalizeUrl("foo.com"));
 
-        $this->assertEquals("http://foo.com/", Net_OpenID_normalizeUrl("http://foo.com"));
-        $this->assertEquals("https://foo.com/", Net_OpenID_normalizeUrl("https://foo.com"));
-        $this->assertEquals("http://foo.com/bar", Net_OpenID_normalizeUrl("foo.com/bar"));
-        $this->assertEquals("http://foo.com/bar", Net_OpenID_normalizeUrl("http://foo.com/bar"));
+        $this->assertEquals("http://foo.com/",
+                            Net_OpenID_normalizeUrl("http://foo.com"));
 
-        $this->assertEquals("http://foo.com/", Net_OpenID_normalizeUrl("http://foo.com/"));
-        $this->assertEquals("https://foo.com/", Net_OpenID_normalizeUrl("https://foo.com/"));
-        $this->assertEquals("https://foo.com/bar" , Net_OpenID_normalizeUrl("https://foo.com/bar"));
+        $this->assertEquals("https://foo.com/",
+                            Net_OpenID_normalizeUrl("https://foo.com"));
+
+        $this->assertEquals("http://foo.com/bar",
+                            Net_OpenID_normalizeUrl("foo.com/bar"));
+
+        $this->assertEquals("http://foo.com/bar",
+                            Net_OpenID_normalizeUrl("http://foo.com/bar"));
+
+        $this->assertEquals("http://foo.com/",
+                            Net_OpenID_normalizeUrl("http://foo.com/"));
+
+        $this->assertEquals("https://foo.com/",
+                            Net_OpenID_normalizeUrl("https://foo.com/"));
+
+        $this->assertEquals("https://foo.com/bar" ,
+                            Net_OpenID_normalizeUrl("https://foo.com/bar"));
 
         if (0) {
-            $this->assertEquals("http://foo.com/%E8%8D%89", Net_OpenID_normalizeUrl("foo.com/\u8349"));
-            $this->assertEquals("http://foo.com/%E8%8D%89", Net_OpenID_normalizeUrl("http://foo.com/\u8349"));
+            $this->assertEquals("http://foo.com/%E8%8D%89",
+                             Net_OpenID_normalizeUrl("foo.com/\u8349"));
+
+            $this->assertEquals("http://foo.com/%E8%8D%89",
+                             Net_OpenID_normalizeUrl("http://foo.com/\u8349"));
         }
 
         $non_ascii_domain_cases = array(
-                                        array("http://xn--vl1a.com/", "\u8349.com"),
-                                        array("http://xn--vl1a.com/", "http://\u8349.com"),
-                                        array("http://xn--vl1a.com/", "\u8349.com/"),
-                                        array("http://xn--vl1a.com/", "http://\u8349.com/"),
-                                        array("http://xn--vl1a.com/%E8%8D%89", "\u8349.com/\u8349"),
-                                        array("http://xn--vl1a.com/%E8%8D%89", "http://\u8349.com/\u8349"),
+                                        array("http://xn--vl1a.com/",
+                                              "\u8349.com"),
+
+                                        array("http://xn--vl1a.com/",
+                                              "http://\u8349.com"),
+
+                                        array("http://xn--vl1a.com/",
+                                              "\u8349.com/"),
+
+                                        array("http://xn--vl1a.com/",
+                                              "http://\u8349.com/"),
+
+                                        array("http://xn--vl1a.com/%E8%8D%89",
+                                              "\u8349.com/\u8349"),
+
+                                        array("http://xn--vl1a.com/%E8%8D%89",
+                                              "http://\u8349.com/\u8349"),
                                         );
 
         // XXX
@@ -128,19 +157,23 @@ assert not should_raise and actual == expected, case
                              $simple . '?a=b'),
 
                        array('two list (same)',
-                             array($simple, array(array('a', 'b'), array('a', 'c'))),
+                             array($simple, array(array('a', 'b'),
+                                                  array('a', 'c'))),
                              $simple . '?a=b&a=c'),
 
                        array('two list',
-                             array($simple, array(array('a', 'b'), array('b', 'c'))),
+                             array($simple, array(array('a', 'b'),
+                                                  array('b', 'c'))),
                              $simple . '?a=b&b=c'),
 
                        array('two list (order)',
-                             array($simple, array(array('b', 'c'), array('a', 'b'))),
+                             array($simple, array(array('b', 'c'),
+                                                  array('a', 'b'))),
                              $simple . '?b=c&a=b'),
 
                        array('two dict (order)',
-                             array($simple, array('b' => 'c', 'a' => 'b')),
+                             array($simple, array('b' => 'c',
+                                                  'a' => 'b')),
                              $simple . '?a=b&b=c'),
 
                        array('escape',
@@ -148,11 +181,14 @@ assert not should_raise and actual == expected, case
                              $simple . '?%3D=%3D'),
 
                        array('escape (URL)',
-                             array($simple, array(array('this_url', $simple))),
-                             $simple . '?this_url=http%3A%2F%2Fwww.example.com%2F'),
+                             array($simple, array(array('this_url',
+                                                        $simple))),
+                             $simple .
+                             '?this_url=http%3A%2F%2Fwww.example.com%2F'),
 
                        array('use dots',
-                             array($simple, array(array('openid.stuff', 'bother'))),
+                             array($simple, array(array('openid.stuff',
+                                                        'bother'))),
                              $simple . '?openid.stuff=bother'),
 
                        array('args exist (empty)',
@@ -160,24 +196,29 @@ assert not should_raise and actual == expected, case
                              $simple . '?stuff=bother'),
 
                        array('args exist',
-                             array($simple . '?stuff=bother', array(array('ack', 'ack'))),
+                             array($simple . '?stuff=bother',
+                                   array(array('ack', 'ack'))),
                              $simple . '?stuff=bother&ack=ack'),
 
                        array('args exist',
-                             array($simple . '?stuff=bother', array(array('ack', 'ack'))),
+                             array($simple . '?stuff=bother',
+                                   array(array('ack', 'ack'))),
                              $simple . '?stuff=bother&ack=ack'),
 
                        array('args exist (dict)',
-                             array($simple . '?stuff=bother', array('ack' => 'ack')),
+                             array($simple . '?stuff=bother',
+                                   array('ack' => 'ack')),
                              $simple . '?stuff=bother&ack=ack'),
 
                        array('args exist (dict 2)',
-                             array($simple . '?stuff=bother', array('ack' => 'ack', 'zebra' => 'lion')),
+                             array($simple . '?stuff=bother',
+                                   array('ack' => 'ack', 'zebra' => 'lion')),
                              $simple . '?stuff=bother&ack=ack&zebra=lion'),
 
                        array('three args (dict)',
-                             array($simple, array('stuff' => 'bother', 'ack' => 'ack',
-                                             'zebra' => 'lion')),
+                             array($simple, array('stuff' => 'bother',
+                                                  'ack' => 'ack',
+                                                  'zebra' => 'lion')),
                              $simple . '?ack=ack&stuff=bother&zebra=lion'),
 
                        array('three args (list)',
