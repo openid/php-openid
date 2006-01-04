@@ -19,6 +19,12 @@
  */
 require_once('CryptUtil.php');
 
+$DEFAULT_MOD =     '15517289818147369747123225776371553991572480196691540'.
+'447970779531405762937854191758065122742369818899372781615264663143856159'.
+'582568818888995127215884267541995034125870655654980358010487053768147672'.
+'651325574704076585747929129157233451064324509471500722962109419434978392'.
+'5984760375594985848253359305585439638443';
+
 /**
  * The Diffie-Hellman key exchange class.  This class relies on
  * Net_OpenID_MathLibrary to perform large number operations.
@@ -26,7 +32,6 @@ require_once('CryptUtil.php');
  * @package OpenID
  */
 class Net_OpenID_DiffieHellman {
-    var $DEFAULT_MOD = '155172898181473697471232257763715539915724801966915404479707795314057629378541917580651227423698188993727816152646631438561595825688188889951272158842675419950341258706556549803580104870537681476726513255747040765857479291291572334510643245094715007229621094194349783925984760375594985848253359305585439638443';
 
     var $DEFAULT_GEN = '2';
 
@@ -35,7 +40,8 @@ class Net_OpenID_DiffieHellman {
     var $private;
     var $lib = null;
 
-    function Net_OpenID_DiffieHellman($mod = NULL, $gen = NULL, $private = NULL) {
+    function Net_OpenID_DiffieHellman($mod = NULL, $gen = NULL,
+                                      $private = NULL) {
 
         $this->lib =& Net_OpenID_MathLibrary::getLibWrapper();
 
@@ -44,18 +50,19 @@ class Net_OpenID_DiffieHellman {
             // extensions can be found, we should get an instance of
             // Net_OpenID_MathWrapper, but if there's a bug in
             // Net_OpenID_MathLibrary::getLibWrapper, it might.
-            trigger_error("Big integer fallback implementation unavailable.", E_USER_ERROR);
+            trigger_error("Big integer fallback implementation unavailable.",
+                          E_USER_ERROR);
         }
 
         if ($this->lib->type == 'dumb') {
-            trigger_error("No usable big integer library present (gmp or bcmath). " .
-                          "Use of this math library wrapper is not permitted without big " .
-                          "integer support.",
+            trigger_error("No usable big integer library present ".
+                          "(gmp or bcmath). Use of this math library wrapper".
+                          "is not permitted without big integer support.",
                           E_USER_ERROR);
         }
 
         if ($mod === NULL) {
-            $this->mod = $this->lib->init($this->DEFAULT_MOD);
+            $this->mod = $this->lib->init($_Net_OpenID_DEFAULT_MOD);
         } else {
             $this->mod = $mod;
         }
@@ -69,7 +76,8 @@ class Net_OpenID_DiffieHellman {
         $this->private =
             ($private === NULL) ? $this->generateRandom() : $private;
 
-        $this->public = $this->lib->powmod($this->gen, $this->private, $this->mod);
+        $this->public = $this->lib->powmod($this->gen, $this->private,
+                                           $this->mod);
     }
 
     function generateRandom() {
