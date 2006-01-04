@@ -48,7 +48,8 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
 
         // Make sure that we can generate random numbers that are
         // larger than platform int size
-        Net_OpenID_CryptUtil::randrange($lib->init(Net_OpenID_CryptUtil::maxint() + 1));
+        Net_OpenID_CryptUtil::randrange(
+                                $lib->init(Net_OpenID_CryptUtil::maxint() + 1));
     }
 
     function test_strxor() {
@@ -60,7 +61,9 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
                        array("a", "a", $NUL),
                        array("a", $NUL, "a"),
                        array("abc", str_repeat($NUL, 3), "abc"),
-                       array(str_repeat("x", 10), str_repeat($NUL, 10), str_repeat("x", 10)),
+                       array(str_repeat("x", 10),
+                             str_repeat($NUL, 10),
+                             str_repeat("x", 10)),
                        array("\x01", "\x02", "\x03"),
                        array("\xf0", "\x0f", "\xff"),
                        array("\xff", "\x0f", "\xf0"),
@@ -75,9 +78,12 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
         $exc_cases = array(
                            array('', 'a'),
                            array('foo', 'ba'),
-                           array(str_repeat($NUL, 3), str_repeat($NUL, 4)),
-                           array(implode('', array_map('chr', range(0, 255))),
-                                 implode('', array_map('chr', range(0, 127))))
+                           array(str_repeat($NUL, 3),
+                                 str_repeat($NUL, 4)),
+                           array(implode('', array_map('chr',
+                                                       range(0, 255))),
+                                 implode('', array_map('chr',
+                                                       range(0, 127))))
                            );
 
         while(list($index, $values) = each($exc_cases)) {
@@ -119,7 +125,8 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
         foreach (range(0, 499) as $iteration) {
             $n = $lib->init(0);
             foreach (range(0, 9) as $i) {
-                $n = $lib->add($n, $lib->init(Net_OpenID_CryptUtil::randrange($MAX)));
+                $n = $lib->add($n, $lib->init(
+                                       Net_OpenID_CryptUtil::randrange($MAX)));
             }
 
             $s = Net_OpenID_CryptUtil::longToBinary($n);
@@ -135,7 +142,8 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
                        array("\x00\x80", 128),
                        array("\x00\x81", 129),
                        array("\x00\x80\x00", 32768),
-                       array("OpenID is cool", "1611215304203901150134421257416556")
+                       array("OpenID is cool",
+                             "1611215304203901150134421257416556")
                        );
 
         foreach ($cases as $case) {
@@ -162,7 +170,7 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
             }
             $parts = explode(' ', $line);
             $this->assertEquals($parts[0],
-                                Net_OpenID_CryptUtil::longToBase64($lib->init($parts[1])));
+                     Net_OpenID_CryptUtil::longToBase64($lib->init($parts[1])));
         }
     }
 
