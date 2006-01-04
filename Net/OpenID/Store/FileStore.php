@@ -20,12 +20,9 @@ require('Interface.php');
 function Net_OpenID_mkstemp($dir) {
     foreach (range(0, 4) as $i) {
         $name = tempnam($dir, "php_openid_filestore_");
-        $fd = fopen($name, 'x+', 0600);
 
-        if ($fd === false) {
-            return false;
-        } else {
-            return array($fd, $name);
+        if ($name !== false) {
+            return $name;
         }
     }
     return false;
@@ -33,8 +30,8 @@ function Net_OpenID_mkstemp($dir) {
 
 function Net_OpenID_mkdtemp($dir) {
     foreach (range(0, 4) as $i) {
-        $name = realpath($dir . DIRECTORY_SEPARATOR . strval(getmypid()) .
-                         "-" . rand(1, time()));
+        $name = $dir . strval(DIRECTORY_SEPARATOR) . strval(getmypid()) .
+            "-" . strval(rand(1, time()));
         if (!mkdir($name, 0700)) {
             return false;
         } else {
@@ -69,16 +66,16 @@ function _safe64($str) {
 }
 
 function _filenameEscape($str) {
-    $filename_chunks = array();
+    $filename = "";
     for ($i = 0; $i < strlen($str); $i++) {
         $c = $str[$i];
         if (_isFilenameSafe($c)) {
-            $filename_chunks[] = $c;
+            $filename .= $c;
         } else {
-            $filename_chunks[] = sprintf("_%02X", ord(c));
+            $filename .= sprintf("_%02X", ord($c));
         }
     }
-    return implode("", $filename_chunks);
+    return $filename;
 }
 
 /**
@@ -97,8 +94,7 @@ function _removeIfPresent($filename) {
  * operation succeeded; false if not.
  */
 function _ensureDir($dir_name) {
-    print $dir_name;
-    if (mkdir($dir_name) || is_dir($dir_name)) {
+    if (@mkdir($dir_name) || is_dir($dir_name)) {
         return true;
     } else {
         return false;
@@ -133,17 +129,16 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
     function Net_OpenID_FileStore($directory) {
         $directory = realpath($directory);
 
-        $this->nonce_dir = realpath($directory . DIRECTORY_SEPARATOR . 'nonces');
+        $this->nonce_dir = $directory . DIRECTORY_SEPARATOR . 'nonces';
 
-        $this->association_dir = realpath($directory . DIRECTORY_SEPARATOR .
-                                          'associations');
+        $this->association_dir = $directory . DIRECTORY_SEPARATOR .
+            'associations';
 
         // Temp dir must be on the same filesystem as the assciations
         // $directory and the $directory containing the auth key file.
-        $this->temp_dir = realpath($directory . DIRECTORY_SEPARATOR . 'temp');
+        $this->temp_dir = $directory . DIRECTORY_SEPARATOR . 'temp';
 
-        $this->auth_key_name = realpath($directory . DIRECTORY_SEPARATOR .
-                                        'auth_key');
+        $this->auth_key_name = $directory . DIRECTORY_SEPARATOR . 'auth_key';
 
         $this->max_nonce_age = 6 * 60 * 60; // Six hours, in seconds
 
@@ -173,8 +168,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      * @return array ($fd, $filename)
      */
     function _mktemp() {
-        list($fd, $name) = mkstemp($dir = $this->temp_dir);
-        $file_obj = @fopen($fd, 'wb');
+        $name = Net_OpenID_mkstemp($dir = $this->temp_dir);
+        $file_obj = @fopen($name, 'wb');
         if ($file_obj !== false) {
             return array($file_obj, $name);
         } else {
@@ -207,7 +202,7 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      * @return string $key
      */
     function createAuthKey() {
-        $auth_key = Net_OpenID_randomString($this->AUTH_KEY_LEN);
+        $auth_key = Net_OpenID_CryptUtil::randomString($this->AUTH_KEY_LEN);
 
         list($file_obj, $tmp) = $this->_mktemp();
 
@@ -294,8 +289,16 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
                                                   $association->handle);
         list($tmp_file, $tmp) = $this->_mktemp();
 
+        if (!$tmp_file) {
+            trigger_error("_mktemp didn't return a valid file descriptor",
+                          E_USER_WARNING);
+            return null;
+        }
+
         fwrite($tmp_file, $association_s);
+
         fflush($tmp_file);
+
         fclose($tmp_file);
 
         if (!rename($tmp, $filename)) {
@@ -348,7 +351,7 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
 
             $matching_associations = array();
             // read the matching files and sort by time issued
-            foreach ($matching_associations as $name) {
+            foreach ($matching_files as $name) {
                 $full_name = $this->association_dir . DIRECTORY_SEPARATOR .
                     $name;
                 $association = $this->_getAssociation($full_name);
@@ -392,7 +395,7 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
             return null;
         }
 
-        $association = Net_OpenID_Association::deserialize($assoc_s);
+        $association = Net_OpenID_Association::deserialize('Net_OpenID_Association', $assoc_s);
 
         if (!$association) {
             _removeIfPresent($filename);
@@ -443,7 +446,7 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      */
     function useNonce($nonce) {
         $filename = $this->nonce_dir . DIRECTORY_SEPARATOR . $nonce;
-        $st = stat($filename);
+        $st = @stat($filename);
 
         if ($st === false) {
             return false;
@@ -474,7 +477,7 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
         // Check all nonces for expiry
         foreach ($nonces as $nonce) {
             $filename = $this->nonce_dir . DIRECTORY_SEPARATOR . $nonce;
-            $st = stat($filename);
+            $st = @stat($filename);
 
             if ($st !== false) {
                 // Remove the nonce if it has expired
@@ -495,7 +498,7 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
                 fclose($association_file);
 
                 // Remove expired or corrupted associations
-                $association = Net_OpenID_Association::deserialize($assoc_s);
+                $association = Net_OpenID_Association::deserialize('Net_OpenID_Association', $assoc_s);
                 if ($association === null) {
                     _removeIfPresent($association_filename);
                 } else {
