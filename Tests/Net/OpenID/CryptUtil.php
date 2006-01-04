@@ -4,7 +4,8 @@ require_once('PHPUnit.php');
 require_once('Net/OpenID/CryptUtil.php');
 
 class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
-    function test_length() {
+    function test_length()
+    {
         $cases = array(1, 10, 255);
         foreach ($cases as $length) {
             $data = Net_OpenID_CryptUtil::getBytes($length);
@@ -12,7 +13,8 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
         }
     }
 
-    function test_different() {
+    function test_different()
+    {
         $num_iterations = 100;
         $data_length = 20;
 
@@ -24,7 +26,8 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
         }
     }
 
-    function test_cryptrand() {
+    function test_cryptrand()
+    {
 
         $lib =& Net_OpenID_MathLibrary::getLibWrapper();
 
@@ -52,7 +55,8 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
                                 $lib->init(Net_OpenID_CryptUtil::maxint() + 1));
     }
 
-    function test_strxor() {
+    function test_strxor()
+    {
         $NUL = "\x00";
 
         $cases = array(
@@ -93,7 +97,8 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
         }
     }
 
-    function test_reversed() {
+    function test_reversed()
+    {
         $cases = array(
                        array('', ''),
                        array('a', 'a'),
@@ -116,7 +121,8 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
         }
     }
 
-    function test_binaryLongConvert() {
+    function test_binaryLongConvert()
+    {
         
         $lib =& Net_OpenID_MathLibrary::getLibWrapper();
 
@@ -155,7 +161,8 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
         }
     }
 
-    function test_longToBase64() {
+    function test_longToBase64()
+    {
 
         $lib =& Net_OpenID_MathLibrary::getLibWrapper();
 
@@ -174,7 +181,8 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
         }
     }
 
-    function test_base64ToLong() {
+    function test_base64ToLong()
+    {
 
         $lib =& Net_OpenID_MathLibrary::getLibWrapper();
 
