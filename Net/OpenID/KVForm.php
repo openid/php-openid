@@ -43,7 +43,7 @@ class Net_OpenID_KVForm {
             }
 
             if (strpos($value, "\n") !== FALSE) {
-                trigger_error('"\n" in value:' . addslashes($key),
+                trigger_error('"\n" in value:' . addslashes($value),
                               E_USER_WARNING);
                 return NULL;
             }
