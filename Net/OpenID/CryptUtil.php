@@ -51,7 +51,7 @@ class Net_OpenID_CryptUtil {
         $bytes = '';
         $f = @fopen("/dev/urandom", "r");
         if ($f === FALSE) {
-            if (!defined(Net_OpenID_USE_INSECURE_RAND)) {
+            if (!defined('Net_OpenID_USE_INSECURE_RAND')) {
                 trigger_error('Set Net_OpenID_USE_INSECURE_RAND to ' .
                               'continue with insecure random.',
                               E_USER_ERROR);
