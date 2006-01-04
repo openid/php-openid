@@ -8,15 +8,17 @@ require_once('PHPUnit/GUI/HTML.php');
 /**
  * Load the tests that are defined in the named modules.
  *
- * @param test_dir: The root of the test hierarchy. Must end with a /
- *
- * @param test_names: The names of the modules in which the tests are
- *     defined. This should not include the root of the test hierarchy.
- *
- * If you have Tests/Foo.php which defines a test class called Tests_Foo, the
- * call would look like:
+ * If you have Tests/Foo.php which defines a test class called
+ * Tests_Foo, the call would look like:
  *
  * loadTests('Tests/', array('Foo'))
+ *
+ * @param string $test_dir The root of the test hierarchy. Must end
+ * with a /
+ *
+ * @param array $test_names The names of the modules in which the
+ * tests are defined. This should not include the root of the test
+ * hierarchy.
  */
 function loadTests($test_dir, $test_names) {
     $suites = array();
@@ -45,6 +47,13 @@ $_test_names = array(
     'HMACSHA1',
     'Association'
     );
+
+// Only run store tests if -s or --test-stores is specified on the
+// command line because store backends will probably not be installed.
+if (in_array('--test-stores', $argv) ||
+    in_array('-s', $argv)) {
+    $_test_names[] = 'StoreTest';
+}
 
 // Load OpenID library tests
 function loadSuite() {
