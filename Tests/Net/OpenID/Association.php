@@ -10,7 +10,8 @@ class Tests_Net_OpenID_Association extends PHPUnit_TestCase {
         $assoc = new Net_OpenID_Association('handle', 'secret', $issued,
                                             $lifetime, 'HMAC-SHA1');
         $s = $assoc->serialize();
-        $assoc2 = Net_OpenID_Association::deserialize('Net_OpenID_Association', $s);
+        $assoc2 = Net_OpenID_Association::deserialize('Net_OpenID_Association',
+                                                      $s);
     }
 }
 
