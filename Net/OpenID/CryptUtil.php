@@ -291,11 +291,13 @@ class Net_OpenID_CryptUtil {
 
         $r = $lib->sub($stop, $start);
 
-        if (array_key_exists($r, $Net_OpenID_CryptUtil_duplicate_cache)) {
+        // DO NOT MODIFY THIS VALUE.
+        $rbytes = Net_OpenID_CryptUtil::longToBinary($r);
+
+        if (array_key_exists($rbytes, $Net_OpenID_CryptUtil_duplicate_cache)) {
             list($duplicate, $nbytes) =
-                $Net_OpenID_CryptUtil_duplicate_cache[$r];
+                $Net_OpenID_CryptUtil_duplicate_cache[$rbytes];
         } else {
-            $rbytes = Net_OpenID_CryptUtil::longToBinary($r);
             if ($rbytes[0] == '\x00') {
                 $nbytes = strlen($rbytes) - 1;
             } else {
@@ -312,7 +314,7 @@ class Net_OpenID_CryptUtil {
                 $Net_OpenID_CryptUtil_duplicate_cache = array();
             }
 
-            $Net_OpenID_CryptUtil_duplicate_cache[$r] =
+            $Net_OpenID_CryptUtil_duplicate_cache[$rbytes] =
                 array($duplicate, $nbytes);
         }
 
