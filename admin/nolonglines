@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+files_with_long_lines=$(find Net Tests -name \*.php |
+            xargs -l1 wc -L |
+            awk '$1 > 80 { print $2 }' |
+            xargs -l1 -I FILENAME /usr/bin/env perl admin/longlines.pl FILENAME 80)
+
+if [ "$files_with_long_lines" ]
+    then
+    cat <<EOF 1>&2
+Found lines > 80 characters in:
+
+$files_with_long_lines
+EOF
+    exit 1
+fi
+

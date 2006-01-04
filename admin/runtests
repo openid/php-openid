@@ -4,11 +4,15 @@ test_tabs () {
     /usr/bin/env bash $(dirname "$0")/notabs
 }
 
+test_longlines () {
+    /usr/bin/env bash $(dirname "$0")/nolonglines
+}
+
 test_php () {
     /usr/bin/env php texttest.php
 }
 
-tests="tabs php"
+tests="tabs longlines php"
 
 failures=
 for test_name in $tests
