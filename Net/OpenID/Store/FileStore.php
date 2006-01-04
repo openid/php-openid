@@ -53,14 +53,11 @@ function Net_OpenID_listdir($dir) {
     return $files;
 }
 
-$letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-$digits = "0123456789";
-
-$_Net_OpenID_filename_allowed = $letters . $digits . ".";
-
 function _isFilenameSafe($char) {
-    global $_Net_OpenID_filename_allowed;
-    return (strpos($_Net_OpenID_filename_allowed, $hcar) !== false);
+    $letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    $digits = "0123456789";
+    $_Net_OpenID_filename_allowed = $letters . $digits . ".";
+    return (strpos($_Net_OpenID_filename_allowed, $char) !== false);
 }
 
 function _safe64($str) {
