@@ -139,9 +139,11 @@ function Net_OpenID_quoteMinimal($s) {
  * @param string $path The path.
  * @param string $query The query.
  * @param string $fragment The fragment.
- * @return string $url The URL resulting from assembling the specified components.
+ * @return string $url The URL resulting from assembling the specified
+ * components.
  */
-function Net_OpenID_urlunparse($scheme, $host, $port = null, $path = '/', $query = '', $fragment = '') {
+function Net_OpenID_urlunparse($scheme, $host, $port = null, $path = '/',
+                               $query = '', $fragment = '') {
 
     if (!$scheme) {
         $scheme = 'http';
@@ -180,7 +182,8 @@ function Net_OpenID_urlunparse($scheme, $host, $port = null, $path = '/', $query
  * original URL is malformed and cannot be normalized.
  *
  * @param string $url The URL to be normalized.
- * @return mixed $new_url The URL after normalization, or null if $url was malformed.
+ * @return mixed $new_url The URL after normalization, or null if $url
+ * was malformed.
  */
 function Net_OpenID_normalizeUrl($url) {
     if ($url === null) {
@@ -228,13 +231,14 @@ function Net_OpenID_normalizeUrl($url) {
     }
 
     $tail = array_map('Net_OpenID_quoteMinimal', array($parsed['path'],
-                                                       $parsed['query'], $parsed['fragment']));
+                                                       $parsed['query'],
+                                                       $parsed['fragment']));
     if ($tail[0] == '') {
         $tail[0] = '/';
     }
 
-    $url = Net_OpenID_urlunparse($parsed['scheme'], $parsed['host'], $parsed['port'],
-                                 $tail[0], $tail[1], $tail[2]);
+    $url = Net_OpenID_urlunparse($parsed['scheme'], $parsed['host'],                                  $parsed['port'], $tail[0], $tail[1],
+                                 $tail[2]);
 
     assert(is_string($url));
 
