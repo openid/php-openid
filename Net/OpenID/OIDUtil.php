@@ -237,7 +237,8 @@ function Net_OpenID_normalizeUrl($url) {
         $tail[0] = '/';
     }
 
-    $url = Net_OpenID_urlunparse($parsed['scheme'], $parsed['host'],                                  $parsed['port'], $tail[0], $tail[1],
+    $url = Net_OpenID_urlunparse($parsed['scheme'], $parsed['host'],
+                                 $parsed['port'], $tail[0], $tail[1],
                                  $tail[2]);
 
     assert(is_string($url));
