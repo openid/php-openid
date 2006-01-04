@@ -7,7 +7,8 @@ $_Tests_Net_OpenID_kverrors = NULL;
 /**
  * Keep a list of the logged errors
  */
-function Tests_Net_OpenID_kvHandleError($errno, $errmsg) {
+function Tests_Net_OpenID_kvHandleError($errno, $errmsg)
+{
     global $_Tests_Net_OpenID_kverrors;
     $_Tests_Net_OpenID_kverrors[] = $errmsg;
 }
@@ -16,7 +17,8 @@ function Tests_Net_OpenID_kvHandleError($errno, $errmsg) {
 class Tests_Net_OpenID_KVForm_TestCase extends PHPUnit_TestCase {
     var $errs;
 
-    function runTest() {
+    function runTest()
+    {
         // Re-set the number of logged errors
         global $_Tests_Net_OpenID_kverrors;
         $_Tests_Net_OpenID_kverrors = array();
@@ -31,7 +33,8 @@ class Tests_Net_OpenID_KVForm_TestCase extends PHPUnit_TestCase {
         restore_error_handler();
     }
 
-    function _runTest() {
+    function _runTest()
+    {
         trigger_error('Must be overridden', E_USER_ERROR);
     }
 }
@@ -39,7 +42,8 @@ class Tests_Net_OpenID_KVForm_TestCase extends PHPUnit_TestCase {
 class Tests_Net_OpenID_KVForm_TestCase_Parse
 extends Tests_Net_OpenID_KVForm_TestCase {
     function Tests_Net_OpenID_KVForm_TestCase_Parse(
-        $arr, $str, $lossy, $errs) {
+        $arr, $str, $lossy, $errs)
+    {
 
         $this->arr = $arr;
         $this->str = $str;
@@ -47,7 +51,8 @@ extends Tests_Net_OpenID_KVForm_TestCase {
         $this->errs = $errs;
     }
 
-    function _runTest() {
+    function _runTest()
+    {
         // Do one parse, after which arrayToKV and kvToArray should be
         // inverses.
         $parsed1 = Net_OpenID_KVForm::kvToArray($this->str);
@@ -78,12 +83,14 @@ extends Tests_Net_OpenID_KVForm_TestCase {
 
 class Tests_Net_OpenID_KVForm_TestCase_Null
 extends Tests_Net_OpenID_KVForm_TestCase {
-    function Tests_Net_OpenID_KVForm_TestCase_Null($arr, $errs) {
+    function Tests_Net_OpenID_KVForm_TestCase_Null($arr, $errs)
+    {
         $this->arr = $arr;
         $this->errs = $errs;
     }
 
-    function _runTest() {
+    function _runTest()
+    {
         $serialized = Net_OpenID_KVForm::arrayToKV($this->arr);
         $this->assertTrue($serialized === NULL,
                           'serialization unexpectedly succeeded');
@@ -91,7 +98,8 @@ extends Tests_Net_OpenID_KVForm_TestCase {
 }
 
 class Tests_Net_OpenID_KVForm extends PHPUnit_TestSuite {
-    function Tests_Net_OpenID_KVForm($name) {
+    function Tests_Net_OpenID_KVForm($name)
+    {
         $this->setName($name);
         $testdata_list = array(
             array("name" => "simple",
