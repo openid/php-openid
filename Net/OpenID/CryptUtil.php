@@ -172,11 +172,13 @@ class Net_OpenID_CryptUtil {
     }
 
     /**
-     * Given a binary string, returns the binary string converted to a long number.
+     * Given a binary string, returns the binary string converted to a
+     * long number.
      *
      * @param string $binary The binary version of a long number,
      * probably as a result of calling longToBinary
-     * @return integer $long The long number equivalent of the binary string $str
+     * @return integer $long The long number equivalent of the binary
+     * string $str
      */
     function binaryToLong($str) {
 
@@ -266,9 +268,12 @@ class Net_OpenID_CryptUtil {
     /**
      * Returns a random number in the specified range.
      *
-     * @param integer $start The start of the range, or the minimum random number to return
-     * @param integer $stop The end of the range, or the maximum random number to return
+     * @param integer $start The start of the range, or the minimum
+     * random number to return
+     * @param integer $stop The end of the range, or the maximum
+     * random number to return
      * @param integer $step The step size, such that $result - ($step
+
      * * N) = $start for some N
      * @return integer $result The resulting randomly-generated number
      */
@@ -285,7 +290,8 @@ class Net_OpenID_CryptUtil {
         $r = $lib->sub($stop, $start);
 
         if (array_key_exists($r, $Net_OpenID_CryptUtil_duplicate_cache)) {
-            list($duplicate, $nbytes) = $Net_OpenID_CryptUtil_duplicate_cache[$r];
+            list($duplicate, $nbytes) =
+                $Net_OpenID_CryptUtil_duplicate_cache[$r];
         } else {
             $rbytes = Net_OpenID_CryptUtil::longToBinary($r);
             if ($rbytes[0] == '\x00') {
@@ -304,7 +310,8 @@ class Net_OpenID_CryptUtil {
                 $Net_OpenID_CryptUtil_duplicate_cache = array();
             }
 
-            $Net_OpenID_CryptUtil_duplicate_cache[$r] = array($duplicate, $nbytes);
+            $Net_OpenID_CryptUtil_duplicate_cache[$r] =
+                array($duplicate, $nbytes);
         }
 
         while (1) {
@@ -322,9 +329,12 @@ class Net_OpenID_CryptUtil {
      * Produce a string of length random bytes, chosen from chrs.  If
      * $chrs is null, the resulting string may contain any characters.
      *
-     * @param integer $length The length of the resulting randomly-generated string
-     * @param string $chrs A string of characters from which to choose to build the new string
-     * @return string $result A string of randomly-chosen characters from $chrs
+     * @param integer $length The length of the resulting
+     * randomly-generated string
+     * @param string $chrs A string of characters from which to choose
+     * to build the new string
+     * @return string $result A string of randomly-chosen characters
+     * from $chrs
      */
     function randomString($length, $chrs = null) {
         if ($chrs === null) {
@@ -597,13 +607,13 @@ class Net_OpenID_MathLibrary {
         // Net_OpenID_MathWrapper subclass which should be
         // instantiated if a given extension is present.
         $Net_OpenID_supported_extensions = array(
-                                                 array('modules' => array('gmp', 'php_gmp'),
-                                                       'extension' => 'gmp',
-                                                       'class' => 'Net_OpenID_GmpMathWrapper'),
-                                                 array('modules' => array('bcmath', 'php_bcmath'),
-                                                       'extension' => 'bcmath',
-                                                       'class' => 'Net_OpenID_BcMathWrapper')
-                                                 );
+              array('modules' => array('gmp', 'php_gmp'),
+                    'extension' => 'gmp',
+                    'class' => 'Net_OpenID_GmpMathWrapper'),
+              array('modules' => array('bcmath', 'php_bcmath'),
+                    'extension' => 'bcmath',
+                    'class' => 'Net_OpenID_BcMathWrapper')
+              );
 
         // The instance of Net_OpenID_MathWrapper that we choose to
         // supply will be stored here, so that subseqent calls to this
