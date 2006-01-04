@@ -4,38 +4,44 @@ require_once('PHPUnit.php');
 require_once('Net/OpenID/DiffieHellman.php');
 
 class Tests_Net_OpenID_DiffieHellman_CheckCases extends PHPUnit_TestCase {
-    function Tests_Net_OpenID_DiffieHellman_CheckCases($cases, $n) {
+    function Tests_Net_OpenID_DiffieHellman_CheckCases($cases, $n)
+    {
         $this->cases = $cases;
         $this->n = $n;
     }
 
-    function runTest() {
+    function runTest()
+    {
         $this->assertEquals($this->n, count($this->cases));
     }
 }
 
 class Tests_Net_OpenID_DiffieHellman_Private extends PHPUnit_TestCase {
-    function Tests_Net_OpenID_DiffieHellman_Private($name, $input, $expected) {
+    function Tests_Net_OpenID_DiffieHellman_Private($name, $input, $expected)
+    {
         $this->setName("$name");
         $this->input = $input;
         $this->expected = $expected;
     }
 
-    function runTest() {
+    function runTest()
+    {
         $dh = new Net_OpenID_DiffieHellman(NULL, NULL, $this->input);
         $this->assertEquals($this->expected, $dh->getPublicKey());
     }
 }
 
 class Tests_Net_OpenID_DiffieHellman_Exch extends PHPUnit_TestCase {
-    function Tests_Net_OpenID_DiffieHellman_Exch($name, $p1, $p2, $shared) {
+    function Tests_Net_OpenID_DiffieHellman_Exch($name, $p1, $p2, $shared)
+    {
         $this->setName("$name");
         $this->p1 = $p1;
         $this->p2 = $p2;
         $this->shared = $shared;
     }
 
-    function runTest() {
+    function runTest()
+    {
         $dh1 = new Net_OpenID_DiffieHellman(NULL, NULL, $this->p1);
         $dh2 = new Net_OpenID_DiffieHellman(NULL, NULL, $this->p2);
         $sh1 = $dh1->getSharedSecret($dh2->getPublicKey());
@@ -46,7 +52,8 @@ class Tests_Net_OpenID_DiffieHellman_Exch extends PHPUnit_TestCase {
 }
 
 class Tests_Net_OpenID_DiffieHellman extends PHPUnit_TestSuite {
-    function _getLines($base) {
+    function _getLines($base)
+    {
         $path = dirname(realpath(__FILE__));
         $dh_test_data_file = $path . DIRECTORY_SEPARATOR . $base;
         $lines = file($dh_test_data_file);
@@ -57,7 +64,8 @@ class Tests_Net_OpenID_DiffieHellman extends PHPUnit_TestSuite {
         return $lines;
     }
 
-    function _readPrivateTestCases() {
+    function _readPrivateTestCases()
+    {
         $lines = Tests_Net_OpenID_DiffieHellman::_getLines('dhpriv');
         $cases = array();
         foreach ($lines as $line) {
@@ -79,7 +87,8 @@ class Tests_Net_OpenID_DiffieHellman extends PHPUnit_TestSuite {
         return $cases;
     }
 
-    function _readExchTestCases() {
+    function _readExchTestCases()
+    {
         $lines = Tests_Net_OpenID_DiffieHellman::_getLines('dhexch');
         $cases = array();
         foreach ($lines as $line) {
@@ -100,7 +109,8 @@ class Tests_Net_OpenID_DiffieHellman extends PHPUnit_TestSuite {
         return $cases;
     }
 
-    function Tests_Net_OpenID_DiffieHellman($name) {
+    function Tests_Net_OpenID_DiffieHellman($name)
+    {
         $this->setName($name);
 
         $priv_cases = Tests_Net_OpenID_DiffieHellman::_readPrivateTestCases();
