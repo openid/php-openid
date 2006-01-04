@@ -51,9 +51,11 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
     }
 
     function genAssoc($now, $issued = 0, $lifetime = 600) {
-        $sec = call_user_func(array('Net_OpenID_CryptUtil', 'randomString'), 20);
+        $sec = call_user_func(array('Net_OpenID_CryptUtil', 'randomString'),
+                              20);
         $hdl = Net_OpenID_CryptUtil::randomString(128, $this->allowed_handle);
-        return new Net_OpenID_Association($hdl, $sec, $now + $issued, $lifetime, 'HMAC-SHA1');
+        return new Net_OpenID_Association($hdl, $sec, $now + $issued, $lifetime,
+                                          'HMAC-SHA1');
     }
 
     /**
@@ -71,7 +73,8 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
 
         $server_url = 'http://www.myopenid.com/openid';
 
-        function checkRetrieve(&$store, $url, $handle = null, $expected = null) {
+        function checkRetrieve(&$store, $url,
+                               $handle = null, $expected = null) {
             $retrieved_assoc = $store->getAssociation($url, $handle);
             if (($expected === null) || ($store->isDumb())) {
                 assert($retrieved_assoc === null);
@@ -226,8 +229,8 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
         $temp_dir = Net_OpenID_mkdtemp('/tmp');
 
         if (!$temp_dir) {
-            trigger_error('Could not create temporary directory with Net_OpenID_mkdtemp',
-                          E_USER_WARNING);
+            trigger_error('Could not create temporary directory ' .
+                          'with Net_OpenID_mkdtemp', E_USER_WARNING);
             return null;
         }
 
