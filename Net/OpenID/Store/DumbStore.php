@@ -17,8 +17,8 @@
 /**
  * Import the interface for creating a new store class.
  */
-require('Interface.php');
-require('Net/OpenID/CryptUtil.php');
+require_once('Interface.php');
+require_once('Net/OpenID/CryptUtil.php');
 
 /**
  * This is a store for use in the worst case, when you have no way of
