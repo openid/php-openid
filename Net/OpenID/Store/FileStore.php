@@ -15,7 +15,7 @@
  *
  */
 
-require('Interface.php');
+require_once('Interface.php');
 
 function Net_OpenID_mkstemp($dir) {
     foreach (range(0, 4) as $i) {
