@@ -501,8 +501,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
 
                 // Remove expired or corrupted associations
                 $association =
-                    Net_OpenID_Association::deserialize('Net_OpenID_Association',
-                                                        $assoc_s);
+                  Net_OpenID_Association::deserialize('Net_OpenID_Association',
+                                                      $assoc_s);
                 if ($association === null) {
                     _removeIfPresent($association_filename);
                 } else {
