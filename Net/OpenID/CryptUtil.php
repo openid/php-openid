@@ -652,7 +652,7 @@ class Net_OpenID_MathLibrary {
                 // module's functionality.
                 if ($loaded) {
                     $classname = $extension['class'];
-                    $Net_OpenID___mathLibrary =& new $classname();
+                    $Net_OpenID___mathLibrary = new $classname();
                     break;
                 }
             }
@@ -661,7 +661,7 @@ class Net_OpenID_MathLibrary {
             // Net_OpenID_MathWrapper so at least some platform-size
             // math can be performed.
             if (!$Net_OpenID___mathLibrary) {
-                $Net_OpenID___mathLibrary =& new Net_OpenID_MathWrapper();
+                $Net_OpenID___mathLibrary = new Net_OpenID_MathWrapper();
             }
         }
 
