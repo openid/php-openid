@@ -5,7 +5,8 @@ require_once('Net/OpenID/HMACSHA1.php');
 
 class Tests_Net_OpenID_HMACSHA1_TestCase extends PHPUnit_TestCase {
     function Tests_Net_OpenID_HMACSHA1_TestCase(
-        $name, $key, $data, $expected) {
+        $name, $key, $data, $expected)
+    {
 
         $this->setName($name);
         $this->key = $key;
@@ -13,14 +14,16 @@ class Tests_Net_OpenID_HMACSHA1_TestCase extends PHPUnit_TestCase {
         $this->expected = $expected;
     }
 
-    function runTest() {
+    function runTest()
+    {
         $actual = Net_OpenID_HMACSHA1($this->key, $this->data);
         $this->assertEquals($this->expected, $actual);
     }
 }
 
 class Tests_Net_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
-    function _strConvert($s) {
+    function _strConvert($s)
+    {
         $repeat_pat = '/^0x([a-f0-9]{2}) repeated (\d+) times$/';
         if (preg_match($repeat_pat, $s, $match)) {
             $c = chr(hexdec($match[1]));
@@ -44,7 +47,8 @@ class Tests_Net_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
         return $data;
     }
 
-    function _readTestCases() {
+    function _readTestCases()
+    {
         $path = dirname(realpath(__FILE__));
         $hmac_test_data_file = $path . DIRECTORY_SEPARATOR . 'hmac.txt';
         $lines = file($hmac_test_data_file);
@@ -121,7 +125,8 @@ class Tests_Net_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
         return $final;
     }
 
-    function Tests_Net_OpenID_HMACSHA1($name) {
+    function Tests_Net_OpenID_HMACSHA1($name)
+    {
         $this->setName($name);
         $cases = $this->_readTestCases();
         foreach ($cases as $case) {
