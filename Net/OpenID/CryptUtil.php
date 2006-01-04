@@ -96,7 +96,7 @@ class Net_OpenID_CryptUtil {
      * @return string The resulting SHA1 hash.
      */
     function sha1($str) {
-        return sha1($str, true);
+        return base64_decode(sha1($str));
     }
 
     /**
@@ -327,8 +327,8 @@ class Net_OpenID_CryptUtil {
      * @return string $result A string of randomly-chosen characters from $chrs
      */
     function randomString($length, $chrs = null) {
-        if ($chrs == null) {
-            return getBytes($length);
+        if ($chrs === null) {
+            return Net_OpenID_CryptUtil::getBytes($length);
         } else {
             $n = strlen($chrs);
             $str = "";
