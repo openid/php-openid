@@ -12,6 +12,11 @@ class Tests_Net_OpenID_Association extends PHPUnit_TestCase {
         $s = $assoc->serialize();
         $assoc2 = Net_OpenID_Association::deserialize('Net_OpenID_Association',
                                                       $s);
+        if ($assoc2 === null) {
+            $this->fail('deserialize returned null');
+        } else {
+            $this->assertTrue($assoc2->equal($assoc));
+        }
     }
 }
 

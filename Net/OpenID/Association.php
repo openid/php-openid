@@ -132,7 +132,7 @@ class Net_OpenID_Association {
      * same association, false otherwise.
      */
     function equal($other) {
-        return ((get_type($this) == get_type($other))
+        return ((gettype($this) == gettype($other))
                 && ($this->handle == $other->handle)
                 && ($this->secret == $other->secret)
                 && ($this->issued == $other->issued)
