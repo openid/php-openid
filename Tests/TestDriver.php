@@ -67,7 +67,8 @@ require_once('PHPUnit/GUI/HTML.php');
  * tests are defined. This should not include the root of the test
  * hierarchy.
  */
-function loadTests($test_dir, $test_names) {
+function loadTests($test_dir, $test_names)
+{
     $suites = array();
 
     foreach ($test_names as $filename) {
@@ -120,7 +121,7 @@ function selectTests($names) {
 }
 
 // Load OpenID library tests
-function loadSuite($names=null) {
+function loadSuite() {
     global $_test_names;
     global $_test_dir;
     if ($names === null) {
