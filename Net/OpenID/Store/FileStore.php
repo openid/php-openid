@@ -395,7 +395,9 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
             return null;
         }
 
-        $association = Net_OpenID_Association::deserialize('Net_OpenID_Association', $assoc_s);
+        $association =
+            Net_OpenID_Association::deserialize('Net_OpenID_Association',
+                                                $assoc_s);
 
         if (!$association) {
             _removeIfPresent($filename);
@@ -498,7 +500,9 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
                 fclose($association_file);
 
                 // Remove expired or corrupted associations
-                $association = Net_OpenID_Association::deserialize('Net_OpenID_Association', $assoc_s);
+                $association =
+                    Net_OpenID_Association::deserialize('Net_OpenID_Association',
+                                                        $assoc_s);
                 if ($association === null) {
                     _removeIfPresent($association_filename);
                 } else {
