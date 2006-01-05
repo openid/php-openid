@@ -3,7 +3,8 @@
 require_once('Net/OpenID/Association.php');
 require_once('Net/OpenID/CryptUtil.php');
 
-function Net_OpenID_rmtree($dir) {
+function Net_OpenID_rmtree($dir)
+{
     if ($dir[strlen($dir) - 1] != DIRECTORY_SEPARATOR) {
         $dir .= DIRECTORY_SEPARATOR;
     }
@@ -38,7 +39,8 @@ function Net_OpenID_rmtree($dir) {
 
 class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
 
-    function setUp() {
+    function setUp()
+    {
         $this->letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         $this->digits = "0123456789";
         $this->punct = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
@@ -46,11 +48,13 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
         $this->allowed_handle = $this->letters . $this->digits . $this->punct;
     }
 
-    function generateNonce() {
+    function generateNonce()
+    {
         return Net_OpenID_CryptUtil::randomString(8, $this->allowed_nonce);
     }
 
-    function genAssoc($now, $issued = 0, $lifetime = 600) {
+    function genAssoc($now, $issued = 0, $lifetime = 600)
+    {
         $sec = call_user_func(array('Net_OpenID_CryptUtil', 'randomString'),
                               20);
         $hdl = Net_OpenID_CryptUtil::randomString(128, $this->allowed_handle);
@@ -66,7 +70,8 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
      *
      * OpenIDStore -> NoneType
      */
-    function _testStore($store) {
+    function _testStore($store)
+    {
 
         // Association functions
         $now = time();
@@ -74,33 +79,25 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
         $server_url = 'http://www.myopenid.com/openid';
 
         function checkRetrieve(&$store, $url,
-                               $handle = null, $expected = null) {
-            $retrieved_assoc = $store->getAssociation($url, $handle);
-            if (($expected === null) || ($store->isDumb())) {
-                assert($retrieved_assoc === null);
-            } else {
-                assert($retrieved_assoc == $expected);
-                /**
-                 * The following test doesn't mean the same thing in
-                 * PHP that it does in Python.
-
-                if ($retrieved_assoc === $expected) {
-                    print 'Unexpected: retrieved a reference to the expected ' .
-                        'value instead of a new object\n';
+                               $handle = null, $expected = null)
+            {
+                $retrieved_assoc = $store->getAssociation($url, $handle);
+                if (($expected === null) || ($store->isDumb())) {
+                    assert($retrieved_assoc === null);
+                } else {
+                    assert($retrieved_assoc == $expected);
+                    assert($retrieved_assoc->handle == $expected->handle);
+                    assert($retrieved_assoc->secret == $expected->secret);
                 }
-
-                */
-                assert($retrieved_assoc->handle == $expected->handle);
-                assert($retrieved_assoc->secret == $expected->secret);
             }
-        }
 
-        function checkRemove(&$store, $url, $handle, $expected) {
-            $present = $store->removeAssociation($url, $handle);
-            $expectedPresent = (!$store->isDumb() && $expected);
-            assert((!$expectedPresent && !$present) ||
-                   ($expectedPresent && $present));
-        }
+        function checkRemove(&$store, $url, $handle, $expected)
+            {
+                $present = $store->removeAssociation($url, $handle);
+                $expectedPresent = (!$store->isDumb() && $expected);
+                assert((!$expectedPresent && !$present) ||
+                       ($expectedPresent && $present));
+            }
 
         $assoc = $this->genAssoc($now);
 
@@ -187,11 +184,12 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
 
         // Nonce functions
 
-        function testUseNonce($store, $nonce, $expected) {
-            $actual = $store->useNonce($nonce);
-            $expected = $store->isDumb() || $expected;
-            assert(($actual && $expected) || (!$actual && !$expected));
-        }
+        function testUseNonce($store, $nonce, $expected)
+            {
+                $actual = $store->useNonce($nonce);
+                $expected = $store->isDumb() || $expected;
+                assert(($actual && $expected) || (!$actual && !$expected));
+            }
 
         // Random nonce (not in store)
         $nonce1 = $this->generateNonce();
@@ -223,7 +221,8 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
         assert(strlen($key) == $store->AUTH_KEY_LEN);
     }
 
-    function test_filestore() {
+    function test_filestore()
+    {
         require_once('Net/OpenID/Store/FileStore.php');
 
         $temp_dir = Net_OpenID_mkdtemp('/tmp');
