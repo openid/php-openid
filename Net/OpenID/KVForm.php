@@ -19,7 +19,8 @@
  * @package OpenID
  */
 class Net_OpenID_KVForm {
-    function arrayToKV($values) {
+    function arrayToKV($values)
+    {
         if ($values === null) {
             return null;
         }
@@ -52,7 +53,8 @@ class Net_OpenID_KVForm {
         return $serialized;
     }
 
-    function kvToArray($kvs) {
+    function kvToArray($kvs)
+    {
         $lines = explode("\n", $kvs);
 
         $last = array_pop($lines);
