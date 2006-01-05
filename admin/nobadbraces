@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
+set -e
 
 bad_functions=$(find Net Tests -name \*.php |
-          xargs -l1 -I FILENAME /usr/bin/env perl admin/brace_style.pl FILENAME)
+    xargs -l1 --replace=FILENAME /usr/bin/env perl admin/brace_style.pl FILENAME)
 
 if [ "$bad_functions" ]
     then
