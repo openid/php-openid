@@ -17,7 +17,8 @@
 
 require_once('Interface.php');
 
-function Net_OpenID_mkstemp($dir) {
+function Net_OpenID_mkstemp($dir)
+{
     foreach (range(0, 4) as $i) {
         $name = tempnam($dir, "php_openid_filestore_");
 
@@ -28,7 +29,8 @@ function Net_OpenID_mkstemp($dir) {
     return false;
 }
 
-function Net_OpenID_mkdtemp($dir) {
+function Net_OpenID_mkdtemp($dir)
+{
     foreach (range(0, 4) as $i) {
         $name = $dir . strval(DIRECTORY_SEPARATOR) . strval(getmypid()) .
             "-" . strval(rand(1, time()));
@@ -41,7 +43,8 @@ function Net_OpenID_mkdtemp($dir) {
     return false;
 }
 
-function Net_OpenID_listdir($dir) {
+function Net_OpenID_listdir($dir)
+{
     $handle = opendir($dir);
     $files = array();
     while (false !== ($filename = readdir($handle))) {
@@ -50,14 +53,16 @@ function Net_OpenID_listdir($dir) {
     return $files;
 }
 
-function _isFilenameSafe($char) {
+function _isFilenameSafe($char)
+{
     $letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     $digits = "0123456789";
     $_Net_OpenID_filename_allowed = $letters . $digits . ".";
     return (strpos($_Net_OpenID_filename_allowed, $char) !== false);
 }
 
-function _safe64($str) {
+function _safe64($str)
+{
     $h64 = Net_OpenID_toBase64(Net_OpenID_CryptUtil::sha1($str));
     $h64 = str_replace('+', '_', $h64);
     $h64 = str_replace('/', '.', $h64);
@@ -65,7 +70,8 @@ function _safe64($str) {
     return $h64;
 }
 
-function _filenameEscape($str) {
+function _filenameEscape($str)
+{
     $filename = "";
     for ($i = 0; $i < strlen($str); $i++) {
         $c = $str[$i];
@@ -84,7 +90,8 @@ function _filenameEscape($str) {
  *
  * @return bool $result True if the file was present, false if not.
  */
-function _removeIfPresent($filename) {
+function _removeIfPresent($filename)
+{
     return @unlink($filename);
 }
 
@@ -93,7 +100,8 @@ function _removeIfPresent($filename) {
  * make sure that it is, in fact, a directory.  Returns true if the
  * operation succeeded; false if not.
  */
-function _ensureDir($dir_name) {
+function _ensureDir($dir_name)
+{
     if (@mkdir($dir_name) || is_dir($dir_name)) {
         return true;
     } else {
@@ -126,7 +134,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      * @param string $directory This is the directory to put the store
      * directories in.
      */
-    function Net_OpenID_FileStore($directory) {
+    function Net_OpenID_FileStore($directory)
+    {
         $directory = realpath($directory);
 
         $this->nonce_dir = $directory . DIRECTORY_SEPARATOR . 'nonces';
@@ -149,7 +158,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      * Make sure that the directories in which we store our data
      * exist.
      */
-    function _setup() {
+    function _setup()
+    {
         _ensureDir(dirname($this->auth_key_name));
         _ensureDir($this->nonce_dir);
         _ensureDir($this->association_dir);
@@ -167,7 +177,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      *
      * @return array ($fd, $filename)
      */
-    function _mktemp() {
+    function _mktemp()
+    {
         $name = Net_OpenID_mkstemp($dir = $this->temp_dir);
         $file_obj = @fopen($name, 'wb');
         if ($file_obj !== false) {
@@ -183,7 +194,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      *
      * @return mixed
      */
-    function readAuthKey() {
+    function readAuthKey()
+    {
         $auth_key_file = @fopen($this->auth_key_name, 'rb');
         if ($auth_key_file === false) {
             return null;
@@ -201,7 +213,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      *
      * @return string $key
      */
-    function createAuthKey() {
+    function createAuthKey()
+    {
         $auth_key = Net_OpenID_CryptUtil::randomString($this->AUTH_KEY_LEN);
 
         list($file_obj, $tmp) = $this->_mktemp();
@@ -231,7 +244,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      *
      * @return string $key
      */
-    function getAuthKey() {
+    function getAuthKey()
+    {
         $auth_key = $this->readAuthKey();
         if ($auth_key === null) {
             $auth_key = $this->createAuthKey();
@@ -257,7 +271,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      *
      * @return string $filename
      */
-    function getAssociationFilename($server_url, $handle) {
+    function getAssociationFilename($server_url, $handle)
+    {
         if (strpos($server_url, '://') === false) {
             trigger_error(sprintf("Bad server URL: %s", $server_url),
                           E_USER_WARNING);
@@ -283,7 +298,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
     /**
      * Store an association in the association directory.
      */
-    function storeAssociation($server_url, $association) {
+    function storeAssociation($server_url, $association)
+    {
         $association_s = $association->serialize();
         $filename = $this->getAssociationFilename($server_url,
                                                   $association->handle);
@@ -326,7 +342,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      *
      * @return mixed $association
      */
-    function getAssociation($server_url, $handle = null) {
+    function getAssociation($server_url, $handle = null)
+    {
         if ($handle === null) {
             $handle = '';
         }
@@ -381,7 +398,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
         }
     }
 
-    function _getAssociation($filename) {
+    function _getAssociation($filename)
+    {
         $assoc_file = @fopen($filename, 'rb');
 
         if ($assoc_file === false) {
@@ -417,7 +435,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      *
      * @return bool $success
      */
-    function removeAssociation($server_url, $handle) {
+    function removeAssociation($server_url, $handle)
+    {
         $assoc = $this->getAssociation($server_url, $handle);
         if ($assoc === null) {
             return false;
@@ -430,7 +449,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
     /**
      * Mark this nonce as present.
      */
-    function storeNonce($nonce) {
+    function storeNonce($nonce)
+    {
         $filename = $this->nonce_dir . DIRECTORY_SEPARATOR . $nonce;
         $nonce_file = fopen($filename, 'w');
         if ($nonce_file === false) {
@@ -446,7 +466,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      *
      * @return bool $present
      */
-    function useNonce($nonce) {
+    function useNonce($nonce)
+    {
         $filename = $this->nonce_dir . DIRECTORY_SEPARATOR . $nonce;
         $st = @stat($filename);
 
@@ -472,7 +493,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      * Remove expired entries from the database. This is potentially
      * expensive, so only run when it is acceptable to take time.
      */
-    function clean() {
+    function clean()
+    {
         $nonces = Net_OpenID_listdir($this->nonce_dir);
         $now = time();
 
