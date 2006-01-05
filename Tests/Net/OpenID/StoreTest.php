@@ -100,35 +100,6 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
 
         $server_url = 'http://www.myopenid.com/openid';
 
-        function checkRetrieve(&$store, $url,
-                               $handle = null, $expected = null) {
-            $retrieved_assoc = $store->getAssociation($url, $handle);
-            if (($expected === null) || ($store->isDumb())) {
-                assert($retrieved_assoc === null);
-            } else {
-                assert($retrieved_assoc == $expected);
-                /**
-                 * The following test doesn't mean the same thing in
-                 * PHP that it does in Python.
-
-                if ($retrieved_assoc === $expected) {
-                    print 'Unexpected: retrieved a reference to the expected ' .
-                        'value instead of a new object\n';
-                }
-
-                */
-                assert($retrieved_assoc->handle == $expected->handle);
-                assert($retrieved_assoc->secret == $expected->secret);
-            }
-        }
-
-        function checkRemove(&$store, $url, $handle, $expected) {
-            $present = $store->removeAssociation($url, $handle);
-            $expectedPresent = (!$store->isDumb() && $expected);
-            assert((!$expectedPresent && !$present) ||
-                   ($expectedPresent && $present));
-        }
-
         $assoc = $this->genAssoc($now);
 
         $this->_checkRetrieve($store, $server_url, null, null,
@@ -221,12 +192,6 @@ explicitly');
 
     function _testNonce(&$store) {
         // Nonce functions
-
-        function testUseNonce($store, $nonce, $expected) {
-            $actual = $store->useNonce($nonce);
-            $expected = $store->isDumb() || $expected;
-            assert(($actual && $expected) || (!$actual && !$expected));
-        }
 
         // Random nonce (not in store)
         $nonce1 = $this->generateNonce();
