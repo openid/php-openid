@@ -167,14 +167,9 @@ class Net_OpenID_Association {
                      'assoc_type' => $this->assoc_type
                      );
 
-        assert(count($data) == count($this->assoc_keys));
+        assert(array_keys($data) == $this->assoc_keys);
 
-        $pairs = array();
-        foreach ($this->assoc_keys as $field_name) {
-            $pairs[] = array($field_name, $data[$field_name]);
-        }
-
-        return Net_OpenID_KVForm::arrayToKV($pairs, $strict = true);
+        return Net_OpenID_KVForm::arrayToKV($data, $strict = true);
     }
 
     /**
