@@ -62,7 +62,8 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
                                           'HMAC-SHA1');
      }
 
-    function _checkRetrieve(&$store, $url, $handle, $expected, $name=null) {
+    function _checkRetrieve(&$store, $url, $handle, $expected, $name=null)
+    {
         $retrieved_assoc = $store->getAssociation($url, $handle);
         if (($expected === null) || ($store->isDumb())) {
             $this->assertNull($retrieved_assoc);
@@ -77,7 +78,8 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
         }
     }
 
-    function _checkRemove(&$store, $url, $handle, $expected) {
+    function _checkRemove(&$store, $url, $handle, $expected)
+    {
         $present = $store->removeAssociation($url, $handle);
         $expectedPresent = (!$store->isDumb() && $expected);
         $this->assertTrue((!$expectedPresent && !$present) ||
@@ -184,13 +186,15 @@ explicitly');
         $this->_checkRemove($store, $server_url, $assoc3->handle, false);
     }
 
-    function _checkUseNonce(&$store, $nonce, $expected) {
+    function _checkUseNonce(&$store, $nonce, $expected)
+    {
         $actual = $store->useNonce($nonce);
         $expected = $store->isDumb() || $expected;
         $this->assertTrue(($actual && $expected) || (!$actual && !$expected));
     }
 
-    function _testNonce(&$store) {
+    function _testNonce(&$store)
+    {
         // Nonce functions
 
         // Random nonce (not in store)
