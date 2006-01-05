@@ -16,7 +16,8 @@
 /**
  * Prints the specified message using trigger_error(E_USER_NOTICE).
  */
-function Net_OpenID_log($message, $unused_level = 0) {
+function Net_OpenID_log($message, $unused_level = 0)
+{
     trigger_error($message, E_USER_NOTICE);
 }
 
@@ -30,7 +31,8 @@ function Net_OpenID_log($message, $unused_level = 0) {
  * pairs from $data into a URL query string
  * (e.g. "username=bob&id=56").
  */
-function Net_OpenID_http_build_query($data) {
+function Net_OpenID_http_build_query($data)
+{
     $pairs = array();
     foreach ($data as $key => $value) {
         if (is_array($value)) {
@@ -56,7 +58,8 @@ function Net_OpenID_http_build_query($data) {
  * @return string $url The original URL with the new parameters added.
  *
  */
-function Net_OpenID_appendArgs($url, $args) {
+function Net_OpenID_appendArgs($url, $args)
+{
 
     if (count($args) == 0) {
         return $url;
@@ -88,7 +91,8 @@ function Net_OpenID_appendArgs($url, $args) {
 /**
  * Converts the specified string to a base64 representation.
  */
-function Net_OpenID_toBase64($s) {
+function Net_OpenID_toBase64($s)
+{
     return base64_encode($s);
 }
 
@@ -96,7 +100,8 @@ function Net_OpenID_toBase64($s) {
  * Returns the original string representation of the specified
  * base64-encoded string.
  */
-function Net_OpenID_fromBase64($s) {
+function Net_OpenID_fromBase64($s)
+{
     return base64_decode($s);
 }
 
@@ -112,7 +117,8 @@ function Net_OpenID_fromBase64($s) {
  * Do not escape anything that is already 7-bit safe, so we do the
  * minimal transform on the identity URL
  */
-function Net_OpenID_quoteMinimal($s) {
+function Net_OpenID_quoteMinimal($s)
+{
     $res = array();
     for ($i = 0; $i < strlen($s); $i++) {
         $c = $s[$i];
@@ -143,7 +149,8 @@ function Net_OpenID_quoteMinimal($s) {
  * components.
  */
 function Net_OpenID_urlunparse($scheme, $host, $port = null, $path = '/',
-                               $query = '', $fragment = '') {
+                               $query = '', $fragment = '')
+{
 
     if (!$scheme) {
         $scheme = 'http';
@@ -185,7 +192,8 @@ function Net_OpenID_urlunparse($scheme, $host, $port = null, $path = '/',
  * @return mixed $new_url The URL after normalization, or null if $url
  * was malformed.
  */
-function Net_OpenID_normalizeUrl($url) {
+function Net_OpenID_normalizeUrl($url)
+{
     if ($url === null) {
         return null;
     }
