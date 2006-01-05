@@ -47,7 +47,8 @@ class Net_OpenID_CryptUtil {
      * @param int $num_bytes The length of the return value
      * @return string $bytes random bytes
      */
-    function getBytes($num_bytes) {
+    function getBytes($num_bytes)
+    {
         $bytes = '';
         $f = @fopen("/dev/urandom", "r");
         if ($f === FALSE) {
@@ -74,7 +75,8 @@ class Net_OpenID_CryptUtil {
      * @return int $max_int_value The maximum integer value for this
      * PHP installation
      */
-    function maxint() {
+    function maxint()
+    {
         /**
          * quick-and-dirty function for PHP int size -- assumes
          * largest integer is of form 2^n - 1
@@ -95,7 +97,8 @@ class Net_OpenID_CryptUtil {
      * @param string $str The input string.
      * @return string The resulting SHA1 hash.
      */
-    function sha1($str) {
+    function sha1($str)
+    {
         return base64_decode(sha1($str));
     }
 
@@ -106,7 +109,8 @@ class Net_OpenID_CryptUtil {
      * @param string $text The text to be hashed
      * @return string $digest The raw HMAC-SHA1 digest
      */
-    function hmacSha1($key, $text) {
+    function hmacSha1($key, $text)
+    {
         return Net_OpenID_HMACSHA1($key, $text);
     }
 
@@ -116,7 +120,8 @@ class Net_OpenID_CryptUtil {
      * @param string $str The base64-encoded string to decode
      * @return string $raw The decoded binary data
      */
-    function fromBase64($str) {
+    function fromBase64($str)
+    {
         return base64_decode($str);
     }
 
@@ -126,7 +131,8 @@ class Net_OpenID_CryptUtil {
      * @param string $str The raw binary data to encode
      * @return string $raw The base64-encoded version of $str
      */
-    function toBase64($str) {
+    function toBase64($str)
+    {
         return base64_encode($str);
     }
 
@@ -139,7 +145,8 @@ class Net_OpenID_CryptUtil {
      * libraries)
      * @return string $binary The binary version of $long
      */
-    function longToBinary($long) {
+    function longToBinary($long)
+    {
 
         $lib =& Net_OpenID_MathLibrary::getLibWrapper();
 
@@ -180,7 +187,8 @@ class Net_OpenID_CryptUtil {
      * @return integer $long The long number equivalent of the binary
      * string $str
      */
-    function binaryToLong($str) {
+    function binaryToLong($str)
+    {
 
         $lib =& Net_OpenID_MathLibrary::getLibWrapper();
 
@@ -213,7 +221,8 @@ class Net_OpenID_CryptUtil {
      * @param string $str A base64-encoded string
      * @return integer $long A long number
      */
-    function base64ToLong($str) {
+    function base64ToLong($str)
+    {
         return Net_OpenID_CryptUtil::binaryToLong(
                       Net_OpenID_CryptUtil::fromBase64($str));
     }
@@ -224,7 +233,8 @@ class Net_OpenID_CryptUtil {
      * @param integer $long The long number to be converted
      * @return string $str The base64-encoded version of $long
      */
-    function longToBase64($long) {
+    function longToBase64($long)
+    {
         return Net_OpenID_CryptUtil::toBase64(
                       Net_OpenID_CryptUtil::longToBinary($long));
     }
@@ -238,7 +248,8 @@ class Net_OpenID_CryptUtil {
      * @param string $y A string
      * @return string $result The result of $x XOR $y
      */
-    function strxor($x, $y) {
+    function strxor($x, $y)
+    {
         if (strlen($x) != strlen($y)) {
             return null;
         }
@@ -257,7 +268,8 @@ class Net_OpenID_CryptUtil {
      * @param mixed $list A string or an array
      * @return mixed $result The reversed string or array
      */
-    function reversed($list) {
+    function reversed($list)
+    {
         if (is_string($list)) {
             return strrev($list);
         } else if (is_array($list)) {
@@ -279,7 +291,8 @@ class Net_OpenID_CryptUtil {
      * * N) = $start for some N
      * @return integer $result The resulting randomly-generated number
      */
-    function randrange($start, $stop = null, $step = 1) {
+    function randrange($start, $stop = null, $step = 1)
+    {
 
         static $Net_OpenID_CryptUtil_duplicate_cache = array();
         $lib =& Net_OpenID_MathLibrary::getLibWrapper();
@@ -340,7 +353,8 @@ class Net_OpenID_CryptUtil {
      * @return string $result A string of randomly-chosen characters
      * from $chrs
      */
-    function randomString($length, $chrs = null) {
+    function randomString($length, $chrs = null)
+    {
         if ($chrs === null) {
             return Net_OpenID_CryptUtil::getBytes($length);
         } else {
@@ -382,28 +396,32 @@ class Net_OpenID_MathWrapper {
     /**
      * Returns a random number in the specified range.
      */
-    function random($min, $max) {
+    function random($min, $max)
+    {
         return mt_rand($min, $max);
     }
 
     /**
      * Returns $base raised to the $exponent power.
      */
-    function pow($base, $exponent) {
+    function pow($base, $exponent)
+    {
         return pow($base, $exponent);
     }
 
     /**
      * Returns the sum of $x and $y.
      */
-    function add($x, $y) {
+    function add($x, $y)
+    {
         return $x + $y;
     }
 
     /**
      * Returns -1 if $x < $y, 0 if $x == $y, and 1 if $x > $y.
      */
-    function cmp($x, $y) {
+    function cmp($x, $y)
+    {
         if ($x > $y) {
             return 1;
         } else if ($x < $y) {
@@ -419,35 +437,40 @@ class Net_OpenID_MathWrapper {
      * purpose.  The base may be ignored depending on the
      * implementation.
      */
-    function init($number, $base = 10) {
+    function init($number, $base = 10)
+    {
         return $number;
     }
 
     /**
      * Returns the result of $base mod $modulus.
      */
-    function mod($base, $modulus) {
+    function mod($base, $modulus)
+    {
         return $base % $modulus;
     }
 
     /**
      * Returns the product of $x and $y.
      */
-    function mul($x, $y) {
+    function mul($x, $y)
+    {
         return $x * $y;
     }
 
     /**
      * Returns the difference of $x and $y.
      */
-    function sub($x, $y) {
+    function sub($x, $y)
+    {
         return $x - $y;
     }
 
     /**
      * Returns $x / $y.
      */
-    function div($x, $y) {
+    function div($x, $y)
+    {
         return $x / $y;
     }
 
@@ -456,7 +479,8 @@ class Net_OpenID_MathWrapper {
      * long number implementations, this may be optimized.  This
      * placeholder implementation performs it manually.
      */
-    function powmod($base, $exponent, $modulus) {
+    function powmod($base, $exponent, $modulus)
+    {
         $square = $this->mod($base, $modulus);
         $result = '1';
         while($this->cmp($exponent, 0) > 0) {
@@ -482,39 +506,48 @@ class Net_OpenID_MathWrapper {
 class Net_OpenID_BcMathWrapper extends Net_OpenID_MathWrapper {
     var $type = 'bcmath';
 
-    function random($min, $max) {
+    function random($min, $max)
+    {
         return mt_rand($min, $max);
     }
 
-    function add($x, $y) {
+    function add($x, $y)
+    {
         return bcadd($x, $y);
     }
 
-    function sub($x, $y) {
+    function sub($x, $y)
+    {
         return bcsub($x, $y);
     }
 
-    function pow($base, $exponent) {
+    function pow($base, $exponent)
+    {
         return bcpow($base, $exponent);
     }
 
-    function cmp($x, $y) {
+    function cmp($x, $y)
+    {
         return bccomp($x, $y);
     }
 
-    function init($number, $base = 10) {
+    function init($number, $base = 10)
+    {
         return $number;
     }
 
-    function mod($base, $modulus) {
+    function mod($base, $modulus)
+    {
         return bcmod($base, $modulus);
     }
 
-    function mul($x, $y) {
+    function mul($x, $y)
+    {
         return bcmul($x, $y);
     }
 
-    function div($x, $y) {
+    function div($x, $y)
+    {
         return bcdiv($x, $y);
     }
 }
@@ -530,43 +563,53 @@ class Net_OpenID_BcMathWrapper extends Net_OpenID_MathWrapper {
 class Net_OpenID_GmpMathWrapper extends Net_OpenID_MathWrapper {
     var $type = 'gmp';
 
-    function random($min, $max) {
+    function random($min, $max)
+    {
         return gmp_random($max);
     }
 
-    function add($x, $y) {
+    function add($x, $y)
+    {
         return gmp_add($x, $y);
     }
 
-    function sub($x, $y) {
+    function sub($x, $y)
+    {
         return gmp_sub($x, $y);
     }
 
-    function pow($base, $exponent) {
+    function pow($base, $exponent)
+    {
         return gmp_pow($base, $exponent);
     }
 
-    function cmp($x, $y) {
+    function cmp($x, $y)
+    {
         return gmp_cmp($x, $y);
     }
 
-    function init($number, $base = 10) {
+    function init($number, $base = 10)
+    {
         return gmp_init($number, $base);
     }
 
-    function mod($base, $modulus) {
+    function mod($base, $modulus)
+    {
         return gmp_mod($base, $modulus);
     }
 
-    function mul($x, $y) {
+    function mul($x, $y)
+    {
         return gmp_mul($x, $y);
     }
 
-    function div($x, $y) {
+    function div($x, $y)
+    {
         return gmp_div($x, $y);
     }
 
-    function powmod($base, $exponent, $modulus) {
+    function powmod($base, $exponent, $modulus)
+    {
         return gmp_powm($base, $exponent, $modulus);
     }
 }
@@ -600,7 +643,8 @@ class Net_OpenID_MathLibrary {
      * @return Net_OpenID_MathWrapper $instance An instance of
      * Net_OpenID_MathWrapper or one of its subclasses
      */
-    function &getLibWrapper() {
+    function &getLibWrapper()
+    {
         // Define the supported extensions.  An extension array has
         // keys 'modules', 'extension', and 'class'.  'modules' is an
         // array of PHP module names which the loading code will
