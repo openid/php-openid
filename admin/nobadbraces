@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+bad_functions=$(find Net Tests -name \*.php |
+          xargs -l1 -I FILENAME /usr/bin/env perl admin/brace_style.pl FILENAME)
+
+if [ "$bad_functions" ]
+    then
+    cat <<EOF 1>&2
+$bad_functions
+EOF
+    exit 1
+fi
+
