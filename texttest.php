@@ -39,12 +39,12 @@ function microtime_float()
 // Drop $argv[0] (command name)
 array_shift($argv);
 
-$t = array_search('thorough', $argv);
+$t = array_search('--thorough', $argv);
 if ($t !== FALSE && $t !== NULL) {
     define('Tests_Net_OpenID_DH_thorough', TRUE);
 }
 
-$suites = loadSuite();
+$suites = loadSuite($argv);
 
 $totals = array(
     'run' => 0,

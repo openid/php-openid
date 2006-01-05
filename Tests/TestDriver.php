@@ -92,20 +92,41 @@ $_test_names = array(
     'OIDUtil',
     'DiffieHellman',
     'HMACSHA1',
-    'Association'
+    'Association',
+    'StoreTest',
     );
 
-// Only run store tests if -s or --test-stores is specified on the
-// command line because store backends will probably not be installed.
-if (in_array('--test-stores', $argv) ||
-    in_array('-s', $argv)) {
-    $_test_names[] = 'StoreTest';
+function selectTests($names) {
+    global $_test_names;
+    $lnames = array_map('strtolower', $names);
+    $include = array();
+    $exclude = array();
+    foreach ($_test_names as $t) {
+        $l = strtolower($t);
+        if (in_array($l, $lnames)) {
+            $include[] = $t;
+        }
+
+        if (in_array("/$l", $lnames)) {
+            $exclude[] = $t;
+        }
+    }
+
+    if (!count($include)) {
+        $include = $_test_names;
+    }
+
+    return array_diff($include, $exclude);
 }
 
 // Load OpenID library tests
-function loadSuite() {
+function loadSuite($names=null) {
     global $_test_names;
     global $_test_dir;
-    return loadTests($_test_dir, $_test_names);
+    if ($names === null) {
+        $names = $_test_names;
+    }
+    $selected = selectTests($names);
+    return loadTests($_test_dir, $selected);
 }
 ?>
