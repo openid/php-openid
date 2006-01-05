@@ -98,7 +98,8 @@ $_test_names = array(
     'StoreTest',
     );
 
-function selectTests($names) {
+function selectTests($names)
+{
     global $_test_names;
     $lnames = array_map('strtolower', $names);
     $include = array();
@@ -122,7 +123,8 @@ function selectTests($names) {
 }
 
 // Load OpenID library tests
-function loadSuite() {
+function loadSuite($names=null)
+{
     global $_test_names;
     global $_test_dir;
     if ($names === null) {
