@@ -60,6 +60,28 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
         $hdl = Net_OpenID_CryptUtil::randomString(128, $this->allowed_handle);
         return new Net_OpenID_Association($hdl, $sec, $now + $issued, $lifetime,
                                           'HMAC-SHA1');
+     }
+
+    function _checkRetrieve(&$store, $url, $handle, $expected, $name=null) {
+        $retrieved_assoc = $store->getAssociation($url, $handle);
+        if (($expected === null) || ($store->isDumb())) {
+            $this->assertNull($retrieved_assoc);
+        } else {
+            if ($retrieved_assoc === null) {
+                $this->fail("$name: Got null when expecting " .
+                            $expected->serialize());
+            } else {
+                $this->assertEquals($retrieved_assoc->serialize(),
+                                    $expected->serialize(), $name);
+            }
+        }
+    }
+
+    function _checkRemove(&$store, $url, $handle, $expected) {
+        $present = $store->removeAssociation($url, $handle);
+        $expectedPresent = (!$store->isDumb() && $expected);
+        $this->assertTrue((!$expectedPresent && !$present) ||
+                          ($expectedPresent && $present));
     }
 
     /**
@@ -79,53 +101,61 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
         $server_url = 'http://www.myopenid.com/openid';
 
         function checkRetrieve(&$store, $url,
-                               $handle = null, $expected = null)
-            {
-                $retrieved_assoc = $store->getAssociation($url, $handle);
-                if (($expected === null) || ($store->isDumb())) {
-                    assert($retrieved_assoc === null);
-                } else {
-                    assert($retrieved_assoc == $expected);
-                    assert($retrieved_assoc->handle == $expected->handle);
-                    assert($retrieved_assoc->secret == $expected->secret);
-                }
-            }
+                               $handle = null, $expected = null) {
+            $retrieved_assoc = $store->getAssociation($url, $handle);
+            if (($expected === null) || ($store->isDumb())) {
+                assert($retrieved_assoc === null);
+            } else {
+                assert($retrieved_assoc == $expected);
+                /**
+                 * The following test doesn't mean the same thing in
+                 * PHP that it does in Python.
 
-        function checkRemove(&$store, $url, $handle, $expected)
-            {
-                $present = $store->removeAssociation($url, $handle);
-                $expectedPresent = (!$store->isDumb() && $expected);
-                assert((!$expectedPresent && !$present) ||
-                       ($expectedPresent && $present));
+                if ($retrieved_assoc === $expected) {
+                    print 'Unexpected: retrieved a reference to the expected ' .
+                        'value instead of a new object\n';
+                }
+
+                */
+                assert($retrieved_assoc->handle == $expected->handle);
+                assert($retrieved_assoc->secret == $expected->secret);
             }
+        }
+
+        function checkRemove(&$store, $url, $handle, $expected) {
+            $present = $store->removeAssociation($url, $handle);
+            $expectedPresent = (!$store->isDumb() && $expected);
+            assert((!$expectedPresent && !$present) ||
+                   ($expectedPresent && $present));
+        }
 
         $assoc = $this->genAssoc($now);
 
-        // Make sure that a missing association returns no result
-        checkRetrieve($store, $server_url);
+        $this->_checkRetrieve($store, $server_url, null, null,
+            'Make sure that a missing association returns no result');
 
-        // Check that after storage, getting returns the same result
         $store->storeAssociation($server_url, $assoc);
-        checkRetrieve($store, $server_url, null, $assoc);
+        $this->_checkRetrieve($store, $server_url, null, $assoc,
+            'Check that after storage, getting returns the same result');
 
-        // more than once
-        checkRetrieve($store, $server_url, null, $assoc);
+        $this->_checkRetrieve($store, $server_url, null, $assoc,
+            'more than once');
 
-        // Storing more than once has no ill effect
         $store->storeAssociation($server_url, $assoc);
-        checkRetrieve($store, $server_url, null, $assoc);
+        $this->_checkRetrieve($store, $server_url, null, $assoc,
+            'Storing more than once has no ill effect');
 
         // Removing an association that does not exist returns not present
-        checkRemove($store, $server_url, $assoc->handle . 'x', false);
+        $this->_checkRemove($store, $server_url, $assoc->handle . 'x', false);
 
         // Removing an association that does not exist returns not present
-        checkRemove($store, $server_url . 'x', $assoc->handle, false);
+        $this->_checkRemove($store, $server_url . 'x', $assoc->handle, false);
 
         // Removing an association that is present returns present
-        checkRemove($store, $server_url, $assoc->handle, true);
+        $this->_checkRemove($store, $server_url, $assoc->handle, true);
 
         // but not present on subsequent calls
-        checkRemove($store, $server_url, $assoc->handle, false);
+        $this->_checkRemove($store, $server_url, $assoc->handle, false);
 
         // Put assoc back in the store
         $store->storeAssociation($server_url, $assoc);
@@ -134,80 +164,87 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
         $assoc2 = $this->genAssoc($now, $issued = 1);
         $store->storeAssociation($server_url, $assoc2);
 
-        // After storing an association with a different handle, but the
-        // same $server_url, the handle with the later expiration is
-        // returned.
-        checkRetrieve($store, $server_url, null, $assoc2);
+        $this->_checkRetrieve($store, $server_url, null, $assoc2,
+            'After storing an association with a different handle, but the
+same $server_url, the handle with the later expiration is
+returned.');
 
-        // We can still retrieve the older association
-        checkRetrieve($store, $server_url, $assoc->handle, $assoc);
+        $this->_checkRetrieve($store, $server_url, $assoc->handle, $assoc,
+            'We can still retrieve the older association');
 
-        // Plus we can retrieve the association with the later expiration
-        // explicitly
-        checkRetrieve($store, $server_url, $assoc2->handle, $assoc2);
+        $this->_checkRetrieve($store, $server_url, $assoc2->handle, $assoc2,
+            'Plus we can retrieve the association with the later expiration
+explicitly');
 
         // More recent, but expires earlier than assoc2 or assoc
         $assoc3 = $this->genAssoc($now, $issued = 2, $lifetime = 100);
         $store->storeAssociation($server_url, $assoc3);
 
-        checkRetrieve($store, $server_url, null, $assoc3);
-        checkRetrieve($store, $server_url, $assoc->handle, $assoc);
-        checkRetrieve($store, $server_url, $assoc2->handle, $assoc2);
-        checkRetrieve($store, $server_url, $assoc3->handle, $assoc3);
+        $this->_checkRetrieve($store, $server_url, null, $assoc3);
+        $this->_checkRetrieve($store, $server_url, $assoc->handle, $assoc);
+        $this->_checkRetrieve($store, $server_url, $assoc2->handle, $assoc2);
+        $this->_checkRetrieve($store, $server_url, $assoc3->handle, $assoc3);
 
-        checkRemove($store, $server_url, $assoc2->handle, true);
+        $this->_checkRemove($store, $server_url, $assoc2->handle, true);
 
-        checkRetrieve($store, $server_url, null, $assoc3);
-        checkRetrieve($store, $server_url, $assoc->handle, $assoc);
-        checkRetrieve($store, $server_url, $assoc2->handle, null);
-        checkRetrieve($store, $server_url, $assoc3->handle, $assoc3);
+        $this->_checkRetrieve($store, $server_url, null, $assoc3);
+        $this->_checkRetrieve($store, $server_url, $assoc->handle, $assoc);
+        $this->_checkRetrieve($store, $server_url, $assoc2->handle, null);
+        $this->_checkRetrieve($store, $server_url, $assoc3->handle, $assoc3);
 
-        checkRemove($store, $server_url, $assoc2->handle, false);
-        checkRemove($store, $server_url, $assoc3->handle, true);
+        $this->_checkRemove($store, $server_url, $assoc2->handle, false);
+        $this->_checkRemove($store, $server_url, $assoc3->handle, true);
 
-        checkRetrieve($store, $server_url, null, $assoc);
-        checkRetrieve($store, $server_url, $assoc->handle, $assoc);
-        checkRetrieve($store, $server_url, $assoc2->handle, null);
-        checkRetrieve($store, $server_url, $assoc3->handle, null);
+        $this->_checkRetrieve($store, $server_url, null, $assoc);
+        $this->_checkRetrieve($store, $server_url, $assoc->handle, $assoc);
+        $this->_checkRetrieve($store, $server_url, $assoc2->handle, null);
+        $this->_checkRetrieve($store, $server_url, $assoc3->handle, null);
 
-        checkRemove($store, $server_url, $assoc2->handle, false);
-        checkRemove($store, $server_url, $assoc->handle, true);
-        checkRemove($store, $server_url, $assoc3->handle, false);
-        checkRetrieve($store, $server_url, null, null);
-        checkRetrieve($store, $server_url, $assoc->handle, null);
-        checkRetrieve($store, $server_url, $assoc2->handle, null);
-        checkRetrieve($store, $server_url,$assoc3->handle, null);
+        $this->_checkRemove($store, $server_url, $assoc2->handle, false);
+        $this->_checkRemove($store, $server_url, $assoc->handle, true);
+        $this->_checkRemove($store, $server_url, $assoc3->handle, false);
+        $this->_checkRetrieve($store, $server_url, null, null);
+        $this->_checkRetrieve($store, $server_url, $assoc->handle, null);
+        $this->_checkRetrieve($store, $server_url, $assoc2->handle, null);
+        $this->_checkRetrieve($store, $server_url,$assoc3->handle, null);
 
-        checkRemove($store, $server_url, $assoc2->handle, False);
-        checkRemove($store, $server_url, $assoc->handle, False);
-        checkRemove($store, $server_url, $assoc3->handle, False);
+        $this->_checkRemove($store, $server_url, $assoc2->handle, false);
+        $this->_checkRemove($store, $server_url, $assoc->handle, false);
+        $this->_checkRemove($store, $server_url, $assoc3->handle, false);
+    }
 
+    function _checkUseNonce(&$store, $nonce, $expected) {
+        $actual = $store->useNonce($nonce);
+        $expected = $store->isDumb() || $expected;
+        $this->assertTrue(($actual && $expected) || (!$actual && !$expected));
+    }
+
+    function _testNonce(&$store) {
         // Nonce functions
 
-        function testUseNonce($store, $nonce, $expected)
-            {
-                $actual = $store->useNonce($nonce);
-                $expected = $store->isDumb() || $expected;
-                assert(($actual && $expected) || (!$actual && !$expected));
-            }
+        function testUseNonce($store, $nonce, $expected) {
+            $actual = $store->useNonce($nonce);
+            $expected = $store->isDumb() || $expected;
+            assert(($actual && $expected) || (!$actual && !$expected));
+        }
 
         // Random nonce (not in store)
         $nonce1 = $this->generateNonce();
 
         // A nonce is not present by default
-        testUseNonce($store, $nonce1, false);
+        $this->_checkUseNonce($store, $nonce1, false);
 
-        // Storing once causes useNonce to return True the first, and only
+        // Storing once causes useNonce to return true the first, and only
         // the first, time it is called after the $store->
         $store->storeNonce($nonce1);
-        testUseNonce($store, $nonce1, true);
-        testUseNonce($store, $nonce1, false);
+        $this->_checkUseNonce($store, $nonce1, true);
+        $this->_checkUseNonce($store, $nonce1, false);
 
         // Storing twice has the same effect as storing once.
         $store->storeNonce($nonce1);
         $store->storeNonce($nonce1);
-        testUseNonce($store, $nonce1, True);
-        testUseNonce($store, $nonce1, False);
+        $this->_checkUseNonce($store, $nonce1, true);
+        $this->_checkUseNonce($store, $nonce1, false);
 
         // Auth key functions
 
@@ -217,8 +254,8 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
 
         // The second time around should return the same as last time.
         $key2 = $store->getAuthKey();
-        assert($key == $key2);
-        assert(strlen($key) == $store->AUTH_KEY_LEN);
+        $this->assertEquals($key, $key2);
+        $this->assertEquals(strlen($key), $store->AUTH_KEY_LEN);
     }
 
     function test_filestore()
@@ -235,6 +272,7 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
 
         $store = new Net_OpenID_FileStore($temp_dir);
         $this->_testStore($store);
+        $this->_testNonce($store);
         Net_OpenID_rmtree($temp_dir);
     }
 }
