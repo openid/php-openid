@@ -1,5 +1,19 @@
 <?php
 
+/**
+ * Tests for the HMAC-SHA1 utility functions used by the OpenID
+ * library.
+ *
+ * PHP versions 4 and 5
+ *
+ * LICENSE: See the COPYING file included in this distribution.
+ *
+ * @package OpenID
+ * @author JanRain, Inc. <openid@janrain.com>
+ * @copyright 2005 Janrain, Inc.
+ * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ */
+
 require_once('PHPUnit.php');
 require_once('Net/OpenID/HMACSHA1.php');
 
