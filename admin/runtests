@@ -16,11 +16,15 @@ test_nobadcase () {
     /usr/bin/env bash $(dirname "$0")/nobadcase
 }
 
+test_opentag () {
+    /usr/bin/env bash $(dirname "$0")/open_tag
+}
+
 test_php () {
     /usr/bin/env php texttest.php
 }
 
-tests="tabs longlines nobadbraces nobadcase php"
+tests="tabs longlines nobadbraces nobadcase opentag php"
 
 failures=
 for test_name in $tests
