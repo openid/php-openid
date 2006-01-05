@@ -86,6 +86,16 @@ Test suite: $name
 ==========================================
 
 ";
+
+    $failures = $result->failures();
+    foreach($failures as $failure) {
+        $test = $failure->failedTest();
+        $testName = $test->getName();
+        $exception = $failure->thrownException();
+        echo "* Failure in $testName: $exception
+
+";
+    }
 }
 
 $before = microtime_float();
