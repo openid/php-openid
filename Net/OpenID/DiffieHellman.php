@@ -41,7 +41,8 @@ class Net_OpenID_DiffieHellman {
     var $lib = null;
 
     function Net_OpenID_DiffieHellman($mod = NULL, $gen = NULL,
-                                      $private = NULL) {
+                                      $private = NULL)
+    {
 
         $this->lib =& Net_OpenID_MathLibrary::getLibWrapper();
 
@@ -80,23 +81,28 @@ class Net_OpenID_DiffieHellman {
                                            $this->mod);
     }
 
-    function generateRandom() {
+    function generateRandom()
+    {
         return $this->lib->random(1, $this->mod);
     }
 
-    function createKeyExchange() {
+    function createKeyExchange()
+    {
         return $this->lib->powmod($this->g, $this->x, $this->p);
     }
 
-    function decryptKeyExchange($keyEx) {
+    function decryptKeyExchange($keyEx)
+    {
         return $this->lib->powmod($keyEx, $this->x, $this->p);
     }
 
-    function getSharedSecret($composite) {
+    function getSharedSecret($composite)
+    {
         return $this->lib->powmod($composite, $this->private, $this->mod);
     }
 
-    function getPublicKey() {
+    function getPublicKey()
+    {
         return $this->public;
     }
 }
