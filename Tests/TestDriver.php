@@ -7,7 +7,8 @@ if (defined('E_STRICT')) {
               'is_a()'
               );
 
-    function ignoreDeprecation($errno, $errstr, $errfile, $errline) {
+    function ignoreDeprecation($errno, $errstr, $errfile, $errline)
+    {
         // Handle http://bugs.php.net/bug.php?id=32428
         // Augment this
         // regular expression if the bug exists in another version.
