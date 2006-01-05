@@ -4,8 +4,8 @@ require_once('PHPUnit.php');
 require_once('Net/OpenID/OIDUtil.php');
 
 class Tests_Net_OpenID_OIDUtil extends PHPUnit_TestCase {
-    function test_base64() {
-
+    function test_base64()
+    {
         // This is not good for international use, but PHP doesn't
         // appear to provide access to the local alphabet.
         $letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -19,11 +19,13 @@ class Tests_Net_OpenID_OIDUtil extends PHPUnit_TestCase {
             $allowed_d[$c] = null;
         }
 
-        function checkEncoded($obj, $str, $allowed_array) {
-            for ($i = 0; $i < strlen($str); $i++) {
-                $obj->assertTrue(array_key_exists($str[$i], $allowed_array));
+        function checkEncoded($obj, $str, $allowed_array)
+            {
+                for ($i = 0; $i < strlen($str); $i++) {
+                    $obj->assertTrue(array_key_exists($str[$i],
+                                                      $allowed_array));
+                }
             }
-        }
 
         $cases = array(
                        "",
@@ -41,9 +43,10 @@ class Tests_Net_OpenID_OIDUtil extends PHPUnit_TestCase {
             $this->assertEquals($s_prime, $s);
         }
 
-        function random_ordinal($unused) {
-            return rand(0, 255);
-        }
+        function random_ordinal($unused)
+            {
+                return rand(0, 255);
+            }
 
         // Randomized test
         foreach (range(0, 49) as $i) {
@@ -58,7 +61,8 @@ class Tests_Net_OpenID_OIDUtil extends PHPUnit_TestCase {
         }
     }
 
-    function test_normalizeUrl() {
+    function test_normalizeUrl()
+    {
         $this->assertEquals("http://foo.com/",
                             Net_OpenID_normalizeUrl("foo.com"));
 
@@ -135,7 +139,8 @@ assert not should_raise and actual == expected, case
         $this->assertNull(Net_OpenID_normalizeUrl('http://'));
     }
 
-    function test_appendArgs() {
+    function test_appendArgs()
+    {
 
         $simple = 'http://www.example.com/';
 
