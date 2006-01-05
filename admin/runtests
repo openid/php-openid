@@ -12,11 +12,15 @@ test_nobadbraces () {
     /usr/bin/env bash $(dirname "$0")/nobadbraces
 }
 
+test_nobadcase () {
+    /usr/bin/env bash $(dirname "$0")/nobadcase
+}
+
 test_php () {
     /usr/bin/env php texttest.php
 }
 
-tests="tabs longlines nobadbraces php"
+tests="tabs longlines nobadbraces nobadcase php"
 
 failures=
 for test_name in $tests
