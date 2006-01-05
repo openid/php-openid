@@ -4,22 +4,26 @@ require_once('Tests/TestDriver.php');
 require_once('PHPUnit/TestResult.php');
 
 class TextTestResult extends PHPUnit_TestResult {
-    function addError(&$test, &$t) {
+    function addError(&$test, &$t)
+    {
         parent::addError($test, $t);
         echo "E";
     }
 
-    function addFailure(&$test, &$t) {
+    function addFailure(&$test, &$t)
+    {
         parent::addFailure($test, $t);
         echo "F";
     }
 
-    function addPassedTest(&$test) {
+    function addPassedTest(&$test)
+    {
         parent::addPassedTest($test);
         echo ".";
     }
 
-    function dumpBadResults() {
+    function dumpBadResults()
+    {
         foreach ($this->failures() as $failure) {
             echo $failure->toString();
         }
