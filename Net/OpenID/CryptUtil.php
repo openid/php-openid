@@ -51,7 +51,7 @@ class Net_OpenID_CryptUtil {
     {
         $bytes = '';
         $f = @fopen("/dev/urandom", "r");
-        if ($f === false) {
+        if ($f === FALSE) {
             if (!defined('Net_OpenID_USE_INSECURE_RAND')) {
                 trigger_error('Set Net_OpenID_USE_INSECURE_RAND to ' .
                               'continue with insecure random.',
@@ -672,7 +672,7 @@ class Net_OpenID_MathLibrary {
         // $Net_OpenID_supported_extensions and try to find an
         // extension that works.
         if (!$Net_OpenID___mathLibrary) {
-            $loaded = false;
+            $loaded = FALSE;
 
             foreach ($Net_OpenID_supported_extensions as $extension) {
                 // See if the extension specified is already loaded.
