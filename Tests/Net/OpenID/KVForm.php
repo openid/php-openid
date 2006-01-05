@@ -3,7 +3,7 @@
 require_once('PHPUnit.php');
 require_once('Net/OpenID/KVForm.php');
 
-$_Tests_Net_OpenID_kverrors = NULL;
+$_Tests_Net_OpenID_kverrors = null;
 /**
  * Keep a list of the logged errors
  */
@@ -92,7 +92,7 @@ extends Tests_Net_OpenID_KVForm_TestCase {
     function _runTest()
     {
         $serialized = Net_OpenID_KVForm::arrayToKV($this->arr);
-        $this->assertTrue($serialized === NULL,
+        $this->assertTrue($serialized === null,
                           'serialization unexpectedly succeeded');
     }
 }
@@ -215,7 +215,7 @@ class Tests_Net_OpenID_KVForm extends PHPUnit_TestSuite {
             if (isset($testdata['str'])) {
                 $str = $testdata['str'];
             } else {
-                $str = NULL;
+                $str = null;
             }
 
             $arr = $testdata["arr"];

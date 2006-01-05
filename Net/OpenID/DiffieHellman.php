@@ -40,8 +40,8 @@ class Net_OpenID_DiffieHellman {
     var $private;
     var $lib = null;
 
-    function Net_OpenID_DiffieHellman($mod = NULL, $gen = NULL,
-                                      $private = NULL)
+    function Net_OpenID_DiffieHellman($mod = null, $gen = null,
+                                      $private = null)
     {
 
         $this->lib =& Net_OpenID_MathLibrary::getLibWrapper();
@@ -62,20 +62,20 @@ class Net_OpenID_DiffieHellman {
                           E_USER_ERROR);
         }
 
-        if ($mod === NULL) {
+        if ($mod === null) {
             $this->mod = $this->lib->init($_Net_OpenID_DEFAULT_MOD);
         } else {
             $this->mod = $mod;
         }
 
-        if ($gen === NULL) {
+        if ($gen === null) {
             $this->gen = $this->lib->init($this->DEFAULT_GEN);
         } else {
             $this->gen = $gen;
         }
 
         $this->private =
-            ($private === NULL) ? $this->generateRandom() : $private;
+            ($private === null) ? $this->generateRandom() : $private;
 
         $this->public = $this->lib->powmod($this->gen, $this->private,
                                            $this->mod);

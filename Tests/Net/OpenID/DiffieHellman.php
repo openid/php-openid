@@ -26,7 +26,7 @@ class Tests_Net_OpenID_DiffieHellman_Private extends PHPUnit_TestCase {
 
     function runTest()
     {
-        $dh = new Net_OpenID_DiffieHellman(NULL, NULL, $this->input);
+        $dh = new Net_OpenID_DiffieHellman(null, null, $this->input);
         $this->assertEquals($this->expected, $dh->getPublicKey());
     }
 }
@@ -42,8 +42,8 @@ class Tests_Net_OpenID_DiffieHellman_Exch extends PHPUnit_TestCase {
 
     function runTest()
     {
-        $dh1 = new Net_OpenID_DiffieHellman(NULL, NULL, $this->p1);
-        $dh2 = new Net_OpenID_DiffieHellman(NULL, NULL, $this->p2);
+        $dh1 = new Net_OpenID_DiffieHellman(null, null, $this->p1);
+        $dh2 = new Net_OpenID_DiffieHellman(null, null, $this->p2);
         $sh1 = $dh1->getSharedSecret($dh2->getPublicKey());
         $sh2 = $dh2->getSharedSecret($dh1->getPublicKey());
         $this->assertEquals($this->shared, $sh1);
@@ -57,7 +57,7 @@ class Tests_Net_OpenID_DiffieHellman extends PHPUnit_TestSuite {
         $path = dirname(realpath(__FILE__));
         $dh_test_data_file = $path . DIRECTORY_SEPARATOR . $base;
         $lines = file($dh_test_data_file);
-        if ($lines === FALSE) {
+        if ($lines === false) {
             trigger_error("Failed to open data file: $dh_test_data_file",
                           E_USER_ERROR);
         }

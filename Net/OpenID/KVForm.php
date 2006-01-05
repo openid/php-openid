@@ -31,22 +31,22 @@ class Net_OpenID_KVForm {
                 list($key, $value) = $value;
             }
 
-            if (strpos($key, ':') !== FALSE) {
+            if (strpos($key, ':') !== false) {
                 trigger_error('":" in key:' . addslashes($key),
                               E_USER_WARNING);
-                return NULL;
+                return null;
             }
 
-            if (strpos($key, "\n") !== FALSE) {
+            if (strpos($key, "\n") !== false) {
                 trigger_error('"\n" in key:' . addslashes($key),
                               E_USER_WARNING);
-                return NULL;
+                return null;
             }
 
-            if (strpos($value, "\n") !== FALSE) {
+            if (strpos($value, "\n") !== false) {
                 trigger_error('"\n" in value:' . addslashes($value),
                               E_USER_WARNING);
-                return NULL;
+                return null;
             }
             $serialized .= "$key:$value\n";
         }

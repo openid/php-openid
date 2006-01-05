@@ -44,8 +44,8 @@ function microtime_float()
 array_shift($argv);
 
 $t = array_search('--thorough', $argv);
-if ($t !== FALSE && $t !== NULL) {
-    define('Tests_Net_OpenID_DH_thorough', TRUE);
+if ($t !== false && $t !== null) {
+    define('Tests_Net_OpenID_DH_thorough', true);
 }
 
 $suites = loadSuite($argv);

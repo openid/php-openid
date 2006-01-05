@@ -19,7 +19,7 @@
  */
 define('SHA1_BLOCKSIZE', 64);
 
-if (FALSE && function_exists('mhash')) {
+if (false && function_exists('mhash')) {
     function Net_OpenID_HMACSHA1($key, $text)
         {
             return mhash(MHASH_SHA1, $text, $key);
@@ -51,14 +51,14 @@ if (FALSE && function_exists('mhash')) {
     function Net_OpenID_HMACSHA1($key, $text)
         {
             if (strlen($key) > SHA1_BLOCKSIZE) {
-                $key = sha1_raw($key, TRUE);
+                $key = sha1_raw($key, true);
             }
 
             $key = str_pad($key, SHA1_BLOCKSIZE, chr(0x00));
             $ipad = str_repeat(chr(0x36), SHA1_BLOCKSIZE);
             $opad = str_repeat(chr(0x5c), SHA1_BLOCKSIZE);
-            $hash1 = sha1_raw(($key ^ $ipad) . $text, TRUE);
-            $hmac = sha1_raw(($key ^ $opad) . $hash1, TRUE);
+            $hash1 = sha1_raw(($key ^ $ipad) . $text, true);
+            $hmac = sha1_raw(($key ^ $opad) . $hash1, true);
             return $hmac;
         }
 }

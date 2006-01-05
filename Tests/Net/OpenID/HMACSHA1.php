@@ -52,10 +52,10 @@ class Tests_Net_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
         $path = dirname(realpath(__FILE__));
         $hmac_test_data_file = $path . DIRECTORY_SEPARATOR . 'hmac.txt';
         $lines = file($hmac_test_data_file);
-        if ($lines === FALSE) {
+        if ($lines === false) {
             trigger_error("Failed to open data file: $dh_test_data_file",
                        E_USER_ERROR);
-            return FALSE;
+            return false;
         }
 
         $cases = array();
@@ -81,7 +81,7 @@ class Tests_Net_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
                     trigger_error(
                         "Wrong number of elements in parsed case: $c",
                         E_USER_ERROR);
-                    return FALSE;
+                    return false;
                 }
 
                 $key = $match[1];
