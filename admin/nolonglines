@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -e
 
 files_with_long_lines=$(find Net Tests -name \*.php |
             xargs -l1 wc -L |
@@ -15,4 +14,3 @@ $files_with_long_lines
 EOF
     exit 1
 fi
-
