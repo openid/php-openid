@@ -67,7 +67,8 @@ class Net_OpenID_Association {
      * at this time is C{'HMAC-SHA1'}, but new types may be
      * defined in the future.
      */
-    function fromExpiresIn($cls, $expires_in, $handle, $secret, $assoc_type) {
+    function fromExpiresIn($cls, $expires_in, $handle, $secret, $assoc_type)
+    {
         $issued = time();
         $lifetime = $expires_in;
         return $class_name($handle, $secret, $issued, $lifetime, $assoc_type);
@@ -96,7 +97,8 @@ class Net_OpenID_Association {
      * the future.
      */
     function Net_OpenID_Association(
-        $handle, $secret, $issued, $lifetime, $assoc_type) {
+        $handle, $secret, $issued, $lifetime, $assoc_type)
+    {
         if ($assoc_type != 'HMAC-SHA1') {
             $fmt = 'HMAC-SHA1 is the only supported association type (got %s)';
             trigger_error(sprintf($fmt, $assoc_type), E_USER_ERROR);
@@ -116,7 +118,8 @@ class Net_OpenID_Association {
      * @return integer $seconds The number of seconds this association
      * is still valid for, or 0 if the association is no longer valid.
      */
-    function getExpiresIn($now = null) {
+    function getExpiresIn($now = null)
+    {
         if ($now == null) {
             $now = time();
         }
@@ -131,7 +134,8 @@ class Net_OpenID_Association {
      * @return bool $result true if the two instances represent the
      * same association, false otherwise.
      */
-    function equal($other) {
+    function equal($other)
+    {
         return ((gettype($this) == gettype($other))
                 && ($this->handle == $other->handle)
                 && ($this->secret == $other->secret)
@@ -147,7 +151,8 @@ class Net_OpenID_Association {
      * @return bool $result true if the two instances represent
      * different associations, false otherwise.
      */
-    function not_equal($other) {
+    function not_equal($other)
+    {
         return !($this->equal($other));
     }
 
@@ -157,7 +162,8 @@ class Net_OpenID_Association {
      * @return string $result String in KV form suitable for
      * deserialization by deserialize.
      */
-    function serialize() {
+    function serialize()
+    {
         $data = array(
                      'version' => '2',
                      'handle' => $this->handle,
@@ -179,7 +185,8 @@ class Net_OpenID_Association {
      * @param string $assoc_s Association as serialized by serialize()
      * @return Net_OpenID_Association $result instance of this class
      */
-    function deserialize($class_name, $assoc_s) {
+    function deserialize($class_name, $assoc_s)
+    {
         $pairs = Net_OpenID_KVForm::kvToArray($assoc_s, $strict = true);
         $keys = array();
         $values = array();
@@ -223,7 +230,8 @@ class Net_OpenID_Association {
      * @return string $signature The binary signature of this sequence
      * of pairs
      */
-    function sign($pairs) {
+    function sign($pairs)
+    {
         assert($this->assoc_type == 'HMAC-SHA1');
         $kv = Net_OpenID_arrayToKV($pairs);
         return Net_OpenID_hmacSha1($this->secret, $kv);
@@ -238,7 +246,8 @@ class Net_OpenID_Association {
      * string => string pairs).
      * @return string $signature The signature, base64 encoded
      */
-    function signDict($fields, $data, $prefix = 'openid.') {
+    function signDict($fields, $data, $prefix = 'openid.')
+    {
         $pairs = array();
         foreach ($fields as $field) {
             $pairs[] = array($field, $data[$prefix . $field]);
@@ -247,14 +256,16 @@ class Net_OpenID_Association {
         return Net_OpenID_toBase64($this->sign($pairs));
     }
 
-    function addSignature($fields, $data, $prefix = 'openid.') {
+    function addSignature($fields, $data, $prefix = 'openid.')
+    {
         $sig = self.signDict($fields, $data, $prefix);
         $signed = implode(",", $fields);
         $data[$prefix . 'sig'] = $sig;
         $data[$prefix . 'signed'] = $signed;
     }
 
-    function checkSignature($data, $prefix = 'openid.') {
+    function checkSignature($data, $prefix = 'openid.')
+    {
         $signed = $data[$prefix . 'signed'];
         $fields = explode(",", $signed);
         $expected_sig = $this->signDict($fields, $data, $prefix);
