@@ -150,12 +150,13 @@ class Net_OpenID_CryptUtil {
 
         $lib =& Net_OpenID_MathLibrary::getLibWrapper();
 
-        if ($lib->cmp($long, 0) < 0) {
+        $cmp = $lib->cmp($long, 0);
+        if ($cmp < 0) {
             print "numToBytes takes only positive integers.";
             return null;
         }
 
-        if ($long == 0) {
+        if ($cmp == 0) {
             return "\x00";
         }
 
@@ -189,7 +190,6 @@ class Net_OpenID_CryptUtil {
      */
     function binaryToLong($str)
     {
-
         $lib =& Net_OpenID_MathLibrary::getLibWrapper();
 
         if ($str === null) {
@@ -335,7 +335,7 @@ class Net_OpenID_CryptUtil {
             $bytes = '\x00' . Net_OpenID_CryptUtil::getBytes($nbytes);
             $n = Net_OpenID_CryptUtil::binaryToLong($bytes);
             // Keep looping if this value is in the low duplicated range
-            if ($n >= $duplicate) {
+            if ($lib->cmp($n, $duplicate) >= 0) {
                 break;
             }
         }
