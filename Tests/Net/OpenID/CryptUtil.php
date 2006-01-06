@@ -55,12 +55,9 @@ class Tests_Net_OpenID_ByteOps extends PHPUnit_TestCase {
         $a = Net_OpenID_CryptUtil::randrange($lib->pow(2, 128));
         $b = Net_OpenID_CryptUtil::randrange($lib->pow(2, 128));
 
-        // If $a is a float, it's because we're using fallback number
-        // storage (PHP stores overflowed ints as floats).
         $this->assertFalse($lib->cmp($b, $a) == 0, "Same: $a $b");
 
         $n = $lib->init(Net_OpenID_CryptUtil::maxint());
-        $one = $lib->init(1);
         $n = $lib->add($n, 1);
 
         // Make sure that we can generate random numbers that are
