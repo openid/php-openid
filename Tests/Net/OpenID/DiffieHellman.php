@@ -141,9 +141,7 @@ class Tests_Net_OpenID_DiffieHellman extends PHPUnit_TestSuite {
         $sanity->setName('Check parsing of exch test data');
         $this->addTest($sanity);
 
-        $lib = Net_OpenID_MathLibrary::getLibWrapper();
-
-        if ($lib->type != 'dumb') {
+        if (!defined('Net_OpenID_NO_MATH_SUPPORT')) {
             if (defined('Tests_Net_OpenID_thorough')) {
                 $npriv = count($priv_cases);
                 $nexch = count($exch_cases);
