@@ -13,8 +13,8 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-require_once('PHPUnit.php');
-require_once('PHPUnit/GUI/HTML.php');
+require_once 'PHPUnit.php';
+require_once 'PHPUnit/GUI/HTML.php';
 
 if (defined('E_STRICT')) {
     // PHP 5
@@ -106,7 +106,7 @@ function loadTests($test_dir, $test_names)
         $filename = $test_dir . $filename . '.php';
         $class_name = str_replace(DIRECTORY_SEPARATOR, '_', $filename);
         $class_name = basename($class_name, '.php');
-        include_once($filename);
+        global_require_once($filename);
         $test = new $class_name($class_name);
         if (is_a($test, 'PHPUnit_TestCase')) {
             $test = new PHPUnit_TestSuite($class_name);
@@ -115,6 +115,16 @@ function loadTests($test_dir, $test_names)
     }
 
     return $suites;
+}
+
+function global_require_once($name)
+{
+    require_once($name);
+    foreach (get_defined_vars() as $k => $v) {
+        if ($k != 'name') {
+            $GLOBALS[$k] = $v;
+        }
+    }
 }
 
 $_test_dir = 'Tests/Net/OpenID/';
