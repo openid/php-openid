@@ -62,10 +62,15 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
         $this->assertFalse(is_float($b));
         $this->assertFalse($b == $a);
 
+        $n = $lib->init(Net_OpenID_CryptUtil::maxint());
+        $one = $lib->init(1);
+        $n = $lib->add($n, 1);
+
         // Make sure that we can generate random numbers that are
         // larger than platform int size
-        Net_OpenID_CryptUtil::randrange(
-                                $lib->init(Net_OpenID_CryptUtil::maxint() + 1));
+        $result = Net_OpenID_CryptUtil::randrange($n);
+
+        // What can we say about the result?
     }
 
     function test_strxor()
