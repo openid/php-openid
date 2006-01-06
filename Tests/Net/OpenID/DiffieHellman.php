@@ -144,7 +144,7 @@ class Tests_Net_OpenID_DiffieHellman extends PHPUnit_TestSuite {
         $lib = Net_OpenID_MathLibrary::getLibWrapper();
 
         if ($lib->type != 'dumb') {
-            if (defined('Tests_Net_OpenID_DH_thorough')) {
+            if (defined('Tests_Net_OpenID_thorough')) {
                 $npriv = count($priv_cases);
                 $nexch = count($exch_cases);
             } else {

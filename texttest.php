@@ -45,7 +45,7 @@ array_shift($argv);
 
 $t = array_search('--thorough', $argv);
 if ($t !== false && $t !== null) {
-    define('Tests_Net_OpenID_DH_thorough', true);
+    define('Tests_Net_OpenID_thorough', true);
 }
 
 $suites = loadSuite($argv);
