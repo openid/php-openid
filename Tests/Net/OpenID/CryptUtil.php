@@ -16,7 +16,7 @@
 require_once('PHPUnit.php');
 require_once('Net/OpenID/CryptUtil.php');
 
-class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
+class Tests_Net_OpenID_ByteOps extends PHPUnit_TestCase {
     function test_length()
     {
         $cases = array(1, 10, 255);
@@ -41,7 +41,6 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
 
     function test_cryptrand()
     {
-
         $lib =& Net_OpenID_MathLibrary::getLibWrapper();
 
         // It's possible, but HIGHLY unlikely that a correct
@@ -136,54 +135,91 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
             $this->assertEquals($twice, $case);
         }
     }
+}
 
-    function test_binaryLongConvert()
+class Tests_Net_OpenID_BinLongConvertRnd extends PHPUnit_TestCase {
+    var $lib;
+    var $max;
+
+    function Tests_Net_OpenID_BinLongConvertRnd(&$lib, $max)
     {
-        
-        $lib =& Net_OpenID_MathLibrary::getLibWrapper();
-
-        $MAX = Net_OpenID_CryptUtil::maxint();
-        
-        foreach (range(0, 499) as $iteration) {
-            $n = $lib->init(0);
-            foreach (range(0, 9) as $i) {
-                $rnd = Net_OpenID_CryptUtil::randrange($MAX);
-                $n = $lib->add($n, $rnd);
-            }
-
-            $s = Net_OpenID_CryptUtil::longToBinary($n);
-            $this->assertTrue(is_string($s));
-            $n_prime = Net_OpenID_CryptUtil::binaryToLong($s);
-            $this->assertEquals($lib->cmp($n, $n_prime), 0);
-        }
-
-        $cases = array(
-                       array("\x00", 0),
-                       array("\x01", 1),
-                       array("\x00\xFF", 255),
-                       array("\x00\x80", 128),
-                       array("\x00\x81", 129),
-                       array("\x00\x80\x00", 32768),
-                       array("OpenID is cool",
-                             "1611215304203901150134421257416556")
-                       );
-
-        foreach ($cases as $case) {
-            list($s, $n) = $case;
-            $n_prime = Net_OpenID_CryptUtil::binaryToLong($s);
-            $s_prime = Net_OpenID_CryptUtil::longToBinary($n);
-            $this->assertEquals($lib->cmp($n, $n_prime), 0);
-            $this->assertTrue($s == $s_prime);
-        }
+        $this->lib =& $lib;
+        $this->max = $max;
     }
 
+    function runTest()
+    {
+        $n = $this->lib->init(0);
+        foreach (range(0, 9) as $i) {
+            $rnd = Net_OpenID_CryptUtil::randrange($this->max);
+            $n = $this->lib->add($n, $rnd);
+        }
+        $s = Net_OpenID_CryptUtil::longToBinary($n);
+        $this->assertTrue(is_string($s));
+        $n_prime = Net_OpenID_CryptUtil::binaryToLong($s);
+        $this->assertEquals($this->lib->cmp($n, $n_prime), 0);
+    }
+}
+
+class Tests_Net_OpenID_BinLongConvert extends PHPUnit_TestCase {
+    var $lib;
+    var $bin;
+    var $lng;
+
+    function Tests_Net_OpenID_BinLongConvert(&$lib, $bin, $lng)
+    {
+        $this->lib =& $lib;
+        $this->bin = $bin;
+        $this->lng = $lng;
+    }
+
+    function runTest()
+    {
+        $n_prime = Net_OpenID_CryptUtil::binaryToLong($this->bin);
+        $s_prime = Net_OpenID_CryptUtil::longToBinary($this->lng);
+        $this->assertEquals($this->lib->cmp($this->lng, $n_prime), 0);
+        $this->assertTrue($this->bin == $s_prime);
+    }
+}
+
+class Tests_Net_OpenID_Base64ToLong extends PHPUnit_TestCase {
+    var $num;
+    var $b64;
+    var $lib;
+
+    function Tests_Net_OpenID_Base64ToLong(&$lib, $b64, $num)
+    {
+        $this->lib = $lib;
+        $this->b64 = $b64;
+        $this->num = $num;
+    }
+
+    function runTest()
+    {
+        $actual = Net_OpenID_CryptUtil::base64ToLong($this->b64);
+        $this->assertTrue($this->lib->cmp($this->num, $actual) == 0);
+    }
+}
+
+class Tests_Net_OpenID_LongToBase64 extends Tests_Net_OpenID_Base64ToLong {
+    function Tests_Net_OpenID_LongToBase64(&$lib, $b64, $num)
+    {
+        $this->lib = $lib;
+        $this->b64 = $b64;
+        $this->num = $num;
+    }
+
+    function runTest()
+    {
+        $actual = Net_OpenID_CryptUtil::longToBase64($this->num);
+        $this->assertEquals($this->b64, $actual);
+    }
+}
+
+class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestSuite {
     function _parseBase64Data()
     {
-        $lib =& Net_OpenID_MathLibrary::getLibWrapper();
-
         $lines = file_get_contents('Tests/n2b64', true);
-        $this->assertTrue(is_string($lines));
-
         $lines = explode("\n", $lines);
 
         $data = array();
@@ -192,33 +228,68 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
                 continue;
             }
             list($b64, $ascii) = explode(' ', $line);
-            $num = @$lib->init($ascii);
-            if ($num === false) {
-                $this->assertEquals($lib->type, 'dumb');
-            } else {
-                $data[$b64] = $num;
-            }
+            $data[$b64] = $ascii;
         }
         return $data;
     }
 
-    function test_longToBase64()
+    function Tests_Net_OpenID_CryptUtil($name)
     {
-        $data = $this->_parseBase64Data();
-        foreach ($data as $expected => $num) {
-            $actual = Net_OpenID_CryptUtil::longToBase64($num);
-            $this->assertEquals($expected, $actual);
-        }
-    }
+        $this->setName($name);
+        
+        if (!defined('Net_OpenID_NO_MATH_SUPPORT')) {
+            $this->addTestSuite('Tests_Net_OpenID_BigInt');
 
-    function test_base64ToLong()
-    {
-        $lib =& Net_OpenID_MathLibrary::getLibWrapper();
-        $data = $this->_parseBase64Data();
-        foreach ($data as $b64 => $expected) {
-            $actual = Net_OpenID_CryptUtil::base64ToLong($b64);
-            $this->assertTrue($lib->cmp($expected, $actual) == 0);
+            $lib =& Net_OpenID_MathLibrary::getLibWrapper();
+            $max = Net_OpenID_CryptUtil::maxint();
+            $upper = defined('Tests_Net_OpenID_thorough') ? 499 : 3;
+
+            foreach (range(0, $upper) as $iteration) {
+                $test = new Tests_Net_OpenID_BinLongConvertRnd($lib, $max);
+                $test->setName("BinLongConvertRnd " . strval($iteration));
+                $this->addTest($test);
+            }
+
+            $cases = array(
+                "\x00" => 0,
+                "\x01" => 1,
+                "\x00\xFF" => 255,
+                "\x00\x80" => 128,
+                "\x00\x81" => 129,
+                "\x00\x80\x00" => 32768,
+                "OpenID is cool" => "1611215304203901150134421257416556"
+                );
+
+            foreach ($cases as $bin => $lng_m) {
+                $lng = $lib->init($lng_m);
+                $test = new Tests_Net_OpenID_BinLongConvert($lib, $bin, $lng);
+                $test->setName('BinLongConvert ' . bin2hex($bin));
+                $this->addTest($test);
+            }
+
+            $count = defined('Tests_Net_OpenID_thorough') ? -1 : 2;
+            $data = $this->_parseBase64Data();
+            foreach ($data as $b64 => $num_s) {
+                // Only test the first few unless thorough is defined
+                if (strlen($num_s) > 5) {
+                    if ($count == 0) {
+                        break;
+                    } else {
+                        $count -= 1;
+                    }
+                }
+                $num = $lib->init($num_s);
+                $test = new Tests_Net_OpenID_Base64ToLong($lib, $b64, $num);
+                $test->setName("B64->Long $num_s");
+                $this->addTest($test);
+
+                $test = new Tests_Net_OpenID_LongToBase64($lib, $b64, $num);
+                $test->setName("Long->B64 $num_s");
+                $this->addTest($test);
+            }
         }
+
+        $this->addTestSuite('Tests_Net_OpenID_ByteOps');
     }
 }
 

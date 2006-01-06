@@ -617,6 +617,28 @@ class Net_OpenID_GmpMathWrapper extends Net_OpenID_MathWrapper {
 $Net_OpenID___mathLibrary = null;
 
 /**
+ * Define the supported extensions.  An extension array has keys
+ * 'modules', 'extension', and 'class'.  'modules' is an array of PHP
+ * module names which the loading code will attempt to load.  These
+ * values will be suffixed with a library file extension (e.g. ".so").
+ * 'extension' is the name of a PHP extension which will be tested
+ * before 'modules' are loaded.  'class' is the string name of a
+ * Net_OpenID_MathWrapper subclass which should be instantiated if a
+ * given extension is present.
+ *
+ * You can define new math library implementations and add them to
+ * this array.
+ */
+$_Net_OpenID_supported_extensions = array(
+    array('modules' => array('gmp', 'php_gmp'),
+          'extension' => 'gmp',
+          'class' => 'Net_OpenID_GmpMathWrapper'),
+    array('modules' => array('bcmath', 'php_bcmath'),
+          'extension' => 'bcmath',
+          'class' => 'Net_OpenID_BcMathWrapper')
+    );
+
+ /**
  * Net_OpenID_MathLibrary checks for the presence of long number
  * extension modules and returns an instance of Net_OpenID_MathWrapper
  * which exposes the module's functionality.
@@ -645,38 +667,26 @@ class Net_OpenID_MathLibrary {
      */
     function &getLibWrapper()
     {
-        // Define the supported extensions.  An extension array has
-        // keys 'modules', 'extension', and 'class'.  'modules' is an
-        // array of PHP module names which the loading code will
-        // attempt to load.  These values will be suffixed with a
-        // library file extension (e.g. ".so").  'extension' is the
-        // name of a PHP extension which will be tested before
-        // 'modules' are loaded.  'class' is the string name of a
-        // Net_OpenID_MathWrapper subclass which should be
-        // instantiated if a given extension is present.
-        $Net_OpenID_supported_extensions = array(
-              array('modules' => array('gmp', 'php_gmp'),
-                    'extension' => 'gmp',
-                    'class' => 'Net_OpenID_GmpMathWrapper'),
-              array('modules' => array('bcmath', 'php_bcmath'),
-                    'extension' => 'bcmath',
-                    'class' => 'Net_OpenID_BcMathWrapper')
-              );
+        if (defined('Net_OpenID_NO_MATH_SUPPORT')) {
+            return null;
+        }
+
+        global $_Net_OpenID_supported_extensions;
 
         // The instance of Net_OpenID_MathWrapper that we choose to
         // supply will be stored here, so that subseqent calls to this
         // method will return a reference to the same object.
-        global $Net_OpenID___mathLibrary;
-
+        global $_Net_OpenID___mathLibrary;
+            
         // If this method has not been called before, look at
         // $Net_OpenID_supported_extensions and try to find an
         // extension that works.
-        if (!$Net_OpenID___mathLibrary) {
+        if (!$_Net_OpenID___mathLibrary) {
             $loaded = false;
             $tried = array();
 
-            foreach ($Net_OpenID_supported_extensions as $extension) {
-                $tried[] = $extension;
+            foreach ($_Net_OpenID_supported_extensions as $extension) {
+                $tried[] = $extension['extension'];
 
                 // See if the extension specified is already loaded.
                 if ($extension['extension'] &&
@@ -699,7 +709,7 @@ class Net_OpenID_MathLibrary {
                 // module's functionality.
                 if ($loaded) {
                     $classname = $extension['class'];
-                    $Net_OpenID___mathLibrary = new $classname();
+                    $_Net_OpenID___mathLibrary = new $classname();
                     break;
                 }
             }
@@ -707,14 +717,16 @@ class Net_OpenID_MathLibrary {
             // If no extensions were found, fall back to
             // Net_OpenID_MathWrapper so at least some platform-size
             // math can be performed.
-            if (!$Net_OpenID___mathLibrary) {
+            if (!$_Net_OpenID___mathLibrary) {
                 $triedstr = implode(", ", $tried);
-                $msg = 'This PHP has no math library. tried: ' . $triedstr;
+                $msg = 'This PHP installation has no big integer math ' .
+                    'library. Define Net_OpenID_NO_MATH_SUPPORT to use ' .
+                    'this library in dumb mode. Tried: ' . $triedstr;
                 trigger_error($msg, E_USER_ERROR);
             }
         }
 
-        return $Net_OpenID___mathLibrary;
+        return $_Net_OpenID___mathLibrary;
     }
 }
 
