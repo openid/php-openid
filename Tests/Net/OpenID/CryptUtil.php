@@ -41,8 +41,6 @@ class Tests_Net_OpenID_ByteOps extends PHPUnit_TestCase {
 
     function test_cryptrand()
     {
-        $lib =& Net_OpenID_MathLibrary::getLibWrapper();
-
         // It's possible, but HIGHLY unlikely that a correct
         // implementation will fail by returning the same number twice
 
@@ -51,20 +49,6 @@ class Tests_Net_OpenID_ByteOps extends PHPUnit_TestCase {
         $this->assertEquals(strlen($s), 32);
         $this->assertEquals(strlen($t), 32);
         $this->assertFalse($s == $t);
-
-        $a = Net_OpenID_CryptUtil::randrange($lib->pow(2, 128));
-        $b = Net_OpenID_CryptUtil::randrange($lib->pow(2, 128));
-
-        $this->assertFalse($lib->cmp($b, $a) == 0, "Same: $a $b");
-
-        $n = $lib->init(Net_OpenID_CryptUtil::maxint());
-        $n = $lib->add($n, 1);
-
-        // Make sure that we can generate random numbers that are
-        // larger than platform int size
-        $result = Net_OpenID_CryptUtil::randrange($n);
-
-        // What can we say about the result?
     }
 
     function test_strxor()
@@ -213,6 +197,31 @@ class Tests_Net_OpenID_LongToBase64 extends Tests_Net_OpenID_Base64ToLong {
     }
 }
 
+class Tests_Net_OpenID_RandRange extends PHPUnit_TestCase {
+    function Tests_Net_OpenID_RandRange(&$lib)
+    {
+        $this->lib =& $lib;
+    }
+
+    function runTest()
+    {
+        $stop = $this->lib->pow(2, 128);
+        $a = Net_OpenID_CryptUtil::randrange($stop);
+        $b = Net_OpenID_CryptUtil::randrange($stop);
+
+        $this->assertFalse($this->lib->cmp($b, $a) == 0, "Same: $a $b");
+
+        $n = $this->lib->init(Net_OpenID_CryptUtil::maxint());
+        $n = $this->lib->add($n, 1);
+
+        // Make sure that we can generate random numbers that are
+        // larger than platform int size
+        $result = Net_OpenID_CryptUtil::randrange($n);
+
+        // What can we say about the result?
+    }
+}
+
 class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestSuite {
     function _parseBase64Data()
     {
@@ -284,6 +293,10 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestSuite {
                 $test->setName("Long->B64 $num_s");
                 $this->addTest($test);
             }
+
+            $test = new Tests_Net_OpenID_RandRange($lib);
+            $test->setName('Big number randrange');
+            $this->addTest($test);
         }
 
         $this->addTestSuite('Tests_Net_OpenID_ByteOps');
