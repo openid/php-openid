@@ -56,12 +56,14 @@ class Tests_Net_OpenID_DiffieHellman_Exch extends PHPUnit_TestCase {
 
     function runTest()
     {
+        $lib =& Net_OpenID_MathLibrary::getLibWrapper();
+        $shared = $lib->init($this->shared);
         $dh1 = new Net_OpenID_DiffieHellman(null, null, $this->p1);
         $dh2 = new Net_OpenID_DiffieHellman(null, null, $this->p2);
         $sh1 = $dh1->getSharedSecret($dh2->getPublicKey());
         $sh2 = $dh2->getSharedSecret($dh1->getPublicKey());
-        $this->assertEquals($this->shared, $sh1);
-        $this->assertEquals($this->shared, $sh2);
+        $this->assertEquals($lib->cmp($shared, $sh1), 0);
+        $this->assertEquals($lib->cmp($shared, $sh2), 0);
     }
 }
 
@@ -139,7 +141,9 @@ class Tests_Net_OpenID_DiffieHellman extends PHPUnit_TestSuite {
         $sanity->setName('Check parsing of exch test data');
         $this->addTest($sanity);
 
-        if (defined('Net_OpenID_math_type')) {
+        $lib = Net_OpenID_MathLibrary::getLibWrapper();
+
+        if ($lib->type != 'dumb') {
             if (defined('Tests_Net_OpenID_DH_thorough')) {
                 $npriv = count($priv_cases);
                 $nexch = count($exch_cases);
