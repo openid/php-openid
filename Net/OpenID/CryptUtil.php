@@ -161,7 +161,7 @@ class Net_OpenID_CryptUtil {
 
         $bytes = array();
 
-        while ($long) {
+        while ($lib->cmp($long, 0) > 0) {
             array_unshift($bytes, $lib->mod($long, 256));
             $long = $lib->div($long, pow(2, 8));
         }
