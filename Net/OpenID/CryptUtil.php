@@ -673,8 +673,11 @@ class Net_OpenID_MathLibrary {
         // extension that works.
         if (!$Net_OpenID___mathLibrary) {
             $loaded = false;
+            $tried = array();
 
             foreach ($Net_OpenID_supported_extensions as $extension) {
+                $tried[] = $extension;
+
                 // See if the extension specified is already loaded.
                 if ($extension['extension'] &&
                     extension_loaded($extension['extension'])) {
@@ -705,7 +708,9 @@ class Net_OpenID_MathLibrary {
             // Net_OpenID_MathWrapper so at least some platform-size
             // math can be performed.
             if (!$Net_OpenID___mathLibrary) {
-                $Net_OpenID___mathLibrary = new Net_OpenID_MathWrapper();
+                $triedstr = implode(", ", $tried);
+                $msg = 'This PHP has no math library. tried: ' . $triedstr;
+                trigger_error($msg, E_USER_ERROR);
             }
         }
 
