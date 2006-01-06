@@ -550,6 +550,16 @@ class Net_OpenID_BcMathWrapper extends Net_OpenID_MathWrapper {
     {
         return bcdiv($x, $y);
     }
+
+    function powmod($base, $exponent, $modulus)
+    {
+        if (false && function_exists('bcpowmod')) {
+            return bcpowmod($base, $exponent, $modulus);
+        } else {
+            return parent::powmod($base, $exponent, $modulus);
+        }
+    }
+        
 }
 
 /**
