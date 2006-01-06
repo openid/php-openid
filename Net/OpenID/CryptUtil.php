@@ -615,7 +615,7 @@ class Net_OpenID_GmpMathWrapper extends Net_OpenID_MathWrapper {
 
     function div($x, $y)
     {
-        return gmp_div($x, $y);
+        return gmp_div_q($x, $y);
     }
 
     function powmod($base, $exponent, $modulus)
