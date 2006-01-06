@@ -56,13 +56,6 @@ class Net_OpenID_DiffieHellman {
                           E_USER_ERROR);
         }
 
-        if ($this->lib->type == 'dumb') {
-            trigger_error("No usable big integer library present ".
-                          "(gmp or bcmath). Use of this math library wrapper".
-                          "is not permitted without big integer support.",
-                          E_USER_ERROR);
-        }
-
         if ($mod === null) {
             $this->mod = $this->lib->init($_Net_OpenID_DEFAULT_MOD);
         } else {
