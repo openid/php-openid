@@ -58,9 +58,7 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
 
         // If $a is a float, it's because we're using fallback number
         // storage (PHP stores overflowed ints as floats).
-        $this->assertFalse(is_float($a));
-        $this->assertFalse(is_float($b));
-        $this->assertFalse($b == $a);
+        $this->assertFalse($lib->cmp($b, $a) == 0, "Same: $a $b");
 
         $n = $lib->init(Net_OpenID_CryptUtil::maxint());
         $one = $lib->init(1);
@@ -149,8 +147,8 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
         foreach (range(0, 499) as $iteration) {
             $n = $lib->init(0);
             foreach (range(0, 9) as $i) {
-                $n = $lib->add($n, $lib->init(
-                                       Net_OpenID_CryptUtil::randrange($MAX)));
+                $rnd = Net_OpenID_CryptUtil::randrange($MAX);
+                $n = $lib->add($n, $rnd);
             }
 
             $s = Net_OpenID_CryptUtil::longToBinary($n);
@@ -179,9 +177,8 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
         }
     }
 
-    function test_longToBase64()
+    function _parseBase64Data()
     {
-
         $lib =& Net_OpenID_MathLibrary::getLibWrapper();
 
         $lines = file_get_contents('Tests/n2b64', true);
@@ -189,33 +186,38 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestCase {
 
         $lines = explode("\n", $lines);
 
+        $data = array();
         foreach ($lines as $line) {
             if (!$line) {
                 continue;
             }
-            $parts = explode(' ', $line);
-            $this->assertEquals($parts[0],
-                     Net_OpenID_CryptUtil::longToBase64($lib->init($parts[1])));
+            list($b64, $ascii) = explode(' ', $line);
+            $num = @$lib->init($ascii);
+            if ($num === false) {
+                $this->assertEquals($lib->type, 'dumb');
+            } else {
+                $data[$b64] = $num;
+            }
+        }
+        return $data;
+    }
+
+    function test_longToBase64()
+    {
+        $data = $this->_parseBase64Data();
+        foreach ($data as $expected => $num) {
+            $actual = Net_OpenID_CryptUtil::longToBase64($num);
+            $this->assertEquals($expected, $actual);
         }
     }
 
     function test_base64ToLong()
     {
-
         $lib =& Net_OpenID_MathLibrary::getLibWrapper();
-
-        $lines = file_get_contents('Tests/n2b64', true);
-        $this->assertTrue(is_string($lines));
-
-        $lines = explode("\n", $lines);
-
-        foreach ($lines as $line) {
-            if (!$line) {
-                continue;
-            }
-            $parts = explode(' ', $line);
-            $this->assertEquals($lib->init($parts[1]),
-                                Net_OpenID_CryptUtil::base64ToLong($parts[0]));
+        $data = $this->_parseBase64Data();
+        foreach ($data as $b64 => $expected) {
+            $actual = Net_OpenID_CryptUtil::base64ToLong($b64);
+            $this->assertTrue($lib->cmp($expected, $actual) == 0);
         }
     }
 }
