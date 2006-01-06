@@ -624,7 +624,7 @@ class Net_OpenID_GmpMathWrapper extends Net_OpenID_MathWrapper {
     }
 }
 
-$Net_OpenID___mathLibrary = null;
+$_Net_OpenID___mathLibrary = null;
 
 /**
  * Define the supported extensions.  An extension array has keys
@@ -677,17 +677,18 @@ class Net_OpenID_MathLibrary {
      */
     function &getLibWrapper()
     {
-        if (defined('Net_OpenID_NO_MATH_SUPPORT')) {
-            return null;
-        }
-
-        global $_Net_OpenID_supported_extensions;
-
         // The instance of Net_OpenID_MathWrapper that we choose to
         // supply will be stored here, so that subseqent calls to this
         // method will return a reference to the same object.
         global $_Net_OpenID___mathLibrary;
             
+        if (defined('Net_OpenID_NO_MATH_SUPPORT')) {
+            $_Net_OpenID___mathLibrary = null;
+            return $_Net_OpenID___mathLibrary;
+        }
+
+        global $_Net_OpenID_supported_extensions;
+
         // If this method has not been called before, look at
         // $Net_OpenID_supported_extensions and try to find an
         // extension that works.
