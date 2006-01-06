@@ -302,7 +302,7 @@ class Net_OpenID_CryptUtil {
             $start = 0;
         }
 
-        $r = $lib->sub($stop, $start);
+        $r = $lib->div($lib->sub($stop, $start), $step);
 
         // DO NOT MODIFY THIS VALUE.
         $rbytes = Net_OpenID_CryptUtil::longToBinary($r);
@@ -311,7 +311,7 @@ class Net_OpenID_CryptUtil {
             list($duplicate, $nbytes) =
                 $Net_OpenID_CryptUtil_duplicate_cache[$rbytes];
         } else {
-            if ($rbytes[0] == '\x00') {
+            if ($rbytes[0] == "\x00") {
                 $nbytes = strlen($rbytes) - 1;
             } else {
                 $nbytes = strlen($rbytes);
@@ -332,13 +332,15 @@ class Net_OpenID_CryptUtil {
         }
 
         while (1) {
-            $bytes = '\x00' . Net_OpenID_CryptUtil::getBytes($nbytes);
+            $bytes = "\x00" . Net_OpenID_CryptUtil::getBytes($nbytes);
             $n = Net_OpenID_CryptUtil::binaryToLong($bytes);
-            // Keep looping if this value is in the low duplicated range
+            // Keep looping if this value is in the low duplicated
+            // range
             if ($lib->cmp($n, $duplicate) >= 0) {
                 break;
             }
         }
+
         return $lib->add($start, $lib->mul($lib->mod($n, $r), $step));
     }
 
