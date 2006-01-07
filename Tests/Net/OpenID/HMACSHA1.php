@@ -47,12 +47,7 @@ class Tests_Net_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
                 $data .= $c;
             }
         } elseif (substr($s, 0, 2) == "0x") {
-            $size = strlen($s);
-            $data = '';
-            for ($i = 2; $i < $size; $i += 2) {
-                $byte = substr($s, $i, 2);
-                $data .= chr(hexdec($byte));
-            }
+            $data = pack('H*', substr($s, 2, strlen($s) - 1));
         } elseif (preg_match('/^"(.*)"$/', $s, $match)) {
             $data = $match[1];
         } else {
