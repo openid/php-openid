@@ -50,7 +50,7 @@ class Net_OpenID_CryptUtil {
     function getBytes($num_bytes)
     {
         $bytes = '';
-        $f = @fopen("/dev/urandom", "r");
+        $f = @fopen(Net_OpenID_RAND_SOURCE, "r");
         if ($f === false) {
             if (!defined('Net_OpenID_USE_INSECURE_RAND')) {
                 trigger_error('Set Net_OpenID_USE_INSECURE_RAND to ' .
