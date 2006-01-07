@@ -254,8 +254,8 @@ class Net_OpenID_CryptUtil {
             return null;
         }
 
-        $data = unpack('N', $str);
-        return $data[1];
+        $data = unpack('Nx', $str);
+        return $data['x'];
     }
 
     /**
