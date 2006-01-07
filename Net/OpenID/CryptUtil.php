@@ -138,7 +138,9 @@ class Net_OpenID_CryptUtil {
 
     /**
      * Given a long integer, returns the number converted to a binary
-     * string.
+     * string.  This function accepts long integer values of arbitrary
+     * magnitude and uses the local large-number math library when
+     * available.
      *
      * @param integer $long The long number (can be a normal PHP
      * integer or a number created by one of the available long number
@@ -152,7 +154,7 @@ class Net_OpenID_CryptUtil {
 
         $cmp = $lib->cmp($long, 0);
         if ($cmp < 0) {
-            print "numToBytes takes only positive integers.";
+            print "longToBytes takes only positive integers.";
             return null;
         }
 
@@ -180,6 +182,27 @@ class Net_OpenID_CryptUtil {
     }
 
     /**
+     * Given a long integer, returns the number converted to a binary
+     * string.  This function accepts "long" numbers within the PHP
+     * integer range (usually 32 bits).
+     *
+     * @param integer $long The long number (can be a normal PHP
+     * integer or a number created by one of the available long number
+     * libraries)
+     * @return string $binary The binary version of $long
+     */
+    function longToBinary_platform($long)
+    {
+
+        if ($long < 0) {
+            print "longToBytes_platform takes only positive integers.";
+            return null;
+        }
+
+        return pack('N', $long);
+    }
+
+    /**
      * Given a binary string, returns the binary string converted to a
      * long number.
      *
@@ -203,7 +226,8 @@ class Net_OpenID_CryptUtil {
         $n = $lib->init(0);
 
         if ($bytes && ($bytes[0] > 127)) {
-            print "bytesToNum works only for positive integers.";
+            trigger_error("bytesToNum works only for positive integers.",
+                          E_USER_WARNING);
             return null;
         }
 
@@ -213,6 +237,25 @@ class Net_OpenID_CryptUtil {
         }
 
         return $n;
+    }
+
+    /**
+     * Given a binary string, returns the binary string converted to a
+     * long number.
+     *
+     * @param string $binary The binary version of a long number,
+     * probably as a result of calling longToBinary
+     * @return integer $long The long number equivalent of the binary
+     * string $str
+     */
+    function binaryToLong_platform($str)
+    {
+        if ($str === null) {
+            return null;
+        }
+
+        $data = unpack('N', $str);
+        return $data[1];
     }
 
     /**
@@ -280,7 +323,10 @@ class Net_OpenID_CryptUtil {
     }
 
     /**
-     * Returns a random number in the specified range.
+     * Returns a random number in the specified range.  This function
+     * accepts $start, $stop, and $step values of arbitrary magnitude
+     * and will utilize the local large-number math library when
+     * available.
      *
      * @param integer $start The start of the range, or the minimum
      * random number to return
@@ -345,6 +391,71 @@ class Net_OpenID_CryptUtil {
     }
 
     /**
+     * Returns a random number in the specified range.  This function
+     * accepts $start, $stop, and $step values within the platform
+     * integer range.
+     *
+     * @param integer $start The start of the range, or the minimum
+     * random number to return
+     * @param integer $stop The end of the range, or the maximum
+     * random number to return
+     * @param integer $step The step size, such that $result - ($step
+     * * N) = $start for some N
+     * @return integer $result The resulting randomly-generated number
+     */
+    function randrange_platform($start, $stop = null, $step = 1)
+    {
+
+        static $Net_OpenID_CryptUtil_duplicate_cache = array();
+
+        if ($stop == null) {
+            $stop = $start;
+            $start = 0;
+        }
+
+        $r = ($stop - $start) / $step;
+
+        // DO NOT MODIFY THIS VALUE.
+        $rbytes = Net_OpenID_CryptUtil::longToBinary_platform($r);
+
+        if (array_key_exists($rbytes, $Net_OpenID_CryptUtil_duplicate_cache)) {
+            list($duplicate, $nbytes) =
+                $Net_OpenID_CryptUtil_duplicate_cache[$rbytes];
+        } else {
+            if ($rbytes[0] == "\x00") {
+                $nbytes = strlen($rbytes) - 1;
+            } else {
+                $nbytes = strlen($rbytes);
+            }
+
+            $mxrand = pow(256, $nbytes);
+
+            // If we get a number less than this, then it is in the
+            // duplicated range.
+            $duplicate = $mxrand % $r;
+
+            if (count($Net_OpenID_CryptUtil_duplicate_cache) > 10) {
+                $Net_OpenID_CryptUtil_duplicate_cache = array();
+            }
+
+            $Net_OpenID_CryptUtil_duplicate_cache[$rbytes] =
+                array($duplicate, $nbytes);
+        }
+
+        while (1) {
+            $bytes = "\x00" . Net_OpenID_CryptUtil::getBytes($nbytes);
+            $n = Net_OpenID_CryptUtil::binaryToLong_platform($bytes);
+            // Keep looping if this value is in the low duplicated
+            // range
+            if ($n >= $duplicate) {
+                break;
+            }
+        }
+
+        return $start + ($n % $r) * $step;
+    }
+
+    /**
      * Produce a string of length random bytes, chosen from chrs.  If
      * $chrs is null, the resulting string may contain any characters.
      *
@@ -363,7 +474,7 @@ class Net_OpenID_CryptUtil {
             $n = strlen($chrs);
             $str = "";
             for ($i = 0; $i < $length; $i++) {
-                $str .= $chrs[Net_OpenID_CryptUtil::randrange($n)];
+                $str .= $chrs[Net_OpenID_CryptUtil::randrange_platform($n)];
             }
             return $str;
         }
