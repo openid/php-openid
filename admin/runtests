@@ -1,36 +1,42 @@
 #!/usr/bin/env bash
 
+HERE=$(readlink --canonicalize $(dirname "$0"))
+
 test_tabs () {
-    /usr/bin/env bash $(dirname "$0")/notabs
+    /usr/bin/env bash "$HERE/notabs"
 }
 
 test_longlines () {
-    /usr/bin/env bash $(dirname "$0")/nolonglines
+    /usr/bin/env bash "$HERE/nolonglines"
 }
 
 test_nobadbraces () {
-    /usr/bin/env bash $(dirname "$0")/nobadbraces
+    /usr/bin/env bash "$HERE/nobadbraces"
 }
 
 test_nobadcase () {
-    /usr/bin/env bash $(dirname "$0")/nobadcase
+    /usr/bin/env bash "$HERE/nobadcase"
 }
 
 test_opentag () {
-    /usr/bin/env bash $(dirname "$0")/open_tag
+    /usr/bin/env bash "$HERE/open_tag"
 }
 
 test_docblocks () {
-    /usr/bin/env bash $(dirname "$0")/docblocks
+    /usr/bin/env bash "$HERE/docblocks"
 }
 
 test_php () {
-    /usr/bin/env php texttest.php
+    /usr/bin/env php "$HERE/texttest.php"
 }
 
 tests="tabs longlines nobadbraces nobadcase opentag docblocks php"
 
 failures=
+
+# Run in repository root (parent of this directory)
+cd $(dirname "$HERE")
+
 for test_name in $tests
   do
   echo "Running test $test_name" 1>&2
