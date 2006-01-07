@@ -73,7 +73,7 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
         $hdl = Net_OpenID_CryptUtil::randomString(128, $this->allowed_handle);
         return new Net_OpenID_Association($hdl, $sec, $now + $issued, $lifetime,
                                           'HMAC-SHA1');
-     }
+    }
 
     function _checkRetrieve(&$store, $url, $handle, $expected, $name=null)
     {
@@ -216,8 +216,8 @@ explicitly');
         // A nonce is not present by default
         $this->_checkUseNonce($store, $nonce1, false);
 
-        // Storing once causes useNonce to return true the first, and only
-        // the first, time it is called after the $store->
+        // Storing once causes useNonce to return true the first, and
+        // only the first, time it is called after the $store->
         $store->storeNonce($nonce1);
         $this->_checkUseNonce($store, $nonce1, true);
         $this->_checkUseNonce($store, $nonce1, false);
@@ -230,8 +230,8 @@ explicitly');
 
         // Auth key functions
 
-        // There is no key to start with, so generate a new key and return
-        // it.
+        // There is no key to start with, so generate a new key and
+        // return it.
         $key = $store->getAuthKey();
 
         // The second time around should return the same as last time.
