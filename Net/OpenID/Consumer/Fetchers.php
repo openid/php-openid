@@ -121,6 +121,12 @@ class Net_OpenID_PlainFetcher extends Net_OpenID_HTTPFetcher
                 $parts['port'] = 80;
             } elseif ($parts['scheme'] == 'https') {
                 $parts['port'] = 443;
+            } else {
+                trigger_error("fetcher post method doesn't support scheme '" .
+                              $parts['scheme'] .
+                              "', no default port available",
+                              E_USER_WARNING);
+                return null;
             }
         }
 
