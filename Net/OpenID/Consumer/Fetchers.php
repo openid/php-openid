@@ -109,14 +109,22 @@ class Net_OpenID_PlainFetcher extends Net_OpenID_HTTPFetcher
         $headers[] = "Content-type: application/x-www-form-urlencoded";
         $headers[] = "Content-length: " . strval(strlen($body));
 
+        // Join all headers together.
         $all_headers = implode("\n", $headers);
 
+        // Add headers, two newlines, and request body.
         $request = $all_headers . "\n\n" . $body;
 
+        // Set a default port.
         if (!array_key_exists('port', $parts)) {
-            $parts['port'] = 80;
+            if ($parts['scheme'] == 'http') {
+                $parts['port'] = 80;
+            } elseif ($parts['scheme'] == 'https') {
+                $parts['port'] = 443;
+            }
         }
 
+        // Connect to the remote server.
         $sock = fsockopen($parts['host'], $parts['port']);
 
         if ($sock === false) {
