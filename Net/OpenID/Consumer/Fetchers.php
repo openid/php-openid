@@ -15,9 +15,14 @@
  */
 
 /**
- * Specify a socket timeout setting (in seconds).
+ * Specify a socket timeout setting, in seconds.
  */
 $_Net_OpenID_socket_timeout = 20;
+
+/**
+ * Specify allowed URL schemes for fetching.
+ */
+$_Net_OpenID_allowed_schemes = array('http', 'https');
 
 class Net_OpenID_HTTPFetcher {
     /**
@@ -57,23 +62,22 @@ function Net_OpenID_getHTTPFetcher()
         $fetcher = new ParanoidHTTPFetcher();
     }
 
-    /*
-    if (!$raise_errors) {
-        $fetcher = ExceptionCatchingFetcher($fetcher);
-    }
-    */
-
     return $fetcher;
 }
 
 function Net_OpenID_allowedURL($url)
 {
-    // url.startswith('http://') or url.startswith('https://')
-    return (strpos($url, 'http://') == 0) ||
-        (strpos($url, 'https://') == 0);
+    global $_Net_OpenID_allowed_schemes;
+    foreach ($_Net_OpenID_allowed_schemes as $scheme) {
+        if (strpos($url, sprintf("%s://", $scheme)) == 0) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
-class Net_OpenID_PlainFetcher extends Net_OpenID_HTTPFetcher {
+class Net_OpenID_PlainHTTPFetcher extends Net_OpenID_HTTPFetcher {
     function _fetch($url)
     {
         $data = file_get_contents($url);
@@ -176,6 +180,50 @@ class Net_OpenID_PlainFetcher extends Net_OpenID_HTTPFetcher {
 }
 
 /**
+ * An array to store headers and data from Curl calls.
+ */
+$_Net_OpenID_curl_data = array();
+
+/**
+ * A function to prepare a "slot" in the global $_Net_OpenID_curl_data
+ * array so curl data can be stored there by curl callbacks in the
+ * paranoid fetcher.
+ */
+function _initResponseSlot($ch)
+{
+    global $_Net_OpenID_curl_data;
+    $key = strval($ch);
+    if (!array_key_exists($key, $_Net_OpenID_curl_data)) {
+        $_Net_OpenID_curl_data[$key] = array('headers' => array(),
+                                             'body' => "");
+    }
+    return $key;
+}
+
+/**
+ * A callback function for curl so headers can be stored.
+ */
+function _writeHeaders($ch, $data)
+{
+    global $_Net_OpenID_curl_data;
+    $key = _initResponseSlot($ch);
+    $_Net_OpenID_curl_data[$key]['headers'][] = rtrim($data);
+    return strlen($data);
+}
+
+/**
+ * A callback function for curl so page data can be stored.
+ */
+function _writeData($ch, $data)
+{
+    global $_Net_OpenID_curl_data;
+    $key = _initResponseSlot($ch);
+    $_Net_OpenID_curl_data[$key]['body'] .= $data;
+    return strlen($data);
+}
+
+
+/**
  * A paranoid Net_OpenID_HTTPFetcher class which uses CURL for
  * fetching.
  */
@@ -191,18 +239,104 @@ class Net_OpenID_ParanoidHTTPFetcher extends Net_OpenID_HTTPFetcher {
 
     function _findRedirect($headers)
     {
-    }
-
-    function _checkURL($url)
-    {
+        foreach ($headers as $line) {
+            if (strpos($line, "Location: ") == 0) {
+                $parts = explode(" ", $line, 2);
+                return $parts[1];
+            }
+        }
+        return null;
     }
 
     function get($url)
     {
+        global $_Net_OpenID_socket_timeout;
+        global $_Net_OpenID_curl_data;
+
+        $c = curl_init();
+
+        $curl_key = _initResponseSlot($c);
+
+        curl_setopt($c, CURLOPT_NOSIGNAL, true);
+
+        $stop = time() + $_Net_OpenID_socket_timeout;
+        $off = $_Net_OpenID_socket_timeout;
+
+        while ($off > 0) {
+            if (!Net_OpenID_allowedURL($url)) {
+                trigger_error(sprintf("Fetching URL not allowed: %s", $url),
+                              E_USER_WARNING);
+                return null;
+            }
+
+            curl_setopt($c, CURLOPT_WRITEFUNCTION, "_writeData");
+            curl_setopt($c, CURLOPT_HEADERFUNCTION, "_writeHeaders");
+            curl_setopt($c, CURLOPT_TIMEOUT, $off);
+            curl_setopt($c, CURLOPT_URL, $url);
+
+            curl_exec($c);
+
+            $code = curl_getinfo($c, CURLINFO_HTTP_CODE);
+            $body = $_Net_OpenID_curl_data[$curl_key]['body'];
+            $headers = $_Net_OpenID_curl_data[$curl_key]['headers'];
+
+            if (!$code) {
+                trigger_error("No HTTP code returned", E_USER_WARNING);
+                return null;
+            }
+
+            if (in_array($code, array(301, 302, 303, 307))) {
+                $url = $this->_findRedirect($headers);
+                print "Got redirect\n";
+            } else {
+                curl_close($c);
+                return array($code, $url, $body);
+            }
+
+            $off = $stop - time();
+        }
+
+        trigger_error(sprintf("Timed out fetching: %s", $url),
+                      E_USER_WARNING);
+
+        return null;
     }
 
     function post($url, $body)
     {
+        global $_Net_OpenID_socket_timeout;
+        global $_Net_OpenID_curl_data;
+
+        if (!Net_OpenID_allowedURL($url)) {
+            trigger_error(sprintf("Fetching URL not allowed: %s", $url),
+                          E_USER_WARNING);
+            return null;
+        }
+
+        $c = curl_init();
+
+        $curl_key = _initResponseSlot($c);
+
+        curl_setopt($c, CURLOPT_NOSIGNAL, true);
+        curl_setopt($c, CURLOPT_POST, true);
+        curl_setopt($c, CURLOPT_POSTFIELDS, $body);
+        curl_setopt($c, CURLOPT_TIMEOUT, $_Net_OpenID_socket_timeout);
+        curl_setopt($c, CURLOPT_URL, $url);
+        curl_setopt($c, CURLOPT_WRITEFUNCTION, "_writeData");
+
+        curl_exec($c);
+
+        $code = curl_getinfo($c, CURLINFO_HTTP_CODE);
+
+        if (!$code) {
+            trigger_error("No HTTP code returned", E_USER_WARNING);
+            return null;
+        }
+
+        $body = $_Net_OpenID_curl_data[$curl_key]['body'];
+
+        curl_close($c);
+        return array($code, $url, $body);
     }
 }
 
