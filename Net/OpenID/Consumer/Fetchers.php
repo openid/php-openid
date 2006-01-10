@@ -14,6 +14,11 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
+/**
+ * Specify a socket timeout setting (in seconds).
+ */
+$_Net_OpenID_socket_timeout = 20;
+
 class Net_OpenID_HTTPFetcher {
     /**
      * This class is the interface for HTTP fetchers the OpenID
@@ -68,8 +73,7 @@ function Net_OpenID_allowedURL($url)
         (strpos($url, 'https://') == 0);
 }
 
-class Net_OpenID_PlainFetcher extends Net_OpenID_HTTPFetcher
-{
+class Net_OpenID_PlainFetcher extends Net_OpenID_HTTPFetcher {
     function _fetch($request)
     {
         $data = file_get_contents();
@@ -94,6 +98,8 @@ class Net_OpenID_PlainFetcher extends Net_OpenID_HTTPFetcher
 
     function post($url, $body)
     {
+        global $_Net_OpenID_socket_timeout;
+
         if (!Net_OpenID_allowedURL($url)) {
             trigger_error("Bad URL scheme in url: " . $url,
                           E_USER_WARNING);
@@ -104,7 +110,7 @@ class Net_OpenID_PlainFetcher extends Net_OpenID_HTTPFetcher
 
         $headers = array();
 
-        $headers[] = "POST $url HTTP/1.1";
+        $headers[] = "POST ".$parts['path']." HTTP/1.1";
         $headers[] = "Host: " . $parts['host'];
         $headers[] = "Content-type: application/x-www-form-urlencoded";
         $headers[] = "Content-length: " . strval(strlen($body));
@@ -132,6 +138,7 @@ class Net_OpenID_PlainFetcher extends Net_OpenID_HTTPFetcher
 
         // Connect to the remote server.
         $sock = fsockopen($parts['host'], $parts['port']);
+        stream_set_timeout($sock, $_Net_OpenID_socket_timeout);
 
         if ($sock === false) {
             trigger_error("Could not connect to " . $parts['host'] .
@@ -140,14 +147,31 @@ class Net_OpenID_PlainFetcher extends Net_OpenID_HTTPFetcher
             return null;
         }
 
+        // Write the POST request.
+        fputs($sock, $request);
+
+        // Get the response from the server.
         $response = "";
         while (!feof($sock)) {
-            $response .= fgets($sock, 1024);
+            if ($data = fgets($sock, 128)) {
+                $response .= $data;
+            } else {
+                break;
+            }
         }
 
-        // Need to separate headers from body.
+        // Split the request into headers and body.
+        list($headers, $response_body) = explode("\n\n", $response, 2);
 
-        return array(200, $url, $response);
+        $headers = explode("\n", $headers);
+
+        // Expect the first line of the headers data to be something
+        // like HTTP/1.1 200 OK.  Split the line on spaces and take
+        // the second token, which should be the return code.
+        $http_code = explode(" ", $headers[0]);
+        $code = $http_code[1];
+
+        return array($code, $url, $response_body);
     }
 }
 
