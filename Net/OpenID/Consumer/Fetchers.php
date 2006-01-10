@@ -175,4 +175,35 @@ class Net_OpenID_PlainFetcher extends Net_OpenID_HTTPFetcher {
     }
 }
 
+/**
+ * A paranoid Net_OpenID_HTTPFetcher class which uses CURL for
+ * fetching.
+ */
+class Net_OpenID_ParanoidHTTPFetcher extends Net_OpenID_HTTPFetcher {
+    function Net_OpenID_ParanoidHTTPFetcher()
+    {
+        global $_Net_OpenID_curl_found;
+        if (!$_Net_OpenID_curl_found) {
+            trigger_error("Cannot use this class; CURL extension not found",
+                          E_USER_ERROR);
+        }
+    }
+
+    function _findRedirect($headers)
+    {
+    }
+
+    function _checkURL($url)
+    {
+    }
+
+    function get($url)
+    {
+    }
+
+    function post($url, $body)
+    {
+    }
+}
+
 ?>
