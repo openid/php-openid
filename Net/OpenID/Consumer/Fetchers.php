@@ -74,9 +74,9 @@ function Net_OpenID_allowedURL($url)
 }
 
 class Net_OpenID_PlainFetcher extends Net_OpenID_HTTPFetcher {
-    function _fetch($request)
+    function _fetch($url)
     {
-        $data = file_get_contents();
+        $data = file_get_contents($url);
 
         if ($data !== false) {
             return array(200, $url, $data);
