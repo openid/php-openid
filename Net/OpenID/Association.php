@@ -258,7 +258,7 @@ class Net_OpenID_Association {
 
     function addSignature($fields, $data, $prefix = 'openid.')
     {
-        $sig = self.signDict($fields, $data, $prefix);
+        $sig = $this->signDict($fields, $data, $prefix);
         $signed = implode(",", $fields);
         $data[$prefix . 'sig'] = $sig;
         $data[$prefix . 'signed'] = $signed;
