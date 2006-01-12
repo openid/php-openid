@@ -163,4 +163,55 @@ function Net_OpenID_parseLinkAttrs($html)
     return $link_data;
 }
 
+function Net_OpenID_relMatches($rel_attr, $target_rel)
+{
+    // Does this target_rel appear in the rel_str?
+    // XXX: TESTME
+    $rels = preg_split("/\s+/", strip($rel_attr));
+    foreach ($rels as $rel) {
+        $rel = strtolower($rel);
+        if ($rel == $target_rel) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+function Net_OpenID_linkHasRel($link_attrs, $target_rel)
+{
+    // Does this link have target_rel as a relationship?
+    // XXX: TESTME
+    $rel_attr = Net_OpenID_array_get($link_attrs, 'rel', null);
+    return ($rel_attr && Net_OpenID_relMatches($rel_attr, $target_rel));
+}
+
+function Net_OpenID_findLinksRel($link_attrs_list, $target_rel)
+{
+    // Filter the list of link attributes on whether it has target_rel
+    // as a relationship.
+    // XXX: TESTME
+    $result = array();
+    foreach ($link_attrs_list as $attr) {
+        if (Net_OpenID_linkHasRel($attr, $target_rel)) {
+            $result[] = $attr;
+        }
+    }
+
+    return $result;
+}
+
+function Net_OpenID_findFirstHref($link_attrs_list, $target_rel)
+{
+    // Return the value of the href attribute for the first link tag
+    // in the list that has target_rel as a relationship.
+    // XXX: TESTME
+    $matches = Net_OpenID_findLinksRel($link_attrs_list, $target_rel);
+    if (!$matches) {
+        return null;
+    }
+    $first = $matches[0];
+    return Net_OpenID_array_get($first, 'href', null);
+}
+
 ?>
