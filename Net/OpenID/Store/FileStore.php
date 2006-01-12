@@ -16,6 +16,7 @@
  */
 
 require_once('Interface.php');
+require_once('Net/OpenID/OIDUtil.php');
 
 function Net_OpenID_mkstemp($dir)
 {
@@ -55,9 +56,9 @@ function Net_OpenID_listdir($dir)
 
 function _isFilenameSafe($char)
 {
-    $letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    $digits = "0123456789";
-    $_Net_OpenID_filename_allowed = $letters . $digits . ".";
+    global $_Net_OpenID_letters, $_Net_OpenID_digits;
+    $_Net_OpenID_filename_allowed = $_Net_OpenID_letters .
+        $_Net_OpenID_digits . ".";
     return (strpos($_Net_OpenID_filename_allowed, $char) !== false);
 }
 

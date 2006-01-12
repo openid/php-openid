@@ -14,6 +14,13 @@
  */
 
 /**
+ * Some constants for string checking.
+ */
+$_Net_OpenID_letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+$_Net_OpenID_digits = "0123456789";
+$_Net_OpenID_punct = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
+
+/**
  * Prints the specified message using trigger_error(E_USER_NOTICE).
  */
 function Net_OpenID_log($message, $unused_level = 0)

@@ -15,6 +15,7 @@
 
 require_once('Net/OpenID/Association.php');
 require_once('Net/OpenID/CryptUtil.php');
+require_once('Net/OpenID/OIDUtil.php');
 
 function Net_OpenID_rmtree($dir)
 {
@@ -54,9 +55,12 @@ class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
 
     function setUp()
     {
-        $this->letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        $this->digits = "0123456789";
-        $this->punct = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
+        global $_Net_OpenID_letters, $_Net_OpenID_digits,
+            $_Net_OpenID_punct;
+
+        $this->letters = $_Net_OpenID_letters;
+        $this->digits = $_Net_OpenID_digits;
+        $this->punct = $_Net_OpenID_punct;
         $this->allowed_nonce = $this->letters . $this->digits;
         $this->allowed_handle = $this->letters . $this->digits . $this->punct;
     }
