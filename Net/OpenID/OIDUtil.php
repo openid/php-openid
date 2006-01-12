@@ -21,6 +21,25 @@ $_Net_OpenID_digits = "0123456789";
 $_Net_OpenID_punct = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
 
 /**
+ * Convenience function for getting array values.
+ */
+function Net_OpenID_array_get($arr, $key, $fallback = null)
+{
+    if (is_array($arr)) {
+        if (array_key_exists($key, $arr)) {
+            return $arr[$key];
+        } else {
+            return $fallback;
+        }
+    } else {
+        trigger_error("Net_OpenID_array_get expected " .
+                      "array as first parameter", E_USER_WARNING);
+        return false;
+    }
+}
+
+
+/**
  * Prints the specified message using trigger_error(E_USER_NOTICE).
  */
 function Net_OpenID_log($message, $unused_level = 0)
