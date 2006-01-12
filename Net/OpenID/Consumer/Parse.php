@@ -61,13 +61,13 @@ function Net_OpenID_html_find()
 
 function Net_OpenID_head_find()
 {
-    return Net_OpenID_tagMatcher('head');
+    return Net_OpenID_tagMatcher('head', array('body'));
 }
 
-$_Net_OpenID_link_find = sprintf("/<link\b(?!:)[^\>]*>/%s",
-                                 $_Net_OpenID_re_flags);
+$_Net_OpenID_attr_find = '\b(\w+)=("[^"]*"|\'[^\']*\'|[^\'"\s\/<>]+)';
 
-$_Net_OpenID_attr_find = '(\w+)=("[^"]*"|\'[^\']*\'|[^\s>]*)';
+$_Net_OpenID_link_find = sprintf("/<link\b(?!:)([^>]*)(?!<)>/%s",
+                                 $_Net_OpenID_re_flags);
 
 $_Net_OpenID_entity_replacements = array(
                                          'amp' => '&',
@@ -150,10 +150,12 @@ function Net_OpenID_parseLinkAttrs($html)
         preg_match_all($_Net_OpenID_attr_find, $link, $attr_matches);
         $link_attrs = array();
         foreach ($attr_matches[0] as $index => $full_match) {
-            $link_attrs[$attr_matches[1][$index]] =
-                Net_OpenID_replace_entities(
-                  Net_OpenID_remove_quotes(
-                    $attr_matches[2][$index]));
+            $name = $attr_matches[1][$index];
+            $value = Net_OpenID_replace_entities(
+                       Net_OpenID_remove_quotes(
+                         $attr_matches[2][$index]));
+
+            $link_attrs[$name] = $value;
         }
         $link_data[] = $link_attrs;
     }
