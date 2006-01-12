@@ -25,6 +25,8 @@ $_Net_OpenID_DEFAULT_MOD = '155172898181473697471232257763715539915724801'.
 '681476726513255747040765857479291291572334510643245094715007229621094194'.
 '349783925984760375594985848253359305585439638443';
 
+$_Net_OpenID_DEFAULT_GEN = '2';
+
 /**
  * The Diffie-Hellman key exchange class.  This class relies on
  * Net_OpenID_MathLibrary to perform large number operations.
@@ -32,8 +34,6 @@ $_Net_OpenID_DEFAULT_MOD = '155172898181473697471232257763715539915724801'.
  * @package OpenID
  */
 class Net_OpenID_DiffieHellman {
-
-    var $DEFAULT_GEN = '2';
 
     var $mod;
     var $gen;
@@ -43,7 +43,8 @@ class Net_OpenID_DiffieHellman {
     function Net_OpenID_DiffieHellman($mod = null, $gen = null,
                                       $private = null)
     {
-        global $_Net_OpenID_DEFAULT_MOD;
+        global $_Net_OpenID_DEFAULT_MOD,
+            $_Net_OpenID_DEFAULT_GEN;
 
         $this->lib =& Net_OpenID_MathLibrary::getLibWrapper();
 
@@ -63,7 +64,7 @@ class Net_OpenID_DiffieHellman {
         }
 
         if ($gen === null) {
-            $this->gen = $this->lib->init($this->DEFAULT_GEN);
+            $this->gen = $this->lib->init($_Net_OpenID_DEFAULT_GEN);
         } else {
             $this->gen = $gen;
         }
