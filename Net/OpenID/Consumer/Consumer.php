@@ -8,6 +8,180 @@
  * concrete implementations of it that are provided in the
  * documentation for the constructor of the OpenIDConsumer class.
  *
+ * OVERVIEW
+ * ========
+ *
+ * The OpenID identity verification process most commonly uses the
+ * following steps, as visible to the user of this library:
+ *
+ *   1. The user enters their OpenID into a field on the consumer's
+ *   site, and hits a login button.
+ *
+ *   2. The consumer site checks that the entered URL describes an
+ *   OpenID page by fetching it and looking for appropriate link tags
+ *   in the head section.
+ *
+ *   3. The consumer site sends the browser a redirect to the identity
+ *   server.  This is the authentication request as described in the
+ *   OpenID specification.
+ *
+ *   4. The identity server's site sends the browser a redirect back
+ *   to the consumer site.  This redirect contains the server's
+ *   response to the authentication request.
+ *
+ * The most important part of the flow to note is the consumer's site
+ * must handle two separate HTTP requests in order to perform the full
+ * identity check.
+ *
+ *
+ * LIBRARY DESIGN
+ * ==============
+ *
+ * This consumer library is designed with that flow in mind.  The goal
+ * is to make it as easy as possible to perform the above steps
+ * securely.
+ *
+ * At a high level, there are two important parts in the consumer
+ * library.  The first important part is this module, which contains
+ * the interface to actually use this library.  The second is the
+ * Net_OpenID_Interface class, which describes the interface to use if
+ * you need to create a custom method for storing the state this
+ * library needs to maintain between requests.
+ *
+ * In general, the second part is less important for users of the
+ * library to know about, as several implementations are provided
+ * which cover a wide variety of situations in which consumers may
+ * use the library.
+ *
+ * This module contains a class, Net_OpenID_Consumer, with methods
+ * corresponding to the actions necessary in each of steps 2, 3, and 4
+ * described in the overview.  Use of this library should be as easy
+ * as creating an Net_OpenID_Consumer instance and calling the methods
+ * appropriate for the action the site wants to take.
+ *
+ *
+ * STORES AND DUMB MODE
+ * ====================
+ *
+ * OpenID is a protocol that works best when the consumer site is able
+ * to store some state.  This is the normal mode of operation for the
+ * protocol, and is sometimes referred to as smart mode.  There is
+ * also a fallback mode, known as dumb mode, which is available when
+ * the consumer site is not able to store state.  This mode should be
+ * avoided when possible, as it leaves the implementation more
+ * vulnerable to replay attacks.
+ *
+ * The mode the library works in for normal operation is determined by
+ * the store that it is given.  The store is an abstraction that
+ * handles the data that the consumer needs to manage between http
+ * requests in order to operate efficiently and securely.
+ *
+ * Several store implementation are provided, and the interface is
+ * fully documented so that custom stores can be used as well.  See
+ * the documentation for the Net_OpenID_Consumer class for more
+ * information on the interface for stores.  The concrete
+ * implementations that are provided allow the consumer site to store
+ * the necessary data in several different ways: in the filesystem, in
+ * a MySQL database, or in an SQLite database.
+ *
+ * There is an additional concrete store provided that puts the system
+ * in dumb mode.  This is not recommended, as it removes the library's
+ * ability to stop replay attacks reliably.  It still uses time-based
+ * checking to make replay attacks only possible within a small
+ * window, but they remain possible within that window.  This store
+ * should only be used if the consumer site has no way to retain data
+ * between requests at all.
+ *
+ *
+ * IMMEDIATE MODE
+ * ==============
+ *
+ * In the flow described above, the user may need to confirm to the
+ * identity server that it's ok to authorize his or her identity.  The
+ * server may draw pages asking for information from the user before
+ * it redirects the browser back to the consumer's site.  This is
+ * generally transparent to the consumer site, so it is typically
+ * ignored as an implementation detail.
+ *
+ * There can be times, however, where the consumer site wants to get a
+ * response immediately.  When this is the case, the consumer can put
+ * the library in immediate mode.  In immediate mode, there is an
+ * extra response possible from the server, which is essentially the
+ * server reporting that it doesn't have enough information to answer
+ * the question yet.  In addition to saying that, the identity server
+ * provides a URL to which the user can be sent to provide the needed
+ * information and let the server finish handling the original
+ * request.
+ *
+ *
+ * USING THIS LIBRARY
+ * ==================
+ *
+ * Integrating this library into an application is usually a
+ * relatively straightforward process.  The process should basically
+ * follow this plan:
+ *
+ * Add an OpenID login field somewhere on your site.  When an OpenID
+ * is entered in that field and the form is submitted, it should make
+ * a request to the your site which includes that OpenID URL.
+ *
+ * When your site receives that request, it should create an
+ * Net_OpenID_Consumer instance, and call beginAuth on it.  If
+ * beginAuth completes successfully, it will return an
+ * Net_OpenID_AuthRequest instance.  Otherwise it will provide some
+ * useful information for giving the user an error message.
+ *
+ * Now that you have the Net_OpenID_AuthRequest object, you need to
+ * preserve the value in its $token field for lookup on the user's
+ * next request from your site.  There are several approaches for
+ * doing this which will work.  If your environment has any kind of
+ * session-tracking system, storing the token in the session is a good
+ * approach.  If it doesn't you can store the token in either a cookie
+ * or in the return_to url provided in the next step.
+ *
+ * The next step is to call the constructRedirect method on the
+ * Net_OpenID_Consumer object.  Pass it the Net_OpenID_AuthRequest
+ * object returned by the previous call to beginAuth along with the
+ * return_to and trust_root URLs.  The return_to URL is the URL that
+ * the OpenID server will send the user back to after attempting to
+ * verify his or her identity.  The trust_root is the URL (or URL
+ * pattern) that identifies your web site to the user when he or she
+ * is authorizing it.
+ *
+ * Next, send the user a redirect to the URL generated by
+ * constructRedirect.
+ *
+ * That's the first half of the process.  The second half of the
+ * process is done after the user's ID server sends the user a
+ * redirect back to your site to complete their login.
+ *
+ * When that happens, the user will contact your site at the URL given
+ * as the return_to URL to the constructRedirect call made above.  The
+ * request will have several query parameters added to the URL by the
+ * identity server as the information necessary to finish the request.
+ *
+ * When handling this request, the first thing to do is check the
+ * 'openid.return_to' parameter.  If it doesn't match the URL that
+ * the request was actually sent to (the URL the request was actually
+ * sent to will contain the openid parameters in addition to any in
+ * the return_to URL, but they should be identical other than that),
+ * that is clearly suspicious, and the request shouldn't be allowed to
+ * proceed.
+
+ * Otherwise, the next step is to extract the token value set in the
+ * first half of the OpenID login.  Create a Net_OpenID_Consumer
+ * object, and call its completeAuth method with that token and a
+ * dictionary of all the query arguments.  This call will return a
+ * status code and some additional information describing the the
+ * server's response.  See the documentation for completeAuth for a
+ * full explanation of the possible responses.
+ *
+ * At this point, you have an identity URL that you know belongs to
+ * the user who made that request.  Some sites will use that URL
+ * directly as the user name.  Other sites will want to map that URL
+ * to a username in the site's traditional namespace.  At this point,
+ * you can take whichever action makes the most sense.
+ *
  * PHP versions 4 and 5
  *
  * LICENSE: See the COPYING file included in this distribution.
