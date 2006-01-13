@@ -32,7 +32,11 @@ $Net_OpenID_SETUP_NEEDED = 'setup needed';
 $Net_OpenID_HTTP_FAILURE = 'http failure';
 $Net_OpenID_PARSE_ERROR = 'parse error';
 
-$_Net_OpenID_NONCE_CHRS = $_Net_OpenID_letters . $_Net_OpenID_digits;
+// The following is a real hack and we'll have to figure out what is
+// going on.  PHP bug?
+$_Net_OpenID_NONCE_CHRS = $GLOBALS['_Net_OpenID_letters'] .
+    $GLOBALS['_Net_OpenID_digits'];
+
 $_Net_OpenID_TOKEN_LIFETIME = 60 * 5; // five minutes
 $_Net_OpenID_NONCE_LEN = 8;
 
