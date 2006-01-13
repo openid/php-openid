@@ -257,7 +257,7 @@ class Net_OpenID_Association {
         return Net_OpenID_toBase64($this->sign($pairs));
     }
 
-    function addSignature($fields, $data, $prefix = 'openid.')
+    function addSignature($fields, &$data, $prefix = 'openid.')
     {
         $sig = $this->signDict($fields, $data, $prefix);
         $signed = implode(",", $fields);
