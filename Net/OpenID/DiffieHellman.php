@@ -40,6 +40,19 @@ class Net_OpenID_DiffieHellman {
     var $private;
     var $lib = null;
 
+    function fromBase64($mod, $gen)
+    {
+        if ($mod !== null) {
+            $mod = Net_OpenID_CryptUtil::base64ToLong($mod);
+        }
+
+        if ($gen !== null) {
+            $gen = Net_OpenID_CryptUtil::base64ToLong($gen);
+        }
+
+        return new Net_OpenID_DiffieHellman($mod, $gen);
+    }
+
     function Net_OpenID_DiffieHellman($mod = null, $gen = null,
                                       $private = null)
     {
@@ -99,5 +112,13 @@ class Net_OpenID_DiffieHellman {
     function getPublicKey()
     {
         return $this->public;
+    }
+
+    function xorSecret($composite, $secret)
+    {
+        $dh_shared = $this->getSharedSecret($composite);
+        $sha1_dh_shared = Net_OpenID_CryptUtil::sha1(
+           Net_OpenID_CryptUtil::longToBinary($dh_shared));
+        return Net_OpenID_CryptUtil::strxor($secret, $sha1_dh_shared);
     }
 }
