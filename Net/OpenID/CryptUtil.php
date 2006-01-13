@@ -95,11 +95,11 @@ class Net_OpenID_CryptUtil {
      * Computes the SHA1 hash.
      *
      * @param string $str The input string.
-     * @return string The resulting SHA1 hash.
+     * @return string The resulting SHA1 hash, in binary form.
      */
     function sha1($str)
     {
-        return base64_decode(sha1($str));
+        return Net_OpenID_sha1_raw($str);
     }
 
     /**
