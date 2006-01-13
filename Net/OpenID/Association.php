@@ -21,7 +21,7 @@ require_once('CryptUtil.php');
 require_once('KVForm.php');
 require_once('OIDUtil.php');
 
-/*
+/**
  * This class represents an association between a server and a
  * consumer.  In general, users of this library will never see
  * instances of this object.  The only exception is if you implement a
@@ -30,13 +30,19 @@ require_once('OIDUtil.php');
  * If you do implement such a store, it will need to store the values
  * of the handle, secret, issued, lifetime, and assoc_type instance
  * variables.
-*/
+ *
+ * @package OpenID
+ */
 class Net_OpenID_Association {
 
-    // This is a HMAC-SHA1 specific value.
+    /**
+     * This is a HMAC-SHA1 specific value.
+     */
     var $SIG_LENGTH = 20;
 
-    // The ordering and name of keys as stored by serialize
+    /**
+     * The ordering and name of keys as stored by serialize.
+     */
     var $assoc_keys = array(
                             'version',
                             'handle',
@@ -48,8 +54,7 @@ class Net_OpenID_Association {
 
     /**
      * This is an alternate constructor used by the OpenID consumer
-     * library to create associations.  C{L{OpenIDStore
-     * <openid.store.interface.OpenIDStore>}} implementations
+     * library to create associations.  OpenIDStore implementations
      * shouldn't use this constructor.
      *
      * @param integer $expires_in This is the amount of time this
@@ -63,9 +68,9 @@ class Net_OpenID_Association {
      * generated for this association.
      *
      * @param assoc_type: This is the type of association this
-     * instance represents.  The only valid value of this field
-     * at this time is C{'HMAC-SHA1'}, but new types may be
-     * defined in the future.
+     * instance represents.  The only valid value of this field at
+     * this time is 'HMAC-SHA1', but new types may be defined in the
+     * future.
      */
     function fromExpiresIn($expires_in, $handle, $secret, $assoc_type)
     {
@@ -94,8 +99,8 @@ class Net_OpenID_Association {
      *
      * @param string $assoc_type This is the type of association this
      * instance represents.  The only valid value of this field at
-     * this time is C{'HMAC-SHA1'}, but new types may be defined in
-     * the future.
+     * this time is 'HMAC-SHA1', but new types may be defined in the
+     * future.
      */
     function Net_OpenID_Association(
         $handle, $secret, $issued, $lifetime, $assoc_type)
@@ -129,8 +134,8 @@ class Net_OpenID_Association {
     }
 
     /**
-     * This checks to see if two C{L{Association}} instances represent
-     * the same association.
+     * This checks to see if two Net_OpenID_Association instances
+     * represent the same association.
      *
      * @return bool $result true if the two instances represent the
      * same association, false otherwise.
@@ -146,7 +151,7 @@ class Net_OpenID_Association {
     }
 
     /**
-     * This checks to see if two C{L{Association}} instances
+     * This checks to see if two Net_OpenID_Association instances
      * represent different associations.
      *
      * @return bool $result true if the two instances represent
