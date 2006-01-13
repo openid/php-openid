@@ -167,7 +167,7 @@ function Net_OpenID_relMatches($rel_attr, $target_rel)
 {
     // Does this target_rel appear in the rel_str?
     // XXX: TESTME
-    $rels = preg_split("/\s+/", strip($rel_attr));
+    $rels = preg_split("/\s+/", trim($rel_attr));
     foreach ($rels as $rel) {
         $rel = strtolower($rel);
         if ($rel == $target_rel) {
