@@ -198,7 +198,7 @@ class Tests_Net_OpenID_Consumer extends PHPUnit_TestCase {
                                               $_Net_OpenID_assocs[0][0],
                                               $_Net_OpenID_assocs[0][1]);
 
-        $consumer = new Net_OpenID_Consumer($store, $fetcher, $immediate);
+        $consumer = new Net_OpenID_Consumer($store, &$fetcher, $immediate);
 
         $this->assertEquals($fetcher->num_assocs, 0);
         $this->_run($consumer, $user_url, $mode, $delegate_url,
@@ -258,7 +258,7 @@ class Tests_Net_OpenID_Consumer extends PHPUnit_TestCase {
             Net_OpenID_mkdtemp($_Net_OpenID_filestore_base_dir));
 
         $fetcher = new Net_OpenID_TestFetcher(null, null, null, null);
-        $consumer = new Net_OpenID_Consumer($store, $fetcher);
+        $consumer = new Net_OpenID_Consumer($store, &$fetcher);
         $cases = array(
                        array(null, 'http://network.error/'),
                        array(404, 'http://not.found/'),

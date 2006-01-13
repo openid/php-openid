@@ -42,7 +42,13 @@ $_Net_OpenID_NONCE_LEN = 8;
 
 class Net_OpenID_Consumer {
 
-    function Net_OpenID_Consumer(&$store, &$fetcher, $immediate = false)
+    /**
+     * NOTE: Be sure to pass $fetcher by reference if you pass one at
+     * all:
+     *
+     * $consumer = new Net_OpenID_Consumer($store, &$fetcher, ...);
+     */
+    function Net_OpenID_Consumer(&$store, $fetcher = null, $immediate = false)
     {
         if ($store === null) {
             trigger_error("Must supply non-null store to create consumer",
