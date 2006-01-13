@@ -59,7 +59,7 @@ class Net_OpenID_Consumer {
         $this->store =& $store;
 
         if ($fetcher === null) {
-            $this->fetcher = _getHTTPFetcher();
+            $this->fetcher = Net_OpenID_getHTTPFetcher();
         } else {
             $this->fetcher =& $fetcher;
         }
@@ -92,13 +92,38 @@ class Net_OpenID_Consumer {
                                         $replace = 1);
         // Because _getAssociation is asynchronous if the association is
         // not already in the store.
+
+        if ($assoc === null) {
+            trigger_error("Could not get association for redirection",
+                          E_USER_WARNING);
+            return null;
+        }
+
         return $this->_constructRedirect($assoc, $auth_request,
                                          $return_to, $trust_root);
+    }
+
+    function fixResponse($arr)
+    {
+        // Depending on PHP settings, the query data received may have
+        // been modified so that incoming "." values in the keys have
+        // been replaced with underscores.  Look specifically for
+        // "openid_" and replace it with "openid.".
+        $result = array();
+
+        foreach ($arr as $key => $value) {
+            $new_key = str_replace("openid_", "openid.", $key);
+            $result[$new_key] = $value;
+        }
+
+        return $result;
     }
 
     function completeAuth($token, $query)
     {
         global $Net_OpenID_SUCCESS, $Net_OpenID_FAILURE;
+
+        $query = $this->fixResponse($query);
 
         $mode = Net_OpenID_array_get($query, 'openid.mode', '');
 
