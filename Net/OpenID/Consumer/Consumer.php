@@ -38,14 +38,20 @@ $_Net_OpenID_NONCE_LEN = 8;
 
 class Net_OpenID_Consumer {
 
-    function Net_OpenID_Consumer($store, $fetcher = null, $immediate = false)
+    function Net_OpenID_Consumer(&$store, &$fetcher, $immediate = false)
     {
-        $this->store = $store;
+        if ($store === null) {
+            trigger_error("Must supply non-null store to create consumer",
+                          E_USER_ERROR);
+            return null;
+        }
+
+        $this->store =& $store;
 
         if ($fetcher === null) {
             $this->fetcher = _getHTTPFetcher();
         } else {
-            $this->fetcher = $fetcher;
+            $this->fetcher =& $fetcher;
         }
 
         if ($immediate) {
@@ -105,16 +111,17 @@ class Net_OpenID_Consumer {
 
     function _gotIdentityInfo($consumer_id, $server_id, $server_url)
     {
-        global $Net_OpenID_SUCCESS, $_Net_OpenID_NONCE_CHRS;
+        global $Net_OpenID_SUCCESS, $_Net_OpenID_NONCE_CHRS,
+            $_Net_OpenID_NONCE_LEN;
 
-        $nonce = Net_OpenID_CryptUtil::randomString($this->NONCE_LEN,
+        $nonce = Net_OpenID_CryptUtil::randomString($_Net_OpenID_NONCE_LEN,
                                                     $_Net_OpenID_NONCE_CHRS);
 
         $token = $this->_genToken($nonce, $consumer_id,
                                   $server_id, $server_url);
         return array($Net_OpenID_SUCCESS,
-                     Net_OpenID_AuthRequest($token, $server_id,
-                                            $server_url, $nonce));
+                     new Net_OpenID_AuthRequest($token, $server_id,
+                                                $server_url, $nonce));
     }
 
     function _constructRedirect($assoc, $auth_req, $return_to, $trust_root)
@@ -127,7 +134,7 @@ class Net_OpenID_Consumer {
                             );
 
         if ($assoc !==  null) {
-            redir_args['openid.assoc_handle'] = $assoc->handle;
+            $redir_args['openid.assoc_handle'] = $assoc->handle;
         }
 
         $this->store->storeNonce($auth_req->nonce);
@@ -137,7 +144,8 @@ class Net_OpenID_Consumer {
 
     function _doIdRes($token, $query)
     {
-        global $Net_OpenID_FAILURE, $Net_OpenID_SETUP_NEEDED;
+        global $Net_OpenID_FAILURE, $Net_OpenID_SETUP_NEEDED,
+            $Net_OpenID_SUCCESS;
 
         $ret = $this->_splitToken($token);
         if ($ret === null) {
@@ -172,7 +180,7 @@ class Net_OpenID_Consumer {
 
         if (($assoc === null) ||
             ($assoc->handle != $assoc_handle) ||
-            ($assoc->expiresIn <= 0)) {
+            ($assoc->getExpiresIn() <= 0)) {
             // It's not an association we know about.  Dumb mode is
             // our only possible path for recovery.
             return array($this->_checkAuth($nonce, $query, $server_url),
@@ -262,6 +270,8 @@ class Net_OpenID_Consumer {
 
     function _getAssociation($server_url, $replace = false)
     {
+        global $_Net_OpenID_TOKEN_LIFETIME;
+
         if ($this->store->isDumb()) {
             return null;
         }
@@ -269,7 +279,8 @@ class Net_OpenID_Consumer {
         $assoc = $this->store->getAssociation($server_url);
 
         if (($assoc === null) ||
-            ($replace && ($assoc->expiresIn < $this->TOKEN_LIFETIME))) {
+            ($replace && ($assoc->getExpiresIn() <
+                          $_Net_OpenID_TOKEN_LIFETIME))) {
             $dh = new Net_OpenID_DiffieHellman();
             $body = $this->_createAssociateRequest($dh);
             $assoc = $this->_fetchAssociation($dh, $server_url, $body);
@@ -293,12 +304,15 @@ class Net_OpenID_Consumer {
 
     function _splitToken($token)
     {
+        global $_Net_OpenID_TOKEN_LIFETIME;
+
         $token = Net_OpenID_fromBase64($token);
         if (strlen($token) < 20) {
             return null;
         }
 
-        $sig = $joined = substr($token, 0, 20);
+        $sig = substr($token, 0, 20);
+        $joined = substr($token, 20);
         if (Net_OpenID_CryptUtil::hmacSha1(
               $this->store->getAuthKey(), $joined) != $sig) {
             return null;
@@ -314,7 +328,7 @@ class Net_OpenID_Consumer {
             return null;
         }
 
-        if ($ts + $this->TOKEN_LIFETIME < time()) {
+        if ($ts + $_Net_OpenID_TOKEN_LIFETIME < time()) {
             return null;
         }
 
@@ -387,8 +401,8 @@ class Net_OpenID_Consumer {
                                          'openid.dh_consumer_public' => $cpub
                                          ));
 
-        if (($dh->modulus != $_Net_OpenID_DEFAULT_MOD) ||
-            ($dh->generator != $_Net_OpenID_DEFAULT_GEN)) {
+        if (($dh->mod != $_Net_OpenID_DEFAULT_MOD) ||
+            ($dh->gen != $_Net_OpenID_DEFAULT_GEN)) {
             $args = array_merge($args,
                      array(
                            'openid.dh_modulus' =>
@@ -433,8 +447,7 @@ class Net_OpenID_Consumer {
     function _parseAssociation($results, $dh, $server_url)
     {
         $required_keys = array('assoc_type', 'assoc_handle',
-                               'mac_key', 'dh_server_public',
-                               'enc_mac_key');
+                               'dh_server_public', 'enc_mac_key');
 
         foreach ($required_keys as $key) {
             if (!array_key_exists($key, $results)) {
