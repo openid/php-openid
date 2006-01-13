@@ -83,25 +83,10 @@ class Net_OpenID_DiffieHellman {
         }
 
         $this->private =
-            ($private === null) ? $this->generateRandom() : $private;
+            ($private === null) ? $this->lib->random(1, $this->mod) : $private;
 
         $this->public = $this->lib->powmod($this->gen, $this->private,
                                            $this->mod);
-    }
-
-    function generateRandom()
-    {
-        return $this->lib->random(1, $this->mod);
-    }
-
-    function createKeyExchange()
-    {
-        return $this->lib->powmod($this->g, $this->x, $this->p);
-    }
-
-    function decryptKeyExchange($keyEx)
-    {
-        return $this->lib->powmod($keyEx, $this->x, $this->p);
     }
 
     function getSharedSecret($composite)
