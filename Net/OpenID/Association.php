@@ -67,11 +67,12 @@ class Net_OpenID_Association {
      * at this time is C{'HMAC-SHA1'}, but new types may be
      * defined in the future.
      */
-    function fromExpiresIn($cls, $expires_in, $handle, $secret, $assoc_type)
+    function fromExpiresIn($expires_in, $handle, $secret, $assoc_type)
     {
         $issued = time();
         $lifetime = $expires_in;
-        return $class_name($handle, $secret, $issued, $lifetime, $assoc_type);
+        return new Net_OpenID_Association($handle, $secret,
+                                          $issued, $lifetime, $assoc_type);
     }
 
     /**
@@ -233,7 +234,7 @@ class Net_OpenID_Association {
     function sign($pairs)
     {
         assert($this->assoc_type == 'HMAC-SHA1');
-        $kv = Net_OpenID_arrayToKV($pairs);
+        $kv = Net_OpenID_KVForm::arrayToKV($pairs);
         return Net_OpenID_hmacSha1($this->secret, $kv);
     }
 
