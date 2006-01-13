@@ -18,6 +18,41 @@
 require_once('Interface.php');
 require_once('Net/OpenID/OIDUtil.php');
 
+function Net_OpenID_rmtree($dir)
+{
+    if ($dir[strlen($dir) - 1] != DIRECTORY_SEPARATOR) {
+        $dir .= DIRECTORY_SEPARATOR;
+    }
+
+    if ($handle = opendir($dir)) {
+        while ($item = readdir($handle)) {
+            if (!in_array($item, array('.', '..'))) {
+                if (is_dir($dir . $item)) {
+
+                    if (!Net_OpenID_rmtree($dir . $item)) {
+                        return false;
+                    }
+                } else if (is_file($dir . $item)) {
+                    if (!unlink($dir . $item)) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        closedir($handle);
+
+        if (!@rmdir($dir)) {
+            return false;
+        }
+
+        return true;
+    } else {
+        // Couldn't open directory.
+        return false;
+    }
+}
+
 function Net_OpenID_mkstemp($dir)
 {
     foreach (range(0, 4) as $i) {
@@ -139,6 +174,9 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
     {
         $directory = realpath($directory);
 
+        $this->directory = $directory;
+        $this->active = true;
+
         $this->nonce_dir = $directory . DIRECTORY_SEPARATOR . 'nonces';
 
         $this->association_dir = $directory . DIRECTORY_SEPARATOR .
@@ -153,6 +191,12 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
         $this->max_nonce_age = 6 * 60 * 60; // Six hours, in seconds
 
         $this->_setup();
+    }
+
+    function destroy()
+    {
+        Net_OpenID_rmtree($this->directory);
+        $this->active = false;
     }
 
     /**
@@ -197,6 +241,11 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      */
     function readAuthKey()
     {
+        if (!$this->active) {
+            trigger_error("FileStore no longer active", E_USER_ERROR);
+            return null;
+        }
+
         $auth_key_file = @fopen($this->auth_key_name, 'rb');
         if ($auth_key_file === false) {
             return null;
@@ -216,6 +265,11 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      */
     function createAuthKey()
     {
+        if (!$this->active) {
+            trigger_error("FileStore no longer active", E_USER_ERROR);
+            return null;
+        }
+
         $auth_key = Net_OpenID_CryptUtil::randomString($this->AUTH_KEY_LEN);
 
         list($file_obj, $tmp) = $this->_mktemp();
@@ -247,6 +301,11 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      */
     function getAuthKey()
     {
+        if (!$this->active) {
+            trigger_error("FileStore no longer active", E_USER_ERROR);
+            return null;
+        }
+
         $auth_key = $this->readAuthKey();
         if ($auth_key === null) {
             $auth_key = $this->createAuthKey();
@@ -274,6 +333,11 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      */
     function getAssociationFilename($server_url, $handle)
     {
+        if (!$this->active) {
+            trigger_error("FileStore no longer active", E_USER_ERROR);
+            return null;
+        }
+
         if (strpos($server_url, '://') === false) {
             trigger_error(sprintf("Bad server URL: %s", $server_url),
                           E_USER_WARNING);
@@ -301,6 +365,11 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      */
     function storeAssociation($server_url, $association)
     {
+        if (!$this->active) {
+            trigger_error("FileStore no longer active", E_USER_ERROR);
+            return null;
+        }
+
         $association_s = $association->serialize();
         $filename = $this->getAssociationFilename($server_url,
                                                   $association->handle);
@@ -345,6 +414,11 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      */
     function getAssociation($server_url, $handle = null)
     {
+        if (!$this->active) {
+            trigger_error("FileStore no longer active", E_USER_ERROR);
+            return null;
+        }
+
         if ($handle === null) {
             $handle = '';
         }
@@ -401,6 +475,11 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
 
     function _getAssociation($filename)
     {
+        if (!$this->active) {
+            trigger_error("FileStore no longer active", E_USER_ERROR);
+            return null;
+        }
+
         $assoc_file = @fopen($filename, 'rb');
 
         if ($assoc_file === false) {
@@ -438,6 +517,11 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      */
     function removeAssociation($server_url, $handle)
     {
+        if (!$this->active) {
+            trigger_error("FileStore no longer active", E_USER_ERROR);
+            return null;
+        }
+
         $assoc = $this->getAssociation($server_url, $handle);
         if ($assoc === null) {
             return false;
@@ -452,6 +536,11 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      */
     function storeNonce($nonce)
     {
+        if (!$this->active) {
+            trigger_error("FileStore no longer active", E_USER_ERROR);
+            return null;
+        }
+
         $filename = $this->nonce_dir . DIRECTORY_SEPARATOR . $nonce;
         $nonce_file = fopen($filename, 'w');
         if ($nonce_file === false) {
@@ -469,6 +558,11 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      */
     function useNonce($nonce)
     {
+        if (!$this->active) {
+            trigger_error("FileStore no longer active", E_USER_ERROR);
+            return null;
+        }
+
         $filename = $this->nonce_dir . DIRECTORY_SEPARATOR . $nonce;
         $st = @stat($filename);
 
@@ -496,6 +590,11 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      */
     function clean()
     {
+        if (!$this->active) {
+            trigger_error("FileStore no longer active", E_USER_ERROR);
+            return null;
+        }
+
         $nonces = Net_OpenID_listdir($this->nonce_dir);
         $now = time();
 

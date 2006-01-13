@@ -17,40 +17,6 @@ require_once('Net/OpenID/Association.php');
 require_once('Net/OpenID/CryptUtil.php');
 require_once('Net/OpenID/OIDUtil.php');
 
-function Net_OpenID_rmtree($dir)
-{
-    if ($dir[strlen($dir) - 1] != DIRECTORY_SEPARATOR) {
-        $dir .= DIRECTORY_SEPARATOR;
-    }
-
-    if ($handle = opendir($dir)) {
-        while ($item = readdir($handle)) {
-            if (!in_array($item, array('.', '..'))) {
-                if (is_dir($dir . $item)) {
-                    if (!Net_OpenID_rmtree($dir . $item)) {
-                        return false;
-                    }
-                } else if (is_file($dir . $item)) {
-                    if (!unlink($dir . $item)) {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        closedir($handle);
-
-        if (!@rmdir($dir)) {
-            return false;
-        }
-
-        return true;
-    } else {
-        // Couldn't open directory.
-        return false;
-    }
-}
-
 class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
 
     function setUp()
@@ -259,7 +225,7 @@ explicitly');
         $store = new Net_OpenID_FileStore($temp_dir);
         $this->_testStore($store);
         $this->_testNonce($store);
-        Net_OpenID_rmtree($temp_dir);
+        $store->destroy();
     }
 }
 
