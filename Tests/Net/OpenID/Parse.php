@@ -93,6 +93,11 @@ class NumTestCases extends PHPUnit_TestCase {
 
 class Tests_Net_OpenID_Parse extends PHPUnit_TestSuite {
 
+    function getName()
+    {
+        return "Tests_Net_OpenID_Parse";
+    }
+
     function parseLink($line)
     {
         $parts = explode(" ", $line);
