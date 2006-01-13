@@ -121,7 +121,7 @@ function global_require_once($name)
 {
     require_once($name);
     foreach (get_defined_vars() as $k => $v) {
-        if ($k != 'name') {
+        if (!in_array($k, array('name', 'GLOBALS'))) {
             $GLOBALS[$k] = $v;
         }
     }
@@ -136,7 +136,8 @@ $_test_names = array(
     'HMACSHA1',
     'Association',
     'StoreTest',
-    'Parse'
+    'Parse',
+    'Consumer'
     );
 
 function selectTests($names)
