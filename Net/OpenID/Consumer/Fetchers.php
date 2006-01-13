@@ -57,9 +57,9 @@ function Net_OpenID_getHTTPFetcher()
 {
     global $_Net_OpenID_curl_found;
     if (!$_Net_OpenID_curl_found) {
-        $fetcher = new UrllibFetcher();
+        $fetcher = new Net_OpenID_PlainHTTPFetcher();
     } else {
-        $fetcher = new ParanoidHTTPFetcher();
+        $fetcher = new Net_OpenID_ParanoidHTTPFetcher();
     }
 
     return $fetcher;
@@ -80,7 +80,7 @@ function Net_OpenID_allowedURL($url)
 class Net_OpenID_PlainHTTPFetcher extends Net_OpenID_HTTPFetcher {
     function _fetch($url)
     {
-        $data = file_get_contents($url);
+        $data = @file_get_contents($url);
 
         if ($data !== false) {
             return array(200, $url, $data);
@@ -120,10 +120,10 @@ class Net_OpenID_PlainHTTPFetcher extends Net_OpenID_HTTPFetcher {
         $headers[] = "Content-length: " . strval(strlen($body));
 
         // Join all headers together.
-        $all_headers = implode("\n", $headers);
+        $all_headers = implode("\r\n", $headers);
 
         // Add headers, two newlines, and request body.
-        $request = $all_headers . "\n\n" . $body;
+        $request = $all_headers . "\r\n\r\n" . $body;
 
         // Set a default port.
         if (!array_key_exists('port', $parts)) {
@@ -165,9 +165,9 @@ class Net_OpenID_PlainHTTPFetcher extends Net_OpenID_HTTPFetcher {
         }
 
         // Split the request into headers and body.
-        list($headers, $response_body) = explode("\n\n", $response, 2);
+        list($headers, $response_body) = explode("\r\n\r\n", $response, 2);
 
-        $headers = explode("\n", $headers);
+        $headers = explode("\r\n", $headers);
 
         // Expect the first line of the headers data to be something
         // like HTTP/1.1 200 OK.  Split the line on spaces and take
@@ -287,7 +287,6 @@ class Net_OpenID_ParanoidHTTPFetcher extends Net_OpenID_HTTPFetcher {
 
             if (in_array($code, array(301, 302, 303, 307))) {
                 $url = $this->_findRedirect($headers);
-                print "Got redirect\n";
             } else {
                 curl_close($c);
                 return array($code, $url, $body);
