@@ -24,12 +24,14 @@ $_Net_OpenID_socket_timeout = 20;
  */
 $_Net_OpenID_allowed_schemes = array('http', 'https');
 
+/**
+ * This class is the interface for HTTP fetchers the OpenID consumer
+ * library uses.  This interface is only important if you need to
+ * write a new fetcher for some reason.
+ *
+ * @package OpenID
+ */
 class Net_OpenID_HTTPFetcher {
-    /**
-     * This class is the interface for HTTP fetchers the OpenID
-     * consumer library uses.  This interface is only important if you
-     * need to write a new fetcher for some reason.
-     */
     function get($url)
     {
         trigger_error("not implemented", E_USER_ERROR);
@@ -77,7 +79,16 @@ function Net_OpenID_allowedURL($url)
     return false;
 }
 
+/**
+ * This class implements a plain, hand-built socket-based fetcher
+ * which will be used in the event that CURL is unavailable.
+ *
+ * @package OpenID
+ */
 class Net_OpenID_PlainHTTPFetcher extends Net_OpenID_HTTPFetcher {
+    /**
+     * @access private
+     */
     function _fetch($url)
     {
         $data = @file_get_contents($url);
@@ -226,6 +237,8 @@ function _writeData($ch, $data)
 /**
  * A paranoid Net_OpenID_HTTPFetcher class which uses CURL for
  * fetching.
+ *
+ * @package OpenID
  */
 class Net_OpenID_ParanoidHTTPFetcher extends Net_OpenID_HTTPFetcher {
     function Net_OpenID_ParanoidHTTPFetcher()
@@ -237,6 +250,9 @@ class Net_OpenID_ParanoidHTTPFetcher extends Net_OpenID_HTTPFetcher {
         }
     }
 
+    /**
+     * @access private
+     */
     function _findRedirect($headers)
     {
         foreach ($headers as $line) {
