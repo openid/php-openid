@@ -501,8 +501,6 @@ class Net_OpenID_MathWrapper {
      * describes the library or module being wrapped.  Users of
      * Net_OpenID_MathWrapper instances should check this value if
      * they care about the type of math functionality being exposed.
-     *
-     * @type string
      */
     var $type = 'dumb';
 
