@@ -15,6 +15,9 @@
  *
  */
 
+/**
+ * Require base class for creating a new interface.
+ */
 require_once('Interface.php');
 require_once('Net/OpenID/OIDUtil.php');
 
@@ -159,7 +162,9 @@ function _ensureDir($dir_name)
  *
  * Methods of this object can raise OSError if unexpected filesystem
  * conditions, such as bad permissions or missing directories, occur.
-*/
+ *
+ * @package OpenID
+ */
 class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
 
     /**
@@ -202,6 +207,8 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
     /**
      * Make sure that the directories in which we store our data
      * exist.
+     *
+     * @access private
      */
     function _setup()
     {
@@ -221,6 +228,7 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
      * temporary directory.
      *
      * @return array ($fd, $filename)
+     * @access private
      */
     function _mktemp()
     {
@@ -473,6 +481,9 @@ class Net_OpenID_FileStore extends Net_OpenID_OpenIDStore {
         }
     }
 
+    /**
+     * @access private
+     */
     function _getAssociation($filename)
     {
         if (!$this->active) {
