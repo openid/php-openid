@@ -32,6 +32,16 @@ $_Net_OpenID_allowed_schemes = array('http', 'https');
  * @package OpenID
  */
 class Net_OpenID_HTTPFetcher {
+
+    /**
+     * This performs an HTTP get, following redirects along the way.
+     *
+     * @return array $tuple This returns a three-tuple on success.
+     * The first value is the http return code. The second value is
+     * the final url that was fetched, after following any redirects.
+     * The third value is the data that was retrieved from the site.
+     * If the fetch didn't succeed, return null.
+    */
     function get($url)
     {
         trigger_error("not implemented", E_USER_ERROR);
@@ -40,6 +50,12 @@ class Net_OpenID_HTTPFetcher {
     /**
      * This performs an HTTP post.  If it makes sense, it will follow
      * redirects along the way.
+     *
+     * @return array $tuple This returns a three-tuple on success.
+     * The first value is the http return code. The second value is
+     * the final url that was fetched, after following any redirects.
+     * The third value is the data that was retrieved from the site.
+     * If the fetch didn't succeed, return null.
      */
     function post($url, $body)
     {
