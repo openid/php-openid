@@ -18,7 +18,7 @@ require_once 'PHPUnit/GUI/HTML.php';
 
 if (defined('E_STRICT')) {
     // PHP 5
-    $_Auth_OpenID_allowed_deprecation =
+    $_Net_OpenID_allowed_deprecation =
         array('var',
               'is_a()'
               );
@@ -29,17 +29,17 @@ if (defined('E_STRICT')) {
         // Augment this
         // regular expression if the bug exists in another version.
         if (preg_match('/^5\.1\.1$/', phpversion()) && $errno == 2) {
-            $allowed_files = array(array('/Auth/OpenID/CryptUtil.php',
+            $allowed_files = array(array('/Net/OpenID/CryptUtil.php',
                                          'dl'),
-                                   array('/Auth/OpenID/OIDUtil.php',
+                                   array('/Net/OpenID/OIDUtil.php',
                                          'parse_url'),
-                                   array('/Auth/OpenID/Store/FileStore.php',
+                                   array('/Net/OpenID/Store/FileStore.php',
                                          'mkdir'),
-                                   array('/Auth/OpenID/Store/FileStore.php',
+                                   array('/Net/OpenID/Store/FileStore.php',
                                          'stat'),
-                                   array('/Auth/OpenID/Store/FileStore.php',
+                                   array('/Net/OpenID/Store/FileStore.php',
                                          'fopen'),
-                                   array('/Auth/OpenID/Store/FileStore.php',
+                                   array('/Net/OpenID/Store/FileStore.php',
                                          'unlink'));
 
             foreach ($allowed_files as $entry) {
@@ -53,17 +53,17 @@ if (defined('E_STRICT')) {
             }
         }
 
-        global $_Auth_OpenID_allowed_deprecation;
+        global $_Net_OpenID_allowed_deprecation;
 
         switch ($errno) {
         case E_STRICT:
             // XXX: limit this to files we know about
-            foreach ($_Auth_OpenID_allowed_deprecation as $depr) {
+            foreach ($_Net_OpenID_allowed_deprecation as $depr) {
                 if (strpos($errstr, "$depr: Deprecated.") !== false) {
                     return;
                 }
             }
-            $pat = '/^Non-static method Auth_OpenID_[A-Za-z0-9_]+' .
+            $pat = '/^Non-static method Net_OpenID_[A-Za-z0-9_]+' .
                    '::[A-Za-z0-9_]+\(\) (cannot|should not) be ' .
                    'called statically$/';
             if (preg_match($pat, $errstr)) {
