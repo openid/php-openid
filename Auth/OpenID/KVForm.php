@@ -14,11 +14,11 @@
  */
 
 /**
- * The Net_OpenID_KVForm class.
+ * The Auth_OpenID_KVForm class.
  *
  * @package OpenID
  */
-class Net_OpenID_KVForm {
+class Auth_OpenID_KVForm {
     function arrayToKV($values)
     {
         if ($values === null) {

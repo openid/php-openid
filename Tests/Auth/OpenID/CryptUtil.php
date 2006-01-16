@@ -14,14 +14,14 @@
  */
 
 require_once('PHPUnit.php');
-require_once('Net/OpenID/CryptUtil.php');
+require_once('Auth/OpenID/CryptUtil.php');
 
-class Tests_Net_OpenID_ByteOps extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_ByteOps extends PHPUnit_TestCase {
     function test_length()
     {
         $cases = array(1, 10, 255);
         foreach ($cases as $length) {
-            $data = Net_OpenID_CryptUtil::getBytes($length);
+            $data = Auth_OpenID_CryptUtil::getBytes($length);
             $this->assertEquals(strlen($data), $length);
         }
     }
@@ -31,10 +31,10 @@ class Tests_Net_OpenID_ByteOps extends PHPUnit_TestCase {
         $num_iterations = 100;
         $data_length = 20;
 
-        $data = Net_OpenID_CryptUtil::getBytes($num_iterations);
+        $data = Auth_OpenID_CryptUtil::getBytes($num_iterations);
         for ($i = 0; $i < $num_iterations; $i++) {
             $last = $data;
-            $data = Net_OpenID_CryptUtil::getBytes($num_iterations);
+            $data = Auth_OpenID_CryptUtil::getBytes($num_iterations);
             $this->assertFalse($data == $last);
         }
     }
@@ -44,8 +44,8 @@ class Tests_Net_OpenID_ByteOps extends PHPUnit_TestCase {
         // It's possible, but HIGHLY unlikely that a correct
         // implementation will fail by returning the same number twice
 
-        $s = Net_OpenID_CryptUtil::getBytes(32);
-        $t = Net_OpenID_CryptUtil::getBytes(32);
+        $s = Auth_OpenID_CryptUtil::getBytes(32);
+        $t = Auth_OpenID_CryptUtil::getBytes(32);
         $this->assertEquals(strlen($s), 32);
         $this->assertEquals(strlen($t), 32);
         $this->assertFalse($s == $t);
@@ -71,7 +71,7 @@ class Tests_Net_OpenID_ByteOps extends PHPUnit_TestCase {
 
         while (list($index, $values) = each($cases)) {
             list($aa, $bb, $expected) = $values;
-            $actual = Net_OpenID_CryptUtil::strxor($aa, $bb);
+            $actual = Auth_OpenID_CryptUtil::strxor($aa, $bb);
             $this->assertEquals($actual, $expected);
         }
 
@@ -88,7 +88,7 @@ class Tests_Net_OpenID_ByteOps extends PHPUnit_TestCase {
 
         while(list($index, $values) = each($exc_cases)) {
             list($aa, $bb) = $values;
-            $unexpected = Net_OpenID_CryptUtil::strxor($aa, $bb);
+            $unexpected = Auth_OpenID_CryptUtil::strxor($aa, $bb);
             $this->assertNull($unexpected);
         }
     }
@@ -110,19 +110,19 @@ class Tests_Net_OpenID_ByteOps extends PHPUnit_TestCase {
 
         while (list($index, $values) = each($cases)) {
             list($case, $expected) = $values;
-            $actual = Net_OpenID_CryptUtil::reversed($case);
+            $actual = Auth_OpenID_CryptUtil::reversed($case);
             $this->assertEquals($actual, $expected);
-            $twice = Net_OpenID_CryptUtil::reversed($actual);
+            $twice = Auth_OpenID_CryptUtil::reversed($actual);
             $this->assertEquals($twice, $case);
         }
     }
 }
 
-class Tests_Net_OpenID_BinLongConvertRnd extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_BinLongConvertRnd extends PHPUnit_TestCase {
     var $lib;
     var $max;
 
-    function Tests_Net_OpenID_BinLongConvertRnd(&$lib, $max)
+    function Tests_Auth_OpenID_BinLongConvertRnd(&$lib, $max)
     {
         $this->lib =& $lib;
         $this->max = $max;
@@ -132,22 +132,22 @@ class Tests_Net_OpenID_BinLongConvertRnd extends PHPUnit_TestCase {
     {
         $n = $this->lib->init(0);
         foreach (range(0, 9) as $i) {
-            $rnd = Net_OpenID_CryptUtil::randrange($this->max);
+            $rnd = Auth_OpenID_CryptUtil::randrange($this->max);
             $n = $this->lib->add($n, $rnd);
         }
-        $s = Net_OpenID_CryptUtil::longToBinary($n);
+        $s = Auth_OpenID_CryptUtil::longToBinary($n);
         $this->assertTrue(is_string($s));
-        $n_prime = Net_OpenID_CryptUtil::binaryToLong($s);
+        $n_prime = Auth_OpenID_CryptUtil::binaryToLong($s);
         $this->assertEquals($this->lib->cmp($n, $n_prime), 0);
     }
 }
 
-class Tests_Net_OpenID_BinLongConvert extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_BinLongConvert extends PHPUnit_TestCase {
     var $lib;
     var $bin;
     var $lng;
 
-    function Tests_Net_OpenID_BinLongConvert(&$lib, $bin, $lng)
+    function Tests_Auth_OpenID_BinLongConvert(&$lib, $bin, $lng)
     {
         $this->lib =& $lib;
         $this->bin = $bin;
@@ -156,19 +156,19 @@ class Tests_Net_OpenID_BinLongConvert extends PHPUnit_TestCase {
 
     function runTest()
     {
-        $n_prime = Net_OpenID_CryptUtil::binaryToLong($this->bin);
-        $s_prime = Net_OpenID_CryptUtil::longToBinary($this->lng);
+        $n_prime = Auth_OpenID_CryptUtil::binaryToLong($this->bin);
+        $s_prime = Auth_OpenID_CryptUtil::longToBinary($this->lng);
         $this->assertEquals($this->lib->cmp($this->lng, $n_prime), 0);
         $this->assertTrue($this->bin == $s_prime);
     }
 }
 
-class Tests_Net_OpenID_Base64ToLong extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_Base64ToLong extends PHPUnit_TestCase {
     var $num;
     var $b64;
     var $lib;
 
-    function Tests_Net_OpenID_Base64ToLong(&$lib, $b64, $num)
+    function Tests_Auth_OpenID_Base64ToLong(&$lib, $b64, $num)
     {
         $this->lib = $lib;
         $this->b64 = $b64;
@@ -177,13 +177,13 @@ class Tests_Net_OpenID_Base64ToLong extends PHPUnit_TestCase {
 
     function runTest()
     {
-        $actual = Net_OpenID_CryptUtil::base64ToLong($this->b64);
+        $actual = Auth_OpenID_CryptUtil::base64ToLong($this->b64);
         $this->assertTrue($this->lib->cmp($this->num, $actual) == 0);
     }
 }
 
-class Tests_Net_OpenID_LongToBase64 extends Tests_Net_OpenID_Base64ToLong {
-    function Tests_Net_OpenID_LongToBase64(&$lib, $b64, $num)
+class Tests_Auth_OpenID_LongToBase64 extends Tests_Auth_OpenID_Base64ToLong {
+    function Tests_Auth_OpenID_LongToBase64(&$lib, $b64, $num)
     {
         $this->lib = $lib;
         $this->b64 = $b64;
@@ -192,13 +192,13 @@ class Tests_Net_OpenID_LongToBase64 extends Tests_Net_OpenID_Base64ToLong {
 
     function runTest()
     {
-        $actual = Net_OpenID_CryptUtil::longToBase64($this->num);
+        $actual = Auth_OpenID_CryptUtil::longToBase64($this->num);
         $this->assertEquals($this->b64, $actual);
     }
 }
 
-class Tests_Net_OpenID_RandRange extends PHPUnit_TestCase {
-    function Tests_Net_OpenID_RandRange(&$lib)
+class Tests_Auth_OpenID_RandRange extends PHPUnit_TestCase {
+    function Tests_Auth_OpenID_RandRange(&$lib)
     {
         $this->lib =& $lib;
     }
@@ -206,23 +206,23 @@ class Tests_Net_OpenID_RandRange extends PHPUnit_TestCase {
     function runTest()
     {
         $stop = $this->lib->pow(2, 128);
-        $a = Net_OpenID_CryptUtil::randrange($stop);
-        $b = Net_OpenID_CryptUtil::randrange($stop);
+        $a = Auth_OpenID_CryptUtil::randrange($stop);
+        $b = Auth_OpenID_CryptUtil::randrange($stop);
 
         $this->assertFalse($this->lib->cmp($b, $a) == 0, "Same: $a $b");
 
-        $n = $this->lib->init(Net_OpenID_CryptUtil::maxint());
+        $n = $this->lib->init(Auth_OpenID_CryptUtil::maxint());
         $n = $this->lib->add($n, 1);
 
         // Make sure that we can generate random numbers that are
         // larger than platform int size
-        $result = Net_OpenID_CryptUtil::randrange($n);
+        $result = Auth_OpenID_CryptUtil::randrange($n);
 
         // What can we say about the result?
     }
 }
 
-class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestSuite {
+class Tests_Auth_OpenID_CryptUtil extends PHPUnit_TestSuite {
     function _parseBase64Data()
     {
         $lines = file_get_contents('Tests/n2b64', true);
@@ -239,19 +239,19 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestSuite {
         return $data;
     }
 
-    function Tests_Net_OpenID_CryptUtil($name)
+    function Tests_Auth_OpenID_CryptUtil($name)
     {
         $this->setName($name);
         
-        if (!defined('Net_OpenID_NO_MATH_SUPPORT')) {
-            $this->addTestSuite('Tests_Net_OpenID_BigInt');
+        if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            $this->addTestSuite('Tests_Auth_OpenID_BigInt');
 
-            $lib =& Net_OpenID_MathLibrary::getLibWrapper();
-            $max = Net_OpenID_CryptUtil::maxint();
-            $upper = defined('Tests_Net_OpenID_thorough') ? 499 : 3;
+            $lib =& Auth_OpenID_MathLibrary::getLibWrapper();
+            $max = Auth_OpenID_CryptUtil::maxint();
+            $upper = defined('Tests_Auth_OpenID_thorough') ? 499 : 3;
 
             foreach (range(0, $upper) as $iteration) {
-                $test = new Tests_Net_OpenID_BinLongConvertRnd($lib, $max);
+                $test = new Tests_Auth_OpenID_BinLongConvertRnd($lib, $max);
                 $test->setName("BinLongConvertRnd " . strval($iteration));
                 $this->addTest($test);
             }
@@ -268,12 +268,12 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestSuite {
 
             foreach ($cases as $bin => $lng_m) {
                 $lng = $lib->init($lng_m);
-                $test = new Tests_Net_OpenID_BinLongConvert($lib, $bin, $lng);
+                $test = new Tests_Auth_OpenID_BinLongConvert($lib, $bin, $lng);
                 $test->setName('BinLongConvert ' . bin2hex($bin));
                 $this->addTest($test);
             }
 
-            $count = defined('Tests_Net_OpenID_thorough') ? -1 : 2;
+            $count = defined('Tests_Auth_OpenID_thorough') ? -1 : 2;
             $data = $this->_parseBase64Data();
             foreach ($data as $b64 => $num_s) {
                 // Only test the first few unless thorough is defined
@@ -285,21 +285,21 @@ class Tests_Net_OpenID_CryptUtil extends PHPUnit_TestSuite {
                     }
                 }
                 $num = $lib->init($num_s);
-                $test = new Tests_Net_OpenID_Base64ToLong($lib, $b64, $num);
+                $test = new Tests_Auth_OpenID_Base64ToLong($lib, $b64, $num);
                 $test->setName("B64->Long $num_s");
                 $this->addTest($test);
 
-                $test = new Tests_Net_OpenID_LongToBase64($lib, $b64, $num);
+                $test = new Tests_Auth_OpenID_LongToBase64($lib, $b64, $num);
                 $test->setName("Long->B64 $num_s");
                 $this->addTest($test);
             }
 
-            $test = new Tests_Net_OpenID_RandRange($lib);
+            $test = new Tests_Auth_OpenID_RandRange($lib);
             $test->setName('Big number randrange');
             $this->addTest($test);
         }
 
-        $this->addTestSuite('Tests_Net_OpenID_ByteOps');
+        $this->addTestSuite('Tests_Auth_OpenID_ByteOps');
     }
 }
 

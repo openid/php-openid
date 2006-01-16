@@ -38,7 +38,7 @@
  * At a high level, there are two important parts in the consumer
  * library.  The first important part is this module, which contains
  * the interface to actually use this library.  The second is the
- * Net_OpenID_Interface class, which describes the interface to use if
+ * Auth_OpenID_Interface class, which describes the interface to use if
  * you need to create a custom method for storing the state this
  * library needs to maintain between requests.
  *
@@ -47,10 +47,10 @@
  * which cover a wide variety of situations in which consumers may
  * use the library.
  *
- * This module contains a class, Net_OpenID_Consumer, with methods
+ * This module contains a class, Auth_OpenID_Consumer, with methods
  * corresponding to the actions necessary in each of steps 2, 3, and 4
  * described in the overview.  Use of this library should be as easy
- * as creating a Net_OpenID_Consumer instance and calling the methods
+ * as creating a Auth_OpenID_Consumer instance and calling the methods
  * appropriate for the action the site wants to take.
  *
  * STORES AND DUMB MODE
@@ -70,7 +70,7 @@
  *
  * Several store implementation are provided, and the interface is
  * fully documented so that custom stores can be used as well.  See
- * the documentation for the Net_OpenID_Consumer class for more
+ * the documentation for the Auth_OpenID_Consumer class for more
  * information on the interface for stores.  The concrete
  * implementations that are provided allow the consumer site to store
  * the necessary data in several different ways: in the filesystem, in
@@ -114,12 +114,12 @@
  * a request to the your site which includes that OpenID URL.
  *
  * When your site receives that request, it should create an
- * Net_OpenID_Consumer instance, and call beginAuth on it.  If
+ * Auth_OpenID_Consumer instance, and call beginAuth on it.  If
  * beginAuth completes successfully, it will return an
- * Net_OpenID_AuthRequest instance.  Otherwise it will provide some
+ * Auth_OpenID_AuthRequest instance.  Otherwise it will provide some
  * useful information for giving the user an error message.
  *
- * Now that you have the Net_OpenID_AuthRequest object, you need to
+ * Now that you have the Auth_OpenID_AuthRequest object, you need to
  * preserve the value in its $token field for lookup on the user's
  * next request from your site.  There are several approaches for
  * doing this which will work.  If your environment has any kind of
@@ -128,7 +128,7 @@
  * or in the return_to url provided in the next step.
  *
  * The next step is to call the constructRedirect method on the
- * Net_OpenID_Consumer object.  Pass it the Net_OpenID_AuthRequest
+ * Auth_OpenID_Consumer object.  Pass it the Auth_OpenID_AuthRequest
  * object returned by the previous call to beginAuth along with the
  * return_to and trust_root URLs.  The return_to URL is the URL that
  * the OpenID server will send the user back to after attempting to
@@ -157,7 +157,7 @@
  * proceed.
 
  * Otherwise, the next step is to extract the token value set in the
- * first half of the OpenID login.  Create a Net_OpenID_Consumer
+ * first half of the OpenID login.  Create a Auth_OpenID_Consumer
  * object, and call its completeAuth method with that token and a
  * dictionary of all the query arguments.  This call will return a
  * status code and some additional information describing the the
@@ -183,65 +183,65 @@
 /**
  * Require utility classes and functions for the consumer.
  */
-require_once("Net/OpenID/CryptUtil.php");
-require_once("Net/OpenID/KVForm.php");
-require_once("Net/OpenID/OIDUtil.php");
-require_once("Net/OpenID/Association.php");
-require_once("Net/OpenID/DiffieHellman.php");
-require_once("Net/OpenID/Consumer/Parse.php");
-require_once("Net/OpenID/Consumer/Fetchers.php");
+require_once("Auth/OpenID/CryptUtil.php");
+require_once("Auth/OpenID/KVForm.php");
+require_once("Auth/OpenID/OIDUtil.php");
+require_once("Auth/OpenID/Association.php");
+require_once("Auth/OpenID/DiffieHellman.php");
+require_once("Auth/OpenID/Consumer/Parse.php");
+require_once("Auth/OpenID/Consumer/Fetchers.php");
 
 /**
  * This is the status code returned when either the of the beginAuth
  * or completeAuth methods return successfully.
  */
-$Net_OpenID_SUCCESS = 'success';
+$Auth_OpenID_SUCCESS = 'success';
 
 /**
  * This is the status code completeAuth returns when the value it
  * received indicated an invalid login.
  */
-$Net_OpenID_FAILURE = 'failure';
+$Auth_OpenID_FAILURE = 'failure';
 
 /**
  * This is the status code completeAuth returns when the
- * Net_OpenID_Consumer instance is in immediate mode, and the identity
+ * Auth_OpenID_Consumer instance is in immediate mode, and the identity
  * server sends back a URL to send the user to to complete his or her
  * login.
  */
-$Net_OpenID_SETUP_NEEDED = 'setup needed';
+$Auth_OpenID_SETUP_NEEDED = 'setup needed';
 
 /**
  * This is the status code beginAuth returns when it is unable to
  * fetch the OpenID URL the user entered.
  */
-$Net_OpenID_HTTP_FAILURE = 'http failure';
+$Auth_OpenID_HTTP_FAILURE = 'http failure';
 
 /**
  * This is the status code beginAuth returns when the page fetched
  * from the entered OpenID URL doesn't contain the necessary link tags
  * to function as an identity page.
 */
-$Net_OpenID_PARSE_ERROR = 'parse error';
+$Auth_OpenID_PARSE_ERROR = 'parse error';
 
 /**
  * This is the characters that the nonces are made from.
  */
-$_Net_OpenID_NONCE_CHRS = $GLOBALS['_Net_OpenID_letters'] .
-    $GLOBALS['_Net_OpenID_digits'];
+$_Auth_OpenID_NONCE_CHRS = $GLOBALS['_Auth_OpenID_letters'] .
+    $GLOBALS['_Auth_OpenID_digits'];
 
 /**
  * This is the number of seconds the tokens generated by this library
  * will be valid for.  If you want to change the lifetime of a token,
  * set this value to the desired lifespan, in seconds.
  */
-$_Net_OpenID_TOKEN_LIFETIME = 60 * 5; // five minutes
+$_Auth_OpenID_TOKEN_LIFETIME = 60 * 5; // five minutes
 
 /**
  * This is the number of characters in the generated nonce for each
  * transaction.
  */
-$_Net_OpenID_NONCE_LEN = 8;
+$_Auth_OpenID_NONCE_LEN = 8;
 
 /**
  * This class is the interface to the OpenID consumer logic.
@@ -250,26 +250,26 @@ $_Net_OpenID_NONCE_LEN = 8;
  *
  * @package OpenID
  */
-class Net_OpenID_Consumer {
+class Auth_OpenID_Consumer {
 
     /**
-     * This method initializes a new Net_OpenID_Consumer instance to
+     * This method initializes a new Auth_OpenID_Consumer instance to
      * access the library.
      *
-     * @param Net_OpenID_OpenIDStore $store This must be an object
-     * that implements the interface in Net_OpenID_Store.  Several
+     * @param Auth_OpenID_OpenIDStore $store This must be an object
+     * that implements the interface in Auth_OpenID_Store.  Several
      * concrete implementations are provided, to cover most common use
      * cases.  For stores backed by MySQL, PostgreSQL, or SQLite, see
-     * the Net_OpenID_SQLStore class and its sublcasses.  For a
-     * filesystem-backed store, see the Net_OpenID_FileStore module.
+     * the Auth_OpenID_SQLStore class and its sublcasses.  For a
+     * filesystem-backed store, see the Auth_OpenID_FileStore module.
      * As a last resort, if it isn't possible for the server to store
-     * state at all, an instance of Net_OpenID_DumbStore can be used.
+     * state at all, an instance of Auth_OpenID_DumbStore can be used.
      * This should be an absolute last resort, though, as it makes the
      * consumer vulnerable to replay attacks over the lifespan of the
      * tokens the library creates.
      *
-     * @param Net_OpenID_HTTPFetcher $fetcher This is an optional
-     * reference to an instance of Net_OpenID_HTTPFetcher.  If
+     * @param Auth_OpenID_HTTPFetcher $fetcher This is an optional
+     * reference to an instance of Auth_OpenID_HTTPFetcher.  If
      * present, the provided fetcher is used by the library to fetch
      * users' identity pages and make direct requests to the identity
      * server.  If it is not present, a default fetcher is used.  The
@@ -281,7 +281,7 @@ class Net_OpenID_Consumer {
      * in the module description.  The default value is False, which
      * disables immediate mode.
      */
-    function Net_OpenID_Consumer(&$store, $fetcher = null, $immediate = false)
+    function Auth_OpenID_Consumer(&$store, $fetcher = null, $immediate = false)
     {
         if ($store === null) {
             trigger_error("Must supply non-null store to create consumer",
@@ -292,7 +292,7 @@ class Net_OpenID_Consumer {
         $this->store =& $store;
 
         if ($fetcher === null) {
-            $this->fetcher = Net_OpenID_getHTTPFetcher();
+            $this->fetcher = Auth_OpenID_getHTTPFetcher();
         } else {
             $this->fetcher =& $fetcher;
         }
@@ -312,8 +312,8 @@ class Net_OpenID_Consumer {
      * First, the user's claimed identity page is fetched, to
      * determine their identity server.  If the page cannot be fetched
      * or if the page does not have the necessary link tags in it,
-     * this method returns one of $Net_OpenID_HTTP_FAILURE or
-     * $Net_OpenID_PARSE_ERROR, depending on where the process failed.
+     * this method returns one of $Auth_OpenID_HTTP_FAILURE or
+     * $Auth_OpenID_PARSE_ERROR, depending on where the process failed.
      *
      * Second, unless the store provided is a dumb store, it checks to
      * see if it has an association with that identity server, and
@@ -343,7 +343,7 @@ class Net_OpenID_Consumer {
      * status code and additional information about the code.
      *
      * If there was a problem fetching the identity page the user
-     * gave, the status code is set to $Net_OpenID_HTTP_FAILURE, and
+     * gave, the status code is set to $Auth_OpenID_HTTP_FAILURE, and
      * the additional information value is either set to null if the
      * HTTP transaction failed or the HTTP return code, which will be
      * in the 400-500 range. This additional information value may
@@ -351,13 +351,13 @@ class Net_OpenID_Consumer {
      *
      * If the identity page fetched successfully, but didn't include
      * the correct link tags, the status code is set to
-     * $Net_OpenID_PARSE_ERROR, and the additional information value
+     * $Auth_OpenID_PARSE_ERROR, and the additional information value
      * is currently set to null.  The additional information value may
      * change in a future release.
      *
-     * Otherwise, the status code is set to $Net_OpenID_SUCCESS, and
+     * Otherwise, the status code is set to $Auth_OpenID_SUCCESS, and
      * the additional information is an instance of
-     * Net_OpenID_AuthRequest.  The $token attribute contains the
+     * Auth_OpenID_AuthRequest.  The $token attribute contains the
      * token to be preserved for the next HTTP request.  The
      * $server_url might also be of interest, if you wish to blacklist
      * or whitelist OpenID servers.  The other contents of the object
@@ -365,10 +365,10 @@ class Net_OpenID_Consumer {
      */
     function beginAuth($user_url)
     {
-        global $Net_OpenID_SUCCESS;
+        global $Auth_OpenID_SUCCESS;
 
         list($status, $info) = $this->_findIdentityInfo($user_url);
-        if ($status != $Net_OpenID_SUCCESS) {
+        if ($status != $Auth_OpenID_SUCCESS) {
             return array($status, $info);
         }
 
@@ -383,8 +383,8 @@ class Net_OpenID_Consumer {
      * The generated redirect should be sent to the browser which
      * initiated the authorization request.
      *
-     * @param Net_OpenID_AuthRequest $auth_request This must be a
-     * Net_OpenID_AuthRequest instance which was returned from a
+     * @param Auth_OpenID_AuthRequest $auth_request This must be a
+     * Auth_OpenID_AuthRequest instance which was returned from a
      * previous call to beginAuth.  It contains information found
      * during the beginAuth call which is needed to build the redirect
      * URL.
@@ -455,23 +455,23 @@ class Net_OpenID_Consumer {
      * The return value is a pair, consisting of a status and
      * additional information.  The status values are strings, but
      * should be referred to by their symbolic values:
-     * $Net_OpenID_SUCCESS, $Net_OpenID_FAILURE, and
-     * $Net_OpenID_SETUP_NEEDED.
+     * $Auth_OpenID_SUCCESS, $Auth_OpenID_FAILURE, and
+     * $Auth_OpenID_SETUP_NEEDED.
      *
-     * When $Net_OpenID_SUCCESS is returned, the additional
+     * When $Auth_OpenID_SUCCESS is returned, the additional
      * information returned is either null or a string.  If it is
      * null, it means the user cancelled the login, and no further
      * information can be determined.  If the additional information
      * is a string, it is the identity that has been verified as
      * belonging to the user making this request.
      *
-     * When $Net_OpenID_FAILURE is returned, the additional
+     * When $Auth_OpenID_FAILURE is returned, the additional
      * information is either null or a string.  In either case, this
      * code means that the identity verification failed.  If it can be
      * determined, the identity that failed to verify is returned.
      * Otherwise null is returned.
      *
-     * When $Net_OpenID_SETUP_NEEDED is returned, the additional
+     * When $Auth_OpenID_SETUP_NEEDED is returned, the additional
      * information is the user setup URL.  This is a URL returned only
      * as a response to requests made with openid.mode=immediate,
      * which indicates that the login was unable to proceed, and the
@@ -491,26 +491,26 @@ class Net_OpenID_Consumer {
      */
     function completeAuth($token, $query)
     {
-        global $Net_OpenID_SUCCESS, $Net_OpenID_FAILURE;
+        global $Auth_OpenID_SUCCESS, $Auth_OpenID_FAILURE;
 
         $query = $this->fixResponse($query);
 
-        $mode = Net_OpenID_array_get($query, 'openid.mode', '');
+        $mode = Auth_OpenID_array_get($query, 'openid.mode', '');
 
         if ($mode == 'cancel') {
-            return array($Net_OpenID_SUCCESS, null);
+            return array($Auth_OpenID_SUCCESS, null);
         } else if ($mode == 'error') {
 
-            $error = Net_OpenID_array_get($query, 'openid.error', null);
+            $error = Auth_OpenID_array_get($query, 'openid.error', null);
 
             if ($error !== null) {
-                Net_OpenID_log($error);
+                Auth_OpenID_log($error);
             }
-            return array($Net_OpenID_FAILURE, null);
+            return array($Auth_OpenID_FAILURE, null);
         } else if ($mode == 'id_res') {
             return $this->_doIdRes($token, $query);
         } else {
-            return array($Net_OpenID_FAILURE, null);
+            return array($Auth_OpenID_FAILURE, null);
         }
     }
 
@@ -519,16 +519,16 @@ class Net_OpenID_Consumer {
      */
     function _gotIdentityInfo($consumer_id, $server_id, $server_url)
     {
-        global $Net_OpenID_SUCCESS, $_Net_OpenID_NONCE_CHRS,
-            $_Net_OpenID_NONCE_LEN;
+        global $Auth_OpenID_SUCCESS, $_Auth_OpenID_NONCE_CHRS,
+            $_Auth_OpenID_NONCE_LEN;
 
-        $nonce = Net_OpenID_CryptUtil::randomString($_Net_OpenID_NONCE_LEN,
-                                                    $_Net_OpenID_NONCE_CHRS);
+        $nonce = Auth_OpenID_CryptUtil::randomString($_Auth_OpenID_NONCE_LEN,
+                                                    $_Auth_OpenID_NONCE_CHRS);
 
         $token = $this->_genToken($nonce, $consumer_id,
                                   $server_id, $server_url);
-        return array($Net_OpenID_SUCCESS,
-                     new Net_OpenID_AuthRequest($token, $server_id,
+        return array($Auth_OpenID_SUCCESS,
+                     new Auth_OpenID_AuthRequest($token, $server_id,
                                                 $server_url, $nonce));
     }
 
@@ -549,7 +549,7 @@ class Net_OpenID_Consumer {
         }
 
         $this->store->storeNonce($auth_req->nonce);
-        return strval(Net_OpenID_appendArgs($auth_req->server_url,
+        return strval(Auth_OpenID_appendArgs($auth_req->server_url,
                                             $redir_args));
     }
 
@@ -558,36 +558,36 @@ class Net_OpenID_Consumer {
      */
     function _doIdRes($token, $query)
     {
-        global $Net_OpenID_FAILURE, $Net_OpenID_SETUP_NEEDED,
-            $Net_OpenID_SUCCESS;
+        global $Auth_OpenID_FAILURE, $Auth_OpenID_SETUP_NEEDED,
+            $Auth_OpenID_SUCCESS;
 
         $ret = $this->_splitToken($token);
         if ($ret === null) {
-            return array($Net_OpenID_FAILURE, null);
+            return array($Auth_OpenID_FAILURE, null);
         }
 
         list($nonce, $consumer_id, $server_id, $server_url) = $ret;
 
-        $return_to = Net_OpenID_array_get($query, 'openid.return_to', null);
-        $server_id2 = Net_OpenID_array_get($query, 'openid.identity', null);
-        $assoc_handle = Net_OpenID_array_get($query,
+        $return_to = Auth_OpenID_array_get($query, 'openid.return_to', null);
+        $server_id2 = Auth_OpenID_array_get($query, 'openid.identity', null);
+        $assoc_handle = Auth_OpenID_array_get($query,
                                              'openid.assoc_handle', null);
 
         if (($return_to === null) ||
             ($server_id === null) ||
             ($assoc_handle === null)) {
-            return array($Net_OpenID_FAILURE, $consumer_id);
+            return array($Auth_OpenID_FAILURE, $consumer_id);
         }
 
         if ($server_id != $server_id2) {
-            return array($Net_OpenID_FAILURE, $consumer_id);
+            return array($Auth_OpenID_FAILURE, $consumer_id);
         }
 
-        $user_setup_url = Net_OpenID_array_get($query,
+        $user_setup_url = Auth_OpenID_array_get($query,
                                                'openid.user_setup_url', null);
 
         if ($user_setup_url !== null) {
-            return array($Net_OpenID_SETUP_NEEDED, $user_setup_url);
+            return array($Auth_OpenID_SETUP_NEEDED, $user_setup_url);
         }
 
         $assoc = $this->store->getAssociation($server_url);
@@ -602,25 +602,25 @@ class Net_OpenID_Consumer {
         }
 
         // Check the signature
-        $sig = Net_OpenID_array_get($query, 'openid.sig', null);
-        $signed = Net_OpenID_array_get($query, 'openid.signed', null);
+        $sig = Auth_OpenID_array_get($query, 'openid.sig', null);
+        $signed = Auth_OpenID_array_get($query, 'openid.signed', null);
         if (($sig === null) ||
             ($signed === null)) {
-            return array($Net_OpenID_FAILURE, $consumer_id);
+            return array($Auth_OpenID_FAILURE, $consumer_id);
         }
 
         $signed_list = explode(",", $signed);
         $v_sig = $assoc->signDict($signed_list, $query);
 
         if ($v_sig != $sig) {
-            return array($Net_OpenID_FAILURE, $consumer_id);
+            return array($Auth_OpenID_FAILURE, $consumer_id);
         }
 
         if (!$this->store->useNonce($nonce)) {
-            return array($Net_OpenID_FAILURE, $consumer_id);
+            return array($Auth_OpenID_FAILURE, $consumer_id);
         }
 
-        return array($Net_OpenID_SUCCESS, $consumer_id);
+        return array($Auth_OpenID_SUCCESS, $consumer_id);
     }
 
     /**
@@ -628,12 +628,12 @@ class Net_OpenID_Consumer {
      */
     function _checkAuth($nonce, $query, $server_url)
     {
-        global $Net_OpenID_FAILURE, $Net_OpenID_SUCCESS;
+        global $Auth_OpenID_FAILURE, $Auth_OpenID_SUCCESS;
 
         // XXX: send only those arguments that were signed?
-        $signed = Net_OpenID_array_get($query, 'openid.signed', null);
+        $signed = Auth_OpenID_array_get($query, 'openid.signed', null);
         if ($signed === null) {
-            return $Net_OpenID_FAILURE;
+            return $Auth_OpenID_FAILURE;
         }
 
         $whitelist = array('assoc_handle', 'sig',
@@ -650,18 +650,18 @@ class Net_OpenID_Consumer {
         }
 
         $check_args['openid.mode'] = 'check_authentication';
-        $post_data = Net_OpenID_http_build_query($check_args);
+        $post_data = Auth_OpenID_http_build_query($check_args);
 
         $ret = $this->fetcher->post($server_url, $post_data);
         if ($ret === null) {
-            return $Net_OpenID_FAILURE;
+            return $Auth_OpenID_FAILURE;
         }
 
-        $results = Net_OpenID_KVForm::kvToArray($ret[2]);
-        $is_valid = Net_OpenID_array_get($results, 'is_valid', 'false');
+        $results = Auth_OpenID_KVForm::kvToArray($ret[2]);
+        $is_valid = Auth_OpenID_array_get($results, 'is_valid', 'false');
 
         if ($is_valid == 'true') {
-            $invalidate_handle = Net_OpenID_array_get($results,
+            $invalidate_handle = Auth_OpenID_array_get($results,
                                                       'invalidate_handle',
                                                       null);
             if ($invalidate_handle !== null) {
@@ -670,19 +670,19 @@ class Net_OpenID_Consumer {
             }
 
             if (!$this->store->useNonce($nonce)) {
-                return $Net_OpenID_FAILURE;
+                return $Auth_OpenID_FAILURE;
             }
 
-            return $Net_OpenID_SUCCESS;
+            return $Auth_OpenID_SUCCESS;
         }
 
-        $error = Net_OpenID_array_get($results, 'error', null);
+        $error = Auth_OpenID_array_get($results, 'error', null);
         if ($error !== null) {
-            Net_OpenID_log(sprintf("Error message from server during " .
+            Auth_OpenID_log(sprintf("Error message from server during " .
                                    "check_authentication: %s", error));
         }
 
-        return $Net_OpenID_FAILURE;
+        return $Auth_OpenID_FAILURE;
     }
 
     /**
@@ -690,7 +690,7 @@ class Net_OpenID_Consumer {
      */
     function _getAssociation($server_url, $replace = false)
     {
-        global $_Net_OpenID_TOKEN_LIFETIME;
+        global $_Auth_OpenID_TOKEN_LIFETIME;
 
         if ($this->store->isDumb()) {
             return null;
@@ -700,8 +700,8 @@ class Net_OpenID_Consumer {
 
         if (($assoc === null) ||
             ($replace && ($assoc->getExpiresIn() <
-                          $_Net_OpenID_TOKEN_LIFETIME))) {
-            $dh = new Net_OpenID_DiffieHellman();
+                          $_Auth_OpenID_TOKEN_LIFETIME))) {
+            $dh = new Auth_OpenID_DiffieHellman();
             $body = $this->_createAssociateRequest($dh);
             $assoc = $this->_fetchAssociation($dh, $server_url, $body);
         }
@@ -719,10 +719,10 @@ class Net_OpenID_Consumer {
                           $consumer_id, $server_id, $server_url);
 
         $joined = implode("\x00", $elements);
-        $sig = Net_OpenID_CryptUtil::hmacSha1($this->store->getAuthKey(),
+        $sig = Auth_OpenID_CryptUtil::hmacSha1($this->store->getAuthKey(),
                                               $joined);
 
-        return Net_OpenID_toBase64($sig . $joined);
+        return Auth_OpenID_toBase64($sig . $joined);
     }
 
     /**
@@ -730,16 +730,16 @@ class Net_OpenID_Consumer {
      */
     function _splitToken($token)
     {
-        global $_Net_OpenID_TOKEN_LIFETIME;
+        global $_Auth_OpenID_TOKEN_LIFETIME;
 
-        $token = Net_OpenID_fromBase64($token);
+        $token = Auth_OpenID_fromBase64($token);
         if (strlen($token) < 20) {
             return null;
         }
 
         $sig = substr($token, 0, 20);
         $joined = substr($token, 20);
-        if (Net_OpenID_CryptUtil::hmacSha1(
+        if (Auth_OpenID_CryptUtil::hmacSha1(
               $this->store->getAuthKey(), $joined) != $sig) {
             return null;
         }
@@ -754,7 +754,7 @@ class Net_OpenID_Consumer {
             return null;
         }
 
-        if ($ts + $_Net_OpenID_TOKEN_LIFETIME < time()) {
+        if ($ts + $_Auth_OpenID_TOKEN_LIFETIME < time()) {
             return null;
         }
 
@@ -766,17 +766,17 @@ class Net_OpenID_Consumer {
      */
     function _findIdentityInfo($identity_url)
     {
-        global $Net_OpenID_HTTP_FAILURE;
+        global $Auth_OpenID_HTTP_FAILURE;
 
-        $url = Net_OpenID_normalizeUrl($identity_url);
+        $url = Auth_OpenID_normalizeUrl($identity_url);
         $ret = $this->fetcher->get($url);
         if ($ret === null) {
-            return array($Net_OpenID_HTTP_FAILURE, null);
+            return array($Auth_OpenID_HTTP_FAILURE, null);
         }
 
         list($http_code, $consumer_id, $data) = $ret;
         if ($http_code != 200) {
-            return array($Net_OpenID_HTTP_FAILURE, $http_code);
+            return array($Auth_OpenID_HTTP_FAILURE, $http_code);
         }
 
         // This method is split in two this way to allow for
@@ -789,14 +789,14 @@ class Net_OpenID_Consumer {
      */
     function _parseIdentityInfo($data, $consumer_id)
     {
-        global $Net_OpenID_PARSE_ERROR, $Net_OpenID_SUCCESS;
+        global $Auth_OpenID_PARSE_ERROR, $Auth_OpenID_SUCCESS;
 
-        $link_attrs = Net_OpenID_parseLinkAttrs($data);
-        $server = Net_OpenID_findFirstHref($link_attrs, 'openid.server');
-        $delegate = Net_OpenID_findFirstHref($link_attrs, 'openid.delegate');
+        $link_attrs = Auth_OpenID_parseLinkAttrs($data);
+        $server = Auth_OpenID_findFirstHref($link_attrs, 'openid.server');
+        $delegate = Auth_OpenID_findFirstHref($link_attrs, 'openid.delegate');
 
         if ($server === null) {
-            return array($Net_OpenID_PARSE_ERROR, null);
+            return array($Auth_OpenID_PARSE_ERROR, null);
         }
 
         if ($delegate !== null) {
@@ -810,10 +810,10 @@ class Net_OpenID_Consumer {
         $normalized = array();
 
         foreach ($urls as $url) {
-            $normalized[] = Net_OpenID_normalizeUrl($url);
+            $normalized[] = Auth_OpenID_normalizeUrl($url);
         }
 
-        return array($Net_OpenID_SUCCESS, $normalized);
+        return array($Auth_OpenID_SUCCESS, $normalized);
     }
 
     /**
@@ -821,13 +821,13 @@ class Net_OpenID_Consumer {
      */
     function _createAssociateRequest($dh, $args = null)
     {
-        global $_Net_OpenID_DEFAULT_MOD, $_Net_OpenID_DEFAULT_GEN;
+        global $_Auth_OpenID_DEFAULT_MOD, $_Auth_OpenID_DEFAULT_GEN;
 
         if ($args === null) {
             $args = array();
         }
 
-        $cpub = Net_OpenID_CryptUtil::longToBase64($dh->public);
+        $cpub = Auth_OpenID_CryptUtil::longToBase64($dh->public);
 
         $args = array_merge($args, array(
                                          'openid.mode' =>  'associate',
@@ -836,18 +836,18 @@ class Net_OpenID_Consumer {
                                          'openid.dh_consumer_public' => $cpub
                                          ));
 
-        if (($dh->mod != $_Net_OpenID_DEFAULT_MOD) ||
-            ($dh->gen != $_Net_OpenID_DEFAULT_GEN)) {
+        if (($dh->mod != $_Auth_OpenID_DEFAULT_MOD) ||
+            ($dh->gen != $_Auth_OpenID_DEFAULT_GEN)) {
             $args = array_merge($args,
                      array(
                            'openid.dh_modulus' =>
-                           Net_OpenID_CryptUtil::longToBase64($dh->modulus),
+                           Auth_OpenID_CryptUtil::longToBase64($dh->modulus),
                            'openid.dh_gen' =>
-                           Net_OpenID_CryptUtil::longToBase64($dh->generator)
+                           Auth_OpenID_CryptUtil::longToBase64($dh->generator)
                            ));
         }
 
-        return Net_OpenID_http_build_query($args);
+        return Auth_OpenID_http_build_query($args);
     }
 
     /**
@@ -858,26 +858,26 @@ class Net_OpenID_Consumer {
         $ret = $this->fetcher->post($server_url, $body);
         if ($ret === null) {
             $fmt = 'Getting association: failed to fetch URL: %s';
-            Net_OpenID_log(sprintf($fmt, $server_url));
+            Auth_OpenID_log(sprintf($fmt, $server_url));
             return null;
         }
 
         list($http_code, $url, $data) = $ret;
-        $results = Net_OpenID_KVForm::kvToArray($data);
+        $results = Auth_OpenID_KVForm::kvToArray($data);
         if ($http_code == 400) {
-            $server_error = Net_OpenID_array_get($results, 'error',
+            $server_error = Auth_OpenID_array_get($results, 'error',
                                                  '<no message from server>');
 
             $fmt = 'Getting association: error returned from server %s: %s';
-            Net_OpenID_log(sprintf($fmt, $server_url, $server_error));
+            Auth_OpenID_log(sprintf($fmt, $server_url, $server_error));
             return null;
         } else if ($http_code != 200) {
             $fmt = 'Getting association: bad status code from server %s: %s';
-            Net_OpenID_log(sprintf($fmt, $server_url, $http_code));
+            Auth_OpenID_log(sprintf($fmt, $server_url, $http_code));
             return null;
         }
 
-        $results = Net_OpenID_KVForm::kvToArray($data);
+        $results = Auth_OpenID_KVForm::kvToArray($data);
 
         return $this->_parseAssociation($results, $dh, $server_url);
     }
@@ -892,7 +892,7 @@ class Net_OpenID_Consumer {
 
         foreach ($required_keys as $key) {
             if (!array_key_exists($key, $results)) {
-                Net_OpenID_log(sprintf("Getting association: missing key in ".
+                Auth_OpenID_log(sprintf("Getting association: missing key in ".
                                        "response from %s: %s",
                                        $server_url, $key),
                                E_USER_WARNING);
@@ -903,33 +903,34 @@ class Net_OpenID_Consumer {
         $assoc_type = $results['assoc_type'];
         if ($assoc_type != 'HMAC-SHA1') {
             $fmt = 'Unsupported assoc_type returned from server %s: %s';
-            Net_OpenID_log(sprintf($fmt, $server_url, $assoc_type));
+            Auth_OpenID_log(sprintf($fmt, $server_url, $assoc_type));
             return null;
         }
 
         $assoc_handle = $results['assoc_handle'];
-        $expires_in = intval(Net_OpenID_array_get($results, 'expires_in', '0'));
+        $expires_in = intval(Auth_OpenID_array_get($results, 'expires_in',
+                             '0'));
 
-        $session_type = Net_OpenID_array_get($results, 'session_type', null);
+        $session_type = Auth_OpenID_array_get($results, 'session_type', null);
         if ($session_type === null) {
-            $secret = Net_OpenID_fromBase64($results['mac_key']);
+            $secret = Auth_OpenID_fromBase64($results['mac_key']);
         } else {
             $fmt = 'Unsupported session_type returned from server %s: %s';
             if ($session_type != 'DH-SHA1') {
-                Net_OpenID_log(sprintf($fmt, $server_url, $session_type));
+                Auth_OpenID_log(sprintf($fmt, $server_url, $session_type));
                 return null;
             }
 
-            $spub = Net_OpenID_CryptUtil::base64ToLong(
+            $spub = Auth_OpenID_CryptUtil::base64ToLong(
                          $results['dh_server_public']);
 
-            $enc_mac_key = Net_OpenID_CryptUtil::fromBase64(
+            $enc_mac_key = Auth_OpenID_CryptUtil::fromBase64(
                          $results['enc_mac_key']);
 
             $secret = $dh->xorSecret($spub, $enc_mac_key);
         }
 
-        $assoc = Net_OpenID_Association::fromExpiresIn($expires_in,
+        $assoc = Auth_OpenID_Association::fromExpiresIn($expires_in,
                                                        $assoc_handle,
                                                        $secret,
                                                        $assoc_type);
@@ -959,8 +960,8 @@ class Net_OpenID_Consumer {
  *
  * @package OpenID
  */
-class Net_OpenID_AuthRequest {
-    function Net_OpenID_AuthRequest($token, $server_id, $server_url, $nonce)
+class Auth_OpenID_AuthRequest {
+    function Auth_OpenID_AuthRequest($token, $server_id, $server_url, $nonce)
     {
         $this->token = $token;
         $this->server_id = $server_id;

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-bad_true=$(grep -l "TRUE" $(find Net Tests -name \*.php | grep -v darcs))
-bad_false=$(grep -l "FALSE" $(find Net Tests -name \*.php | grep -v darcs))
-bad_null=$(grep -l "NULL" $(find Net Tests -name \*.php | grep -v darcs))
+bad_true=$(grep -l "TRUE" $(find Auth Tests -name \*.php | grep -v darcs))
+bad_false=$(grep -l "FALSE" $(find Auth Tests -name \*.php | grep -v darcs))
+bad_null=$(grep -l "NULL" $(find Auth Tests -name \*.php | grep -v darcs))
 
 if [ "$bad_true" ]
     then

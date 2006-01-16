@@ -13,21 +13,21 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-require_once('Net/OpenID/CryptUtil.php');
-require_once('Net/OpenID/DiffieHellman.php');
-require_once('Net/OpenID/Store/FileStore.php');
-require_once('Net/OpenID/OIDUtil.php');
-require_once('Net/OpenID/KVForm.php');
-require_once('Net/OpenID/Consumer/Consumer.php');
+require_once('Auth/OpenID/CryptUtil.php');
+require_once('Auth/OpenID/DiffieHellman.php');
+require_once('Auth/OpenID/Store/FileStore.php');
+require_once('Auth/OpenID/OIDUtil.php');
+require_once('Auth/OpenID/KVForm.php');
+require_once('Auth/OpenID/Consumer/Consumer.php');
 
-$_Net_OpenID_assocs = array(
+$_Auth_OpenID_assocs = array(
                             array('another 20-byte key.', 'Snarky'),
                             array(str_repeat("\x00", 20), 'Zeros'),
                             );
 
-$_Net_OpenID_filestore_base_dir = "/tmp";
+$_Auth_OpenID_filestore_base_dir = "/tmp";
 
-function Net_OpenID_parse($qs)
+function Auth_OpenID_parse($qs)
 {
     $result = array();
     $parts = explode("&", $qs);
@@ -39,22 +39,22 @@ function Net_OpenID_parse($qs)
     return $result;
 }
 
-function Net_OpenID_associate($qs, $assoc_secret, $assoc_handle)
+function Auth_OpenID_associate($qs, $assoc_secret, $assoc_handle)
 {
-    $query_data = Net_OpenID_parse($qs);
+    $query_data = Auth_OpenID_parse($qs);
 
     assert((count($query_data) == 6) || (count($query_data) == 4));
     assert($query_data['openid.mode'] == 'associate');
     assert($query_data['openid.assoc_type'] == 'HMAC-SHA1');
     assert($query_data['openid.session_type'] == 'DH-SHA1');
-    $d = Net_OpenID_DiffieHellman::fromBase64(
-        Net_OpenID_array_get($query_data, 'openid.dh_modulus', null),
-        Net_OpenID_array_get($query_data, 'openid.dh_gen', null));
+    $d = Auth_OpenID_DiffieHellman::fromBase64(
+        Auth_OpenID_array_get($query_data, 'openid.dh_modulus', null),
+        Auth_OpenID_array_get($query_data, 'openid.dh_gen', null));
 
-    $composite = Net_OpenID_CryptUtil::base64ToLong(
+    $composite = Auth_OpenID_CryptUtil::base64ToLong(
         $query_data['openid.dh_consumer_public']);
 
-    $enc_mac_key = Net_OpenID_CryptUtil::toBase64(
+    $enc_mac_key = Auth_OpenID_CryptUtil::toBase64(
                       $d->xorSecret($composite, $assoc_secret));
 
     $reply_dict = array(
@@ -63,15 +63,15 @@ function Net_OpenID_associate($qs, $assoc_secret, $assoc_handle)
                         'expires_in' => '600',
                         'session_type' => 'DH-SHA1',
                         'dh_server_public' =>
-                           Net_OpenID_CryptUtil::longToBase64($d->public),
+                           Auth_OpenID_CryptUtil::longToBase64($d->public),
                         'enc_mac_key' => $enc_mac_key,
                         );
 
-    return Net_OpenID_KVForm::arrayToKV($reply_dict);
+    return Auth_OpenID_KVForm::arrayToKV($reply_dict);
 }
 
-class Net_OpenID_TestFetcher {
-    function Net_OpenID_TestFetcher($user_url, $user_page,
+class Auth_OpenID_TestFetcher {
+    function Auth_OpenID_TestFetcher($user_url, $user_page,
                                     $assoc_secret, $assoc_handle)
     {
         $this->get_responses = array($user_url => array(200,
@@ -103,7 +103,7 @@ class Net_OpenID_TestFetcher {
     function post($url, $body)
     {
         if (strpos($body, 'openid.mode=associate') !== false) {
-            $response = Net_OpenID_associate($body, $this->assoc_secret,
+            $response = Auth_OpenID_associate($body, $this->assoc_secret,
                                              $this->assoc_handle);
             $this->num_assocs++;
             return $this->response($url, $response);
@@ -113,7 +113,7 @@ class Net_OpenID_TestFetcher {
     }
 }
 
-$_Net_OpenID_user_page_pat = "<html>
+$_Auth_OpenID_user_page_pat = "<html>
   <head>
     <title>A user page</title>
     %s
@@ -123,29 +123,29 @@ $_Net_OpenID_user_page_pat = "<html>
   </body>
 </html>";
 
-$_Net_OpenID_server_url = "http://server.example.com/";
-$_Net_OpenID_consumer_url = "http://consumer.example.com/";
+$_Auth_OpenID_server_url = "http://server.example.com/";
+$_Auth_OpenID_consumer_url = "http://consumer.example.com/";
 
-class Tests_Net_OpenID_Consumer extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
 
     function _run(&$consumer, $user_url, $mode, $delegate_url,
                   &$fetcher, &$store)
     {
-        global $Net_OpenID_SUCCESS,
-            $_Net_OpenID_consumer_url,
-            $_Net_OpenID_server_url;
+        global $Auth_OpenID_SUCCESS,
+            $_Auth_OpenID_consumer_url,
+            $_Auth_OpenID_server_url;
 
         list($status, $info) = $consumer->beginAuth($user_url);
-        $this->assertEquals($status, $Net_OpenID_SUCCESS);
+        $this->assertEquals($status, $Auth_OpenID_SUCCESS);
 
-        $return_to = $_Net_OpenID_consumer_url;
-        $trust_root = $_Net_OpenID_consumer_url;
+        $return_to = $_Auth_OpenID_consumer_url;
+        $trust_root = $_Auth_OpenID_consumer_url;
         $redirect_url = $consumer->constructRedirect($info, $return_to,
                                                      $trust_root);
 
         $parsed = parse_url($redirect_url);
         $qs = $parsed['query'];
-        $q = Net_OpenID_parse($qs);
+        $q = Auth_OpenID_parse($qs);
 
         $this->assertEquals($q, array(
                                       'openid.mode' => $mode,
@@ -156,7 +156,7 @@ class Tests_Net_OpenID_Consumer extends PHPUnit_TestCase {
                                       'openid.return_to' => $return_to
                                       ));
 
-        $this->assertEquals(strpos($redirect_url, $_Net_OpenID_server_url),
+        $this->assertEquals(strpos($redirect_url, $_Auth_OpenID_server_url),
                             0);
 
         $query = array(
@@ -166,26 +166,26 @@ class Tests_Net_OpenID_Consumer extends PHPUnit_TestCase {
                        'openid.assoc_handle'=> $fetcher->assoc_handle,
                        );
 
-        $assoc = $store->getAssociation($_Net_OpenID_server_url,
+        $assoc = $store->getAssociation($_Auth_OpenID_server_url,
                                         $fetcher->assoc_handle);
 
         $assoc->addSignature(array('mode', 'return_to', 'identity'), $query);
 
         list($status, $info) = $consumer->completeAuth($info->token, $query);
 
-        $this->assertEquals($status, $Net_OpenID_SUCCESS);
+        $this->assertEquals($status, $Auth_OpenID_SUCCESS);
         $this->assertEquals($info, $user_url);
     }
 
     function _test_success($user_url, $delegate_url, $links, $immediate = false)
     {
-        global $_Net_OpenID_filestore_base_dir,
-            $_Net_OpenID_server_url,
-            $_Net_OpenID_user_page_pat,
-            $_Net_OpenID_assocs;
+        global $_Auth_OpenID_filestore_base_dir,
+            $_Auth_OpenID_server_url,
+            $_Auth_OpenID_user_page_pat,
+            $_Auth_OpenID_assocs;
 
-        $store = new Net_OpenID_FileStore(
-           Net_OpenID_mkdtemp($_Net_OpenID_filestore_base_dir));
+        $store = new Auth_OpenID_FileStore(
+           Auth_OpenID_mkdtemp($_Auth_OpenID_filestore_base_dir));
 
         if ($immediate) {
             $mode = 'checkid_immediate';
@@ -193,12 +193,12 @@ class Tests_Net_OpenID_Consumer extends PHPUnit_TestCase {
             $mode = 'checkid_setup';
         }
 
-        $user_page = sprintf($_Net_OpenID_user_page_pat, $links);
-        $fetcher = new Net_OpenID_TestFetcher($user_url, $user_page,
-                                              $_Net_OpenID_assocs[0][0],
-                                              $_Net_OpenID_assocs[0][1]);
+        $user_page = sprintf($_Auth_OpenID_user_page_pat, $links);
+        $fetcher = new Auth_OpenID_TestFetcher($user_url, $user_page,
+                                              $_Auth_OpenID_assocs[0][0],
+                                              $_Auth_OpenID_assocs[0][1]);
 
-        $consumer = new Net_OpenID_Consumer($store, &$fetcher, $immediate);
+        $consumer = new Auth_OpenID_Consumer($store, &$fetcher, $immediate);
 
         $this->assertEquals($fetcher->num_assocs, 0);
         $this->_run($consumer, $user_url, $mode, $delegate_url,
@@ -213,7 +213,7 @@ class Tests_Net_OpenID_Consumer extends PHPUnit_TestCase {
         $this->assertEquals($fetcher->num_assocs, 1);
 
         // Another association is created if we remove the existing one
-        $store->removeAssociation($_Net_OpenID_server_url,
+        $store->removeAssociation($_Auth_OpenID_server_url,
                                   $fetcher->assoc_handle);
 
         $this->_run($consumer, $user_url, $mode, $delegate_url,
@@ -232,16 +232,16 @@ class Tests_Net_OpenID_Consumer extends PHPUnit_TestCase {
 
     function test_success()
     {
-        global $_Net_OpenID_server_url;
+        global $_Auth_OpenID_server_url;
 
         $user_url = 'http://www.example.com/user.html';
         $links = sprintf('<link rel="openid.server" href="%s" />',
-                         $_Net_OpenID_server_url);
+                         $_Auth_OpenID_server_url);
 
         $delegate_url = 'http://consumer.example.com/user';
         $delegate_links = sprintf('<link rel="openid.server" href="%s" />'.
                                   '<link rel="openid.delegate" href="%s" />',
-                                  $_Net_OpenID_server_url, $delegate_url);
+                                  $_Auth_OpenID_server_url, $delegate_url);
 
         $this->_test_success($user_url, $user_url, $links);
         $this->_test_success($user_url, $user_url, $links, true);
@@ -251,14 +251,14 @@ class Tests_Net_OpenID_Consumer extends PHPUnit_TestCase {
 
     function test_bad_fetch()
     {
-        global $_Net_OpenID_filestore_base_dir,
-            $Net_OpenID_HTTP_FAILURE;
+        global $_Auth_OpenID_filestore_base_dir,
+            $Auth_OpenID_HTTP_FAILURE;
 
-        $store = new Net_OpenID_FileStore(
-            Net_OpenID_mkdtemp($_Net_OpenID_filestore_base_dir));
+        $store = new Auth_OpenID_FileStore(
+            Auth_OpenID_mkdtemp($_Auth_OpenID_filestore_base_dir));
 
-        $fetcher = new Net_OpenID_TestFetcher(null, null, null, null);
-        $consumer = new Net_OpenID_Consumer($store, &$fetcher);
+        $fetcher = new Auth_OpenID_TestFetcher(null, null, null, null);
+        $consumer = new Auth_OpenID_Consumer($store, &$fetcher);
         $cases = array(
                        array(null, 'http://network.error/'),
                        array(404, 'http://not.found/'),
@@ -270,7 +270,7 @@ class Tests_Net_OpenID_Consumer extends PHPUnit_TestCase {
             list($error_code, $url) = $case;
             $fetcher->get_responses[$url] = array($error_code, $url, null);
             list($status, $info) = $consumer->beginAuth($url);
-            $this->assertEquals($status, $Net_OpenID_HTTP_FAILURE);
+            $this->assertEquals($status, $Auth_OpenID_HTTP_FAILURE);
             $this->assertEquals($info, $error_code);
         }
 
@@ -279,11 +279,11 @@ class Tests_Net_OpenID_Consumer extends PHPUnit_TestCase {
 
     function test_bad_parse()
     {
-        global $_Net_OpenID_filestore_base_dir,
-            $Net_OpenID_PARSE_ERROR;
+        global $_Auth_OpenID_filestore_base_dir,
+            $Auth_OpenID_PARSE_ERROR;
 
-        $store = new Net_OpenID_FileStore(
-            Net_OpenID_mkdtemp($_Net_OpenID_filestore_base_dir));
+        $store = new Auth_OpenID_FileStore(
+            Auth_OpenID_mkdtemp($_Auth_OpenID_filestore_base_dir));
 
         $user_url = 'http://user.example.com/';
         $cases = array(
@@ -293,11 +293,11 @@ class Tests_Net_OpenID_Consumer extends PHPUnit_TestCase {
                        );
 
         foreach ($cases as $user_page) {
-            $fetcher = new Net_OpenID_TestFetcher($user_url, $user_page,
+            $fetcher = new Auth_OpenID_TestFetcher($user_url, $user_page,
                                                   null, null);
-            $consumer = new Net_OpenID_Consumer($store, $fetcher);
+            $consumer = new Auth_OpenID_Consumer($store, $fetcher);
             list($status, $info) = $consumer->beginAuth($user_url);
-            $this->assertEquals($status, $Net_OpenID_PARSE_ERROR);
+            $this->assertEquals($status, $Auth_OpenID_PARSE_ERROR);
             $this->assertNull($info);
         }
 

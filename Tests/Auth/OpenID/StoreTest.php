@@ -13,36 +13,36 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-require_once('Net/OpenID/Association.php');
-require_once('Net/OpenID/CryptUtil.php');
-require_once('Net/OpenID/OIDUtil.php');
+require_once('Auth/OpenID/Association.php');
+require_once('Auth/OpenID/CryptUtil.php');
+require_once('Auth/OpenID/OIDUtil.php');
 
-class Tests_Net_OpenID_StoreTest extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
 
     function setUp()
     {
-        global $_Net_OpenID_letters, $_Net_OpenID_digits,
-            $_Net_OpenID_punct;
+        global $_Auth_OpenID_letters, $_Auth_OpenID_digits,
+            $_Auth_OpenID_punct;
 
-        $this->letters = $_Net_OpenID_letters;
-        $this->digits = $_Net_OpenID_digits;
-        $this->punct = $_Net_OpenID_punct;
+        $this->letters = $_Auth_OpenID_letters;
+        $this->digits = $_Auth_OpenID_digits;
+        $this->punct = $_Auth_OpenID_punct;
         $this->allowed_nonce = $this->letters . $this->digits;
         $this->allowed_handle = $this->letters . $this->digits . $this->punct;
     }
 
     function generateNonce()
     {
-        return Net_OpenID_CryptUtil::randomString(8, $this->allowed_nonce);
+        return Auth_OpenID_CryptUtil::randomString(8, $this->allowed_nonce);
     }
 
     function genAssoc($now, $issued = 0, $lifetime = 600)
     {
-        $sec = call_user_func(array('Net_OpenID_CryptUtil', 'randomString'),
+        $sec = call_user_func(array('Auth_OpenID_CryptUtil', 'randomString'),
                               20);
-        $hdl = Net_OpenID_CryptUtil::randomString(128, $this->allowed_handle);
-        return new Net_OpenID_Association($hdl, $sec, $now + $issued, $lifetime,
-                                          'HMAC-SHA1');
+        $hdl = Auth_OpenID_CryptUtil::randomString(128, $this->allowed_handle);
+        return new Auth_OpenID_Association($hdl, $sec, $now + $issued,
+                                          $lifetime, 'HMAC-SHA1');
     }
 
     function _checkRetrieve(&$store, $url, $handle, $expected, $name=null)
@@ -212,17 +212,17 @@ explicitly');
 
     function test_filestore()
     {
-        require_once('Net/OpenID/Store/FileStore.php');
+        require_once('Auth/OpenID/Store/FileStore.php');
 
-        $temp_dir = Net_OpenID_mkdtemp('/tmp');
+        $temp_dir = Auth_OpenID_mkdtemp('/tmp');
 
         if (!$temp_dir) {
             trigger_error('Could not create temporary directory ' .
-                          'with Net_OpenID_mkdtemp', E_USER_WARNING);
+                          'with Auth_OpenID_mkdtemp', E_USER_WARNING);
             return null;
         }
 
-        $store = new Net_OpenID_FileStore($temp_dir);
+        $store = new Auth_OpenID_FileStore($temp_dir);
         $this->_testStore($store);
         $this->_testNonce($store);
         $store->destroy();

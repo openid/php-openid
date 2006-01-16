@@ -16,14 +16,14 @@
 /**
  * Some constants for string checking.
  */
-$_Net_OpenID_letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-$_Net_OpenID_digits = "0123456789";
-$_Net_OpenID_punct = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
+$_Auth_OpenID_letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+$_Auth_OpenID_digits = "0123456789";
+$_Auth_OpenID_punct = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
 
 /**
  * Convenience function for getting array values.
  */
-function Net_OpenID_array_get($arr, $key, $fallback = null)
+function Auth_OpenID_array_get($arr, $key, $fallback = null)
 {
     if (is_array($arr)) {
         if (array_key_exists($key, $arr)) {
@@ -32,7 +32,7 @@ function Net_OpenID_array_get($arr, $key, $fallback = null)
             return $fallback;
         }
     } else {
-        trigger_error("Net_OpenID_array_get expected " .
+        trigger_error("Auth_OpenID_array_get expected " .
                       "array as first parameter", E_USER_WARNING);
         return false;
     }
@@ -42,7 +42,7 @@ function Net_OpenID_array_get($arr, $key, $fallback = null)
 /**
  * Prints the specified message using trigger_error(E_USER_NOTICE).
  */
-function Net_OpenID_log($message, $unused_level = 0)
+function Auth_OpenID_log($message, $unused_level = 0)
 {
     trigger_error($message, E_USER_NOTICE);
 }
@@ -57,7 +57,7 @@ function Net_OpenID_log($message, $unused_level = 0)
  * pairs from $data into a URL query string
  * (e.g. "username=bob&id=56").
  */
-function Net_OpenID_http_build_query($data)
+function Auth_OpenID_http_build_query($data)
 {
     $pairs = array();
     foreach ($data as $key => $value) {
@@ -84,7 +84,7 @@ function Net_OpenID_http_build_query($data)
  * @return string $url The original URL with the new parameters added.
  *
  */
-function Net_OpenID_appendArgs($url, $args)
+function Auth_OpenID_appendArgs($url, $args)
 {
 
     if (count($args) == 0) {
@@ -111,13 +111,13 @@ function Net_OpenID_appendArgs($url, $args)
         $sep = '&';
     }
 
-    return $url . $sep . Net_OpenID_http_build_query($args);
+    return $url . $sep . Auth_OpenID_http_build_query($args);
 }
 
 /**
  * Converts the specified string to a base64 representation.
  */
-function Net_OpenID_toBase64($s)
+function Auth_OpenID_toBase64($s)
 {
     return base64_encode($s);
 }
@@ -126,7 +126,7 @@ function Net_OpenID_toBase64($s)
  * Returns the original string representation of the specified
  * base64-encoded string.
  */
-function Net_OpenID_fromBase64($s)
+function Auth_OpenID_fromBase64($s)
 {
     return base64_decode($s);
 }
@@ -143,7 +143,7 @@ function Net_OpenID_fromBase64($s)
  * Do not escape anything that is already 7-bit safe, so we do the
  * minimal transform on the identity URL
  */
-function Net_OpenID_quoteMinimal($s)
+function Auth_OpenID_quoteMinimal($s)
 {
     $res = array();
     for ($i = 0; $i < strlen($s); $i++) {
@@ -174,7 +174,7 @@ function Net_OpenID_quoteMinimal($s)
  * @return string $url The URL resulting from assembling the specified
  * components.
  */
-function Net_OpenID_urlunparse($scheme, $host, $port = null, $path = '/',
+function Auth_OpenID_urlunparse($scheme, $host, $port = null, $path = '/',
                                $query = '', $fragment = '')
 {
 
@@ -218,7 +218,7 @@ function Net_OpenID_urlunparse($scheme, $host, $port = null, $path = '/',
  * @return mixed $new_url The URL after normalization, or null if $url
  * was malformed.
  */
-function Net_OpenID_normalizeUrl($url)
+function Auth_OpenID_normalizeUrl($url)
 {
     if ($url === null) {
         return null;
@@ -264,14 +264,14 @@ function Net_OpenID_normalizeUrl($url)
         $parsed = array_merge($defaults, $parsed);
     }
 
-    $tail = array_map('Net_OpenID_quoteMinimal', array($parsed['path'],
+    $tail = array_map('Auth_OpenID_quoteMinimal', array($parsed['path'],
                                                        $parsed['query'],
                                                        $parsed['fragment']));
     if ($tail[0] == '') {
         $tail[0] = '/';
     }
 
-    $url = Net_OpenID_urlunparse($parsed['scheme'], $parsed['host'],
+    $url = Auth_OpenID_urlunparse($parsed['scheme'], $parsed['host'],
                                  $parsed['port'], $tail[0], $tail[1],
                                  $tail[2]);
 

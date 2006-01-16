@@ -19,21 +19,21 @@
  */
 require_once('HMACSHA1.php');
 
-if (!defined('Net_OpenID_RAND_SOURCE')) {
+if (!defined('Auth_OpenID_RAND_SOURCE')) {
     /**
      * The filename for a source of random bytes. Define this yourself
      * if you have a different source of randomness.
      */
-    define('Net_OpenID_RAND_SOURCE', '/dev/urandom');
+    define('Auth_OpenID_RAND_SOURCE', '/dev/urandom');
 }
 
 /**
- * Net_OpenID_CryptUtil houses static utility functions.
+ * Auth_OpenID_CryptUtil houses static utility functions.
  *
  * @package OpenID
  * @static
  */
-class Net_OpenID_CryptUtil {
+class Auth_OpenID_CryptUtil {
     /** 
      * Get the specified number of random bytes.
      *
@@ -41,7 +41,7 @@ class Net_OpenID_CryptUtil {
      * source of randomness if available. If there is no high-entropy
      * randomness source available, it will fail. As a last resort,
      * for non-critical systems, define
-     * <code>Net_OpenID_USE_INSECURE_RAND</code>, and the code will
+     * <code>Auth_OpenID_USE_INSECURE_RAND</code>, and the code will
      * fall back on a pseudo-random number generator.
      *
      * @param int $num_bytes The length of the return value
@@ -50,10 +50,10 @@ class Net_OpenID_CryptUtil {
     function getBytes($num_bytes)
     {
         $bytes = '';
-        $f = @fopen(Net_OpenID_RAND_SOURCE, "r");
+        $f = @fopen(Auth_OpenID_RAND_SOURCE, "r");
         if ($f === false) {
-            if (!defined('Net_OpenID_USE_INSECURE_RAND')) {
-                trigger_error('Set Net_OpenID_USE_INSECURE_RAND to ' .
+            if (!defined('Auth_OpenID_USE_INSECURE_RAND')) {
+                trigger_error('Set Auth_OpenID_USE_INSECURE_RAND to ' .
                               'continue with insecure random.',
                               E_USER_ERROR);
             }
@@ -99,7 +99,7 @@ class Net_OpenID_CryptUtil {
      */
     function sha1($str)
     {
-        return Net_OpenID_sha1_raw($str);
+        return Auth_OpenID_sha1_raw($str);
     }
 
     /**
@@ -111,7 +111,7 @@ class Net_OpenID_CryptUtil {
      */
     function hmacSha1($key, $text)
     {
-        return Net_OpenID_HMACSHA1($key, $text);
+        return Auth_OpenID_HMACSHA1($key, $text);
     }
 
     /**
@@ -150,7 +150,7 @@ class Net_OpenID_CryptUtil {
     function longToBinary($long)
     {
 
-        $lib =& Net_OpenID_MathLibrary::getLibWrapper();
+        $lib =& Auth_OpenID_MathLibrary::getLibWrapper();
 
         $cmp = $lib->cmp($long, 0);
         if ($cmp < 0) {
@@ -213,7 +213,7 @@ class Net_OpenID_CryptUtil {
      */
     function binaryToLong($str)
     {
-        $lib =& Net_OpenID_MathLibrary::getLibWrapper();
+        $lib =& Auth_OpenID_MathLibrary::getLibWrapper();
 
         if ($str === null) {
             return null;
@@ -266,8 +266,8 @@ class Net_OpenID_CryptUtil {
      */
     function base64ToLong($str)
     {
-        return Net_OpenID_CryptUtil::binaryToLong(
-                      Net_OpenID_CryptUtil::fromBase64($str));
+        return Auth_OpenID_CryptUtil::binaryToLong(
+                      Auth_OpenID_CryptUtil::fromBase64($str));
     }
 
     /**
@@ -278,8 +278,8 @@ class Net_OpenID_CryptUtil {
      */
     function longToBase64($long)
     {
-        return Net_OpenID_CryptUtil::toBase64(
-                      Net_OpenID_CryptUtil::longToBinary($long));
+        return Auth_OpenID_CryptUtil::toBase64(
+                      Auth_OpenID_CryptUtil::longToBinary($long));
     }
 
     /**
@@ -340,8 +340,8 @@ class Net_OpenID_CryptUtil {
     function randrange($start, $stop = null, $step = 1)
     {
 
-        static $Net_OpenID_CryptUtil_duplicate_cache = array();
-        $lib =& Net_OpenID_MathLibrary::getLibWrapper();
+        static $Auth_OpenID_CryptUtil_duplicate_cache = array();
+        $lib =& Auth_OpenID_MathLibrary::getLibWrapper();
 
         if ($stop == null) {
             $stop = $start;
@@ -351,11 +351,11 @@ class Net_OpenID_CryptUtil {
         $r = $lib->div($lib->sub($stop, $start), $step);
 
         // DO NOT MODIFY THIS VALUE.
-        $rbytes = Net_OpenID_CryptUtil::longToBinary($r);
+        $rbytes = Auth_OpenID_CryptUtil::longToBinary($r);
 
-        if (array_key_exists($rbytes, $Net_OpenID_CryptUtil_duplicate_cache)) {
+        if (array_key_exists($rbytes, $Auth_OpenID_CryptUtil_duplicate_cache)) {
             list($duplicate, $nbytes) =
-                $Net_OpenID_CryptUtil_duplicate_cache[$rbytes];
+                $Auth_OpenID_CryptUtil_duplicate_cache[$rbytes];
         } else {
             if ($rbytes[0] == "\x00") {
                 $nbytes = strlen($rbytes) - 1;
@@ -369,17 +369,17 @@ class Net_OpenID_CryptUtil {
             // duplicated range.
             $duplicate = $lib->mod($mxrand, $r);
 
-            if (count($Net_OpenID_CryptUtil_duplicate_cache) > 10) {
-                $Net_OpenID_CryptUtil_duplicate_cache = array();
+            if (count($Auth_OpenID_CryptUtil_duplicate_cache) > 10) {
+                $Auth_OpenID_CryptUtil_duplicate_cache = array();
             }
 
-            $Net_OpenID_CryptUtil_duplicate_cache[$rbytes] =
+            $Auth_OpenID_CryptUtil_duplicate_cache[$rbytes] =
                 array($duplicate, $nbytes);
         }
 
         while (1) {
-            $bytes = "\x00" . Net_OpenID_CryptUtil::getBytes($nbytes);
-            $n = Net_OpenID_CryptUtil::binaryToLong($bytes);
+            $bytes = "\x00" . Auth_OpenID_CryptUtil::getBytes($nbytes);
+            $n = Auth_OpenID_CryptUtil::binaryToLong($bytes);
             // Keep looping if this value is in the low duplicated
             // range
             if ($lib->cmp($n, $duplicate) >= 0) {
@@ -406,7 +406,7 @@ class Net_OpenID_CryptUtil {
     function randrange_platform($start, $stop = null, $step = 1)
     {
 
-        static $Net_OpenID_CryptUtil_duplicate_cache = array();
+        static $Auth_OpenID_CryptUtil_duplicate_cache = array();
 
         if ($stop == null) {
             $stop = $start;
@@ -416,11 +416,11 @@ class Net_OpenID_CryptUtil {
         $r = ($stop - $start) / $step;
 
         // DO NOT MODIFY THIS VALUE.
-        $rbytes = Net_OpenID_CryptUtil::longToBinary_platform($r);
+        $rbytes = Auth_OpenID_CryptUtil::longToBinary_platform($r);
 
-        if (array_key_exists($rbytes, $Net_OpenID_CryptUtil_duplicate_cache)) {
+        if (array_key_exists($rbytes, $Auth_OpenID_CryptUtil_duplicate_cache)) {
             list($duplicate, $nbytes) =
-                $Net_OpenID_CryptUtil_duplicate_cache[$rbytes];
+                $Auth_OpenID_CryptUtil_duplicate_cache[$rbytes];
         } else {
             if ($rbytes[0] == "\x00") {
                 $nbytes = strlen($rbytes) - 1;
@@ -434,17 +434,17 @@ class Net_OpenID_CryptUtil {
             // duplicated range.
             $duplicate = $mxrand % $r;
 
-            if (count($Net_OpenID_CryptUtil_duplicate_cache) > 10) {
-                $Net_OpenID_CryptUtil_duplicate_cache = array();
+            if (count($Auth_OpenID_CryptUtil_duplicate_cache) > 10) {
+                $Auth_OpenID_CryptUtil_duplicate_cache = array();
             }
 
-            $Net_OpenID_CryptUtil_duplicate_cache[$rbytes] =
+            $Auth_OpenID_CryptUtil_duplicate_cache[$rbytes] =
                 array($duplicate, $nbytes);
         }
 
         while (1) {
-            $bytes = "\x00" . Net_OpenID_CryptUtil::getBytes($nbytes);
-            $n = Net_OpenID_CryptUtil::binaryToLong_platform($bytes);
+            $bytes = "\x00" . Auth_OpenID_CryptUtil::getBytes($nbytes);
+            $n = Auth_OpenID_CryptUtil::binaryToLong_platform($bytes);
             // Keep looping if this value is in the low duplicated
             // range
             if ($n >= $duplicate) {
@@ -469,12 +469,12 @@ class Net_OpenID_CryptUtil {
     function randomString($length, $chrs = null)
     {
         if ($chrs === null) {
-            return Net_OpenID_CryptUtil::getBytes($length);
+            return Auth_OpenID_CryptUtil::getBytes($length);
         } else {
             $n = strlen($chrs);
             $str = "";
             for ($i = 0; $i < $length; $i++) {
-                $str .= $chrs[Net_OpenID_CryptUtil::randrange_platform($n)];
+                $str .= $chrs[Auth_OpenID_CryptUtil::randrange_platform($n)];
             }
             return $str;
         }
@@ -484,22 +484,22 @@ class Net_OpenID_CryptUtil {
 /**
  * Exposes math library functionality.
  *
- * Net_OpenID_MathWrapper is a base class that defines the interface
+ * Auth_OpenID_MathWrapper is a base class that defines the interface
  * to a math library like GMP or BCmath.  This library will attempt to
  * use an available long number implementation.  If a library like GMP
- * is found, the appropriate Net_OpenID_MathWrapper subclass will be
+ * is found, the appropriate Auth_OpenID_MathWrapper subclass will be
  * instantiated and used for mathematics operations on large numbers.
  * This base class wraps only native PHP functionality.  See
- * Net_OpenID_MathWrapper subclasses for access to particular long
+ * Auth_OpenID_MathWrapper subclasses for access to particular long
  * number implementations.
  *
  * @package OpenID
  */
-class Net_OpenID_MathWrapper {
+class Auth_OpenID_MathWrapper {
     /**
-     * The type of the Net_OpenID_MathWrapper class.  This value
+     * The type of the Auth_OpenID_MathWrapper class.  This value
      * describes the library or module being wrapped.  Users of
-     * Net_OpenID_MathWrapper instances should check this value if
+     * Auth_OpenID_MathWrapper instances should check this value if
      * they care about the type of math functionality being exposed.
      */
     var $type = 'dumb';
@@ -608,13 +608,13 @@ class Net_OpenID_MathWrapper {
 /**
  * Exposes BCmath math library functionality.
  *
- * Net_OpenID_BcMathWrapper implements the Net_OpenID_MathWrapper
+ * Auth_OpenID_BcMathWrapper implements the Auth_OpenID_MathWrapper
  * interface and wraps the functionality provided by the BCMath
  * library.
  *
  * @package OpenID
  */
-class Net_OpenID_BcMathWrapper extends Net_OpenID_MathWrapper {
+class Auth_OpenID_BcMathWrapper extends Auth_OpenID_MathWrapper {
     var $type = 'bcmath';
 
     function random($min, $max)
@@ -676,12 +676,12 @@ class Net_OpenID_BcMathWrapper extends Net_OpenID_MathWrapper {
 /**
  * Exposes GMP math library functionality.
  *
- * Net_OpenID_GmpMathWrapper implements the Net_OpenID_MathWrapper
+ * Auth_OpenID_GmpMathWrapper implements the Auth_OpenID_MathWrapper
  * interface and wraps the functionality provided by the GMP library.
  *
  * @package OpenID
  */
-class Net_OpenID_GmpMathWrapper extends Net_OpenID_MathWrapper {
+class Auth_OpenID_GmpMathWrapper extends Auth_OpenID_MathWrapper {
     var $type = 'gmp';
 
     function random($min, $max)
@@ -735,7 +735,7 @@ class Net_OpenID_GmpMathWrapper extends Net_OpenID_MathWrapper {
     }
 }
 
-$_Net_OpenID___mathLibrary = null;
+$_Auth_OpenID___mathLibrary = null;
 
 /**
  * Define the supported extensions.  An extension array has keys
@@ -744,70 +744,70 @@ $_Net_OpenID___mathLibrary = null;
  * values will be suffixed with a library file extension (e.g. ".so").
  * 'extension' is the name of a PHP extension which will be tested
  * before 'modules' are loaded.  'class' is the string name of a
- * Net_OpenID_MathWrapper subclass which should be instantiated if a
+ * Auth_OpenID_MathWrapper subclass which should be instantiated if a
  * given extension is present.
  *
  * You can define new math library implementations and add them to
  * this array.
  */
-$_Net_OpenID_supported_extensions = array(
+$_Auth_OpenID_supported_extensions = array(
     array('modules' => array('gmp', 'php_gmp'),
           'extension' => 'gmp',
-          'class' => 'Net_OpenID_GmpMathWrapper'),
+          'class' => 'Auth_OpenID_GmpMathWrapper'),
     array('modules' => array('bcmath', 'php_bcmath'),
           'extension' => 'bcmath',
-          'class' => 'Net_OpenID_BcMathWrapper')
+          'class' => 'Auth_OpenID_BcMathWrapper')
     );
 
  /**
- * Net_OpenID_MathLibrary checks for the presence of long number
- * extension modules and returns an instance of Net_OpenID_MathWrapper
+ * Auth_OpenID_MathLibrary checks for the presence of long number
+ * extension modules and returns an instance of Auth_OpenID_MathWrapper
  * which exposes the module's functionality.
  *
  * @static
  * @package OpenID
  */
-class Net_OpenID_MathLibrary {
+class Auth_OpenID_MathLibrary {
 
     /**
      * A method to access an available long number implementation.
      *
      * Checks for the existence of an extension module described by
-     * the local Net_OpenID_supported_extensions array and returns an
+     * the local Auth_OpenID_supported_extensions array and returns an
      * instance of a wrapper for that extension module.  If no
      * extension module is found, an instance of
-     * Net_OpenID_MathWrapper is returned, which wraps the native PHP
+     * Auth_OpenID_MathWrapper is returned, which wraps the native PHP
      * integer implementation.  The proper calling convention for this
-     * method is $lib =& Net_OpenID_MathLibrary::getLibWrapper().
+     * method is $lib =& Auth_OpenID_MathLibrary::getLibWrapper().
      *
      * This function checks for the existence of specific long number
      * implementations in the following order: GMP followed by BCmath.
      *
-     * @return Net_OpenID_MathWrapper $instance An instance of
-     * Net_OpenID_MathWrapper or one of its subclasses
+     * @return Auth_OpenID_MathWrapper $instance An instance of
+     * Auth_OpenID_MathWrapper or one of its subclasses
      */
     function &getLibWrapper()
     {
-        // The instance of Net_OpenID_MathWrapper that we choose to
+        // The instance of Auth_OpenID_MathWrapper that we choose to
         // supply will be stored here, so that subseqent calls to this
         // method will return a reference to the same object.
-        global $_Net_OpenID___mathLibrary;
+        global $_Auth_OpenID___mathLibrary;
             
-        if (defined('Net_OpenID_NO_MATH_SUPPORT')) {
-            $_Net_OpenID___mathLibrary = null;
-            return $_Net_OpenID___mathLibrary;
+        if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            $_Auth_OpenID___mathLibrary = null;
+            return $_Auth_OpenID___mathLibrary;
         }
 
-        global $_Net_OpenID_supported_extensions;
+        global $_Auth_OpenID_supported_extensions;
 
         // If this method has not been called before, look at
-        // $Net_OpenID_supported_extensions and try to find an
+        // $Auth_OpenID_supported_extensions and try to find an
         // extension that works.
-        if (!$_Net_OpenID___mathLibrary) {
+        if (!$_Auth_OpenID___mathLibrary) {
             $loaded = false;
             $tried = array();
 
-            foreach ($_Net_OpenID_supported_extensions as $extension) {
+            foreach ($_Auth_OpenID_supported_extensions as $extension) {
                 $tried[] = $extension['extension'];
 
                 // See if the extension specified is already loaded.
@@ -827,28 +827,28 @@ class Net_OpenID_MathLibrary {
                 }
 
                 // If the load succeeded, supply an instance of
-                // Net_OpenID_MathWrapper which wraps the specified
+                // Auth_OpenID_MathWrapper which wraps the specified
                 // module's functionality.
                 if ($loaded) {
                     $classname = $extension['class'];
-                    $_Net_OpenID___mathLibrary = new $classname();
+                    $_Auth_OpenID___mathLibrary = new $classname();
                     break;
                 }
             }
 
             // If no extensions were found, fall back to
-            // Net_OpenID_MathWrapper so at least some platform-size
+            // Auth_OpenID_MathWrapper so at least some platform-size
             // math can be performed.
-            if (!$_Net_OpenID___mathLibrary) {
+            if (!$_Auth_OpenID___mathLibrary) {
                 $triedstr = implode(", ", $tried);
                 $msg = 'This PHP installation has no big integer math ' .
-                    'library. Define Net_OpenID_NO_MATH_SUPPORT to use ' .
+                    'library. Define Auth_OpenID_NO_MATH_SUPPORT to use ' .
                     'this library in dumb mode. Tried: ' . $triedstr;
                 trigger_error($msg, E_USER_ERROR);
             }
         }
 
-        return $_Net_OpenID___mathLibrary;
+        return $_Auth_OpenID___mathLibrary;
     }
 }
 

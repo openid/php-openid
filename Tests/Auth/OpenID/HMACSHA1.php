@@ -15,10 +15,10 @@
  */
 
 require_once('PHPUnit.php');
-require_once('Net/OpenID/HMACSHA1.php');
+require_once('Auth/OpenID/HMACSHA1.php');
 
-class Tests_Net_OpenID_HMACSHA1_TestCase extends PHPUnit_TestCase {
-    function Tests_Net_OpenID_HMACSHA1_TestCase(
+class Tests_Auth_OpenID_HMACSHA1_TestCase extends PHPUnit_TestCase {
+    function Tests_Auth_OpenID_HMACSHA1_TestCase(
         $name, $key, $data, $expected)
     {
 
@@ -30,12 +30,12 @@ class Tests_Net_OpenID_HMACSHA1_TestCase extends PHPUnit_TestCase {
 
     function runTest()
     {
-        $actual = Net_OpenID_HMACSHA1($this->key, $this->data);
+        $actual = Auth_OpenID_HMACSHA1($this->key, $this->data);
         $this->assertEquals($this->expected, $actual);
     }
 }
 
-class Tests_Net_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
+class Tests_Auth_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
     function _strConvert($s)
     {
         $repeat_pat = '/^0x([a-f0-9]{2}) repeated (\d+) times$/';
@@ -109,19 +109,19 @@ class Tests_Net_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
         foreach ($cases as $case) {
             $clean = array();
             $clean["key"] =
-                Tests_Net_OpenID_HMACSHA1::_strConvert($case["key"]);
+                Tests_Auth_OpenID_HMACSHA1::_strConvert($case["key"]);
             if (strlen($clean["key"]) != $case["key_len"]) {
                 trigger_error("Bad key length", E_USER_ERROR);
             }
 
             $clean["data"] =
-                Tests_Net_OpenID_HMACSHA1::_strConvert($case["data"]);
+                Tests_Auth_OpenID_HMACSHA1::_strConvert($case["data"]);
             if (strlen($clean["data"]) != $case["data_len"]) {
                 trigger_error("Bad data length", E_USER_ERROR);
             }
 
             $clean["digest"] =
-                Tests_Net_OpenID_HMACSHA1::_strConvert($case["digest"]);
+                Tests_Auth_OpenID_HMACSHA1::_strConvert($case["digest"]);
             if (strlen($clean["digest"]) != 20) {
                 $l = strlen($clean["digest"]);
                 trigger_error("Bad digest length: $l", E_USER_ERROR);
@@ -134,12 +134,12 @@ class Tests_Net_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
         return $final;
     }
 
-    function Tests_Net_OpenID_HMACSHA1($name)
+    function Tests_Auth_OpenID_HMACSHA1($name)
     {
         $this->setName($name);
         $cases = $this->_readTestCases();
         foreach ($cases as $case) {
-            $test = new Tests_Net_OpenID_HMACSHA1_TestCase(
+            $test = new Tests_Auth_OpenID_HMACSHA1_TestCase(
                 $case['test_case'],
                 $case['key'],
                 $case['data'],

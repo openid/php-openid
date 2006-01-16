@@ -23,7 +23,7 @@ if (!function_exists('sha1')) {
     // XXX: include the SHA1 code from Dan Libby's OpenID library
     trigger_error('No SHA1 function found', E_USER_ERROR);
 } else {
-    function Net_OpenID_sha1_raw($text)
+    function Auth_OpenID_sha1_raw($text)
         {
             $hex = sha1($text);
             $raw = '';
@@ -41,17 +41,17 @@ if (!function_exists('sha1')) {
  *
  * @ignore
  */
-function Net_OpenID_HMACSHA1($key, $text)
+function Auth_OpenID_HMACSHA1($key, $text)
 {
     if (strlen($key) > SHA1_BLOCKSIZE) {
-        $key = Net_OpenID_sha1_raw($key, true);
+        $key = Auth_OpenID_sha1_raw($key, true);
     }
 
     $key = str_pad($key, SHA1_BLOCKSIZE, chr(0x00));
     $ipad = str_repeat(chr(0x36), SHA1_BLOCKSIZE);
     $opad = str_repeat(chr(0x5c), SHA1_BLOCKSIZE);
-    $hash1 = Net_OpenID_sha1_raw(($key ^ $ipad) . $text, true);
-    $hmac = Net_OpenID_sha1_raw(($key ^ $opad) . $hash1, true);
+    $hash1 = Auth_OpenID_sha1_raw(($key ^ $ipad) . $text, true);
+    $hmac = Auth_OpenID_sha1_raw(($key ^ $opad) . $hash1, true);
     return $hmac;
 }
 

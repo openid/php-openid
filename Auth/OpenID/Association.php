@@ -25,7 +25,7 @@ require_once('OIDUtil.php');
  * This class represents an association between a server and a
  * consumer.  In general, users of this library will never see
  * instances of this object.  The only exception is if you implement a
- * custom Net_OpenID_OpenIDStore.
+ * custom Auth_OpenID_OpenIDStore.
  *
  * If you do implement such a store, it will need to store the values
  * of the handle, secret, issued, lifetime, and assoc_type instance
@@ -33,7 +33,7 @@ require_once('OIDUtil.php');
  *
  * @package OpenID
  */
-class Net_OpenID_Association {
+class Auth_OpenID_Association {
 
     /**
      * This is a HMAC-SHA1 specific value.
@@ -76,7 +76,7 @@ class Net_OpenID_Association {
     {
         $issued = time();
         $lifetime = $expires_in;
-        return new Net_OpenID_Association($handle, $secret,
+        return new Auth_OpenID_Association($handle, $secret,
                                           $issued, $lifetime, $assoc_type);
     }
 
@@ -102,7 +102,7 @@ class Net_OpenID_Association {
      * this time is 'HMAC-SHA1', but new types may be defined in the
      * future.
      */
-    function Net_OpenID_Association(
+    function Auth_OpenID_Association(
         $handle, $secret, $issued, $lifetime, $assoc_type)
     {
         if ($assoc_type != 'HMAC-SHA1') {
@@ -134,7 +134,7 @@ class Net_OpenID_Association {
     }
 
     /**
-     * This checks to see if two Net_OpenID_Association instances
+     * This checks to see if two Auth_OpenID_Association instances
      * represent the same association.
      *
      * @return bool $result true if the two instances represent the
@@ -151,7 +151,7 @@ class Net_OpenID_Association {
     }
 
     /**
-     * This checks to see if two Net_OpenID_Association instances
+     * This checks to see if two Auth_OpenID_Association instances
      * represent different associations.
      *
      * @return bool $result true if the two instances represent
@@ -173,7 +173,7 @@ class Net_OpenID_Association {
         $data = array(
                      'version' => '2',
                      'handle' => $this->handle,
-                     'secret' => Net_OpenID_toBase64($this->secret),
+                     'secret' => Auth_OpenID_toBase64($this->secret),
                      'issued' => strval(intval($this->issued)),
                      'lifetime' => strval(intval($this->lifetime)),
                      'assoc_type' => $this->assoc_type
@@ -181,7 +181,7 @@ class Net_OpenID_Association {
 
         assert(array_keys($data) == $this->assoc_keys);
 
-        return Net_OpenID_KVForm::arrayToKV($data, $strict = true);
+        return Auth_OpenID_KVForm::arrayToKV($data, $strict = true);
     }
 
     /**
@@ -189,11 +189,11 @@ class Net_OpenID_Association {
      * inverse of serialize.
      *
      * @param string $assoc_s Association as serialized by serialize()
-     * @return Net_OpenID_Association $result instance of this class
+     * @return Auth_OpenID_Association $result instance of this class
      */
     function deserialize($class_name, $assoc_s)
     {
-        $pairs = Net_OpenID_KVForm::kvToArray($assoc_s, $strict = true);
+        $pairs = Auth_OpenID_KVForm::kvToArray($assoc_s, $strict = true);
         $keys = array();
         $values = array();
         foreach ($pairs as $key => $value) {
@@ -222,7 +222,7 @@ class Net_OpenID_Association {
 
         $issued = intval($issued);
         $lifetime = intval($lifetime);
-        $secret = Net_OpenID_fromBase64($secret);
+        $secret = Auth_OpenID_fromBase64($secret);
 
         return new $class_name(
             $handle, $secret, $issued, $lifetime, $assoc_type);
@@ -239,8 +239,8 @@ class Net_OpenID_Association {
     function sign($pairs)
     {
         assert($this->assoc_type == 'HMAC-SHA1');
-        $kv = Net_OpenID_KVForm::arrayToKV($pairs);
-        return Net_OpenID_hmacSha1($this->secret, $kv);
+        $kv = Auth_OpenID_KVForm::arrayToKV($pairs);
+        return Auth_OpenID_hmacSha1($this->secret, $kv);
     }
 
     /**
@@ -259,7 +259,7 @@ class Net_OpenID_Association {
             $pairs[] = array($field, $data[$prefix . $field]);
         }
 
-        return Net_OpenID_toBase64($this->sign($pairs));
+        return Auth_OpenID_toBase64($this->sign($pairs));
     }
 
     function addSignature($fields, &$data, $prefix = 'openid.')

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-files_with_long_lines=$(find Net Tests -name \*.php |
+files_with_long_lines=$(find Auth Tests -name \*.php |
             xargs -l1 wc -L |
             awk '$1 > 80 { print $2 }' |
             xargs -l1 --replace=FILENAME /usr/bin/env perl admin/longlines.pl FILENAME 80)

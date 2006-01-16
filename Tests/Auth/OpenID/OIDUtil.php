@@ -14,9 +14,9 @@
  */
 
 require_once('PHPUnit.php');
-require_once('Net/OpenID/OIDUtil.php');
+require_once('Auth/OpenID/OIDUtil.php');
 
-class Tests_Net_OpenID_OIDUtil extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_OIDUtil extends PHPUnit_TestCase {
     function test_base64()
     {
         // This is not good for international use, but PHP doesn't
@@ -50,9 +50,9 @@ class Tests_Net_OpenID_OIDUtil extends PHPUnit_TestCase {
                        );
 
         foreach ($cases as $s) {
-            $b64 = Net_OpenID_toBase64($s);
+            $b64 = Auth_OpenID_toBase64($s);
             checkEncoded($this, $b64, $allowed_d);
-            $s_prime = Net_OpenID_fromBase64($b64);
+            $s_prime = Auth_OpenID_fromBase64($b64);
             $this->assertEquals($s_prime, $s);
         }
 
@@ -67,9 +67,9 @@ class Tests_Net_OpenID_OIDUtil extends PHPUnit_TestCase {
             $s = implode("", array_map('chr',
                                        array_map('random_ordinal',
                                                  range(0, $n))));
-            $b64 = Net_OpenID_toBase64($s);
+            $b64 = Auth_OpenID_toBase64($s);
             checkEncoded($this, $b64, $allowed_d);
-            $s_prime = Net_OpenID_fromBase64($b64);
+            $s_prime = Auth_OpenID_fromBase64($b64);
             $this->assertEquals($s_prime, $s);
         }
     }
@@ -77,35 +77,35 @@ class Tests_Net_OpenID_OIDUtil extends PHPUnit_TestCase {
     function test_normalizeUrl()
     {
         $this->assertEquals("http://foo.com/",
-                            Net_OpenID_normalizeUrl("foo.com"));
+                            Auth_OpenID_normalizeUrl("foo.com"));
 
         $this->assertEquals("http://foo.com/",
-                            Net_OpenID_normalizeUrl("http://foo.com"));
+                            Auth_OpenID_normalizeUrl("http://foo.com"));
 
         $this->assertEquals("https://foo.com/",
-                            Net_OpenID_normalizeUrl("https://foo.com"));
+                            Auth_OpenID_normalizeUrl("https://foo.com"));
 
         $this->assertEquals("http://foo.com/bar",
-                            Net_OpenID_normalizeUrl("foo.com/bar"));
+                            Auth_OpenID_normalizeUrl("foo.com/bar"));
 
         $this->assertEquals("http://foo.com/bar",
-                            Net_OpenID_normalizeUrl("http://foo.com/bar"));
+                            Auth_OpenID_normalizeUrl("http://foo.com/bar"));
 
         $this->assertEquals("http://foo.com/",
-                            Net_OpenID_normalizeUrl("http://foo.com/"));
+                            Auth_OpenID_normalizeUrl("http://foo.com/"));
 
         $this->assertEquals("https://foo.com/",
-                            Net_OpenID_normalizeUrl("https://foo.com/"));
+                            Auth_OpenID_normalizeUrl("https://foo.com/"));
 
         $this->assertEquals("https://foo.com/bar" ,
-                            Net_OpenID_normalizeUrl("https://foo.com/bar"));
+                            Auth_OpenID_normalizeUrl("https://foo.com/bar"));
 
         if (0) {
             $this->assertEquals("http://foo.com/%E8%8D%89",
-                             Net_OpenID_normalizeUrl("foo.com/\u8349"));
+                             Auth_OpenID_normalizeUrl("foo.com/\u8349"));
 
             $this->assertEquals("http://foo.com/%E8%8D%89",
-                             Net_OpenID_normalizeUrl("http://foo.com/\u8349"));
+                             Auth_OpenID_normalizeUrl("http://foo.com/\u8349"));
         }
 
         $non_ascii_domain_cases = array(
@@ -140,16 +140,16 @@ class Tests_Net_OpenID_OIDUtil extends PHPUnit_TestCase {
 
     for expected, case in non_ascii_domain_cases:
 try:
-actual = Net_OpenID_normalizeUrl(case)
+actual = Auth_OpenID_normalizeUrl(case)
          except UnicodeError:
             assert should_raise
     else:
 assert not should_raise and actual == expected, case
         */
 
-        $this->assertNull(Net_OpenID_normalizeUrl(null));
-        $this->assertNull(Net_OpenID_normalizeUrl(''));
-        $this->assertNull(Net_OpenID_normalizeUrl('http://'));
+        $this->assertNull(Auth_OpenID_normalizeUrl(null));
+        $this->assertNull(Auth_OpenID_normalizeUrl(''));
+        $this->assertNull(Auth_OpenID_normalizeUrl('http://'));
     }
 
     function test_appendArgs()
@@ -251,7 +251,8 @@ assert not should_raise and actual == expected, case
         foreach ($cases as $case) {
             list($desc, $data, $expected) = $case;
             list($url, $query) = $data;
-            $this->assertEquals($expected, Net_OpenID_appendArgs($url, $query));
+            $this->assertEquals($expected,
+                    Auth_OpenID_appendArgs($url, $query));
         }
     }
 }

@@ -81,12 +81,12 @@
 /**
  * Specify some flags for use with regex matching.
  */
-$_Net_OpenID_re_flags = "si";
+$_Auth_OpenID_re_flags = "si";
 
 /**
  * Stuff to remove before we start looking for tags
  */
-$_Net_OpenID_removed_re = "<!--.*?-->|" .
+$_Auth_OpenID_removed_re = "<!--.*?-->|" .
                           "<!\[CDATA\[.*?\]\]>|" .
                           "<script\b(?!:)[^>]*>.*?<\/script>";
 
@@ -94,7 +94,7 @@ $_Net_OpenID_removed_re = "<!--.*?-->|" .
  * Starts with the tag name at a word boundary, where the tag name is
  * not a namespace
  */
-$_Net_OpenID_tag_expr = "<%s\b(?!:)([^>]*?)" .
+$_Auth_OpenID_tag_expr = "<%s\b(?!:)([^>]*?)" .
                         "(?:\/>|>(.*?)" .
                         "(?:<\/?%s\s*>|\Z))";
 
@@ -102,9 +102,9 @@ $_Net_OpenID_tag_expr = "<%s\b(?!:)([^>]*?)" .
  * Returns a regular expression that will match a given tag in an SGML
  * string.
  */
-function Net_OpenID_tagMatcher($tag_name, $close_tags = null)
+function Auth_OpenID_tagMatcher($tag_name, $close_tags = null)
 {
-    global $_Net_OpenID_tag_expr, $_Net_OpenID_re_flags;
+    global $_Auth_OpenID_tag_expr, $_Auth_OpenID_re_flags;
 
     if ($close_tags) {
         $options = implode("|", array_merge(array($tag_name), $close_tags));
@@ -113,54 +113,54 @@ function Net_OpenID_tagMatcher($tag_name, $close_tags = null)
         $closer = $tag_name;
     }
 
-    $expr = sprintf($_Net_OpenID_tag_expr, $tag_name, $closer);
-    return sprintf("/%s/%s", $expr, $_Net_OpenID_re_flags);
+    $expr = sprintf($_Auth_OpenID_tag_expr, $tag_name, $closer);
+    return sprintf("/%s/%s", $expr, $_Auth_OpenID_re_flags);
 }
 
-function Net_OpenID_html_find()
+function Auth_OpenID_html_find()
 {
-    return Net_OpenID_tagMatcher('html');
+    return Auth_OpenID_tagMatcher('html');
 }
 
-function Net_OpenID_head_find()
+function Auth_OpenID_head_find()
 {
-    return Net_OpenID_tagMatcher('head', array('body'));
+    return Auth_OpenID_tagMatcher('head', array('body'));
 }
 
-$_Net_OpenID_attr_find = '\b(\w+)=("[^"]*"|\'[^\']*\'|[^\'"\s\/<>]+)';
+$_Auth_OpenID_attr_find = '\b(\w+)=("[^"]*"|\'[^\']*\'|[^\'"\s\/<>]+)';
 
-$_Net_OpenID_link_find = sprintf("/<link\b(?!:)([^>]*)(?!<)>/%s",
-                                 $_Net_OpenID_re_flags);
+$_Auth_OpenID_link_find = sprintf("/<link\b(?!:)([^>]*)(?!<)>/%s",
+                                 $_Auth_OpenID_re_flags);
 
-$_Net_OpenID_entity_replacements = array(
+$_Auth_OpenID_entity_replacements = array(
                                          'amp' => '&',
                                          'lt' => '<',
                                          'gt' => '>',
                                          'quot' => '"'
                                          );
 
-$_Net_OpenID_attr_find = sprintf("/%s/%s",
-                                 $_Net_OpenID_attr_find,
-                                 $_Net_OpenID_re_flags);
+$_Auth_OpenID_attr_find = sprintf("/%s/%s",
+                                 $_Auth_OpenID_attr_find,
+                                 $_Auth_OpenID_re_flags);
 
-$_Net_OpenID_removed_re = sprintf("/%s/%s",
-                                  $_Net_OpenID_removed_re,
-                                  $_Net_OpenID_re_flags);
+$_Auth_OpenID_removed_re = sprintf("/%s/%s",
+                                  $_Auth_OpenID_removed_re,
+                                  $_Auth_OpenID_re_flags);
 
-$_Net_OpenID_ent_replace =
+$_Auth_OpenID_ent_replace =
      sprintf("&(%s);", implode("|",
-                               $_Net_OpenID_entity_replacements));
+                               $_Auth_OpenID_entity_replacements));
 
-function Net_OpenID_replace_entities($str)
+function Auth_OpenID_replace_entities($str)
 {
-    global $_Net_OpenID_entity_replacements;
-    foreach ($_Net_OpenID_entity_replacements as $old => $new) {
+    global $_Auth_OpenID_entity_replacements;
+    foreach ($_Auth_OpenID_entity_replacements as $old => $new) {
         $str = preg_replace(sprintf("/&%s;/", $old), $new, $str);
     }
     return $str;
 }
 
-function Net_OpenID_remove_quotes($str)
+function Auth_OpenID_remove_quotes($str)
 {
     $matches = array();
     $double = '/^"(.*)"$/';
@@ -183,26 +183,26 @@ function Net_OpenID_remove_quotes($str)
  * @return array $list An array of arrays of attributes, one for each
  * link tag
  */
-function Net_OpenID_parseLinkAttrs($html)
+function Auth_OpenID_parseLinkAttrs($html)
 {
 
-    global $_Net_OpenID_removed_re,
-        $_Net_OpenID_link_find,
-        $_Net_OpenID_attr_find;
+    global $_Auth_OpenID_removed_re,
+        $_Auth_OpenID_link_find,
+        $_Auth_OpenID_attr_find;
 
-    $stripped = preg_replace($_Net_OpenID_removed_re,
+    $stripped = preg_replace($_Auth_OpenID_removed_re,
                              "",
                              $html);
 
     // Try to find the <HTML> tag.
-    $html_re = Net_OpenID_html_find();
+    $html_re = Auth_OpenID_html_find();
     $html_matches = array();
     if (!preg_match($html_re, $stripped, $html_matches)) {
         return array();
     }
 
     // Try to find the <HEAD> tag.
-    $head_re = Net_OpenID_head_find();
+    $head_re = Auth_OpenID_head_find();
     $head_matches = array();
     if (!preg_match($head_re, $html_matches[0], $head_matches)) {
         return array();
@@ -211,19 +211,19 @@ function Net_OpenID_parseLinkAttrs($html)
     $link_data = array();
     $link_matches = array();
 
-    if (!preg_match_all($_Net_OpenID_link_find, $head_matches[0],
+    if (!preg_match_all($_Auth_OpenID_link_find, $head_matches[0],
                         $link_matches)) {
         return array();
     }
 
     foreach ($link_matches[0] as $link) {
         $attr_matches = array();
-        preg_match_all($_Net_OpenID_attr_find, $link, $attr_matches);
+        preg_match_all($_Auth_OpenID_attr_find, $link, $attr_matches);
         $link_attrs = array();
         foreach ($attr_matches[0] as $index => $full_match) {
             $name = $attr_matches[1][$index];
-            $value = Net_OpenID_replace_entities(
-                       Net_OpenID_remove_quotes(
+            $value = Auth_OpenID_replace_entities(
+                       Auth_OpenID_remove_quotes(
                          $attr_matches[2][$index]));
 
             $link_attrs[$name] = $value;
@@ -234,7 +234,7 @@ function Net_OpenID_parseLinkAttrs($html)
     return $link_data;
 }
 
-function Net_OpenID_relMatches($rel_attr, $target_rel)
+function Auth_OpenID_relMatches($rel_attr, $target_rel)
 {
     // Does this target_rel appear in the rel_str?
     // XXX: TESTME
@@ -249,22 +249,22 @@ function Net_OpenID_relMatches($rel_attr, $target_rel)
     return 0;
 }
 
-function Net_OpenID_linkHasRel($link_attrs, $target_rel)
+function Auth_OpenID_linkHasRel($link_attrs, $target_rel)
 {
     // Does this link have target_rel as a relationship?
     // XXX: TESTME
-    $rel_attr = Net_OpenID_array_get($link_attrs, 'rel', null);
-    return ($rel_attr && Net_OpenID_relMatches($rel_attr, $target_rel));
+    $rel_attr = Auth_OpenID_array_get($link_attrs, 'rel', null);
+    return ($rel_attr && Auth_OpenID_relMatches($rel_attr, $target_rel));
 }
 
-function Net_OpenID_findLinksRel($link_attrs_list, $target_rel)
+function Auth_OpenID_findLinksRel($link_attrs_list, $target_rel)
 {
     // Filter the list of link attributes on whether it has target_rel
     // as a relationship.
     // XXX: TESTME
     $result = array();
     foreach ($link_attrs_list as $attr) {
-        if (Net_OpenID_linkHasRel($attr, $target_rel)) {
+        if (Auth_OpenID_linkHasRel($attr, $target_rel)) {
             $result[] = $attr;
         }
     }
@@ -272,17 +272,17 @@ function Net_OpenID_findLinksRel($link_attrs_list, $target_rel)
     return $result;
 }
 
-function Net_OpenID_findFirstHref($link_attrs_list, $target_rel)
+function Auth_OpenID_findFirstHref($link_attrs_list, $target_rel)
 {
     // Return the value of the href attribute for the first link tag
     // in the list that has target_rel as a relationship.
     // XXX: TESTME
-    $matches = Net_OpenID_findLinksRel($link_attrs_list, $target_rel);
+    $matches = Auth_OpenID_findLinksRel($link_attrs_list, $target_rel);
     if (!$matches) {
         return null;
     }
     $first = $matches[0];
-    return Net_OpenID_array_get($first, 'href', null);
+    return Auth_OpenID_array_get($first, 'href', null);
 }
 
 ?>

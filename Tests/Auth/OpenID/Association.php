@@ -14,18 +14,19 @@
  */
 
 require_once('PHPUnit.php');
-require_once('Net/OpenID/Association.php');
+require_once('Auth/OpenID/Association.php');
 
-class Tests_Net_OpenID_Association extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_Association extends PHPUnit_TestCase {
     function test_me()
     {
         $issued = time();
         $lifetime = 600;
-        $assoc = new Net_OpenID_Association('handle', 'secret', $issued,
+        $assoc = new Auth_OpenID_Association('handle', 'secret', $issued,
                                             $lifetime, 'HMAC-SHA1');
         $s = $assoc->serialize();
-        $assoc2 = Net_OpenID_Association::deserialize('Net_OpenID_Association',
-                                                      $s);
+        $assoc2 = Auth_OpenID_Association::deserialize(
+            'Auth_OpenID_Association', $s);
+
         if ($assoc2 === null) {
             $this->fail('deserialize returned null');
         } else {

@@ -13,10 +13,10 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-require_once('Net/OpenID/Consumer/Parse.php');
+require_once('Auth/OpenID/Consumer/Parse.php');
 
-class Tests_Net_OpenID_Link extends PHPUnit_TestCase {
-    function Tests_Net_OpenID_Link($case)
+class Tests_Auth_OpenID_Link extends PHPUnit_TestCase {
+    function Tests_Auth_OpenID_Link($case)
     {
         list($desc, $markup, $links, $case_text) = $case;
         $this->desc = $desc;
@@ -32,7 +32,7 @@ class Tests_Net_OpenID_Link extends PHPUnit_TestCase {
 
     function runTest()
     {
-        $parsed = Net_OpenID_parseLinkAttrs($this->markup);
+        $parsed = Auth_OpenID_parseLinkAttrs($this->markup);
         $i = 0;
 
         foreach ($this->expected_links as $expected) {
@@ -91,11 +91,11 @@ class NumTestCases extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Net_OpenID_Parse extends PHPUnit_TestSuite {
+class Tests_Auth_OpenID_Parse extends PHPUnit_TestSuite {
 
     function getName()
     {
-        return "Tests_Net_OpenID_Parse";
+        return "Tests_Auth_OpenID_Parse";
     }
 
     function parseLink($line)
@@ -154,7 +154,7 @@ class Tests_Net_OpenID_Parse extends PHPUnit_TestSuite {
         return array($num_tests, $tests);
     }
 
-    function Tests_Net_OpenID_Parse()
+    function Tests_Auth_OpenID_Parse()
     {
         $here = realpath(dirname(__FILE__));
         $test_data_file_name = $here . DIRECTORY_SEPARATOR . 'linkparse.txt';
@@ -165,7 +165,7 @@ class Tests_Net_OpenID_Parse extends PHPUnit_TestSuite {
         $this->addTest(new NumTestCases($test_cases, $num_tests));
 
         foreach ($test_cases as $case) {
-            $this->addTest(new Tests_Net_OpenID_Link($case));
+            $this->addTest(new Tests_Auth_OpenID_Link($case));
         }
     }
 }

@@ -22,7 +22,7 @@
  * @package OpenID
  * @author JanRain, Inc. <openid@janrain.com>
  */
-class Net_OpenID_OpenIDStore {
+class Auth_OpenID_OpenIDStore {
     /**
      * @var integer The length of the auth key that should be returned
      * by the getAuthKey method.
@@ -44,7 +44,7 @@ class Net_OpenID_OpenIDStore {
      */
     function storeAssociation($server_url, $association)
     {
-        trigger_error("Net_OpenID_OpenIDStore::storeAssociation ".
+        trigger_error("Auth_OpenID_OpenIDStore::storeAssociation ".
                       "not implemented", E_USER_ERROR);
     }
 
@@ -80,7 +80,7 @@ class Net_OpenID_OpenIDStore {
      */
     function getAssociation($server_url, $handle = null)
     {
-        trigger_error("Net_OpenID_OpenIDStore::getAssociation ".
+        trigger_error("Auth_OpenID_OpenIDStore::getAssociation ".
                       "not implemented", E_USER_ERROR);
     }
 
@@ -104,7 +104,7 @@ class Net_OpenID_OpenIDStore {
      */
     function removeAssociation($server_url, $handle)
     {
-        trigger_error("Net_OpenID_OpenIDStore::removeAssociation ".
+        trigger_error("Auth_OpenID_OpenIDStore::removeAssociation ".
                       "not implemented", E_USER_ERROR);
     }
 
@@ -118,7 +118,7 @@ class Net_OpenID_OpenIDStore {
      */
     function storeNonce($nonce)
     {
-        trigger_error("Net_OpenID_OpenIDStore::storeNonce ".
+        trigger_error("Auth_OpenID_OpenIDStore::storeNonce ".
                       "not implemented", E_USER_ERROR);
     }
 
@@ -139,7 +139,7 @@ class Net_OpenID_OpenIDStore {
      */
     function useNonce($nonce)
     {
-        trigger_error("Net_OpenID_OpenIDStore::useNonce ".
+        trigger_error("Auth_OpenID_OpenIDStore::useNonce ".
                       "not implemented", E_USER_ERROR);
     }
 
@@ -155,7 +155,7 @@ class Net_OpenID_OpenIDStore {
      */
     function getAuthKey()
     {
-        trigger_error("Net_OpenID_OpenIDStore::getAuthKey ".
+        trigger_error("Auth_OpenID_OpenIDStore::getAuthKey ".
                       "not implemented", E_USER_ERROR);
     }
 
@@ -164,7 +164,7 @@ class Net_OpenID_OpenIDStore {
      * store. Unlike all other methods in this class, this one
      * provides a default implementation, which returns false.
      *
-     * In general, any custom subclass of Net_OpenID_OpenIDStore won't
+     * In general, any custom subclass of Auth_OpenID_OpenIDStore won't
      * override this method, as custom subclasses are only likely to
      * be created when the store is fully functional.
      *

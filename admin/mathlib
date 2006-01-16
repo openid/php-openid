@@ -4,9 +4,9 @@
 require_once('adminutil.php');
 includeAdd(getParent());
 
-require_once('Net/OpenID/CryptUtil.php');
+require_once('Auth/OpenID/CryptUtil.php');
 
-$lib =& Net_OpenID_MathLibrary::getLibWrapper();
+$lib =& Auth_OpenID_MathLibrary::getLibWrapper();
 
 if ($lib === null) {
     fwrite(STDERR, 'No math library present\n');

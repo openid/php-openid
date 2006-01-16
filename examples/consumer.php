@@ -2,7 +2,7 @@
 
 /**
  * A demonstration of the PHP OpenID Consumer.  This script assumes
- * Net/OpenID has been installed and is in your PHP include path.
+ * Auth/OpenID has been installed and is in your PHP include path.
  */
 
 /**
@@ -17,9 +17,9 @@ $store_path = "/tmp/_php_consumer_test";
  * Require files to use the OpenID consumer.  We need the consumer
  * itself, an OpenID store implementation, and some utility functions.
  */
-require_once("Net/OpenID/Store/FileStore.php");
-require_once("Net/OpenID/Consumer/Consumer.php");
-require_once("Net/OpenID/OIDUtil.php");
+require_once("Auth/OpenID/Store/FileStore.php");
+require_once("Auth/OpenID/Consumer/Consumer.php");
+require_once("Auth/OpenID/OIDUtil.php");
 
 /**
  * Try to create the store directory.
@@ -34,8 +34,8 @@ if (!_ensureDir($store_path)) {
  * Create the OpenID store and consumer objects, which we'll use to
  * perform the authentication.
  */
-$store = new Net_OpenID_FileStore($store_path);
-$consumer = new Net_OpenID_Consumer($store);
+$store = new Auth_OpenID_FileStore($store_path);
+$consumer = new Auth_OpenID_Consumer($store);
 
 /**
  * Start the PHP session.
@@ -190,9 +190,9 @@ function render($message = null, $css_class = null,
 function verify()
 {
     global $consumer, $urls, $self_url,
-        $Net_OpenID_HTTP_FAILURE,
-        $Net_OpenID_PARSE_ERROR,
-        $Net_OpenID_SUCCESS;
+        $Auth_OpenID_HTTP_FAILURE,
+        $Auth_OpenID_PARSE_ERROR,
+        $Auth_OpenID_SUCCESS;
 
     // Render a default page if we got a submission without an
     // openid_url value.
@@ -208,13 +208,13 @@ function verify()
     list($status, $info) = $consumer->beginAuth($openid_url);
 
     // Handle failure status return values.
-    if (in_array($status, array($Net_OpenID_HTTP_FAILURE, $Net_OpenID_PARSE_ERROR))) {
-        if ($status == $Net_OpenID_HTTP_FAILURE) {
+    if (in_array($status, array($Auth_OpenID_HTTP_FAILURE, $Auth_OpenID_PARSE_ERROR))) {
+        if ($status == $Auth_OpenID_HTTP_FAILURE) {
             render("HTTP failure");
         } else {
             render("HTTP Parse error");
         }
-    } else if ($status == $Net_OpenID_SUCCESS) {
+    } else if ($status == $Auth_OpenID_SUCCESS) {
         // If we got a successful return, continue the auth by
         // redirecting the user agent to the OpenID server.  Be sure
         // to give the server a URL that will cause this script's
@@ -236,8 +236,8 @@ function verify()
 function process()
 {
     global $consumer,
-        $Net_OpenID_SUCCESS,
-        $Net_OpenID_FAILURE;
+        $Auth_OpenID_SUCCESS,
+        $Auth_OpenID_FAILURE;
 
     // Retrieve the token from the session.
     $token = $_SESSION['openid_token'];
@@ -250,7 +250,7 @@ function process()
     // Because PHP mangles CGI names by replacing dots with
     // underscores, try to fix the reponse by replacing underscores
     // with dots so we can look for openid.* values.
-    $data = Net_OpenID_Consumer::fixResponse($_GET);
+    $data = Auth_OpenID_Consumer::fixResponse($_GET);
 
     // Complete the authentication process using the server's
     // response.
@@ -260,7 +260,7 @@ function process()
     $openid_url = null;
 
     // React to the server's response status.
-    if (($status == $Net_OpenID_FAILURE) &&
+    if (($status == $Auth_OpenID_FAILURE) &&
         $info) {
         // In the case of failure, if info is non-None, it is the URL
         // that we were verifying. We include it in the error message
@@ -268,7 +268,7 @@ function process()
         $openid_url = $info;
         $fmt = "Verification of %s failed.";
         $message = sprintf($fmt, $openid_url);
-    } else if ($status == $Net_OpenID_SUCCESS) {
+    } else if ($status == $Auth_OpenID_SUCCESS) {
         // Success means that the transaction completed without
         // error. If info is None, it means that the user cancelled
         // the verification.

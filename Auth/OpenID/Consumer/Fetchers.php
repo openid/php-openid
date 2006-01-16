@@ -17,12 +17,12 @@
 /**
  * Specify a socket timeout setting, in seconds.
  */
-$_Net_OpenID_socket_timeout = 20;
+$_Auth_OpenID_socket_timeout = 20;
 
 /**
  * Specify allowed URL schemes for fetching.
  */
-$_Net_OpenID_allowed_schemes = array('http', 'https');
+$_Auth_OpenID_allowed_schemes = array('http', 'https');
 
 /**
  * This class is the interface for HTTP fetchers the OpenID consumer
@@ -31,7 +31,7 @@ $_Net_OpenID_allowed_schemes = array('http', 'https');
  *
  * @package OpenID
  */
-class Net_OpenID_HTTPFetcher {
+class Auth_OpenID_HTTPFetcher {
 
     /**
      * This performs an HTTP get, following redirects along the way.
@@ -66,27 +66,27 @@ class Net_OpenID_HTTPFetcher {
 /**
  * Detect the presence of Curl and set a flag accordingly.
  */
-$_Net_OpenID_curl_found = false;
+$_Auth_OpenID_curl_found = false;
 if (function_exists('curl_init')) {
-    $_Net_OpenID_curl_found = true;
+    $_Auth_OpenID_curl_found = true;
 }
 
-function Net_OpenID_getHTTPFetcher()
+function Auth_OpenID_getHTTPFetcher()
 {
-    global $_Net_OpenID_curl_found;
-    if (!$_Net_OpenID_curl_found) {
-        $fetcher = new Net_OpenID_PlainHTTPFetcher();
+    global $_Auth_OpenID_curl_found;
+    if (!$_Auth_OpenID_curl_found) {
+        $fetcher = new Auth_OpenID_PlainHTTPFetcher();
     } else {
-        $fetcher = new Net_OpenID_ParanoidHTTPFetcher();
+        $fetcher = new Auth_OpenID_ParanoidHTTPFetcher();
     }
 
     return $fetcher;
 }
 
-function Net_OpenID_allowedURL($url)
+function Auth_OpenID_allowedURL($url)
 {
-    global $_Net_OpenID_allowed_schemes;
-    foreach ($_Net_OpenID_allowed_schemes as $scheme) {
+    global $_Auth_OpenID_allowed_schemes;
+    foreach ($_Auth_OpenID_allowed_schemes as $scheme) {
         if (strpos($url, sprintf("%s://", $scheme)) == 0) {
             return true;
         }
@@ -101,7 +101,7 @@ function Net_OpenID_allowedURL($url)
  *
  * @package OpenID
  */
-class Net_OpenID_PlainHTTPFetcher extends Net_OpenID_HTTPFetcher {
+class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
     /**
      * @access private
      */
@@ -118,7 +118,7 @@ class Net_OpenID_PlainHTTPFetcher extends Net_OpenID_HTTPFetcher {
 
     function get($url)
     {
-        if (!Net_OpenID_allowedURL($url)) {
+        if (!Auth_OpenID_allowedURL($url)) {
             trigger_error("Bad URL scheme in url: " . $url,
                           E_USER_WARNING);
             return null;
@@ -129,9 +129,9 @@ class Net_OpenID_PlainHTTPFetcher extends Net_OpenID_HTTPFetcher {
 
     function post($url, $body)
     {
-        global $_Net_OpenID_socket_timeout;
+        global $_Auth_OpenID_socket_timeout;
 
-        if (!Net_OpenID_allowedURL($url)) {
+        if (!Auth_OpenID_allowedURL($url)) {
             trigger_error("Bad URL scheme in url: " . $url,
                           E_USER_WARNING);
             return null;
@@ -169,7 +169,7 @@ class Net_OpenID_PlainHTTPFetcher extends Net_OpenID_HTTPFetcher {
 
         // Connect to the remote server.
         $sock = fsockopen($parts['host'], $parts['port']);
-        stream_set_timeout($sock, $_Net_OpenID_socket_timeout);
+        stream_set_timeout($sock, $_Auth_OpenID_socket_timeout);
 
         if ($sock === false) {
             trigger_error("Could not connect to " . $parts['host'] .
@@ -209,19 +209,19 @@ class Net_OpenID_PlainHTTPFetcher extends Net_OpenID_HTTPFetcher {
 /**
  * An array to store headers and data from Curl calls.
  */
-$_Net_OpenID_curl_data = array();
+$_Auth_OpenID_curl_data = array();
 
 /**
- * A function to prepare a "slot" in the global $_Net_OpenID_curl_data
+ * A function to prepare a "slot" in the global $_Auth_OpenID_curl_data
  * array so curl data can be stored there by curl callbacks in the
  * paranoid fetcher.
  */
 function _initResponseSlot($ch)
 {
-    global $_Net_OpenID_curl_data;
+    global $_Auth_OpenID_curl_data;
     $key = strval($ch);
-    if (!array_key_exists($key, $_Net_OpenID_curl_data)) {
-        $_Net_OpenID_curl_data[$key] = array('headers' => array(),
+    if (!array_key_exists($key, $_Auth_OpenID_curl_data)) {
+        $_Auth_OpenID_curl_data[$key] = array('headers' => array(),
                                              'body' => "");
     }
     return $key;
@@ -232,9 +232,9 @@ function _initResponseSlot($ch)
  */
 function _writeHeaders($ch, $data)
 {
-    global $_Net_OpenID_curl_data;
+    global $_Auth_OpenID_curl_data;
     $key = _initResponseSlot($ch);
-    $_Net_OpenID_curl_data[$key]['headers'][] = rtrim($data);
+    $_Auth_OpenID_curl_data[$key]['headers'][] = rtrim($data);
     return strlen($data);
 }
 
@@ -243,24 +243,24 @@ function _writeHeaders($ch, $data)
  */
 function _writeData($ch, $data)
 {
-    global $_Net_OpenID_curl_data;
+    global $_Auth_OpenID_curl_data;
     $key = _initResponseSlot($ch);
-    $_Net_OpenID_curl_data[$key]['body'] .= $data;
+    $_Auth_OpenID_curl_data[$key]['body'] .= $data;
     return strlen($data);
 }
 
 
 /**
- * A paranoid Net_OpenID_HTTPFetcher class which uses CURL for
+ * A paranoid Auth_OpenID_HTTPFetcher class which uses CURL for
  * fetching.
  *
  * @package OpenID
  */
-class Net_OpenID_ParanoidHTTPFetcher extends Net_OpenID_HTTPFetcher {
-    function Net_OpenID_ParanoidHTTPFetcher()
+class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
+    function Auth_OpenID_ParanoidHTTPFetcher()
     {
-        global $_Net_OpenID_curl_found;
-        if (!$_Net_OpenID_curl_found) {
+        global $_Auth_OpenID_curl_found;
+        if (!$_Auth_OpenID_curl_found) {
             trigger_error("Cannot use this class; CURL extension not found",
                           E_USER_ERROR);
         }
@@ -282,8 +282,8 @@ class Net_OpenID_ParanoidHTTPFetcher extends Net_OpenID_HTTPFetcher {
 
     function get($url)
     {
-        global $_Net_OpenID_socket_timeout;
-        global $_Net_OpenID_curl_data;
+        global $_Auth_OpenID_socket_timeout;
+        global $_Auth_OpenID_curl_data;
 
         $c = curl_init();
 
@@ -291,11 +291,11 @@ class Net_OpenID_ParanoidHTTPFetcher extends Net_OpenID_HTTPFetcher {
 
         curl_setopt($c, CURLOPT_NOSIGNAL, true);
 
-        $stop = time() + $_Net_OpenID_socket_timeout;
-        $off = $_Net_OpenID_socket_timeout;
+        $stop = time() + $_Auth_OpenID_socket_timeout;
+        $off = $_Auth_OpenID_socket_timeout;
 
         while ($off > 0) {
-            if (!Net_OpenID_allowedURL($url)) {
+            if (!Auth_OpenID_allowedURL($url)) {
                 trigger_error(sprintf("Fetching URL not allowed: %s", $url),
                               E_USER_WARNING);
                 return null;
@@ -309,8 +309,8 @@ class Net_OpenID_ParanoidHTTPFetcher extends Net_OpenID_HTTPFetcher {
             curl_exec($c);
 
             $code = curl_getinfo($c, CURLINFO_HTTP_CODE);
-            $body = $_Net_OpenID_curl_data[$curl_key]['body'];
-            $headers = $_Net_OpenID_curl_data[$curl_key]['headers'];
+            $body = $_Auth_OpenID_curl_data[$curl_key]['body'];
+            $headers = $_Auth_OpenID_curl_data[$curl_key]['headers'];
 
             if (!$code) {
                 trigger_error("No HTTP code returned", E_USER_WARNING);
@@ -335,10 +335,10 @@ class Net_OpenID_ParanoidHTTPFetcher extends Net_OpenID_HTTPFetcher {
 
     function post($url, $body)
     {
-        global $_Net_OpenID_socket_timeout;
-        global $_Net_OpenID_curl_data;
+        global $_Auth_OpenID_socket_timeout;
+        global $_Auth_OpenID_curl_data;
 
-        if (!Net_OpenID_allowedURL($url)) {
+        if (!Auth_OpenID_allowedURL($url)) {
             trigger_error(sprintf("Fetching URL not allowed: %s", $url),
                           E_USER_WARNING);
             return null;
@@ -351,7 +351,7 @@ class Net_OpenID_ParanoidHTTPFetcher extends Net_OpenID_HTTPFetcher {
         curl_setopt($c, CURLOPT_NOSIGNAL, true);
         curl_setopt($c, CURLOPT_POST, true);
         curl_setopt($c, CURLOPT_POSTFIELDS, $body);
-        curl_setopt($c, CURLOPT_TIMEOUT, $_Net_OpenID_socket_timeout);
+        curl_setopt($c, CURLOPT_TIMEOUT, $_Auth_OpenID_socket_timeout);
         curl_setopt($c, CURLOPT_URL, $url);
         curl_setopt($c, CURLOPT_WRITEFUNCTION, "_writeData");
 
@@ -364,7 +364,7 @@ class Net_OpenID_ParanoidHTTPFetcher extends Net_OpenID_HTTPFetcher {
             return null;
         }
 
-        $body = $_Net_OpenID_curl_data[$curl_key]['body'];
+        $body = $_Auth_OpenID_curl_data[$curl_key]['body'];
 
         curl_close($c);
         return array($code, $url, $body);

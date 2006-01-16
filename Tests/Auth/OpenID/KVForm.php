@@ -14,34 +14,34 @@
  */
 
 require_once('PHPUnit.php');
-require_once('Net/OpenID/KVForm.php');
+require_once('Auth/OpenID/KVForm.php');
 
-$_Tests_Net_OpenID_kverrors = null;
+$_Tests_Auth_OpenID_kverrors = null;
 /**
  * Keep a list of the logged errors
  */
-function Tests_Net_OpenID_kvHandleError($errno, $errmsg)
+function Tests_Auth_OpenID_kvHandleError($errno, $errmsg)
 {
-    global $_Tests_Net_OpenID_kverrors;
-    $_Tests_Net_OpenID_kverrors[] = $errmsg;
+    global $_Tests_Auth_OpenID_kverrors;
+    $_Tests_Auth_OpenID_kverrors[] = $errmsg;
 }
 
 
-class Tests_Net_OpenID_KVForm_TestCase extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_KVForm_TestCase extends PHPUnit_TestCase {
     var $errs;
 
     function runTest()
     {
         // Re-set the number of logged errors
-        global $_Tests_Net_OpenID_kverrors;
-        $_Tests_Net_OpenID_kverrors = array();
+        global $_Tests_Auth_OpenID_kverrors;
+        $_Tests_Auth_OpenID_kverrors = array();
 
-        set_error_handler("Tests_Net_OpenID_kvHandleError");
+        set_error_handler("Tests_Auth_OpenID_kvHandleError");
 
         $this->_runTest();
 
         // Check to make sure we have the expected number of logged errors
-        //$this->assertEquals($this->errs, count($_Tests_Net_OpenID_kverrors));
+        //$this->assertEquals($this->errs, count($_Tests_Auth_OpenID_kverrors));
 
         restore_error_handler();
     }
@@ -52,9 +52,9 @@ class Tests_Net_OpenID_KVForm_TestCase extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Net_OpenID_KVForm_TestCase_Parse
-extends Tests_Net_OpenID_KVForm_TestCase {
-    function Tests_Net_OpenID_KVForm_TestCase_Parse(
+class Tests_Auth_OpenID_KVForm_TestCase_Parse
+extends Tests_Auth_OpenID_KVForm_TestCase {
+    function Tests_Auth_OpenID_KVForm_TestCase_Parse(
         $arr, $str, $lossy, $errs)
     {
 
@@ -68,8 +68,8 @@ extends Tests_Net_OpenID_KVForm_TestCase {
     {
         // Do one parse, after which arrayToKV and kvToArray should be
         // inverses.
-        $parsed1 = Net_OpenID_KVForm::kvToArray($this->str);
-        $serial1 = Net_OpenID_KVForm::arrayToKV($this->arr);
+        $parsed1 = Auth_OpenID_KVForm::kvToArray($this->str);
+        $serial1 = Auth_OpenID_KVForm::arrayToKV($this->arr);
 
         if ($this->lossy == "neither" || $this->lossy == "str") {
             $this->assertEquals($this->arr, $parsed1, "str was lossy");
@@ -79,12 +79,12 @@ extends Tests_Net_OpenID_KVForm_TestCase {
             $this->assertEquals($this->str, $serial1, "array was lossy");
         }
 
-        $parsed2 = Net_OpenID_KVForm::kvToArray($serial1);
-        $serial2 = Net_OpenID_KVForm::arrayToKV($parsed1);
+        $parsed2 = Auth_OpenID_KVForm::kvToArray($serial1);
+        $serial2 = Auth_OpenID_KVForm::arrayToKV($parsed1);
 
         // Round-trip both
-        $parsed3 = Net_OpenID_KVForm::kvToArray($serial2);
-        $serial3 = Net_OpenID_KVForm::arrayToKV($parsed2);
+        $parsed3 = Auth_OpenID_KVForm::kvToArray($serial2);
+        $serial3 = Auth_OpenID_KVForm::arrayToKV($parsed2);
 
         $this->assertEquals($serial2, $serial3, "serialized forms differ");
 
@@ -94,9 +94,9 @@ extends Tests_Net_OpenID_KVForm_TestCase {
     }
 }
 
-class Tests_Net_OpenID_KVForm_TestCase_Null
-extends Tests_Net_OpenID_KVForm_TestCase {
-    function Tests_Net_OpenID_KVForm_TestCase_Null($arr, $errs)
+class Tests_Auth_OpenID_KVForm_TestCase_Null
+extends Tests_Auth_OpenID_KVForm_TestCase {
+    function Tests_Auth_OpenID_KVForm_TestCase_Null($arr, $errs)
     {
         $this->arr = $arr;
         $this->errs = $errs;
@@ -104,14 +104,14 @@ extends Tests_Net_OpenID_KVForm_TestCase {
 
     function _runTest()
     {
-        $serialized = Net_OpenID_KVForm::arrayToKV($this->arr);
+        $serialized = Auth_OpenID_KVForm::arrayToKV($this->arr);
         $this->assertTrue($serialized === null,
                           'serialization unexpectedly succeeded');
     }
 }
 
-class Tests_Net_OpenID_KVForm extends PHPUnit_TestSuite {
-    function Tests_Net_OpenID_KVForm($name)
+class Tests_Auth_OpenID_KVForm extends PHPUnit_TestSuite {
+    function Tests_Auth_OpenID_KVForm($name)
     {
         $this->setName($name);
         $testdata_list = array(
@@ -240,14 +240,14 @@ class Tests_Net_OpenID_KVForm extends PHPUnit_TestSuite {
             }
 
             if (is_null($str)) {
-                $test = new Tests_Net_OpenID_KVForm_TestCase_Null($arr, $errs);
+                $test = new Tests_Auth_OpenID_KVForm_TestCase_Null($arr, $errs);
             } else {
                 if (isset($testdata['lossy'])) {
                     $lossy = $testdata["lossy"];
                 } else {
                     $lossy = 'neither';
                 }
-                $test = new Tests_Net_OpenID_KVForm_TestCase(
+                $test = new Tests_Auth_OpenID_KVForm_TestCase(
                     $arr, $str, $lossy, $errs);
             }
             $test->setName($testdata["name"]);

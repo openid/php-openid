@@ -1,2 +1,2 @@
 #!/bin/sh
-phpdoc -p -t doc -d Net -ti "JanRain OpenID Library" -dn "OpenID"
+phpdoc -p -t doc -d Auth -ti "JanRain OpenID Library" -dn "OpenID"
