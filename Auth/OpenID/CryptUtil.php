@@ -538,11 +538,6 @@ class Auth_OpenID_MathWrapper {
 class Auth_OpenID_BcMathWrapper extends Auth_OpenID_MathWrapper {
     var $type = 'bcmath';
 
-    function random($min, $max)
-    {
-        return mt_rand($min, $max);
-    }
-
     function add($x, $y)
     {
         return bcadd($x, $y);
