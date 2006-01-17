@@ -83,7 +83,9 @@ class Auth_OpenID_DiffieHellman {
         }
 
         $this->private =
-            ($private === null) ? $this->lib->random(1, $this->mod) : $private;
+            ($private === null) ?
+            Auth_OpenID_CryptUtil::randrange(1, $this->mod) :
+            $private;
 
         $this->public = $this->lib->powmod($this->gen, $this->private,
                                            $this->mod);
