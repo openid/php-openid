@@ -16,72 +16,7 @@
 require_once 'PHPUnit.php';
 require_once 'PHPUnit/GUI/HTML.php';
 
-if (defined('E_STRICT')) {
-    // PHP 5
-    $_Net_OpenID_allowed_deprecation =
-        array('var',
-              'is_a()'
-              );
-
-    function ignoreDeprecation($errno, $errstr, $errfile, $errline)
-    {
-        // Handle http://bugs.php.net/bug.php?id=32428
-        // Augment this
-        // regular expression if the bug exists in another version.
-        if (preg_match('/^5\.1\.1$/', phpversion()) && $errno == 2) {
-            $allowed_files = array(array('/Net/OpenID/CryptUtil.php',
-                                         'dl'),
-                                   array('/Net/OpenID/OIDUtil.php',
-                                         'parse_url'),
-                                   array('/Net/OpenID/Store/FileStore.php',
-                                         'mkdir'),
-                                   array('/Net/OpenID/Store/FileStore.php',
-                                         'stat'),
-                                   array('/Net/OpenID/Store/FileStore.php',
-                                         'fopen'),
-                                   array('/Net/OpenID/Store/FileStore.php',
-                                         'unlink'));
-
-            foreach ($allowed_files as $entry) {
-                list($afile, $msg) = $entry;
-                $slen = strlen($afile);
-                $slice = substr($errfile, strlen($errfile) - $slen, $slen);
-                if ($slice == $afile && strpos($errstr, $msg) === 0) {
-                    // Ignore this error
-                    return;
-                }
-            }
-        }
-
-        global $_Net_OpenID_allowed_deprecation;
-
-        switch ($errno) {
-        case E_STRICT:
-            // XXX: limit this to files we know about
-            foreach ($_Net_OpenID_allowed_deprecation as $depr) {
-                if (strpos($errstr, "$depr: Deprecated.") !== false) {
-                    return;
-                }
-            }
-            $pat = '/^Non-static method Net_OpenID_[A-Za-z0-9_]+' .
-                   '::[A-Za-z0-9_]+\(\) (cannot|should not) be ' .
-                   'called statically$/';
-            if (preg_match($pat, $errstr)) {
-                // Ignore warnings about static methods called
-                // non-statically since marking them static would break
-                // PHP 4 compatibility.
-                return;
-            }
-        default:
-            error_log("$errfile:$errline - Errno=$errno:\n[$errstr]");
-        }
-    }
-
-    set_error_handler('ignoreDeprecation');
-    error_reporting(E_STRICT | E_ALL);
-} else {
-    error_reporting(E_ALL);
-}
+error_reporting(E_ALL);
 
 /**
  * Load the tests that are defined in the named modules.
