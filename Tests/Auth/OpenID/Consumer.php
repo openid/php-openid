@@ -58,14 +58,13 @@ function Auth_OpenID_associate($qs, $assoc_secret, $assoc_handle)
                       $d->xorSecret($composite, $assoc_secret));
 
     $reply_dict = array(
-                        'assoc_type' => 'HMAC-SHA1',
-                        'assoc_handle' => $assoc_handle,
-                        'expires_in' => '600',
-                        'session_type' => 'DH-SHA1',
-                        'dh_server_public' =>
-                            Auth_OpenID_longToBase64($d->public),
-                        'enc_mac_key' => $enc_mac_key,
-                        );
+        'assoc_type' => 'HMAC-SHA1',
+        'assoc_handle' => $assoc_handle,
+        'expires_in' => '600',
+        'session_type' => 'DH-SHA1',
+        'dh_server_public' => Auth_OpenID_longToBase64($d->public),
+        'enc_mac_key' => $enc_mac_key,
+        );
 
     return Auth_OpenID_KVForm::arrayToKV($reply_dict);
 }
