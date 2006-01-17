@@ -252,6 +252,7 @@ $_Auth_OpenID_NONCE_LEN = 8;
  */
 class Auth_OpenID_Consumer {
     var $store;
+    var $_use_assocs;
     var $fetcher;
     var $mode;
     var $immediate;
@@ -294,6 +295,8 @@ class Auth_OpenID_Consumer {
         }
 
         $this->store =& $store;
+        $this->_use_assocs =
+            defined('Auth_OpenID_NO_MATH_SUPPORT') || $this->store->isDumb();
 
         if ($fetcher === null) {
             $this->fetcher = Auth_OpenID_getHTTPFetcher();
@@ -696,7 +699,7 @@ class Auth_OpenID_Consumer {
     {
         global $_Auth_OpenID_TOKEN_LIFETIME;
 
-        if ($this->store->isDumb()) {
+        if ($this->_use_assocs) {
             return null;
         }
 
