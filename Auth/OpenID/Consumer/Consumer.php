@@ -533,9 +533,11 @@ class Auth_OpenID_Consumer {
 
         $token = $this->_genToken($nonce, $consumer_id,
                                   $server_id, $server_url);
-        return array($Auth_OpenID_SUCCESS,
-                     new Auth_OpenID_AuthRequest($token, $server_id,
-                                                $server_url, $nonce));
+
+        $req = new Auth_OpenID_AuthRequest
+            ($token, $server_id, $server_url, $nonce);
+
+        return array($Auth_OpenID_SUCCESS, $req);
     }
 
     /**
