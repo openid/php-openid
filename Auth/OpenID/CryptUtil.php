@@ -580,10 +580,10 @@ class Auth_OpenID_BcMathWrapper extends Auth_OpenID_MathWrapper {
 
     function powmod($base, $exponent, $modulus)
     {
-        if (false && function_exists('bcpowmod')) {
+        if (function_exists('bcpowmod')) {
             return bcpowmod($base, $exponent, $modulus);
         } else {
-            return parent::powmod($base, $exponent, $modulus);
+            return $this->_powmod($base, $exponent, $modulus);
         }
     }
         
