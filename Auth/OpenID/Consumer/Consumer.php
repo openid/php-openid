@@ -637,7 +637,6 @@ class Auth_OpenID_Consumer {
     {
         global $Auth_OpenID_FAILURE, $Auth_OpenID_SUCCESS;
 
-        // XXX: send only those arguments that were signed?
         $signed = Auth_OpenID_array_get($query, 'openid.signed', null);
         if ($signed === null) {
             return $Auth_OpenID_FAILURE;
