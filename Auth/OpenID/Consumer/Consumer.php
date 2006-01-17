@@ -557,8 +557,7 @@ class Auth_OpenID_Consumer {
         }
 
         $this->store->storeNonce($auth_req->nonce);
-        return strval(Auth_OpenID_appendArgs($auth_req->server_url,
-                                            $redir_args));
+        return Auth_OpenID_appendArgs($auth_req->server_url, $redir_args);
     }
 
     /**
