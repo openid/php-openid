@@ -152,9 +152,9 @@ class Tests_Auth_OpenID_DiffieHellman extends PHPUnit_TestSuite {
             }
 
             for ($i = 0; $i < $npriv; $i++) {
-                $case = $priv_cases[$i];
+                list($input, $expected) = $priv_cases[$i];
                 $one = new Tests_Auth_OpenID_DiffieHellman_Private(
-                    "DHPriv $i", $case[0], $case[1]);
+                    "DHPriv $i", $input, $expected);
                 $this->addTest($one);
             }
 
