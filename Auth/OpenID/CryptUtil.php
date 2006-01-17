@@ -643,6 +643,7 @@ class Auth_OpenID_GmpMathWrapper extends Auth_OpenID_MathWrapper {
     {
         return gmp_powm($base, $exponent, $modulus);
     }
+
 }
 
 $_Auth_OpenID___mathLibrary = null;
