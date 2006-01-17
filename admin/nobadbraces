@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
 set -e
 
-bad_functions=$(find Auth Tests -name \*.php |
-    xargs -l1 --replace=FILENAME /usr/bin/env perl admin/brace_style.pl FILENAME)
-
-if [ "$bad_functions" ]
-    then
-    cat <<EOF 1>&2
-$bad_functions
-EOF
-    exit 1
-fi
-
+find Auth Tests -name \*.php |
+    xargs -l1 --replace=FILENAME /usr/bin/env perl admin/brace_style.pl FILENAME
