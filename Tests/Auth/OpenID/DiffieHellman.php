@@ -40,8 +40,9 @@ class Tests_Auth_OpenID_DiffieHellman_Private extends PHPUnit_TestCase {
 
     function runTest()
     {
+        $lib =& Auth_OpenID_MathLibrary::getLibWrapper();
         $dh = new Auth_OpenID_DiffieHellman(null, null, $this->input);
-        $this->assertEquals($this->expected, $dh->getPublicKey());
+        $this->assertEquals($lib->cmp($this->expected, $dh->getPublicKey()), 0);
     }
 }
 
