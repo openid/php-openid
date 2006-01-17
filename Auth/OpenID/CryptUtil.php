@@ -599,11 +599,6 @@ class Auth_OpenID_BcMathWrapper extends Auth_OpenID_MathWrapper {
 class Auth_OpenID_GmpMathWrapper extends Auth_OpenID_MathWrapper {
     var $type = 'gmp';
 
-    function random($min, $max)
-    {
-        return gmp_random($max);
-    }
-
     function add($x, $y)
     {
         return gmp_add($x, $y);
