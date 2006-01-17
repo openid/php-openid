@@ -692,6 +692,11 @@ class Auth_OpenID_Consumer {
         return $Auth_OpenID_FAILURE;
     }
 
+    function _createDiffieHellman()
+    {
+        return new Auth_OpenID_DiffieHellman();
+    }
+
     /**
      * @access private
      */
@@ -708,7 +713,7 @@ class Auth_OpenID_Consumer {
         if (($assoc === null) ||
             ($replace && ($assoc->getExpiresIn() <
                           $_Auth_OpenID_TOKEN_LIFETIME))) {
-            $dh = new Auth_OpenID_DiffieHellman();
+            $dh = $this->_createDiffieHellman();
             $body = $this->_createAssociateRequest($dh);
             $assoc = $this->_fetchAssociation($dh, $server_url, $body);
         }
