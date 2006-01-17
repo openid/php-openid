@@ -251,6 +251,10 @@ $_Auth_OpenID_NONCE_LEN = 8;
  * @package OpenID
  */
 class Auth_OpenID_Consumer {
+    var $store;
+    var $fetcher;
+    var $mode;
+    var $immediate;
 
     /**
      * This method initializes a new Auth_OpenID_Consumer instance to
