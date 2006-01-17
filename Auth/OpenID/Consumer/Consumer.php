@@ -419,8 +419,6 @@ class Auth_OpenID_Consumer {
     {
         $assoc = $this->_getAssociation($auth_request->server_url,
                                         $replace = 1);
-        // Because _getAssociation is asynchronous if the association is
-        // not already in the store.
 
         if ($assoc === null) {
             trigger_error("Could not get association for redirection",
