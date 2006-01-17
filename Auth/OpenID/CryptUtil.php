@@ -475,7 +475,8 @@ class Auth_OpenID_CryptUtil {
             $n = strlen($chrs);
             $str = "";
             for ($i = 0; $i < $length; $i++) {
-                $str .= $chrs[Auth_OpenID_CryptUtil::randrange_platform($n)];
+                $offset = Auth_OpenID_CryptUtil::randrange_platform($n);
+                $str .= $chrs[$offset];
             }
             return $str;
         }
