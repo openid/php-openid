@@ -20,6 +20,16 @@ require_once('Auth/OpenID/OIDUtil.php');
 require_once('Auth/OpenID/KVForm.php');
 require_once('Auth/OpenID/Consumer/Consumer.php');
 
+class Auth_OpenID_TestConsumer extends Auth_OpenID_Consumer {
+    /**
+     * Use a small (insecure) modulus for this test so that it runs quickly
+     */
+    function _createDiffieHellman()
+    {
+        return new Auth_OpenID_DiffieHellman('1235514290909');
+    }
+}
+
 $_Auth_OpenID_assocs = array(
                             array('another 20-byte key.', 'Snarky'),
                             array(str_repeat("\x00", 20), 'Zeros'),
@@ -197,7 +207,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
                                               $_Auth_OpenID_assocs[0][0],
                                               $_Auth_OpenID_assocs[0][1]);
 
-        $consumer = new Auth_OpenID_Consumer($store, &$fetcher, $immediate);
+        $consumer = new Auth_OpenID_TestConsumer($store, &$fetcher, $immediate);
 
         $this->assertEquals($fetcher->num_assocs, 0);
         $this->_run($consumer, $user_url, $mode, $delegate_url,
@@ -257,7 +267,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
             Auth_OpenID_mkdtemp($_Auth_OpenID_filestore_base_dir));
 
         $fetcher = new Auth_OpenID_TestFetcher(null, null, null, null);
-        $consumer = new Auth_OpenID_Consumer($store, &$fetcher);
+        $consumer = new Auth_OpenID_TestConsumer($store, &$fetcher);
         $cases = array(
                        array(null, 'http://network.error/'),
                        array(404, 'http://not.found/'),
@@ -294,7 +304,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
         foreach ($cases as $user_page) {
             $fetcher = new Auth_OpenID_TestFetcher($user_url, $user_page,
                                                   null, null);
-            $consumer = new Auth_OpenID_Consumer($store, $fetcher);
+            $consumer = new Auth_OpenID_TestConsumer($store, $fetcher);
             list($status, $info) = $consumer->beginAuth($user_url);
             $this->assertEquals($status, $Auth_OpenID_PARSE_ERROR);
             $this->assertNull($info);
