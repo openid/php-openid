@@ -296,7 +296,8 @@ class Auth_OpenID_Consumer {
 
         $this->store =& $store;
         $this->_use_assocs =
-            defined('Auth_OpenID_NO_MATH_SUPPORT') || $this->store->isDumb();
+            !(defined('Auth_OpenID_NO_MATH_SUPPORT') ||
+              $this->store->isDumb());
 
         if ($fetcher === null) {
             $this->fetcher = Auth_OpenID_getHTTPFetcher();
