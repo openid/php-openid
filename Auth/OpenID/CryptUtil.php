@@ -28,6 +28,85 @@ if (!defined('Auth_OpenID_RAND_SOURCE')) {
 }
 
 /**
+ * Given a long integer, returns the number converted to a binary
+ * string.  This function accepts long integer values of arbitrary
+ * magnitude and uses the local large-number math library when
+ * available.
+ *
+ * @param integer $long The long number (can be a normal PHP
+ * integer or a number created by one of the available long number
+ * libraries)
+ * @return string $binary The binary version of $long
+ */
+function Auth_OpenID_longToBinary($long)
+{
+
+    $lib =& Auth_OpenID_MathLibrary::getLibWrapper();
+
+    $cmp = $lib->cmp($long, 0);
+    if ($cmp < 0) {
+        $msg = __FUNCTION__ . " takes only positive integers.";
+        trigger_error($msg, E_USER_ERROR);
+        return null;
+    }
+
+    if ($cmp == 0) {
+        return "\x00";
+    }
+
+    $bytes = array();
+
+    while ($lib->cmp($long, 0) > 0) {
+        array_unshift($bytes, $lib->mod($long, 256));
+        $long = $lib->div($long, pow(2, 8));
+    }
+
+    if ($bytes && ($bytes[0] > 127)) {
+        array_unshift($bytes, 0);
+    }
+
+    $string = '';
+    foreach ($bytes as $byte) {
+        $string .= pack('C', $byte);
+    }
+
+    return $string;
+}
+
+/**
+ * Given a long integer, returns the number converted to a binary
+ * string.  This function accepts "long" numbers within the PHP
+ * integer range (usually 32 bits).
+ *
+ * @param integer $long The long number (can be a normal PHP
+ * integer or a number created by one of the available long number
+ * libraries)
+ * @return string $binary The binary version of $long
+ */
+function Auth_OpenID_longToBinary_platform($long)
+{
+
+    if ($long < 0) {
+        $msg = __FUNCTION__ . " takes only positive integers.";
+        trigger_error($msg, E_USER_ERROR);
+        return null;
+    }
+
+    return pack('N', $long);
+}
+
+/**
+ * Converts a long number to its base64-encoded representation.
+ *
+ * @param integer $long The long number to be converted
+ * @return string $str The base64-encoded version of $long
+ */
+function Auth_OpenID_longToBase64($long)
+{
+    return base64_encode(Auth_OpenID_longToBinary($long));
+}
+
+/**
  * Auth_OpenID_CryptUtil houses static utility functions.
  *
  * @package OpenID
@@ -137,72 +216,6 @@ class Auth_OpenID_CryptUtil {
     }
 
     /**
-     * Given a long integer, returns the number converted to a binary
-     * string.  This function accepts long integer values of arbitrary
-     * magnitude and uses the local large-number math library when
-     * available.
-     *
-     * @param integer $long The long number (can be a normal PHP
-     * integer or a number created by one of the available long number
-     * libraries)
-     * @return string $binary The binary version of $long
-     */
-    function longToBinary($long)
-    {
-
-        $lib =& Auth_OpenID_MathLibrary::getLibWrapper();
-
-        $cmp = $lib->cmp($long, 0);
-        if ($cmp < 0) {
-            print "longToBytes takes only positive integers.";
-            return null;
-        }
-
-        if ($cmp == 0) {
-            return "\x00";
-        }
-
-        $bytes = array();
-
-        while ($lib->cmp($long, 0) > 0) {
-            array_unshift($bytes, $lib->mod($long, 256));
-            $long = $lib->div($long, pow(2, 8));
-        }
-
-        if ($bytes && ($bytes[0] > 127)) {
-            array_unshift($bytes, 0);
-        }
-
-        $string = '';
-        foreach ($bytes as $byte) {
-            $string .= pack('C', $byte);
-        }
-
-        return $string;
-    }
-
-    /**
-     * Given a long integer, returns the number converted to a binary
-     * string.  This function accepts "long" numbers within the PHP
-     * integer range (usually 32 bits).
-     *
-     * @param integer $long The long number (can be a normal PHP
-     * integer or a number created by one of the available long number
-     * libraries)
-     * @return string $binary The binary version of $long
-     */
-    function longToBinary_platform($long)
-    {
-
-        if ($long < 0) {
-            print "longToBytes_platform takes only positive integers.";
-            return null;
-        }
-
-        return pack('N', $long);
-    }
-
-    /**
      * Given a binary string, returns the binary string converted to a
      * long number.
      *
@@ -268,18 +281,6 @@ class Auth_OpenID_CryptUtil {
     {
         return Auth_OpenID_CryptUtil::binaryToLong(
                       Auth_OpenID_CryptUtil::fromBase64($str));
-    }
-
-    /**
-     * Converts a long number to its base64-encoded representation.
-     *
-     * @param integer $long The long number to be converted
-     * @return string $str The base64-encoded version of $long
-     */
-    function longToBase64($long)
-    {
-        return Auth_OpenID_CryptUtil::toBase64(
-                      Auth_OpenID_CryptUtil::longToBinary($long));
     }
 
     /**
@@ -351,7 +352,7 @@ class Auth_OpenID_CryptUtil {
         $r = $lib->div($lib->sub($stop, $start), $step);
 
         // DO NOT MODIFY THIS VALUE.
-        $rbytes = Auth_OpenID_CryptUtil::longToBinary($r);
+        $rbytes = Auth_OpenID_longToBinary($r);
 
         if (array_key_exists($rbytes, $Auth_OpenID_CryptUtil_duplicate_cache)) {
             list($duplicate, $nbytes) =
@@ -416,7 +417,7 @@ class Auth_OpenID_CryptUtil {
         $r = ($stop - $start) / $step;
 
         // DO NOT MODIFY THIS VALUE.
-        $rbytes = Auth_OpenID_CryptUtil::longToBinary_platform($r);
+        $rbytes = Auth_OpenID_longToBinary_platform($r);
 
         if (array_key_exists($rbytes, $Auth_OpenID_CryptUtil_duplicate_cache)) {
             list($duplicate, $nbytes) =

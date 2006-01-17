@@ -103,7 +103,7 @@ class Auth_OpenID_DiffieHellman {
     {
         $dh_shared = $this->getSharedSecret($composite);
         $sha1_dh_shared = Auth_OpenID_CryptUtil::sha1(
-           Auth_OpenID_CryptUtil::longToBinary($dh_shared));
+           Auth_OpenID_longToBinary($dh_shared));
         return Auth_OpenID_CryptUtil::strxor($secret, $sha1_dh_shared);
     }
 }

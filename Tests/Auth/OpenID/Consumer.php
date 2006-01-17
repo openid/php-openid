@@ -63,7 +63,7 @@ function Auth_OpenID_associate($qs, $assoc_secret, $assoc_handle)
                         'expires_in' => '600',
                         'session_type' => 'DH-SHA1',
                         'dh_server_public' =>
-                           Auth_OpenID_CryptUtil::longToBase64($d->public),
+                            Auth_OpenID_longToBase64($d->public),
                         'enc_mac_key' => $enc_mac_key,
                         );
 

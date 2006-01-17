@@ -827,24 +827,24 @@ class Auth_OpenID_Consumer {
             $args = array();
         }
 
-        $cpub = Auth_OpenID_CryptUtil::longToBase64($dh->public);
+        $cpub = Auth_OpenID_longToBase64($dh->getPublicKey());
 
-        $args = array_merge($args, array(
-                                         'openid.mode' =>  'associate',
-                                         'openid.assoc_type' => 'HMAC-SHA1',
-                                         'openid.session_type' => 'DH-SHA1',
-                                         'openid.dh_consumer_public' => $cpub
-                                         ));
+        $add_args = array(
+            'openid.mode' =>  'associate',
+            'openid.assoc_type' => 'HMAC-SHA1',
+            'openid.session_type' => 'DH-SHA1',
+            'openid.dh_consumer_public' => $cpub
+            );
+
+        $args = array_merge($args, $add_args);
 
         if (($dh->mod != $_Auth_OpenID_DEFAULT_MOD) ||
             ($dh->gen != $_Auth_OpenID_DEFAULT_GEN)) {
-            $args = array_merge($args,
-                     array(
-                           'openid.dh_modulus' =>
-                           Auth_OpenID_CryptUtil::longToBase64($dh->modulus),
-                           'openid.dh_gen' =>
-                           Auth_OpenID_CryptUtil::longToBase64($dh->generator)
-                           ));
+            $add_args = array(
+                'openid.dh_modulus' => Auth_OpenID_longToBase64($dh->mod),
+                'openid.dh_gen' => Auth_OpenID_longToBase64($dh->gen)
+                );
+            $args = array_merge($args, $add_args);
         }
 
         return Auth_OpenID_http_build_query($args);

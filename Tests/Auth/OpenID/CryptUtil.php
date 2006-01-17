@@ -135,7 +135,7 @@ class Tests_Auth_OpenID_BinLongConvertRnd extends PHPUnit_TestCase {
             $rnd = Auth_OpenID_CryptUtil::randrange($this->max);
             $n = $this->lib->add($n, $rnd);
         }
-        $s = Auth_OpenID_CryptUtil::longToBinary($n);
+        $s = Auth_OpenID_longToBinary($n);
         $this->assertTrue(is_string($s));
         $n_prime = Auth_OpenID_CryptUtil::binaryToLong($s);
         $this->assertEquals($this->lib->cmp($n, $n_prime), 0);
@@ -157,7 +157,7 @@ class Tests_Auth_OpenID_BinLongConvert extends PHPUnit_TestCase {
     function runTest()
     {
         $n_prime = Auth_OpenID_CryptUtil::binaryToLong($this->bin);
-        $s_prime = Auth_OpenID_CryptUtil::longToBinary($this->lng);
+        $s_prime = Auth_OpenID_longToBinary($this->lng);
         $this->assertEquals($this->lib->cmp($this->lng, $n_prime), 0);
         $this->assertTrue($this->bin == $s_prime);
     }
@@ -192,7 +192,7 @@ class Tests_Auth_OpenID_LongToBase64 extends Tests_Auth_OpenID_Base64ToLong {
 
     function runTest()
     {
-        $actual = Auth_OpenID_CryptUtil::longToBase64($this->num);
+        $actual = Auth_OpenID_longToBase64($this->num);
         $this->assertEquals($this->b64, $actual);
     }
 }
