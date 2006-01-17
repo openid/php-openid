@@ -685,7 +685,7 @@ class Auth_OpenID_Consumer {
         $error = Auth_OpenID_array_get($results, 'error', null);
         if ($error !== null) {
             Auth_OpenID_log(sprintf("Error message from server during " .
-                                   "check_authentication: %s", error));
+                                   "check_authentication: %s", $error));
         }
 
         return $Auth_OpenID_FAILURE;
