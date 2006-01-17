@@ -691,6 +691,9 @@ class Auth_OpenID_Consumer {
         return $Auth_OpenID_FAILURE;
     }
 
+    /**
+     * @access protected
+     */
     function _createDiffieHellman()
     {
         return new Auth_OpenID_DiffieHellman();
