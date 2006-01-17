@@ -420,9 +420,9 @@ class Auth_OpenID_Consumer {
         $assoc = $this->_getAssociation($auth_request->server_url,
                                         $replace = 1);
 
-        if ($assoc === null) {
-            trigger_error("Could not get association for redirection",
-                          E_USER_WARNING);
+        if ($assoc === null && $this->_use_assocs) {
+            $msg = "Could not get association for redirection";
+            trigger_error($msg, E_USER_WARNING);
             return null;
         }
 
@@ -529,7 +529,7 @@ class Auth_OpenID_Consumer {
             $_Auth_OpenID_NONCE_LEN;
 
         $nonce = Auth_OpenID_CryptUtil::randomString($_Auth_OpenID_NONCE_LEN,
-                                                    $_Auth_OpenID_NONCE_CHRS);
+                                                     $_Auth_OpenID_NONCE_CHRS);
 
         $token = $this->_genToken($nonce, $consumer_id,
                                   $server_id, $server_url);
