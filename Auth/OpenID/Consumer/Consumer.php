@@ -706,7 +706,7 @@ class Auth_OpenID_Consumer {
     {
         global $_Auth_OpenID_TOKEN_LIFETIME;
 
-        if ($this->_use_assocs) {
+        if (!$this->_use_assocs) {
             return null;
         }
 
