@@ -509,12 +509,12 @@ class Auth_OpenID_MathWrapper {
     /**
      * Returns ($base to the $exponent power) mod $modulus.  In some
      * long number implementations, this may be optimized.  This
-     * placeholder implementation performs it manually.
+     * implementation works efficiently if we only have pow and mod.
      */
-    function powmod($base, $exponent, $modulus)
+    function _powmod($base, $exponent, $modulus)
     {
         $square = $this->mod($base, $modulus);
-        $result = '1';
+        $result = 1;
         while($this->cmp($exponent, 0) > 0) {
             if ($this->mod($exponent, 2)) {
                 $result = $this->mod($this->mul($result, $square), $modulus);
