@@ -586,7 +586,6 @@ class Auth_OpenID_BcMathWrapper extends Auth_OpenID_MathWrapper {
             return $this->_powmod($base, $exponent, $modulus);
         }
     }
-        
 }
 
 /**
