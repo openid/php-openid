@@ -109,13 +109,32 @@ class Auth_OpenID_TestFetcher {
         }
     }
 
+    function _checkAuth($url, $body)
+    {
+        $query_data = Auth_OpenID_parse($body);
+        $expected = array(
+                          'openid.mode' => 'check_authentication',
+                          'openid.signed' => 'assoc_handle,sig,signed',
+                          'openid.sig' => 'fake',
+                          'openid.assoc_handle' => $this->assoc_handle,
+                          );
+
+        if ($query_data == $expected) {
+            return array(200, $url, "is_valid:true\n");
+        } else {
+            return array(400, $url, "error:bad check_authentication query\n");
+        }
+    }
+
     function post($url, $body)
     {
         if (strpos($body, 'openid.mode=associate') !== false) {
             $response = Auth_OpenID_associate($body, $this->assoc_secret,
-                                             $this->assoc_handle);
+                                              $this->assoc_handle);
             $this->num_assocs++;
             return $this->response($url, $response);
+        } elseif (strpos($body, 'openid.mode=check_authentication') !== false) {
+            return $this->_checkAuth($url, $body);
         } else {
             return $this->response($url, null);
         }
@@ -145,7 +164,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
             $_Auth_OpenID_server_url;
 
         list($status, $info) = $consumer->beginAuth($user_url);
-        $this->assertEquals($status, $Auth_OpenID_SUCCESS);
+        $this->assertEquals($Auth_OpenID_SUCCESS, $status);
 
         $return_to = $_Auth_OpenID_consumer_url;
         $trust_root = $_Auth_OpenID_consumer_url;
@@ -156,17 +175,20 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
         $qs = $parsed['query'];
         $q = Auth_OpenID_parse($qs);
 
-        $this->assertEquals($q, array(
-                                      'openid.mode' => $mode,
-                                      'openid.identity' => $delegate_url,
-                                      'openid.trust_root' => $trust_root,
-                                      'openid.assoc_handle' =>
-                                         $fetcher->assoc_handle,
-                                      'openid.return_to' => $return_to
-                                      ));
+        $expected = array(
+                          'openid.mode' => $mode,
+                          'openid.identity' => $delegate_url,
+                          'openid.trust_root' => $trust_root,
+                          'openid.return_to' => $return_to
+                          );
 
-        $this->assertEquals(strpos($redirect_url, $_Auth_OpenID_server_url),
-                            0);
+        if ($consumer->_use_assocs) {
+            $expected['openid.assoc_handle'] = $fetcher->assoc_handle;
+        }
+
+        $this->assertEquals($expected, $q);
+
+        $this->assertEquals(0, strpos($redirect_url, $_Auth_OpenID_server_url));
 
         $query = array(
                        'openid.mode'=> 'id_res',
@@ -175,14 +197,22 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
                        'openid.assoc_handle'=> $fetcher->assoc_handle,
                        );
 
-        $assoc = $store->getAssociation($_Auth_OpenID_server_url,
-                                        $fetcher->assoc_handle);
+        if ($consumer->_use_assocs) {
+            $assoc = $store->getAssociation($_Auth_OpenID_server_url,
+                                            $fetcher->assoc_handle);
 
-        $assoc->addSignature(array('mode', 'return_to', 'identity'), $query);
+            $assoc->addSignature(array('mode', 'return_to', 'identity'),
+                                 $query);
+        } else {
+            $query['openid.signed'] =
+                'assoc_handle,sig,signed';
+            $query['openid.assoc_handle'] = $fetcher->assoc_handle;
+            $query['openid.sig'] = 'fake';
+        }            
 
         list($status, $info) = $consumer->completeAuth($info->token, $query);
 
-        $this->assertEquals($status, $Auth_OpenID_SUCCESS);
+        $this->assertEquals($Auth_OpenID_SUCCESS, $status);
         $this->assertEquals($info, $user_url);
     }
 
@@ -209,17 +239,22 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
 
         $consumer = new Auth_OpenID_TestConsumer($store, &$fetcher, $immediate);
 
-        $this->assertEquals($fetcher->num_assocs, 0);
+        $expected_num_assocs = 0;
+        $this->assertEquals($expected_num_assocs, $fetcher->num_assocs);
         $this->_run($consumer, $user_url, $mode, $delegate_url,
                     $fetcher, $store);
 
-        $this->assertEquals($fetcher->num_assocs, 1);
+        if ($consumer->_use_assocs) {
+            $expected_num_assocs += 1;
+        }
+
+        $this->assertEquals($expected_num_assocs, $fetcher->num_assocs);
 
         // Test that doing it again uses the existing association
         $this->_run($consumer, $user_url, $mode, $delegate_url,
                     $fetcher, $store);
 
-        $this->assertEquals($fetcher->num_assocs, 1);
+        $this->assertEquals($expected_num_assocs, $fetcher->num_assocs);
 
         // Another association is created if we remove the existing one
         $store->removeAssociation($_Auth_OpenID_server_url,
@@ -228,13 +263,17 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
         $this->_run($consumer, $user_url, $mode, $delegate_url,
                     $fetcher, $store);
 
-        $this->assertEquals($fetcher->num_assocs, 2);
+        if ($consumer->_use_assocs) {
+            $expected_num_assocs += 1;
+        }
+
+        $this->assertEquals($expected_num_assocs, $fetcher->num_assocs);
 
         // Test that doing it again uses the existing association
         $this->_run($consumer, $user_url, $mode, $delegate_url,
                     $fetcher, $store);
 
-        $this->assertEquals($fetcher->num_assocs, 2);
+        $this->assertEquals($expected_num_assocs, $fetcher->num_assocs);
 
         $store->destroy();
     }
