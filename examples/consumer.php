@@ -62,6 +62,40 @@ if ($store_type == 'sqlite') {
      */
     $store->createTables();
 
+} else if ($store_type == 'mysql') {
+
+    require_once("Auth/OpenID/Store/SQLStore.php");
+
+    /**
+     * Assume that the database used by the MySQL store has already
+     * been created.
+     */
+    $dsn = array(
+                 'phptype'  => 'mysql',
+                 'username' => 'openid_test',
+                 'password' => '',
+                 'hostspec' => 'dbtest',
+                 'database' => 'openid_test',
+                 );
+
+    $db =& DB::connect($dsn);
+
+    if (PEAR::isError($db)) {
+        print "Database connection error: " .
+            $db->getMessage();
+        exit(0);
+    }
+
+    $store = new Auth_OpenID_MySQLStore($db);
+
+    /**
+     * This needs to be called once for the lifetime of the store, but
+     * calling it each time you use the store won't hurt anything
+     * (although it'll incur a slight performance pentalty because the
+     * tables will already exist).
+     */
+    $store->createTables();
+
 } else if ($store_type == 'pgsql') {
 
     require_once("Auth/OpenID/Store/SQLStore.php");
