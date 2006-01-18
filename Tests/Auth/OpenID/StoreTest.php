@@ -295,6 +295,31 @@ explicitly');
         }
 
         $store =& new Auth_OpenID_PostgreSQLStore($db);
+    }
+
+    function test_sqlitestore()
+    {
+        require_once('Auth/OpenID/Store/SQLStore.php');
+        require_once('DB.php');
+
+        $temp_dir = Auth_OpenID_mkdtemp('/tmp');
+
+        if (!$temp_dir) {
+            trigger_error('Could not create temporary directory ' .
+                          'with Auth_OpenID_mkdtemp', E_USER_WARNING);
+            return null;
+        }
+
+        $dsn = sprintf("sqlite:///%s/file.db", $temp_dir);
+        $db =& DB::connect($dsn);
+
+        if (PEAR::isError($db)) {
+            $this->fail("SQLite database connection failed: " .
+                        $db->getMessage());
+            return;
+        }
+
+        $store =& new Auth_OpenID_SQLiteStore($db);
         $this->assertTrue($store->createTables(), "Table creation failed");
         $this->_testStore($store);
         $this->_testNonce($store);
