@@ -5,8 +5,6 @@
  * Auth/OpenID has been installed and is in your PHP include path.
  */
 
-set_include_path(get_include_path() . PATH_SEPARATOR . "/home/cygnus/production");
-
 /**
  * Require files to use the OpenID consumer.  We need the consumer
  * itself, an OpenID store implementation, and some utility functions.
