@@ -49,7 +49,8 @@ class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
     {
         $retrieved_assoc = $store->getAssociation($url, $handle);
         if (($expected === null) || ($store->isDumb())) {
-            $this->assertNull($retrieved_assoc);
+            $this->assertNull($retrieved_assoc, "Retrieved association " .
+                              "was non-null");
         } else {
             if ($retrieved_assoc === null) {
                 $this->fail("$name: Got null when expecting " .
@@ -61,12 +62,13 @@ class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
         }
     }
 
-    function _checkRemove(&$store, $url, $handle, $expected)
+    function _checkRemove(&$store, $url, $handle, $expected, $name = null)
     {
         $present = $store->removeAssociation($url, $handle);
         $expectedPresent = (!$store->isDumb() && $expected);
         $this->assertTrue((!$expectedPresent && !$present) ||
-                          ($expectedPresent && $present));
+                          ($expectedPresent && $present),
+                          $name);
     }
 
     /**
@@ -102,16 +104,20 @@ class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
             'Storing more than once has no ill effect');
 
         // Removing an association that does not exist returns not present
-        $this->_checkRemove($store, $server_url, $assoc->handle . 'x', false);
+        $this->_checkRemove($store, $server_url, $assoc->handle . 'x', false,
+                            "Remove nonexistent association (1)");
 
         // Removing an association that does not exist returns not present
-        $this->_checkRemove($store, $server_url . 'x', $assoc->handle, false);
+        $this->_checkRemove($store, $server_url . 'x', $assoc->handle, false,
+                            "Remove nonexistent association (2)");
 
         // Removing an association that is present returns present
-        $this->_checkRemove($store, $server_url, $assoc->handle, true);
+        $this->_checkRemove($store, $server_url, $assoc->handle, true,
+                            "Remove existent association");
 
         // but not present on subsequent calls
-        $this->_checkRemove($store, $server_url, $assoc->handle, false);
+        $this->_checkRemove($store, $server_url, $assoc->handle, false,
+                            "Remove nonexistent association after removal");
 
         // Put assoc back in the store
         $store->storeAssociation($server_url, $assoc);
@@ -136,44 +142,83 @@ explicitly');
         $assoc3 = $this->genAssoc($now, $issued = 2, $lifetime = 100);
         $store->storeAssociation($server_url, $assoc3);
 
-        $this->_checkRetrieve($store, $server_url, null, $assoc3);
-        $this->_checkRetrieve($store, $server_url, $assoc->handle, $assoc);
-        $this->_checkRetrieve($store, $server_url, $assoc2->handle, $assoc2);
-        $this->_checkRetrieve($store, $server_url, $assoc3->handle, $assoc3);
+        $this->_checkRetrieve($store, $server_url, null, $assoc3, "(1)");
 
-        $this->_checkRemove($store, $server_url, $assoc2->handle, true);
+        $this->_checkRetrieve($store, $server_url, $assoc->handle,
+                              $assoc, "(2)");
 
-        $this->_checkRetrieve($store, $server_url, null, $assoc3);
-        $this->_checkRetrieve($store, $server_url, $assoc->handle, $assoc);
-        $this->_checkRetrieve($store, $server_url, $assoc2->handle, null);
-        $this->_checkRetrieve($store, $server_url, $assoc3->handle, $assoc3);
+        $this->_checkRetrieve($store, $server_url, $assoc2->handle,
+                              $assoc2, "(3)");
 
-        $this->_checkRemove($store, $server_url, $assoc2->handle, false);
-        $this->_checkRemove($store, $server_url, $assoc3->handle, true);
+        $this->_checkRetrieve($store, $server_url, $assoc3->handle,
+                              $assoc3, "(4)");
 
-        $this->_checkRetrieve($store, $server_url, null, $assoc);
-        $this->_checkRetrieve($store, $server_url, $assoc->handle, $assoc);
-        $this->_checkRetrieve($store, $server_url, $assoc2->handle, null);
-        $this->_checkRetrieve($store, $server_url, $assoc3->handle, null);
+        $this->_checkRemove($store, $server_url, $assoc2->handle, true, "(5)");
 
-        $this->_checkRemove($store, $server_url, $assoc2->handle, false);
-        $this->_checkRemove($store, $server_url, $assoc->handle, true);
-        $this->_checkRemove($store, $server_url, $assoc3->handle, false);
-        $this->_checkRetrieve($store, $server_url, null, null);
-        $this->_checkRetrieve($store, $server_url, $assoc->handle, null);
-        $this->_checkRetrieve($store, $server_url, $assoc2->handle, null);
-        $this->_checkRetrieve($store, $server_url,$assoc3->handle, null);
+        $this->_checkRetrieve($store, $server_url, null, $assoc3, "(6)");
 
-        $this->_checkRemove($store, $server_url, $assoc2->handle, false);
-        $this->_checkRemove($store, $server_url, $assoc->handle, false);
-        $this->_checkRemove($store, $server_url, $assoc3->handle, false);
+        $this->_checkRetrieve($store, $server_url, $assoc->handle,
+                              $assoc, "(7)");
+
+        $this->_checkRetrieve($store, $server_url, $assoc2->handle,
+                              null, "(8)");
+
+        $this->_checkRetrieve($store, $server_url, $assoc3->handle,
+                              $assoc3, "(9)");
+
+        $this->_checkRemove($store, $server_url, $assoc2->handle,
+                            false, "(10)");
+
+        $this->_checkRemove($store, $server_url, $assoc3->handle,
+                            true, "(11)");
+
+        $this->_checkRetrieve($store, $server_url, null, $assoc, "(12)");
+
+        $this->_checkRetrieve($store, $server_url, $assoc->handle,
+                              $assoc, "(13)");
+
+        $this->_checkRetrieve($store, $server_url, $assoc2->handle,
+                              null, "(14)");
+
+        $this->_checkRetrieve($store, $server_url, $assoc3->handle,
+                              null, "(15)");
+
+        $this->_checkRemove($store, $server_url, $assoc2->handle,
+                            false, "(16)");
+
+        $this->_checkRemove($store, $server_url, $assoc->handle,
+                            true, "(17)");
+
+        $this->_checkRemove($store, $server_url, $assoc3->handle,
+                            false, "(18)");
+
+        $this->_checkRetrieve($store, $server_url, null, null, "(19)");
+
+        $this->_checkRetrieve($store, $server_url, $assoc->handle,
+                              null, "(20)");
+
+        $this->_checkRetrieve($store, $server_url, $assoc2->handle,
+                              null, "(21)");
+
+        $this->_checkRetrieve($store, $server_url,$assoc3->handle,
+                              null, "(22)");
+
+        $this->_checkRemove($store, $server_url, $assoc2->handle,
+                            false, "(23)");
+
+        $this->_checkRemove($store, $server_url, $assoc->handle,
+                            false, "(24)");
+
+        $this->_checkRemove($store, $server_url, $assoc3->handle,
+                            false, "(25)");
     }
 
     function _checkUseNonce(&$store, $nonce, $expected)
     {
         $actual = $store->useNonce($nonce);
         $expected = $store->isDumb() || $expected;
-        $this->assertTrue(($actual && $expected) || (!$actual && !$expected));
+        $this->assertTrue(($actual && $expected) || (!$actual && !$expected),
+                          "_checkUseNonce failed");
     }
 
     function _testNonce(&$store)
@@ -206,8 +251,9 @@ explicitly');
 
         // The second time around should return the same as last time.
         $key2 = $store->getAuthKey();
-        $this->assertEquals($key, $key2);
-        $this->assertEquals(strlen($key), $store->AUTH_KEY_LEN);
+        $this->assertEquals($key, $key2, "Auth keys differ");
+        $this->assertEquals(strlen($key), $store->AUTH_KEY_LEN,
+                            "Key length not equals AUTH_KEY_LEN");
     }
 
     function test_filestore()
@@ -226,6 +272,32 @@ explicitly');
         $this->_testStore($store);
         $this->_testNonce($store);
         $store->destroy();
+    }
+
+    function test_postgresqlstore()
+    {
+        require_once('Auth/OpenID/Store/SQLStore.php');
+        require_once('DB.php');
+
+        $dsn = array(
+                     'phptype'  => 'pgsql',
+                     'username' => 'openid_test',
+                     'password' => '',
+                     'hostspec' => 'dbtest.janrain.com',
+                     'database' => 'openid_test',
+                     );
+
+        $db =& DB::connect($dsn);
+
+        if (PEAR::isError($db)) {
+            $this->fail("Database connection failed");
+            return;
+        }
+
+        $store =& new Auth_OpenID_PostgreSQLStore($db);
+        $this->assertTrue($store->createTables(), "Table creation failed");
+        $this->_testStore($store);
+        $this->_testNonce($store);
     }
 }
 
