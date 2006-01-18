@@ -251,9 +251,11 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
     function createTables()
     {
-        if ($this->create_nonce_table() &&
-            $this->create_assoc_table() &&
-            $this->create_settings_table()) {
+        $n = $this->create_nonce_table();
+        $a = $this->create_assoc_table();
+        $s = $this->create_settings_table();
+
+        if ($n && $a && $s) {
             $this->connection->commit();
             return true;
         } else {
@@ -264,20 +266,20 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
     function create_nonce_table()
     {
-        return _resultToBool($this->connection->query(
-                                 $this->sql['nonce_table']));
+        $r = $this->connection->query($this->sql['nonce_table']);
+        return _resultToBool($r);
     }
 
     function create_assoc_table()
     {
-        return _resultToBool($this->connection->query(
-                                 $this->sql['assoc_table']));
+        $r = $this->connection->query($this->sql['assoc_table']);
+        return _resultToBool($r);
     }
 
     function create_settings_table()
     {
-        return _resultToBool($this->connection->query(
-                                 $this->sql['settings_table']));
+        $r = $this->connection->query($this->sql['settings_table']);
+        return _resultToBool($r);
     }
 
     function _get_auth()
@@ -445,7 +447,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         if ($this->_add_nonce($nonce, time())) {
             $this->connection->commit();
         } else {
-            $this->connection->rolback();
+            $this->connection->rollback();
         }
     }
 
@@ -612,7 +614,7 @@ class Auth_OpenID_SQLiteStore extends Auth_OpenID_SQLStore {
             "value BLOB(20))";
 
         $this->sql['create_auth'] =
-            "INSERT INTO %s VALUES ('auth_key', '!')";
+            "INSERT INTO %s VALUES ('auth_key', ?)";
 
         $this->sql['get_auth'] =
             "SELECT value FROM %s WHERE setting = 'auth_key'";
