@@ -175,5 +175,13 @@ class Auth_OpenID_OpenIDStore {
     {
         return false;
     }
+
+    /**
+     * Removes all entries from the store; implementation is optional.
+     */
+    function reset()
+    {
+    }
+
 }
 ?>
