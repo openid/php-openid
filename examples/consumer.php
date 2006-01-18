@@ -5,36 +5,84 @@
  * Auth/OpenID has been installed and is in your PHP include path.
  */
 
-/**
- * This is where the example will store its OpenID information.  You
- * should change this path if you want the example store to be created
- * elsewhere.  After you're done playing with the example script,
- * you'll have to remove this directory manually.
- */
-$store_path = "/tmp/_php_consumer_test";
+set_include_path(get_include_path() . PATH_SEPARATOR . "/home/cygnus/production");
 
 /**
  * Require files to use the OpenID consumer.  We need the consumer
  * itself, an OpenID store implementation, and some utility functions.
  */
-require_once("Auth/OpenID/Store/FileStore.php");
 require_once("Auth/OpenID/Consumer/Consumer.php");
 require_once("Auth/OpenID/OIDUtil.php");
 
 /**
- * Try to create the store directory.
+ * Create the OpenID store and consumer objects, which we'll use to
+ * perform the authentication.  Based on the value of $store_type,
+ * create a different kind of store.  These are here as examples of
+ * how you'd create the types of available OpenID stores.  The
+ * fallback store (if you specify an invalid value for $store_type) is
+ * to use a FileStore.  The settings for each store are contained in
+ * the respective if blocks below.  In addition, the require lines are
+ * included in each block to show which file you'll need to include to
+ * use the store.
  */
-if (!_ensureDir($store_path)) {
-    print "Could not create the FileStore directory '$store_path'.  Please ".
-        "check the effective permissions.";
-    exit(0);
+$store_type = 'pgsql';
+
+if ($store_type = 'pgsql') {
+
+    require_once("Auth/OpenID/Store/SQLStore.php");
+
+    /**
+     * Assume that the database used by the PostgreSQL store has
+     * already been created.
+     */
+    $dsn = array(
+                 'phptype'  => 'pgsql',
+                 'username' => 'openid_test',
+                 'password' => '',
+                 'hostspec' => 'dbtest',
+                 'database' => 'openid_test',
+                 );
+
+    $db =& DB::connect($dsn);
+
+    $store = new Auth_OpenID_PostgreSQLStore($db);
+
+    /**
+     * This needs to be called once for the lifetime of the store, but
+     * calling it each time you use the store won't hurt anything
+     * (although it'll incur a slight performance pentalty because the
+     * tables will already exist).
+     */
+    $store->createTables();
+
+} else {
+
+    require_once("Auth/OpenID/Store/FileStore.php");
+
+    /**
+     * This is where the example will store its OpenID information.
+     * You should change this path if you want the example store to be
+     * created elsewhere.  After you're done playing with the example
+     * script, you'll have to remove this directory manually.
+     */
+    $store_path = "/tmp/_php_consumer_test";
+
+
+    /**
+     * Try to create the store directory.
+     */
+    if (!_ensureDir($store_path)) {
+        print "Could not create the FileStore directory '$store_path'.  Please ".
+            "check the effective permissions.";
+        exit(0);
+    }
+
+    $store = new Auth_OpenID_FileStore($store_path);
 }
 
 /**
- * Create the OpenID store and consumer objects, which we'll use to
- * perform the authentication.
+ * Create a consumer object using the store object created earlier.
  */
-$store = new Auth_OpenID_FileStore($store_path);
 $consumer = new Auth_OpenID_Consumer($store);
 
 /**
