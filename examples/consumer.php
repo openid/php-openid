@@ -25,7 +25,7 @@ require_once("Auth/OpenID/OIDUtil.php");
  * included in each block to show which file you'll need to include to
  * use the store.
  */
-$store_type = 'pgsql';
+$store_type = 'file';
 
 if ($store_type = 'sqlite') {
 
