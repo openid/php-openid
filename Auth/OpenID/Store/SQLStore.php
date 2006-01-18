@@ -93,15 +93,15 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         $this->connection->setFetchMode(DB_FETCHMODE_ASSOC);
 
         if ($settings_table) {
-            $this->settings_table = $settings_table;
+            $this->settings_table_name = $settings_table;
         }
 
         if ($associations_table) {
-            $this->associations_table = $associations_table;
+            $this->associations_table_name = $associations_table;
         }
 
         if ($nonces_table) {
-            $this->nonces_table = $nonces_table;
+            $this->nonces_table_name = $nonces_table;
         }
 
         $this->max_nonce_age = 6 * 60 * 60;
