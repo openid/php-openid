@@ -33,8 +33,14 @@ function _octify($str)
 {
     $result = "";
     for ($i = 0; $i < strlen($str); $i++) {
-        $s = strval(decoct(ord(substr($str, $i, 1))));
-        $result .= "\\" . str_repeat("0", 3 - strlen($s)) . $s;
+        $ch = substr($str, $i, 1);
+        if ($ch == "\\") {
+            $result .= "\\\\\\\\";
+        } else if (ord($ch) == 0) {
+            $result .= "\\\\000";
+        } else {
+            $result .= "\\" . strval(decoct(ord($ch)));
+        }
     }
     return $result;
 }
@@ -290,8 +296,8 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         $this->connection->commit();
 
         if (strlen($auth_key) != $this->AUTH_KEY_LEN) {
-            $fmt = "Expected %d-byte string for auth key. Got '%s'";
-            trigger_error(sprintf($fmt, $this->AUTH_KEY_LEN, $auth_key),
+            $fmt = "Expected %d-byte string for auth key. Got key of length %d";
+            trigger_error(sprintf($fmt, $this->AUTH_KEY_LEN, strlen($auth_key)),
                           E_USER_WARNING);
             return null;
         }
@@ -348,9 +354,8 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
     function removeAssociation($server_url, $handle)
     {
-        $present = false;
-        if ($this->getAssociation($server_url, $handle)) {
-            $present = true;
+        if (!$this->getAssociation($server_url, $handle)) {
+            return false;
         }
 
         if (_resultToBool($this->connection->query(
@@ -361,7 +366,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
             $this->connection->rollback();
         }
 
-        return $present;
+        return true;
     }
 
     function getAssociation($server_url, $handle = null)
@@ -398,10 +403,19 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
             }
 
             if ($associations) {
-                ksort($associations);
-                $issued_values = array_keys($associations);
-                $last_issued = $issued_values[count($issued_values) - 1];
-                return $associations[$last_issued][1];
+                $issued = array();
+                $assocs = array();
+                foreach ($associations as $key => $assoc) {
+                    $issued[$key] = $assoc[0];
+                    $assocs[$key] = $assoc[1];
+                }
+
+                array_multisort($issued, SORT_DESC, $assocs, SORT_DESC,
+                                $associations);
+
+                // return the most recently issued one.
+                list($issued, $assoc) = $associations[0];
+                return $assoc;
             } else {
                 return null;
             }
