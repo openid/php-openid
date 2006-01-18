@@ -25,7 +25,7 @@ require_once("Auth/OpenID/OIDUtil.php");
  */
 $store_type = 'file';
 
-if ($store_type = 'sqlite') {
+if ($store_type == 'sqlite') {
 
     require_once("Auth/OpenID/Store/SQLStore.php");
 
@@ -62,7 +62,7 @@ if ($store_type = 'sqlite') {
      */
     $store->createTables();
 
-} else if ($store_type = 'pgsql') {
+} else if ($store_type == 'pgsql') {
 
     require_once("Auth/OpenID/Store/SQLStore.php");
 
@@ -79,6 +79,12 @@ if ($store_type = 'sqlite') {
                  );
 
     $db =& DB::connect($dsn);
+
+    if (PEAR::isError($db)) {
+        print "Database connection error: " .
+            $db->getMessage();
+        exit(0);
+    }
 
     $store = new Auth_OpenID_PostgreSQLStore($db);
 
