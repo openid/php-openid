@@ -70,7 +70,6 @@ $_test_names = array(
     'DiffieHellman',
     'HMACSHA1',
     'Association',
-    'StoreTest',
     'Parse',
     'Consumer'
     );
