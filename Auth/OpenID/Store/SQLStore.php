@@ -153,6 +153,18 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
     {
     }
 
+    function reset()
+    {
+        $this->connection->query(sprintf("DELETE FROM %s",
+                                         $this->associations_table_name));
+
+        $this->connection->query(sprintf("DELETE FROM %s",
+                                         $this->nonces_table_name));
+
+        $this->connection->query(sprintf("DELETE FROM %s",
+                                         $this->settings_table_name));
+    }
+
     function _verifySQL()
     {
         $missing = array();
