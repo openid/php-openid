@@ -45,7 +45,7 @@ class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
                                           $lifetime, 'HMAC-SHA1');
     }
 
-    function _checkRetrieve(&$store, $url, $handle, $expected, $name=null)
+    function _checkRetrieve(&$store, $url, $handle, $expected, $name = null)
     {
         $retrieved_assoc = $store->getAssociation($url, $handle);
         if (($expected === null) || ($store->isDumb())) {
@@ -56,8 +56,8 @@ class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
                 $this->fail("$name: Got null when expecting " .
                             $expected->serialize());
             } else {
-                $this->assertEquals($retrieved_assoc->serialize(),
-                                    $expected->serialize(), $name);
+                $this->assertEquals($expected->serialize(),
+                                    $retrieved_assoc->serialize(), $name);
             }
         }
     }
@@ -138,10 +138,10 @@ returned.');
             'Plus we can retrieve the association with the later expiration
 explicitly');
 
-        // More recent, but expires earlier than assoc2 or assoc
         $assoc3 = $this->genAssoc($now, $issued = 2, $lifetime = 100);
         $store->storeAssociation($server_url, $assoc3);
 
+        // More recent issued time, so assoc3 is expected.
         $this->_checkRetrieve($store, $server_url, null, $assoc3, "(1)");
 
         $this->_checkRetrieve($store, $server_url, $assoc->handle,
@@ -290,11 +290,17 @@ explicitly');
         $db =& DB::connect($dsn);
 
         if (PEAR::isError($db)) {
-            $this->fail("Database connection failed");
+            $this->fail("PostgreSQL database connection failed");
             return;
         }
 
         $store =& new Auth_OpenID_PostgreSQLStore($db);
+        $store->createTables();
+        // Once unique database names are used, this won't be
+        // necessary.
+        $store->reset();
+        $this->_testStore($store);
+        $this->_testNonce($store);
     }
 
     function test_sqlitestore()
