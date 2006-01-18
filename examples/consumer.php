@@ -27,7 +27,44 @@ require_once("Auth/OpenID/OIDUtil.php");
  */
 $store_type = 'pgsql';
 
-if ($store_type = 'pgsql') {
+if ($store_type = 'sqlite') {
+
+    require_once("Auth/OpenID/Store/SQLStore.php");
+
+    /**
+     * This is where the example will store its OpenID information.
+     * You should change this path if you want the example store to be
+     * created elsewhere.  After you're done playing with the example
+     * script, you'll have to remove this directory manually.
+     */
+    $store_path = "/tmp/_php_consumer_test";
+
+
+    /**
+     * Try to create the store directory.  ensureDir is provided by
+     * OIDUtil.php.
+     */
+    if (!ensureDir($store_path)) {
+        print "Could not create the SQLiteStore directory '$store_path'. ".
+            " Please check the effective permissions.";
+        exit(0);
+    }
+
+    $dsn = sprintf("sqlite:///%s/file.db", $store_path);
+
+    $db =& DB::connect($dsn);
+
+    $store = new Auth_OpenID_SQLiteStore($db);
+
+    /**
+     * This needs to be called once for the lifetime of the store, but
+     * calling it each time you use the store won't hurt anything
+     * (although it'll incur a slight performance pentalty because the
+     * tables will already exist).
+     */
+    $store->createTables();
+
+} else if ($store_type = 'pgsql') {
 
     require_once("Auth/OpenID/Store/SQLStore.php");
 
