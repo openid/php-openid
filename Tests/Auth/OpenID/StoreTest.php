@@ -330,6 +330,38 @@ explicitly');
         $this->_testStore($store);
         $this->_testNonce($store);
     }
+
+    function test_mysqlstore()
+    {
+        require_once('Auth/OpenID/Store/SQLStore.php');
+        require_once('DB.php');
+
+        $dsn = array(
+                     'phptype'  => 'mysql',
+                     'username' => 'openid_test',
+                     'password' => '',
+                     'hostspec' => 'dbtest.janrain.com'
+                     );
+
+        $db =& DB::connect($dsn);
+
+        if (PEAR::isError($db)) {
+            $this->fail("MySQL database connection failed: " .
+                        $db->getMessage());
+            return;
+        }
+
+        $db->query("CREATE DATABASE openid_test");
+        $db->query("USE openid_test");
+
+        $store =& new Auth_OpenID_MySQLStore($db);
+        $store->createTables();
+        // Once unique database names are used, this won't be
+        // necessary.
+        $store->reset();
+        $this->_testStore($store);
+        $this->_testNonce($store);
+    }
 }
 
 ?>
