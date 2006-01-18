@@ -69,11 +69,12 @@ if ($store_type = 'pgsql') {
 
 
     /**
-     * Try to create the store directory.
+     * Try to create the store directory.  ensureDir is provided by
+     * OIDUtil.php.
      */
-    if (!_ensureDir($store_path)) {
-        print "Could not create the FileStore directory '$store_path'.  Please ".
-            "check the effective permissions.";
+    if (!ensureDir($store_path)) {
+        print "Could not create the FileStore directory '$store_path'. ".
+            " Please check the effective permissions.";
         exit(0);
     }
 

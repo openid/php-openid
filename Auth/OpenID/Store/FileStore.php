@@ -135,20 +135,6 @@ function _removeIfPresent($filename)
 }
 
 /**
- * Create dir_name as a directory if it does not exist. If it exists,
- * make sure that it is, in fact, a directory.  Returns true if the
- * operation succeeded; false if not.
- */
-function _ensureDir($dir_name)
-{
-    if (@mkdir($dir_name) || is_dir($dir_name)) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-/**
  * This is a filesystem-based store for OpenID associations and
  * nonces.  This store should be safe for use in concurrent systems on
  * both windows and unix (excluding NFS filesystems).  There are a
@@ -212,10 +198,10 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
      */
     function _setup()
     {
-        _ensureDir(dirname($this->auth_key_name));
-        _ensureDir($this->nonce_dir);
-        _ensureDir($this->association_dir);
-        _ensureDir($this->temp_dir);
+        ensureDir(dirname($this->auth_key_name));
+        ensureDir($this->nonce_dir);
+        ensureDir($this->association_dir);
+        ensureDir($this->temp_dir);
     }
 
     /**
