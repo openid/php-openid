@@ -17,6 +17,16 @@ require_once('Auth/OpenID/Association.php');
 require_once('Auth/OpenID/CryptUtil.php');
 require_once('Auth/OpenID/OIDUtil.php');
 
+$_Auth_OpenID_db_test_host = 'dbtest';
+
+function _Auth_OpenID_getTmpDbName()
+{
+    return sprintf("%s_%d_%s_openid_test",
+                   php_uname('n'),
+                   getmypid(),
+                   strval(rand(1, time())));
+}
+
 class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
 
     function setUp()
@@ -279,28 +289,74 @@ explicitly');
         require_once('Auth/OpenID/Store/SQLStore.php');
         require_once('DB.php');
 
+        global $_Auth_OpenID_db_test_host;
+
+        $temp_db_name = _Auth_OpenID_getTmpDbName();
+
         $dsn = array(
                      'phptype'  => 'pgsql',
                      'username' => 'openid_test',
                      'password' => '',
-                     'hostspec' => 'dbtest.janrain.com',
-                     'database' => 'openid_test',
+                     'hostspec' => $_Auth_OpenID_db_test_host,
+                     'database' => 'template1'
                      );
 
+        $template_db =& DB::connect($dsn);
+
+        if (PEAR::isError($template_db)) {
+            $this->fail("PostgreSQL template1 database connection failed: " .
+                        $template_db->getMessage());
+            return;
+        }
+
+        // Try to create the test database.
+        $result = $template_db->query(sprintf("CREATE DATABASE %s",
+                                              $temp_db_name));
+
+        if (PEAR::isError($result)) {
+            $this->fail("Temporary database creation failed ".
+                        "('$temp_db_name'): " . $result->getMessage());
+            return;
+        }
+
+        // Disconnect from template1 and reconnect to the temporary
+        // testing database.
+        $dsn['database'] = $temp_db_name;
         $db =& DB::connect($dsn);
 
         if (PEAR::isError($db)) {
-            $this->fail("PostgreSQL database connection failed");
+            $this->fail("Temporary database connection failed " .
+                        " ('$temp_db_name'): " . $db->getMessage());
             return;
         }
 
         $store =& new Auth_OpenID_PostgreSQLStore($db);
         $store->createTables();
-        // Once unique database names are used, this won't be
-        // necessary.
-        $store->reset();
         $this->_testStore($store);
         $this->_testNonce($store);
+
+        $db->disconnect();
+
+        // Connect to template1 again so we can drop the temporary
+        // database.
+        $dsn['database'] = 'template1';
+        $template_db =& DB::connect($dsn);
+
+        if (PEAR::isError($template_db)) {
+            $this->fail("Template database connection (to drop " .
+                        "temporary database) failed: " .
+                        $template_db->getMessage());
+            return;
+        }
+
+        $result = $template_db->query(sprintf("DROP DATABASE %s",
+                                              $temp_db_name));
+
+        if (PEAR::isError($result)) {
+            $this->fail("Dropping temporary database failed: " .
+                        $result->getMessage());
+            return;
+        }
     }
 
     function test_sqlitestore()
@@ -336,11 +392,13 @@ explicitly');
         require_once('Auth/OpenID/Store/SQLStore.php');
         require_once('DB.php');
 
+        global $_Auth_OpenID_db_test_host;
+
         $dsn = array(
                      'phptype'  => 'mysql',
                      'username' => 'openid_test',
                      'password' => '',
-                     'hostspec' => 'dbtest.janrain.com'
+                     'hostspec' => $_Auth_OpenID_db_test_host
                      );
 
         $db =& DB::connect($dsn);
@@ -351,16 +409,24 @@ explicitly');
             return;
         }
 
-        $db->query("CREATE DATABASE openid_test");
-        $db->query("USE openid_test");
+        $temp_db_name = _Auth_OpenID_getTmpDbName();
+
+        $result = $db->query("CREATE DATABASE $temp_db_name");
+
+        if (PEAR::isError($result)) {
+            $this->fail("Error creating MySQL temporary database: " .
+                        $result->getMessage());
+            return;
+        }
+
+        $db->query("USE $temp_db_name");
 
         $store =& new Auth_OpenID_MySQLStore($db);
         $store->createTables();
-        // Once unique database names are used, this won't be
-        // necessary.
-        $store->reset();
         $this->_testStore($store);
         $this->_testNonce($store);
+
+        $db->query("DROP DATABASE $temp_db_name");
     }
 }
 

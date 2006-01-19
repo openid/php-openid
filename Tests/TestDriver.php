@@ -71,7 +71,8 @@ $_test_names = array(
     'HMACSHA1',
     'Association',
     'Parse',
-    'Consumer'
+    'Consumer',
+    'StoreTest'
     );
 
 function selectTests($names)
