@@ -25,7 +25,7 @@ function _Auth_OpenID_getTmpDbName()
     $hostname = str_replace('.', '_', $hostname);
 
     return sprintf("%s_%d_%s_openid_test",
-                   php_uname('n'),
+                   $hostname,
                    getmypid(),
                    strval(rand(1, time())));
 }
