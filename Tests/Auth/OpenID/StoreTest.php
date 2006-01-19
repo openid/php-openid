@@ -286,6 +286,14 @@ explicitly');
 
     function test_postgresqlstore()
     {
+        // If the postgres extension isn't loaded or loadable, succeed
+        // because we can't run the test.
+        if (!(extension_loaded('pgsql') ||
+              @dl('pgsql.' . PHP_SHLIB_SUFFIX))) {
+            $this->pass();
+            return;
+        }
+
         require_once('Auth/OpenID/Store/SQLStore.php');
         require_once('DB.php');
 
@@ -361,6 +369,14 @@ explicitly');
 
     function test_sqlitestore()
     {
+        // If the postgres extension isn't loaded or loadable, succeed
+        // because we can't run the test.
+        if (!(extension_loaded('sqlite') ||
+              @dl('sqlite.' . PHP_SHLIB_SUFFIX))) {
+            $this->pass();
+            return;
+        }
+
         require_once('Auth/OpenID/Store/SQLStore.php');
         require_once('DB.php');
 
@@ -389,6 +405,14 @@ explicitly');
 
     function test_mysqlstore()
     {
+        // If the postgres extension isn't loaded or loadable, succeed
+        // because we can't run the test.
+        if (!(extension_loaded('mysql') ||
+              @dl('mysql.' . PHP_SHLIB_SUFFIX))) {
+            $this->pass();
+            return;
+        }
+
         require_once('Auth/OpenID/Store/SQLStore.php');
         require_once('DB.php');
 
