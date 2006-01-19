@@ -652,9 +652,9 @@ class Auth_OpenID_MySQLStore extends Auth_OpenID_SQLStore {
             "expires INTEGER) TYPE=InnoDB";
 
         $this->sql['assoc_table'] =
-            "CREATE TABLE %s (server_url VARCHAR(255), handle VARCHAR(255), ".
+            "CREATE TABLE %s (server_url BLOB, handle VARCHAR(255), ".
             "secret BLOB, issued INTEGER, lifetime INTEGER, ".
-            "assoc_type VARCHAR(64), PRIMARY KEY (server_url, handle)) ".
+            "assoc_type VARCHAR(64), PRIMARY KEY (server_url(255), handle)) ".
             "TYPE=InnoDB";
 
         $this->sql['settings_table'] =
