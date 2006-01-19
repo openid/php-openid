@@ -21,6 +21,9 @@ $_Auth_OpenID_db_test_host = 'dbtest';
 
 function _Auth_OpenID_getTmpDbName()
 {
+    $hostname = php_uname('n');
+    $hostname = str_replace('.', '_', $hostname);
+
     return sprintf("%s_%d_%s_openid_test",
                    php_uname('n'),
                    getmypid(),
