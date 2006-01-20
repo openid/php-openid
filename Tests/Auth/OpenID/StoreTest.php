@@ -13,12 +13,24 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
+/**
+ * Require classes and functions to run the Store tests.
+ */
 require_once('Auth/OpenID/Association.php');
 require_once('Auth/OpenID/CryptUtil.php');
 require_once('Auth/OpenID/OIDUtil.php');
 
+/**
+ * This is the host where the SQL stores' databases should be created
+ * and destroyed.
+ */
 $_Auth_OpenID_db_test_host = 'dbtest';
 
+/**
+ * Generate a sufficently unique database name so many hosts can run
+ * SQL store tests on the server at the same time and not step on each
+ * other.
+ */
 function _Auth_OpenID_getTmpDbName()
 {
     $hostname = php_uname('n');
@@ -30,8 +42,16 @@ function _Auth_OpenID_getTmpDbName()
                    strval(rand(1, time())));
 }
 
+/**
+ * Tests the OpenID stores.
+ *
+ * @package OpenID
+ */
 class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
 
+    /**
+     * Prepares for the SQL store tests.
+     */
     function setUp()
     {
         global $_Auth_OpenID_letters, $_Auth_OpenID_digits,
@@ -44,11 +64,17 @@ class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
         $this->allowed_handle = $this->letters . $this->digits . $this->punct;
     }
 
+    /**
+     * Generates a nonce value.
+     */
     function generateNonce()
     {
         return Auth_OpenID_CryptUtil::randomString(8, $this->allowed_nonce);
     }
 
+    /**
+     * Generates an association with the specified parameters.
+     */
     function genAssoc($now, $issued = 0, $lifetime = 600)
     {
         $sec = call_user_func(array('Auth_OpenID_CryptUtil', 'randomString'),
@@ -58,6 +84,9 @@ class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
                                           $lifetime, 'HMAC-SHA1');
     }
 
+    /**
+     * @access private
+     */
     function _checkRetrieve(&$store, $url, $handle, $expected, $name = null)
     {
         $retrieved_assoc = $store->getAssociation($url, $handle);
