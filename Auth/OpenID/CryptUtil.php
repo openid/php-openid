@@ -510,6 +510,8 @@ class Auth_OpenID_MathWrapper {
      * Returns ($base to the $exponent power) mod $modulus.  In some
      * long number implementations, this may be optimized.  This
      * implementation works efficiently if we only have pow and mod.
+     *
+     * @access private
      */
     function _powmod($base, $exponent, $modulus)
     {
