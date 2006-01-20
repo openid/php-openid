@@ -20,6 +20,10 @@
 require_once('DB.php');
 require_once('Interface.php');
 
+/**
+ * Converts a query result to a boolean.  If the result is a PEAR
+ * error object, this returns false; otherwise, this returns true.
+ */
 function _resultToBool($obj)
 {
     if (PEAR::isError($obj)) {
@@ -29,6 +33,11 @@ function _resultToBool($obj)
     }
 }
 
+/**
+ * "Octifies" a binary string by returning a string with escaped octal
+ * bytes.  This is used for preparing binary data for PostgreSQL BYTEA
+ * fields.
+ */
 function _octify($str)
 {
     $result = "";
@@ -45,6 +54,10 @@ function _octify($str)
     return $result;
 }
 
+/**
+ * "Unoctifies" octal-escaped data from PostgreSQL and returns the
+ * resulting ASCII (possibly binary) string.
+ */
 function _unoctify($str)
 {
     $result = "";
@@ -73,8 +86,50 @@ function _unoctify($str)
     return $result;
 }
 
+/**
+ * This is the parent class for the SQL stores, which contains the
+ * logic common to all of the SQL stores.
+ *
+ * The table names used are determined by the class variables
+ * settings_table_name, associations_table_name, and
+ * nonces_table_name.  To change the name of the tables used, pass new
+ * table names into the constructor.
+ *
+ * To create the tables with the proper schema, see the createTables
+ * method.
+ *
+ * This class shouldn't be used directly.  Use one of its subclasses
+ * instead, as those contain the code necessary to use a specific
+ * database.
+ *
+ * All methods other than the constructor and createTables should be
+ * considered implementation details.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
+    /**
+     * This creates a new SQLStore instance.  It requires an
+     * established database connection be given to it, and it allows
+     * overriding the default table names.
+     *
+     * @param connection $conn This must be an established connection
+     * to a database of the correct type for the SQLStore subclass
+     * you're using.
+     *
+     * @param string $settings_table This is an optional parameter to
+     * specify the name of the table used for this store's settings.
+     * The default value is 'oid_settings'.
+     *
+     * @param associations_table: This is an optional parameter to
+     * specify the name of the table used for storing associations.
+     * The default value is 'oid_associations'.
+     *
+     * @param nonces_table: This is an optional parameter to specify
+     * the name of the table used for storing nonces.  The default
+     * value is 'oid_nonces'.
+     */
     function Auth_OpenID_SQLStore($connection, $settings_table = null,
                                   $associations_table = null,
                                   $nonces_table = null)
@@ -149,10 +204,19 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         $this->_fixSQL();
     }
 
+    /**
+     * This method should be overridden by subclasses.  This method is
+     * called by the constructor to set values in $this->sql, which is
+     * an array keyed on sql name.
+     */
     function setSQL()
     {
     }
 
+    /**
+     * Resets the store by removing all records from the store's
+     * tables.
+     */
     function reset()
     {
         $this->connection->query(sprintf("DELETE FROM %s",
@@ -165,6 +229,9 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
                                          $this->settings_table_name));
     }
 
+    /**
+     * @access private
+     */
     function _verifySQL()
     {
         $missing = array();
@@ -196,6 +263,9 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         return array($missing, $empty);
     }
 
+    /**
+     * @access private
+     */
     function _fixSQL()
     {
         $replacements = array(
@@ -282,11 +352,17 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         return _resultToBool($r);
     }
 
+    /**
+     * @access private
+     */
     function _get_auth()
     {
         return $this->connection->getOne($this->sql['get_auth']);
     }
 
+    /**
+     * @access private
+     */
     function _create_auth($str)
     {
         return $this->connection->query($this->sql['create_auth'],
@@ -319,6 +395,9 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         return $auth_key;
     }
 
+    /**
+     * @access private
+     */
     function _set_assoc($server_url, $handle, $secret, $issued,
                         $lifetime, $assoc_type)
     {
@@ -349,6 +428,9 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         }
     }
 
+    /**
+     * @access private
+     */
     function _get_assoc($server_url, $handle)
     {
         $result = $this->connection->getRow($this->sql['get_assoc'],
@@ -360,6 +442,9 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         }
     }
 
+    /**
+     * @access private
+     */
     function _get_assocs($server_url)
     {
         return $this->connection->getAll($this->sql['get_assocs'],
@@ -436,12 +521,18 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         }
     }
 
+    /**
+     * @access private
+     */
     function _add_nonce($nonce, $expires)
     {
         return _resultToBool($this->connection->query($this->sql['add_nonce'],
                                                      array($nonce, $expires)));
     }
 
+    /**
+     * @access private
+     */
     function storeNonce($nonce)
     {
         if ($this->_add_nonce($nonce, time())) {
@@ -451,6 +542,9 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         }
     }
 
+    /**
+     * @access private
+     */
     function _get_nonce($nonce)
     {
         $result = $this->connection->getRow($this->sql['get_nonce'],
@@ -463,6 +557,9 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         }
     }
 
+    /**
+     * @access private
+     */
     function _remove_nonce($nonce)
     {
         $this->connection->query($this->sql['remove_nonce'],
@@ -495,6 +592,11 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
     }
 }
 
+/**
+ * An SQL store that uses PostgreSQL as its backend.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
     function setSQL()
     {
@@ -555,6 +657,9 @@ class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
             "DELETE FROM %s WHERE nonce = ?";
     }
 
+    /**
+     * @access private
+     */
     function _set_assoc($server_url, $handle, $secret, $issued, $lifetime,
                         $assoc_type)
     {
@@ -573,6 +678,9 @@ class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
         }
     }
 
+    /**
+     * @access private
+     */
     function _add_nonce($nonce, $expires)
     {
         if ($this->_get_nonce($nonce)) {
@@ -597,6 +705,11 @@ class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
     }
 }
 
+/**
+ * An SQL store that uses SQLite as its backend.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_SQLiteStore extends Auth_OpenID_SQLStore {
     function setSQL()
     {
@@ -644,6 +757,11 @@ class Auth_OpenID_SQLiteStore extends Auth_OpenID_SQLStore {
     }
 }
 
+/**
+ * An SQL store that uses MySQL as its backend.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_MySQLStore extends Auth_OpenID_SQLStore {
     function setSQL()
     {
