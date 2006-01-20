@@ -251,10 +251,29 @@ $_Auth_OpenID_NONCE_LEN = 8;
  * @package OpenID
  */
 class Auth_OpenID_Consumer {
+    /**
+     * This consumer's store object.
+     */
     var $store;
+
+    /**
+     * @access private
+     */
     var $_use_assocs;
+
+    /**
+     * This consumer's HTTP fetcher object.
+     */
     var $fetcher;
+
+    /**
+     * The consumer's mode.
+     */
     var $mode;
+
+    /**
+     * A boolean indicating whether the consumer is in immediate mode.
+     */
     var $immediate;
 
     /**
