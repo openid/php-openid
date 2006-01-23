@@ -54,7 +54,7 @@ class Auth_OpenID_DiffieHellman {
     }
 
     function Auth_OpenID_DiffieHellman($mod = null, $gen = null,
-                                      $private = null)
+                                       $private = null)
     {
         global $_Auth_OpenID_DEFAULT_MOD,
             $_Auth_OpenID_DEFAULT_GEN;
