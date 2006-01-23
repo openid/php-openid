@@ -69,7 +69,7 @@ class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
      */
     function generateNonce()
     {
-        return Auth_OpenID_CryptUtil::randomString(8, $this->allowed_nonce);
+        return Auth_OpenID_randomString(8, $this->allowed_nonce);
     }
 
     /**
@@ -77,9 +77,8 @@ class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
      */
     function genAssoc($now, $issued = 0, $lifetime = 600)
     {
-        $sec = call_user_func(array('Auth_OpenID_CryptUtil', 'randomString'),
-                              20);
-        $hdl = Auth_OpenID_CryptUtil::randomString(128, $this->allowed_handle);
+        $sec = Auth_OpenID_randomString(20);
+        $hdl = Auth_OpenID_randomString(128, $this->allowed_handle);
         return new Auth_OpenID_Association($hdl, $sec, $now + $issued,
                                           $lifetime, 'HMAC-SHA1');
     }

@@ -74,25 +74,42 @@ function Auth_OpenID_longToBinary($long)
 }
 
 /**
- * Given a long integer, returns the number converted to a binary
- * string.  This function accepts "long" numbers within the PHP
- * integer range (usually 32 bits).
+ * Produce a string of length random bytes, chosen from chrs.  If
+ * $chrs is null, the resulting string may contain any characters.
  *
- * @param integer $long The long number (can be a normal PHP
- * integer or a number created by one of the available long number
- * libraries)
- * @return string $binary The binary version of $long
+ * @param integer $length The length of the resulting
+ * randomly-generated string
+ * @param string $chrs A string of characters from which to choose
+ * to build the new string
+ * @return string $result A string of randomly-chosen characters
+ * from $chrs
  */
-function Auth_OpenID_longToBinary_platform($long)
+function Auth_OpenID_randomString($length, $population = null)
 {
-
-    if ($long < 0) {
-        $msg = __FUNCTION__ . " takes only positive integers.";
-        trigger_error($msg, E_USER_ERROR);
-        return null;
+    if ($population === null) {
+        return Auth_OpenID_CryptUtil::getBytes($length);
     }
 
-    return pack('N', $long);
+    $popsize = strlen($population);
+
+    if ($popsize > 256) {
+        $msg = 'More than 256 characters supplied to ' . __FUNCTION__;
+        trigger_error($msg, E_USER_ERROR);
+    }
+
+    $duplicate = 256 % $popsize;
+
+    $str = "";
+    for ($i = 0; $i < $length; $i++) {
+        do {
+            $n = ord(Auth_OpenID_CryptUtil::getBytes(1));
+        } while ($n < $duplicate);
+
+        $n %= $popsize;
+        $str .= $population[$n];
+    }
+
+    return $str;
 }
 
 /**
@@ -197,25 +214,6 @@ class Auth_OpenID_CryptUtil {
     }
 
     /**
-     * Given a binary string, returns the binary string converted to a
-     * long number.
-     *
-     * @param string $binary The binary version of a long number,
-     * probably as a result of calling longToBinary
-     * @return integer $long The long number equivalent of the binary
-     * string $str
-     */
-    function binaryToLong_platform($str)
-    {
-        if ($str === null) {
-            return null;
-        }
-
-        $data = unpack('Nx', $str);
-        return $data['x'];
-    }
-
-    /**
      * Given two strings of equal length, computes the exclusive-OR of
      * the two strings' ordinal values and returns the resulting
      * string.
@@ -306,96 +304,6 @@ class Auth_OpenID_CryptUtil {
         return $lib->add($start, $lib->mul($lib->mod($n, $r), $step));
     }
 
-    /**
-     * Returns a random number in the specified range.  This function
-     * accepts $start, $stop, and $step values within the platform
-     * integer range.
-     *
-     * @param integer $start The start of the range, or the minimum
-     * random number to return
-     * @param integer $stop The end of the range, or the maximum
-     * random number to return
-     * @param integer $step The step size, such that $result - ($step
-     * * N) = $start for some N
-     * @return integer $result The resulting randomly-generated number
-     */
-    function randrange_platform($start, $stop = null, $step = 1)
-    {
-
-        static $Auth_OpenID_CryptUtil_duplicate_cache = array();
-
-        if ($stop == null) {
-            $stop = $start;
-            $start = 0;
-        }
-
-        $r = ($stop - $start) / $step;
-
-        // DO NOT MODIFY THIS VALUE.
-        $rbytes = Auth_OpenID_longToBinary_platform($r);
-
-        if (array_key_exists($rbytes, $Auth_OpenID_CryptUtil_duplicate_cache)) {
-            list($duplicate, $nbytes) =
-                $Auth_OpenID_CryptUtil_duplicate_cache[$rbytes];
-        } else {
-            if ($rbytes[0] == "\x00") {
-                $nbytes = strlen($rbytes) - 1;
-            } else {
-                $nbytes = strlen($rbytes);
-            }
-
-            $mxrand = pow(256, $nbytes);
-
-            // If we get a number less than this, then it is in the
-            // duplicated range.
-            $duplicate = $mxrand % $r;
-
-            if (count($Auth_OpenID_CryptUtil_duplicate_cache) > 10) {
-                $Auth_OpenID_CryptUtil_duplicate_cache = array();
-            }
-
-            $Auth_OpenID_CryptUtil_duplicate_cache[$rbytes] =
-                array($duplicate, $nbytes);
-        }
-
-        while (1) {
-            $bytes = "\x00" . Auth_OpenID_CryptUtil::getBytes($nbytes);
-            $n = Auth_OpenID_CryptUtil::binaryToLong_platform($bytes);
-            // Keep looping if this value is in the low duplicated
-            // range
-            if ($n >= $duplicate) {
-                break;
-            }
-        }
-
-        return $start + ($n % $r) * $step;
-    }
-
-    /**
-     * Produce a string of length random bytes, chosen from chrs.  If
-     * $chrs is null, the resulting string may contain any characters.
-     *
-     * @param integer $length The length of the resulting
-     * randomly-generated string
-     * @param string $chrs A string of characters from which to choose
-     * to build the new string
-     * @return string $result A string of randomly-chosen characters
-     * from $chrs
-     */
-    function randomString($length, $chrs = null)
-    {
-        if ($chrs === null) {
-            return Auth_OpenID_CryptUtil::getBytes($length);
-        } else {
-            $n = strlen($chrs);
-            $str = "";
-            for ($i = 0; $i < $length; $i++) {
-                $offset = Auth_OpenID_CryptUtil::randrange_platform($n);
-                $str .= $chrs[$offset];
-            }
-            return $str;
-        }
-    }
 }
 
 /**

@@ -547,8 +547,8 @@ class Auth_OpenID_Consumer {
         global $Auth_OpenID_SUCCESS, $_Auth_OpenID_NONCE_CHRS,
             $_Auth_OpenID_NONCE_LEN;
 
-        $nonce = Auth_OpenID_CryptUtil::randomString($_Auth_OpenID_NONCE_LEN,
-                                                     $_Auth_OpenID_NONCE_CHRS);
+        $nonce = Auth_OpenID_randomString($_Auth_OpenID_NONCE_LEN,
+                                          $_Auth_OpenID_NONCE_CHRS);
 
         $token = $this->_genToken($nonce, $consumer_id,
                                   $server_id, $server_url);

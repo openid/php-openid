@@ -373,8 +373,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
     {
         $value = $this->_get_auth();
         if (!$value) {
-            $auth_key = Auth_OpenID_CryptUtil::randomString(
-                            $this->AUTH_KEY_LEN);
+            $auth_key = Auth_OpenID_randomString($this->AUTH_KEY_LEN);
 
             $auth_key_s = $this->blobEncode($auth_key);
             $this->_create_auth($auth_key_s);
