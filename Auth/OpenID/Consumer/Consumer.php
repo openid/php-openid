@@ -187,7 +187,6 @@ require_once("Auth/OpenID/Association.php");
 require_once("Auth/OpenID/Consumer/Fetchers.php");
 require_once("Auth/OpenID/Consumer/Parse.php");
 require_once("Auth/OpenID/CryptUtil.php");
-require_once("Auth/OpenID/BigMath.php");
 require_once("Auth/OpenID/DiffieHellman.php");
 require_once("Auth/OpenID/KVForm.php");
 require_once("Auth/OpenID/OIDUtil.php");
@@ -735,8 +734,16 @@ class Auth_OpenID_Consumer {
         if (($assoc === null) ||
             ($replace && ($assoc->getExpiresIn() <
                           $_Auth_OpenID_TOKEN_LIFETIME))) {
+
+            $args = array(
+                          'openid.mode' =>  'associate',
+                          'openid.assoc_type' => 'HMAC-SHA1',
+                          );
+            
             $dh = $this->_createDiffieHellman();
-            $body = $this->_createAssociateRequest($dh);
+            $args = array_merge($args, $dh->getAssocArgs());
+            $body = Auth_OpenID_http_build_query($args);
+
             $assoc = $this->_fetchAssociation($dh, $server_url, $body);
         }
 
@@ -853,35 +860,8 @@ class Auth_OpenID_Consumer {
     /**
      * @access private
      */
-    function _createAssociateRequest($dh, $args = null)
+    function _createAssociateRequest($session_args)
     {
-        global $_Auth_OpenID_DEFAULT_MOD, $_Auth_OpenID_DEFAULT_GEN;
-
-        if ($args === null) {
-            $args = array();
-        }
-
-        $cpub = Auth_OpenID_longToBase64($dh->getPublicKey());
-
-        $add_args = array(
-            'openid.mode' =>  'associate',
-            'openid.assoc_type' => 'HMAC-SHA1',
-            'openid.session_type' => 'DH-SHA1',
-            'openid.dh_consumer_public' => $cpub
-            );
-
-        $args = array_merge($args, $add_args);
-
-        if (($dh->mod != $_Auth_OpenID_DEFAULT_MOD) ||
-            ($dh->gen != $_Auth_OpenID_DEFAULT_GEN)) {
-            $add_args = array(
-                'openid.dh_modulus' => Auth_OpenID_longToBase64($dh->mod),
-                'openid.dh_gen' => Auth_OpenID_longToBase64($dh->gen)
-                );
-            $args = array_merge($args, $add_args);
-        }
-
-        return Auth_OpenID_http_build_query($args);
     }
 
     /**
@@ -955,11 +935,10 @@ class Auth_OpenID_Consumer {
                 return null;
             }
 
-            $spub = Auth_OpenID_base64ToLong($results['dh_server_public']);
-
             $enc_mac_key = base64_decode($results['enc_mac_key']);
 
-            $secret = $dh->xorSecret($spub, $enc_mac_key);
+            $secret = $dh->xorSecret64($results['dh_server_public'],
+                                       $enc_mac_key);
         }
 
         $assoc = Auth_OpenID_Association::fromExpiresIn($expires_in,

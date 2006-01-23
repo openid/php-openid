@@ -30,12 +30,12 @@ class Tests_Auth_OpenID_BinLongConvertRnd extends PHPUnit_TestCase {
     {
         $n = $this->lib->init(0);
         foreach (range(0, 9) as $i) {
-            $rnd = Auth_OpenID_randrange($this->max);
+            $rnd = $this->lib->randrange($this->max);
             $n = $this->lib->add($n, $rnd);
         }
-        $s = Auth_OpenID_longToBinary($n);
+        $s = $this->lib->longToBinary($n);
         $this->assertTrue(is_string($s));
-        $n_prime = Auth_OpenID_binaryToLong($s);
+        $n_prime = $this->lib->binaryToLong($s);
         $this->assertEquals($this->lib->cmp($n, $n_prime), 0);
     }
 }
@@ -54,8 +54,8 @@ class Tests_Auth_OpenID_BinLongConvert extends PHPUnit_TestCase {
 
     function runTest()
     {
-        $n_prime = Auth_OpenID_binaryToLong($this->bin);
-        $s_prime = Auth_OpenID_longToBinary($this->lng);
+        $n_prime = $this->lib->binaryToLong($this->bin);
+        $s_prime = $this->lib->longToBinary($this->lng);
         $this->assertEquals($this->lib->cmp($this->lng, $n_prime), 0);
         $this->assertTrue($this->bin == $s_prime);
     }
@@ -75,7 +75,7 @@ class Tests_Auth_OpenID_Base64ToLong extends PHPUnit_TestCase {
 
     function runTest()
     {
-        $actual = Auth_OpenID_base64ToLong($this->b64);
+        $actual = $this->lib->base64ToLong($this->b64);
         $this->assertTrue($this->lib->cmp($this->num, $actual) == 0);
     }
 }
@@ -90,7 +90,7 @@ class Tests_Auth_OpenID_LongToBase64 extends Tests_Auth_OpenID_Base64ToLong {
 
     function runTest()
     {
-        $actual = Auth_OpenID_longToBase64($this->num);
+        $actual = $this->lib->longToBase64($this->num);
         $this->assertEquals($this->b64, $actual);
     }
 }
@@ -104,8 +104,8 @@ class Tests_Auth_OpenID_RandRange extends PHPUnit_TestCase {
     function runTest()
     {
         $stop = $this->lib->pow(2, 128);
-        $a = Auth_OpenID_randrange($stop);
-        $b = Auth_OpenID_randrange($stop);
+        $a = $this->lib->randrange($stop);
+        $b = $this->lib->randrange($stop);
 
         $this->assertFalse($this->lib->cmp($b, $a) == 0, "Same: $a $b");
 
@@ -114,7 +114,7 @@ class Tests_Auth_OpenID_RandRange extends PHPUnit_TestCase {
 
         // Make sure that we can generate random numbers that are
         // larger than platform int size
-        $result = Auth_OpenID_randrange($n);
+        $result = $this->lib->randrange($n);
 
         // What can we say about the result?
     }

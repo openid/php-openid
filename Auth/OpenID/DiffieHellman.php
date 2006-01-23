@@ -40,26 +40,16 @@ class Auth_OpenID_DiffieHellman {
     var $private;
     var $lib = null;
 
-    function fromBase64($mod, $gen)
-    {
-        if ($mod !== null) {
-            $mod = Auth_OpenID_base64ToLong($mod);
-        }
-
-        if ($gen !== null) {
-            $gen = Auth_OpenID_base64ToLong($gen);
-        }
-
-        return new Auth_OpenID_DiffieHellman($mod, $gen);
-    }
-
     function Auth_OpenID_DiffieHellman($mod = null, $gen = null,
-                                       $private = null)
+                                       $private = null, $lib = null)
     {
-        global $_Auth_OpenID_DEFAULT_MOD,
-            $_Auth_OpenID_DEFAULT_GEN;
+        global $_Auth_OpenID_DEFAULT_MOD, $_Auth_OpenID_DEFAULT_GEN;
 
-        $this->lib =& Auth_OpenID_getMathLib();
+        if ($lib === null) {
+            $this->lib =& Auth_OpenID_getMathLib();
+        } else {
+            $this->lib =& $lib;
+        }
 
         if ($mod === null) {
             $this->mod = $this->lib->init($_Auth_OpenID_DEFAULT_MOD);
@@ -74,7 +64,7 @@ class Auth_OpenID_DiffieHellman {
         }
 
         if ($private === null) {
-            $r = Auth_OpenID_randrange($this->mod);
+            $r = $this->lib->randrange($this->mod);
             $this->private = $this->lib->add($r, 1);
         } else {
             $this->private = $private;
@@ -94,10 +84,74 @@ class Auth_OpenID_DiffieHellman {
         return $this->public;
     }
 
+    /**
+     * Generate the arguments for an OpenID Diffie-Hellman association
+     * request
+     */
+    function getAssocArgs()
+    {
+        global $_Auth_OpenID_DEFAULT_MOD, $_Auth_OpenID_DEFAULT_GEN;
+
+        $cpub = $this->lib->longToBase64($this->getPublicKey());
+        $args = array(
+                      'openid.dh_consumer_public' => $cpub,
+                      'openid.session_type' => 'DH-SHA1'
+                      );
+
+        if ($this->lib->cmp($this->mod, $_Auth_OpenID_DEFAULT_MOD) ||
+            $this->lib->cmp($this->gen, $_Auth_OpenID_DEFAULT_GEN)) {
+            $args['openid.dh_modulus'] = $this->lib->longToBase64($this->mod);
+            $args['openid.dh_gen'] = $this->lib->longToBase64($this->gen);
+        }
+
+        return $args;
+    }
+
+    /**
+     * Perform the server side of the OpenID Diffie-Hellman association
+     */
+    function serverAssociate($consumer_args, $assoc_secret)
+    {
+        $lib =& Auth_OpenID_getMathLib();
+
+        if (isset($consumer_args['openid.dh_modulus'])) {
+            $mod = $lib->base64ToLong($consumer_args['openid.dh_modulus']);
+        } else {
+            $mod = null;
+        }
+
+        if (isset($consumer_args['openid.dh_gen'])) {
+            $gen = $lib->base64ToLong($consumer_args['openid.dh_gen']);
+        } else {
+            $gen = null;
+        }
+        
+        $dh = new Auth_OpenID_DiffieHellman($mod, $gen);
+        $cpub64 = $consumer_args['openid.dh_consumer_public'];
+
+        $mac_key = $dh->xorSecret64($cpub64, $assoc_secret);
+        $enc_mac_key = base64_encode($mac_key);
+        $spub64 = $lib->longToBase64($dh->getPublicKey());
+
+        $server_args = array(
+                             'session_type' => 'DH-SHA1',
+                             'dh_server_public' => $spub64,
+                             'enc_mac_key' => $enc_mac_key
+                             );
+
+        return $server_args;
+    }
+
+    function xorSecret64($composite64, $secret)
+    {
+        $spub = $this->lib->base64ToLong($composite64);
+        return $this->xorSecret($spub, $secret);
+    }
+
     function xorSecret($composite, $secret)
     {
         $dh_shared = $this->getSharedSecret($composite);
-        $dh_shared_str = Auth_OpenID_longToBinary($dh_shared);
+        $dh_shared_str = $this->lib->longToBinary($dh_shared);
         $sha1_dh_shared = Auth_OpenID_SHA1($dh_shared_str);
 
         $xsecret = "";

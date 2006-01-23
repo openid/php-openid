@@ -57,23 +57,17 @@ function Auth_OpenID_associate($qs, $assoc_secret, $assoc_handle)
     assert($query_data['openid.mode'] == 'associate');
     assert($query_data['openid.assoc_type'] == 'HMAC-SHA1');
     assert($query_data['openid.session_type'] == 'DH-SHA1');
-    $d = Auth_OpenID_DiffieHellman::fromBase64(
-        Auth_OpenID_array_get($query_data, 'openid.dh_modulus', null),
-        Auth_OpenID_array_get($query_data, 'openid.dh_gen', null));
-
-    $composite = Auth_OpenID_base64ToLong(
-        $query_data['openid.dh_consumer_public']);
-
-    $enc_mac_key = base64_encode($d->xorSecret($composite, $assoc_secret));
 
     $reply_dict = array(
         'assoc_type' => 'HMAC-SHA1',
         'assoc_handle' => $assoc_handle,
         'expires_in' => '600',
-        'session_type' => 'DH-SHA1',
-        'dh_server_public' => Auth_OpenID_longToBase64($d->public),
-        'enc_mac_key' => $enc_mac_key,
         );
+
+    $dh_args = Auth_OpenID_DiffieHellman::
+        serverAssociate($query_data, $assoc_secret);
+
+    $reply_dict = array_merge($reply_dict, $dh_args);
 
     return Auth_OpenID_KVForm::arrayToKV($reply_dict);
 }

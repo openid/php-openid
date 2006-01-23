@@ -17,6 +17,147 @@
 // For Auth_OpenID_randrange
 require_once('Auth/OpenID/CryptUtil.php');
 
+class Auth_OpenID_MathLibrary {
+    /**
+     * Given a long integer, returns the number converted to a binary
+     * string.  This function accepts long integer values of arbitrary
+     * magnitude and uses the local large-number math library when
+     * available.
+     *
+     * @param integer $long The long number (can be a normal PHP
+     * integer or a number created by one of the available long number
+     * libraries)
+     * @return string $binary The binary version of $long
+     */
+    function longToBinary($long)
+    {
+        $cmp = $this->cmp($long, 0);
+        if ($cmp < 0) {
+            $msg = __FUNCTION__ . " takes only positive integers.";
+            trigger_error($msg, E_USER_ERROR);
+            return null;
+        }
+
+        if ($cmp == 0) {
+            return "\x00";
+        }
+
+        $bytes = array();
+
+        while ($this->cmp($long, 0) > 0) {
+            array_unshift($bytes, $this->mod($long, 256));
+            $long = $this->div($long, pow(2, 8));
+        }
+
+        if ($bytes && ($bytes[0] > 127)) {
+            array_unshift($bytes, 0);
+        }
+
+        $string = '';
+        foreach ($bytes as $byte) {
+            $string .= pack('C', $byte);
+        }
+
+        return $string;
+    }
+
+    /**
+     * Given a binary string, returns the binary string converted to a
+     * long number.
+     *
+     * @param string $binary The binary version of a long number,
+     * probably as a result of calling longToBinary
+     * @return integer $long The long number equivalent of the binary
+     * string $str
+     */
+    function binaryToLong($str)
+    {
+        if ($str === null) {
+            return null;
+        }
+
+        // Use array_merge to return a zero-indexed array instead of a
+        // one-indexed array.
+        $bytes = array_merge(unpack('C*', $str));
+
+        $n = $this->init(0);
+
+        if ($bytes && ($bytes[0] > 127)) {
+            trigger_error("bytesToNum works only for positive integers.",
+                          E_USER_WARNING);
+            return null;
+        }
+
+        foreach ($bytes as $byte) {
+            $n = $this->mul($n, pow(2, 8));
+            $n = $this->add($n, $byte);
+        }
+
+        return $n;
+    }
+
+    function base64ToLong($str)
+    {
+        return $this->binaryToLong(base64_decode($str));
+    }
+
+    function longToBase64($str)
+    {
+        return base64_encode($this->longToBinary($str));
+    }
+
+    /**
+     * Returns a random number in the specified range.  This function
+     * accepts $start, $stop, and $step values of arbitrary magnitude
+     * and will utilize the local large-number math library when
+     * available.
+     *
+     * @param integer $start The start of the range, or the minimum
+     * random number to return
+     * @param integer $stop The end of the range, or the maximum
+     * random number to return
+     * @param integer $step The step size, such that $result - ($step
+     * * N) = $start for some N
+     * @return integer $result The resulting randomly-generated number
+     */
+    function randrange($stop)
+    {
+        static $duplicate_cache = array();
+
+        // Used as the key for the duplicate cache
+        $rbytes = $this->longToBinary($stop);
+
+        if (array_key_exists($rbytes, $duplicate_cache)) {
+            list($duplicate, $nbytes) = $duplicate_cache[$rbytes];
+        } else {
+            if ($rbytes[0] == "\x00") {
+                $nbytes = strlen($rbytes) - 1;
+            } else {
+                $nbytes = strlen($rbytes);
+            }
+
+            $mxrand = $this->pow(256, $nbytes);
+
+            // If we get a number less than this, then it is in the
+            // duplicated range.
+            $duplicate = $this->mod($mxrand, $stop);
+
+            if (count($duplicate_cache) > 10) {
+                $duplicate_cache = array();
+            }
+
+            $duplicate_cache[$rbytes] = array($duplicate, $nbytes);
+        }
+
+        do {
+            $bytes = "\x00" . Auth_OpenID_getBytes($nbytes);
+            $n = $this->binaryToLong($bytes);
+            // Keep looping if this value is in the low duplicated range
+        } while ($this->cmp($n, $duplicate) < 0);
+
+        return $this->mod($n, $stop);
+    }
+}
 
 /**
  * Exposes BCmath math library functionality.
@@ -26,7 +167,7 @@ require_once('Auth/OpenID/CryptUtil.php');
  *
  * @package OpenID
  */
-class Auth_OpenID_BcMathWrapper {
+class Auth_OpenID_BcMathWrapper extends Auth_OpenID_MathLibrary{
     var $type = 'bcmath';
 
     function add($x, $y)
@@ -106,7 +247,7 @@ class Auth_OpenID_BcMathWrapper {
  *
  * @package OpenID
  */
-class Auth_OpenID_GmpMathWrapper {
+class Auth_OpenID_GmpMathWrapper extends Auth_OpenID_MathLibrary{
     var $type = 'gmp';
 
     function add($x, $y)
@@ -267,163 +408,6 @@ function &Auth_OpenID_getMathLib()
     $lib = new $ext();
 
     return $lib;
-}
-
-/**
- * Given a long integer, returns the number converted to a binary
- * string.  This function accepts long integer values of arbitrary
- * magnitude and uses the local large-number math library when
- * available.
- *
- * @param integer $long The long number (can be a normal PHP
- * integer or a number created by one of the available long number
- * libraries)
- * @return string $binary The binary version of $long
- */
-function Auth_OpenID_longToBinary($long)
-{
-    $lib =& Auth_OpenID_getMathLib();
-
-    $cmp = $lib->cmp($long, 0);
-    if ($cmp < 0) {
-        $msg = __FUNCTION__ . " takes only positive integers.";
-        trigger_error($msg, E_USER_ERROR);
-        return null;
-    }
-
-    if ($cmp == 0) {
-        return "\x00";
-    }
-
-    $bytes = array();
-
-    while ($lib->cmp($long, 0) > 0) {
-        array_unshift($bytes, $lib->mod($long, 256));
-        $long = $lib->div($long, pow(2, 8));
-    }
-
-    if ($bytes && ($bytes[0] > 127)) {
-        array_unshift($bytes, 0);
-    }
-
-    $string = '';
-    foreach ($bytes as $byte) {
-        $string .= pack('C', $byte);
-    }
-
-    return $string;
-}
-
-/**
- * Converts a long number to its base64-encoded representation.
- *
- * @param integer $long The long number to be converted
- * @return string $str The base64-encoded version of $long
- */
-function Auth_OpenID_longToBase64($long)
-{
-    return base64_encode(Auth_OpenID_longToBinary($long));
-}
-
-/**
- * Converts a base64-encoded string to a long number.
- *
- * @param string $str A base64-encoded string
- * @return integer $long A long number
- */
-function Auth_OpenID_base64ToLong($str)
-{
-    return Auth_OpenID_binaryToLong(base64_decode($str));
-}
-
-/**
- * Given a binary string, returns the binary string converted to a
- * long number.
- *
- * @param string $binary The binary version of a long number,
- * probably as a result of calling longToBinary
- * @return integer $long The long number equivalent of the binary
- * string $str
- */
-function Auth_OpenID_binaryToLong($str)
-{
-    $lib =& Auth_OpenID_getMathLib();
-
-    if ($str === null) {
-        return null;
-    }
-
-    // Use array_merge to return a zero-indexed array instead of a
-    // one-indexed array.
-    $bytes = array_merge(unpack('C*', $str));
-
-    $n = $lib->init(0);
-
-    if ($bytes && ($bytes[0] > 127)) {
-        trigger_error("bytesToNum works only for positive integers.",
-                      E_USER_WARNING);
-        return null;
-    }
-
-    foreach ($bytes as $byte) {
-        $n = $lib->mul($n, pow(2, 8));
-        $n = $lib->add($n, $byte);
-    }
-
-    return $n;
-}
-
-/**
- * Returns a random number in the specified range.  This function
- * accepts $start, $stop, and $step values of arbitrary magnitude
- * and will utilize the local large-number math library when
- * available.
- *
- * @param integer $start The start of the range, or the minimum
- * random number to return
- * @param integer $stop The end of the range, or the maximum
- * random number to return
- * @param integer $step The step size, such that $result - ($step
- * * N) = $start for some N
- * @return integer $result The resulting randomly-generated number
- */
-function Auth_OpenID_randrange($stop)
-{
-    static $duplicate_cache = array();
-    $lib =& Auth_OpenID_getMathLib();
-
-    // Used as the key for the duplicate cache
-    $rbytes = Auth_OpenID_longToBinary($stop);
-
-    if (array_key_exists($rbytes, $duplicate_cache)) {
-        list($duplicate, $nbytes) = $duplicate_cache[$rbytes];
-    } else {
-        if ($rbytes[0] == "\x00") {
-            $nbytes = strlen($rbytes) - 1;
-        } else {
-            $nbytes = strlen($rbytes);
-        }
-
-        $mxrand = $lib->pow(256, $nbytes);
-
-        // If we get a number less than this, then it is in the
-        // duplicated range.
-        $duplicate = $lib->mod($mxrand, $stop);
-
-        if (count($duplicate_cache) > 10) {
-            $duplicate_cache = array();
-        }
-
-        $duplicate_cache[$rbytes] = array($duplicate, $nbytes);
-    }
-
-    do {
-        $bytes = "\x00" . Auth_OpenID_getBytes($nbytes);
-        $n = Auth_OpenID_binaryToLong($bytes);
-        // Keep looping if this value is in the low duplicated range
-    } while ($lib->cmp($n, $duplicate) < 0);
-
-    return $lib->mod($n, $stop);
 }
 
 ?>
