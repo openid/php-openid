@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<package version="2.0" xmlns="http://pear.php.net/dtd/package-2.0"
+    xmlns:tasks="http://pear.php.net/dtd/tasks-1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
+http://pear.php.net/dtd/tasks-1.0.xsd
+http://pear.php.net/dtd/package-2.0
+http://pear.php.net/dtd/package-2.0.xsd">
+ <name>OpenID</name>
+ <channel>pear.php.net</channel>
+ <summary>Any one-line summary</summary>
+ <description>
+   An implementation of the OpenID single sign-on authentication protocol.
+ </description>
+ <lead>
+   <name>Jonathan Daugherty</name>
+   <user>cygnus</user>
+   <email>cygnus@janrain.com</email>
+   <active>yes</active>
+ </lead>
+ <lead>
+   <name>Josh Hoyt</name>
+   <user>jhoyt</user>
+   <email>josh@janrain.com</email>
+   <active>yes</active>
+ </lead>
+ <date>2006-01-23</date>
+ <version>
+   <release>0.8.1</release>
+   <api>0.8.1</api>
+ </version>
+ <stability>
+   <release>beta</release>
+   <api>beta</api>
+ </stability>
+ <license uri="http://www.gnu.org/copyleft/lesser.txt">LGPL</license>
+ <notes>
+   This release includes SQL store implementations for MySQL,
+   PostgreSQL, and SQLite.
+ </notes>
+ <contents>
+   <dir name="/">
+     <dir name="Auth">
+       <dir name="OpenID">
+         <file name="Association.php" role="php" />
+         <file name="CryptUtil.php" role="php" />
+         <file name="DiffieHellman.php" role="php" />
+         <file name="HMACSHA1.php" role="php" />
+         <file name="KVForm.php" role="php" />
+         <file name="OIDUtil.php" role="php" />
+         <dir name="Consumer">
+           <file name="Consumer.php" role="php" />
+           <file name="Fetchers.php" role="php" />
+           <file name="Parse.php" role="php" />
+         </dir>
+         <dir name="Store">
+           <file name="DumbStore.php" role="php" />
+           <file name="FileStore.php" role="php" />
+           <file name="Interface.php" role="php" />
+           <file name="SQLStore.php" role="php" />
+         </dir>
+       </dir>
+     </dir>
+   </dir>
+ </contents>
+ <dependencies>
+   <required>
+     <php>
+       <min>4.3.0</min>
+       <max>5.1</max>
+     </php>
+     <pearinstaller>
+       <min>1.6.0a1</min>
+     </pearinstaller>
+     <package>
+       <name>PEAR_DB</name>
+       <channel>pear.php.net</channel>
+       <min>1.80</min>
+     </package>
+   </required>
+   <optional>
+     <extension>
+       <name>pgsql</name>
+     </extension>
+     <extension>
+       <name>mysql</name>
+     </extension>
+     <extension>
+       <name>sqlite</name>
+     </extension>
+     <extension>
+       <name>bcmath</name>
+     </extension>
+     <extension>
+       <name>gmp</name>
+     </extension>
+   </optional>
+ </dependencies>
+ <!-- There really isn't much we should put in the phprelease tag,
+ although we should probably make a windows-specific release tag. -->
+ <phprelease/>
+</package>
