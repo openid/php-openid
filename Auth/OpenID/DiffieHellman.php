@@ -101,7 +101,7 @@ class Auth_OpenID_DiffieHellman {
         $sha1_dh_shared = Auth_OpenID_SHA1($dh_shared_str);
 
         $xsecret = "";
-        for ($i = 0; $i < strlen($x); $i++) {
+        for ($i = 0; $i < strlen($secret); $i++) {
             $xsecret .= chr(ord($secret[$i]) ^ ord($sha1_dh_shared[$i]));
         }
 
