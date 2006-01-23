@@ -260,60 +260,14 @@ function Auth_OpenID_getBytes($num_bytes)
 }
 
 /**
- * Exposes math library functionality.
- *
- * Auth_OpenID_MathWrapper is a base class that defines the interface
- * to a math library like GMP or BCmath.  This library will attempt to
- * use an available long number implementation.  If a library like GMP
- * is found, the appropriate Auth_OpenID_MathWrapper subclass will be
- * instantiated and used for mathematics operations on large numbers.
- * This base class wraps only native PHP functionality.  See
- * Auth_OpenID_MathWrapper subclasses for access to particular long
- * number implementations.
- *
- * @package OpenID
- */
-class Auth_OpenID_MathWrapper {
-    /**
-     * The type of the Auth_OpenID_MathWrapper class.  This value
-     * describes the library or module being wrapped.  Users of
-     * Auth_OpenID_MathWrapper instances should check this value if
-     * they care about the type of math functionality being exposed.
-     */
-    var $type = null;
-
-    /**
-     * Returns ($base to the $exponent power) mod $modulus.  In some
-     * long number implementations, this may be optimized.  This
-     * implementation works efficiently if we only have pow and mod.
-     *
-     * @access private
-     */
-    function _powmod($base, $exponent, $modulus)
-    {
-        $square = $this->mod($base, $modulus);
-        $result = 1;
-        while($this->cmp($exponent, 0) > 0) {
-            if ($this->mod($exponent, 2)) {
-                $result = $this->mod($this->mul($result, $square), $modulus);
-            }
-            $square = $this->mod($this->mul($square, $square), $modulus);
-            $exponent = $this->div($exponent, 2);
-        }
-        return $result;
-    }
-}
-
-/**
  * Exposes BCmath math library functionality.
  *
- * Auth_OpenID_BcMathWrapper implements the Auth_OpenID_MathWrapper
- * interface and wraps the functionality provided by the BCMath
- * library.
+ * Auth_OpenID_BcMathWrapper wraps the functionality provided by the
+ * BCMath extension.
  *
  * @package OpenID
  */
-class Auth_OpenID_BcMathWrapper extends Auth_OpenID_MathWrapper {
+class Auth_OpenID_BcMathWrapper {
     var $type = 'bcmath';
 
     function add($x, $y)
@@ -356,6 +310,25 @@ class Auth_OpenID_BcMathWrapper extends Auth_OpenID_MathWrapper {
         return bcdiv($x, $y);
     }
 
+    /**
+     * Same as bcpowmod when bcpowmod is missing
+     *
+     * @access private
+     */
+    function _powmod($base, $exponent, $modulus)
+    {
+        $square = $this->mod($base, $modulus);
+        $result = 1;
+        while($this->cmp($exponent, 0) > 0) {
+            if ($this->mod($exponent, 2)) {
+                $result = $this->mod($this->mul($result, $square), $modulus);
+            }
+            $square = $this->mod($this->mul($square, $square), $modulus);
+            $exponent = $this->div($exponent, 2);
+        }
+        return $result;
+    }
+
     function powmod($base, $exponent, $modulus)
     {
         if (function_exists('bcpowmod')) {
@@ -369,12 +342,12 @@ class Auth_OpenID_BcMathWrapper extends Auth_OpenID_MathWrapper {
 /**
  * Exposes GMP math library functionality.
  *
- * Auth_OpenID_GmpMathWrapper implements the Auth_OpenID_MathWrapper
- * interface and wraps the functionality provided by the GMP library.
+ * Auth_OpenID_GmpMathWrapper wraps the functionality provided by the
+ * GMP extension.
  *
  * @package OpenID
  */
-class Auth_OpenID_GmpMathWrapper extends Auth_OpenID_MathWrapper {
+class Auth_OpenID_GmpMathWrapper {
     var $type = 'gmp';
 
     function add($x, $y)
