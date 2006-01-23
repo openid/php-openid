@@ -215,15 +215,11 @@ function Auth_OpenID_randrange($stop)
         $duplicate_cache[$rbytes] = array($duplicate, $nbytes);
     }
 
-    while (1) {
+    do {
         $bytes = "\x00" . Auth_OpenID_CryptUtil::getBytes($nbytes);
         $n = Auth_OpenID_binaryToLong($bytes);
-        // Keep looping if this value is in the low duplicated
-        // range
-        if ($lib->cmp($n, $duplicate) >= 0) {
-            break;
-        }
-    }
+        // Keep looping if this value is in the low duplicated range
+    } while ($lib->cmp($n, $duplicate) < 0);
 
     return $lib->mod($n, $stop);
 }
