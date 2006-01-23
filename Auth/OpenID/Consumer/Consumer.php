@@ -954,11 +954,9 @@ class Auth_OpenID_Consumer {
                 return null;
             }
 
-            $spub = Auth_OpenID_base64ToLong(
-                         $results['dh_server_public']);
+            $spub = Auth_OpenID_base64ToLong($results['dh_server_public']);
 
-            $enc_mac_key = Auth_OpenID_CryptUtil::fromBase64(
-                         $results['enc_mac_key']);
+            $enc_mac_key = Auth_OpenID_fromBase64($results['enc_mac_key']);
 
             $secret = $dh->xorSecret($spub, $enc_mac_key);
         }

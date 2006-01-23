@@ -64,7 +64,7 @@ function Auth_OpenID_associate($qs, $assoc_secret, $assoc_handle)
     $composite = Auth_OpenID_base64ToLong(
         $query_data['openid.dh_consumer_public']);
 
-    $enc_mac_key = Auth_OpenID_CryptUtil::toBase64(
+    $enc_mac_key = Auth_OpenID_toBase64(
                       $d->xorSecret($composite, $assoc_secret));
 
     $reply_dict = array(

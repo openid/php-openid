@@ -242,28 +242,6 @@ class Auth_OpenID_CryptUtil {
     }
 
     /**
-     * Converts a base64-encoded string to its raw binary equivalent.
-     *
-     * @param string $str The base64-encoded string to decode
-     * @return string $raw The decoded binary data
-     */
-    function fromBase64($str)
-    {
-        return base64_decode($str);
-    }
-
-    /**
-     * Converts a raw binary string to its base64-encoded equivalent.
-     *
-     * @param string $str The raw binary data to encode
-     * @return string $raw The base64-encoded version of $str
-     */
-    function toBase64($str)
-    {
-        return base64_encode($str);
-    }
-
-    /**
      * Given a binary string, returns the binary string converted to a
      * long number.
      *
