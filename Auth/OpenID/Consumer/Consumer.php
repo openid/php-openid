@@ -752,7 +752,7 @@ class Auth_OpenID_Consumer {
                           $consumer_id, $server_id, $server_url);
 
         $joined = implode("\x00", $elements);
-        $sig = Auth_OpenID_CryptUtil::hmacSha1($this->store->getAuthKey(),
+        $sig = Auth_OpenID_HMACSHA1($this->store->getAuthKey(),
                                               $joined);
 
         return Auth_OpenID_toBase64($sig . $joined);
@@ -772,8 +772,8 @@ class Auth_OpenID_Consumer {
 
         $sig = substr($token, 0, 20);
         $joined = substr($token, 20);
-        if (Auth_OpenID_CryptUtil::hmacSha1(
-              $this->store->getAuthKey(), $joined) != $sig) {
+        $check_sig = Auth_OpenID_HMACSHA1($this->store->getAuthKey(), $joined);
+        if ($check_sig != $sig) {
             return null;
         }
 

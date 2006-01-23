@@ -240,7 +240,7 @@ class Auth_OpenID_Association {
     {
         assert($this->assoc_type == 'HMAC-SHA1');
         $kv = Auth_OpenID_KVForm::arrayToKV($pairs);
-        return Auth_OpenID_hmacSha1($this->secret, $kv);
+        return Auth_OpenID_HMACSHA1($this->secret, $kv);
     }
 
     /**

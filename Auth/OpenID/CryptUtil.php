@@ -230,18 +230,6 @@ class Auth_OpenID_CryptUtil {
     }
 
     /**
-     * Computes an HMAC-SHA1 digest.
-     *
-     * @param string $key The key used to generate the HMAC-SHA1 digest
-     * @param string $text The text to be hashed
-     * @return string $digest The raw HMAC-SHA1 digest
-     */
-    function hmacSha1($key, $text)
-    {
-        return Auth_OpenID_HMACSHA1($key, $text);
-    }
-
-    /**
      * Given a binary string, returns the binary string converted to a
      * long number.
      *
