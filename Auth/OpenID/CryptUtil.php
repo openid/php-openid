@@ -247,7 +247,6 @@ class Auth_OpenID_CryptUtil {
      * @param integer $stop The end of the range, or the maximum
      * random number to return
      * @param integer $step The step size, such that $result - ($step
-
      * * N) = $start for some N
      * @return integer $result The resulting randomly-generated number
      */
