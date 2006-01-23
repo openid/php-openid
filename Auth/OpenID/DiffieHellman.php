@@ -61,15 +61,6 @@ class Auth_OpenID_DiffieHellman {
 
         $this->lib =& Auth_OpenID_getMathLib();
 
-        if (!$this->lib) {
-            // This should NEVER occur because even if no math
-            // extensions can be found, we should get an instance of
-            // Auth_OpenID_MathWrapper, but if there's a bug in
-            // Auth_OpenID_getMathLib, it might.
-            trigger_error("Big integer fallback implementation unavailable.",
-                          E_USER_ERROR);
-        }
-
         if ($mod === null) {
             $this->mod = $this->lib->init($_Auth_OpenID_DEFAULT_MOD);
         } else {
@@ -82,10 +73,12 @@ class Auth_OpenID_DiffieHellman {
             $this->gen = $gen;
         }
 
-        $this->private =
-            ($private === null) ?
-            Auth_OpenID_CryptUtil::randrange(1, $this->mod) :
-            $private;
+        if ($private === null) {
+            $r = Auth_OpenID_CryptUtil::randrange($this->mod);
+            $this->private = $this->lib->add($r, 1);
+        } else {
+            $this->private = $private;
+        }
 
         $this->public = $this->lib->powmod($this->gen, $this->private,
                                            $this->mod);
