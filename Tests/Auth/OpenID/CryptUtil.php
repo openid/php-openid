@@ -40,7 +40,7 @@ class Tests_Auth_OpenID_ByteOps extends PHPUnit_TestCase {
     {
         $cases = array(1, 10, 255);
         foreach ($cases as $length) {
-            $data = Auth_OpenID_CryptUtil::getBytes($length);
+            $data = Auth_OpenID_getBytes($length);
             $this->assertEquals(strlen($data), $length);
         }
     }
@@ -50,10 +50,10 @@ class Tests_Auth_OpenID_ByteOps extends PHPUnit_TestCase {
         $num_iterations = 100;
         $data_length = 20;
 
-        $data = Auth_OpenID_CryptUtil::getBytes($num_iterations);
+        $data = Auth_OpenID_getBytes($num_iterations);
         for ($i = 0; $i < $num_iterations; $i++) {
             $last = $data;
-            $data = Auth_OpenID_CryptUtil::getBytes($data_length);
+            $data = Auth_OpenID_getBytes($data_length);
             $this->assertFalse($data == $last);
         }
     }
@@ -63,8 +63,8 @@ class Tests_Auth_OpenID_ByteOps extends PHPUnit_TestCase {
         // It's possible, but HIGHLY unlikely that a correct
         // implementation will fail by returning the same number twice
 
-        $s = Auth_OpenID_CryptUtil::getBytes(32);
-        $t = Auth_OpenID_CryptUtil::getBytes(32);
+        $s = Auth_OpenID_getBytes(32);
+        $t = Auth_OpenID_getBytes(32);
         $this->assertEquals(strlen($s), 32);
         $this->assertEquals(strlen($t), 32);
         $this->assertFalse($s == $t);

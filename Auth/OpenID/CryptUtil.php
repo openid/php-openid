@@ -87,7 +87,7 @@ function Auth_OpenID_longToBinary($long)
 function Auth_OpenID_randomString($length, $population = null)
 {
     if ($population === null) {
-        return Auth_OpenID_CryptUtil::getBytes($length);
+        return Auth_OpenID_getBytes($length);
     }
 
     $popsize = strlen($population);
@@ -102,7 +102,7 @@ function Auth_OpenID_randomString($length, $population = null)
     $str = "";
     for ($i = 0; $i < $length; $i++) {
         do {
-            $n = ord(Auth_OpenID_CryptUtil::getBytes(1));
+            $n = ord(Auth_OpenID_getBytes(1));
         } while ($n < $duplicate);
 
         $n %= $popsize;
@@ -216,12 +216,47 @@ function Auth_OpenID_randrange($stop)
     }
 
     do {
-        $bytes = "\x00" . Auth_OpenID_CryptUtil::getBytes($nbytes);
+        $bytes = "\x00" . Auth_OpenID_getBytes($nbytes);
         $n = Auth_OpenID_binaryToLong($bytes);
         // Keep looping if this value is in the low duplicated range
     } while ($lib->cmp($n, $duplicate) < 0);
 
     return $lib->mod($n, $stop);
+}
+
+/** 
+ * Get the specified number of random bytes.
+ *
+ * Attempts to use a cryptographically secure (not predictable)
+ * source of randomness if available. If there is no high-entropy
+ * randomness source available, it will fail. As a last resort,
+ * for non-critical systems, define
+ * <code>Auth_OpenID_USE_INSECURE_RAND</code>, and the code will
+ * fall back on a pseudo-random number generator.
+ *
+ * @param int $num_bytes The length of the return value
+ * @return string $bytes random bytes
+ */
+function Auth_OpenID_getBytes($num_bytes)
+{
+    $bytes = '';
+    $f = @fopen(Auth_OpenID_RAND_SOURCE, "r");
+    if ($f === false) {
+        if (!defined('Auth_OpenID_USE_INSECURE_RAND')) {
+            $msg = 'Set Auth_OpenID_USE_INSECURE_RAND to continue with an ' .
+                'insecure random number generator.';
+            trigger_error($msg, E_USER_ERROR);
+        }
+        $bytes = '';
+        for ($i = 0; $i < $num_bytes; $i += 4) {
+            $bytes .= pack('L', mt_rand());
+        }
+        $bytes = substr($bytes, 0, $num_bytes);
+    } else {
+        $bytes = fread($f, $num_bytes);
+        fclose($f);
+    }
+    return $bytes;
 }
 
 /**
@@ -231,41 +266,6 @@ function Auth_OpenID_randrange($stop)
  * @static
  */
 class Auth_OpenID_CryptUtil {
-    /** 
-     * Get the specified number of random bytes.
-     *
-     * Attempts to use a cryptographically secure (not predictable)
-     * source of randomness if available. If there is no high-entropy
-     * randomness source available, it will fail. As a last resort,
-     * for non-critical systems, define
-     * <code>Auth_OpenID_USE_INSECURE_RAND</code>, and the code will
-     * fall back on a pseudo-random number generator.
-     *
-     * @param int $num_bytes The length of the return value
-     * @return string $bytes random bytes
-     */
-    function getBytes($num_bytes)
-    {
-        $bytes = '';
-        $f = @fopen(Auth_OpenID_RAND_SOURCE, "r");
-        if ($f === false) {
-            if (!defined('Auth_OpenID_USE_INSECURE_RAND')) {
-                trigger_error('Set Auth_OpenID_USE_INSECURE_RAND to ' .
-                              'continue with insecure random.',
-                              E_USER_ERROR);
-            }
-            $bytes = '';
-            for ($i = 0; $i < $num_bytes; $i += 4) {
-                $bytes .= pack('L', mt_rand());
-            }
-            $bytes = substr($bytes, 0, $num_bytes);
-        } else {
-            $bytes = fread($f, $num_bytes);
-            fclose($f);
-        }
-        return $bytes;
-    }
-
     /**
      * Given two strings of equal length, computes the exclusive-OR of
      * the two strings' ordinal values and returns the resulting
