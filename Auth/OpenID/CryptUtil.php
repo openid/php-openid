@@ -14,11 +14,6 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-/**
- * Require the HMAC/SHA-1 implementation for creating such hashes.
- */
-require_once('HMACSHA1.php');
-
 if (!defined('Auth_OpenID_RAND_SOURCE')) {
     /**
      * The filename for a source of random bytes. Define this yourself
@@ -27,50 +22,39 @@ if (!defined('Auth_OpenID_RAND_SOURCE')) {
     define('Auth_OpenID_RAND_SOURCE', '/dev/urandom');
 }
 
-/**
- * Given a long integer, returns the number converted to a binary
- * string.  This function accepts long integer values of arbitrary
- * magnitude and uses the local large-number math library when
- * available.
+/** 
+ * Get the specified number of random bytes.
  *
- * @param integer $long The long number (can be a normal PHP
- * integer or a number created by one of the available long number
- * libraries)
- * @return string $binary The binary version of $long
+ * Attempts to use a cryptographically secure (not predictable)
+ * source of randomness if available. If there is no high-entropy
+ * randomness source available, it will fail. As a last resort,
+ * for non-critical systems, define
+ * <code>Auth_OpenID_USE_INSECURE_RAND</code>, and the code will
+ * fall back on a pseudo-random number generator.
+ *
+ * @param int $num_bytes The length of the return value
+ * @return string $bytes random bytes
  */
-function Auth_OpenID_longToBinary($long)
+function Auth_OpenID_getBytes($num_bytes)
 {
-
-    $lib =& Auth_OpenID_getMathLib();
-
-    $cmp = $lib->cmp($long, 0);
-    if ($cmp < 0) {
-        $msg = __FUNCTION__ . " takes only positive integers.";
-        trigger_error($msg, E_USER_ERROR);
-        return null;
+    $bytes = '';
+    $f = @fopen(Auth_OpenID_RAND_SOURCE, "r");
+    if ($f === false) {
+        if (!defined('Auth_OpenID_USE_INSECURE_RAND')) {
+            $msg = 'Set Auth_OpenID_USE_INSECURE_RAND to continue with an ' .
+                'insecure random number generator.';
+            trigger_error($msg, E_USER_ERROR);
+        }
+        $bytes = '';
+        for ($i = 0; $i < $num_bytes; $i += 4) {
+            $bytes .= pack('L', mt_rand());
+        }
+        $bytes = substr($bytes, 0, $num_bytes);
+    } else {
+        $bytes = fread($f, $num_bytes);
+        fclose($f);
     }
-
-    if ($cmp == 0) {
-        return "\x00";
-    }
-
-    $bytes = array();
-
-    while ($lib->cmp($long, 0) > 0) {
-        array_unshift($bytes, $lib->mod($long, 256));
-        $long = $lib->div($long, pow(2, 8));
-    }
-
-    if ($bytes && ($bytes[0] > 127)) {
-        array_unshift($bytes, 0);
-    }
-
-    $string = '';
-    foreach ($bytes as $byte) {
-        $string .= pack('C', $byte);
-    }
-
-    return $string;
+    return $bytes;
 }
 
 /**
@@ -110,404 +94,6 @@ function Auth_OpenID_randomString($length, $population = null)
     }
 
     return $str;
-}
-
-/**
- * Converts a long number to its base64-encoded representation.
- *
- * @param integer $long The long number to be converted
- * @return string $str The base64-encoded version of $long
- */
-function Auth_OpenID_longToBase64($long)
-{
-    return base64_encode(Auth_OpenID_longToBinary($long));
-}
-
-/**
- * Converts a base64-encoded string to a long number.
- *
- * @param string $str A base64-encoded string
- * @return integer $long A long number
- */
-function Auth_OpenID_base64ToLong($str)
-{
-    return Auth_OpenID_binaryToLong(base64_decode($str));
-}
-
-/**
- * Given a binary string, returns the binary string converted to a
- * long number.
- *
- * @param string $binary The binary version of a long number,
- * probably as a result of calling longToBinary
- * @return integer $long The long number equivalent of the binary
- * string $str
- */
-function Auth_OpenID_binaryToLong($str)
-{
-    $lib =& Auth_OpenID_getMathLib();
-
-    if ($str === null) {
-        return null;
-    }
-
-    // Use array_merge to return a zero-indexed array instead of a
-    // one-indexed array.
-    $bytes = array_merge(unpack('C*', $str));
-
-    $n = $lib->init(0);
-
-    if ($bytes && ($bytes[0] > 127)) {
-        trigger_error("bytesToNum works only for positive integers.",
-                      E_USER_WARNING);
-        return null;
-    }
-
-    foreach ($bytes as $byte) {
-        $n = $lib->mul($n, pow(2, 8));
-        $n = $lib->add($n, $byte);
-    }
-
-    return $n;
-}
-
-/**
- * Returns a random number in the specified range.  This function
- * accepts $start, $stop, and $step values of arbitrary magnitude
- * and will utilize the local large-number math library when
- * available.
- *
- * @param integer $start The start of the range, or the minimum
- * random number to return
- * @param integer $stop The end of the range, or the maximum
- * random number to return
- * @param integer $step The step size, such that $result - ($step
- * * N) = $start for some N
- * @return integer $result The resulting randomly-generated number
- */
-function Auth_OpenID_randrange($stop)
-{
-    static $duplicate_cache = array();
-    $lib =& Auth_OpenID_getMathLib();
-
-    // Used as the key for the duplicate cache
-    $rbytes = Auth_OpenID_longToBinary($stop);
-
-    if (array_key_exists($rbytes, $duplicate_cache)) {
-        list($duplicate, $nbytes) = $duplicate_cache[$rbytes];
-    } else {
-        if ($rbytes[0] == "\x00") {
-            $nbytes = strlen($rbytes) - 1;
-        } else {
-            $nbytes = strlen($rbytes);
-        }
-
-        $mxrand = $lib->pow(256, $nbytes);
-
-        // If we get a number less than this, then it is in the
-        // duplicated range.
-        $duplicate = $lib->mod($mxrand, $stop);
-
-        if (count($duplicate_cache) > 10) {
-            $duplicate_cache = array();
-        }
-
-        $duplicate_cache[$rbytes] = array($duplicate, $nbytes);
-    }
-
-    do {
-        $bytes = "\x00" . Auth_OpenID_getBytes($nbytes);
-        $n = Auth_OpenID_binaryToLong($bytes);
-        // Keep looping if this value is in the low duplicated range
-    } while ($lib->cmp($n, $duplicate) < 0);
-
-    return $lib->mod($n, $stop);
-}
-
-/** 
- * Get the specified number of random bytes.
- *
- * Attempts to use a cryptographically secure (not predictable)
- * source of randomness if available. If there is no high-entropy
- * randomness source available, it will fail. As a last resort,
- * for non-critical systems, define
- * <code>Auth_OpenID_USE_INSECURE_RAND</code>, and the code will
- * fall back on a pseudo-random number generator.
- *
- * @param int $num_bytes The length of the return value
- * @return string $bytes random bytes
- */
-function Auth_OpenID_getBytes($num_bytes)
-{
-    $bytes = '';
-    $f = @fopen(Auth_OpenID_RAND_SOURCE, "r");
-    if ($f === false) {
-        if (!defined('Auth_OpenID_USE_INSECURE_RAND')) {
-            $msg = 'Set Auth_OpenID_USE_INSECURE_RAND to continue with an ' .
-                'insecure random number generator.';
-            trigger_error($msg, E_USER_ERROR);
-        }
-        $bytes = '';
-        for ($i = 0; $i < $num_bytes; $i += 4) {
-            $bytes .= pack('L', mt_rand());
-        }
-        $bytes = substr($bytes, 0, $num_bytes);
-    } else {
-        $bytes = fread($f, $num_bytes);
-        fclose($f);
-    }
-    return $bytes;
-}
-
-/**
- * Exposes BCmath math library functionality.
- *
- * Auth_OpenID_BcMathWrapper wraps the functionality provided by the
- * BCMath extension.
- *
- * @package OpenID
- */
-class Auth_OpenID_BcMathWrapper {
-    var $type = 'bcmath';
-
-    function add($x, $y)
-    {
-        return bcadd($x, $y);
-    }
-
-    function sub($x, $y)
-    {
-        return bcsub($x, $y);
-    }
-
-    function pow($base, $exponent)
-    {
-        return bcpow($base, $exponent);
-    }
-
-    function cmp($x, $y)
-    {
-        return bccomp($x, $y);
-    }
-
-    function init($number, $base = 10)
-    {
-        return $number;
-    }
-
-    function mod($base, $modulus)
-    {
-        return bcmod($base, $modulus);
-    }
-
-    function mul($x, $y)
-    {
-        return bcmul($x, $y);
-    }
-
-    function div($x, $y)
-    {
-        return bcdiv($x, $y);
-    }
-
-    /**
-     * Same as bcpowmod when bcpowmod is missing
-     *
-     * @access private
-     */
-    function _powmod($base, $exponent, $modulus)
-    {
-        $square = $this->mod($base, $modulus);
-        $result = 1;
-        while($this->cmp($exponent, 0) > 0) {
-            if ($this->mod($exponent, 2)) {
-                $result = $this->mod($this->mul($result, $square), $modulus);
-            }
-            $square = $this->mod($this->mul($square, $square), $modulus);
-            $exponent = $this->div($exponent, 2);
-        }
-        return $result;
-    }
-
-    function powmod($base, $exponent, $modulus)
-    {
-        if (function_exists('bcpowmod')) {
-            return bcpowmod($base, $exponent, $modulus);
-        } else {
-            return $this->_powmod($base, $exponent, $modulus);
-        }
-    }
-}
-
-/**
- * Exposes GMP math library functionality.
- *
- * Auth_OpenID_GmpMathWrapper wraps the functionality provided by the
- * GMP extension.
- *
- * @package OpenID
- */
-class Auth_OpenID_GmpMathWrapper {
-    var $type = 'gmp';
-
-    function add($x, $y)
-    {
-        return gmp_add($x, $y);
-    }
-
-    function sub($x, $y)
-    {
-        return gmp_sub($x, $y);
-    }
-
-    function pow($base, $exponent)
-    {
-        return gmp_pow($base, $exponent);
-    }
-
-    function cmp($x, $y)
-    {
-        return gmp_cmp($x, $y);
-    }
-
-    function init($number, $base = 10)
-    {
-        return gmp_init($number, $base);
-    }
-
-    function mod($base, $modulus)
-    {
-        return gmp_mod($base, $modulus);
-    }
-
-    function mul($x, $y)
-    {
-        return gmp_mul($x, $y);
-    }
-
-    function div($x, $y)
-    {
-        return gmp_div_q($x, $y);
-    }
-
-    function powmod($base, $exponent, $modulus)
-    {
-        return gmp_powm($base, $exponent, $modulus);
-    }
-
-}
-
-/**
- * Define the supported extensions.  An extension array has keys
- * 'modules', 'extension', and 'class'.  'modules' is an array of PHP
- * module names which the loading code will attempt to load.  These
- * values will be suffixed with a library file extension (e.g. ".so").
- * 'extension' is the name of a PHP extension which will be tested
- * before 'modules' are loaded.  'class' is the string name of a
- * Auth_OpenID_MathWrapper subclass which should be instantiated if a
- * given extension is present.
- *
- * You can define new math library implementations and add them to
- * this array.
- */
-$_Auth_OpenID_supported_extensions = array(
-    array('modules' => array('gmp', 'php_gmp'),
-          'extension' => 'gmp',
-          'class' => 'Auth_OpenID_GmpMathWrapper'),
-    array('modules' => array('bcmath', 'php_bcmath'),
-          'extension' => 'bcmath',
-          'class' => 'Auth_OpenID_BcMathWrapper')
-    );
-
-function Auth_OpenID_detectMathLibrary($exts)
-{
-    $loaded = false;
-
-    foreach ($exts as $extension) {
-        // See if the extension specified is already loaded.
-        if ($extension['extension'] &&
-            extension_loaded($extension['extension'])) {
-            $loaded = true;
-        }
-
-        // Try to load dynamic modules.
-        if (!$loaded) {
-            foreach ($extension['modules'] as $module) {
-                if (@dl($module . "." . PHP_SHLIB_SUFFIX)) {
-                    $loaded = true;
-                    break;
-                }
-            }
-        }
-
-        // If the load succeeded, supply an instance of
-        // Auth_OpenID_MathWrapper which wraps the specified
-        // module's functionality.
-        if ($loaded) {
-            return $extension['class'];
-        }
-    }
-
-    return false;
-}
-
-/**
- * Auth_OpenID_getMathLib checks for the presence of long number
- * extension modules and returns an instance of Auth_OpenID_MathWrapper
- * which exposes the module's functionality.
- *
- * Checks for the existence of an extension module described by the
- * local Auth_OpenID_supported_extensions array and returns an
- * instance of a wrapper for that extension module.  If no extension
- * module is found, an instance of Auth_OpenID_MathWrapper is
- * returned, which wraps the native PHP integer implementation.  The
- * proper calling convention for this method is $lib =&
- * Auth_OpenID_getMathLib().
- *
- * This function checks for the existence of specific long number
- * implementations in the following order: GMP followed by BCmath.
- *
- * @return Auth_OpenID_MathWrapper $instance An instance of
- * Auth_OpenID_MathWrapper or one of its subclasses
- *
- * @package OpenID
- */
-function &Auth_OpenID_getMathLib()
-{
-    // The instance of Auth_OpenID_MathWrapper that we choose to
-    // supply will be stored here, so that subseqent calls to this
-    // method will return a reference to the same object.
-    static $lib = null;
-
-    if (isset($lib)) {
-        return $lib;
-    }
-
-    if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-        return null;
-    }
-
-    // If this method has not been called before, look at
-    // $Auth_OpenID_supported_extensions and try to find an
-    // extension that works.
-    global $_Auth_OpenID_supported_extensions;
-    $ext = Auth_OpenID_detectMathLibrary($_Auth_OpenID_supported_extensions);
-    if ($ext === false) {
-        $tried = array();
-        foreach ($_Auth_OpenID_supported_extensions as $extinfo) {
-            $tried[] = $extinfo['extension'];
-        }
-        $triedstr = implode(", ", $tried);
-        $msg = 'This PHP installation has no big integer math ' .
-            'library. Define Auth_OpenID_NO_MATH_SUPPORT to use ' .
-            'this library in dumb mode. Tried: ' . $triedstr;
-        trigger_error($msg, E_USER_ERROR);
-    }
-
-    // Instantiate a new wrapper
-    $lib = new $ext();
-
-    return $lib;
 }
 
 ?>

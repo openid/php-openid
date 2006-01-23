@@ -64,14 +64,15 @@ function global_require_once($name)
 
 $_test_dir = 'Tests/Auth/OpenID/';
 $_test_names = array(
-    'KVForm',
+    'Association',
+    'BigMath',
+    'Consumer',
     'CryptUtil',
-    'OIDUtil',
     'DiffieHellman',
     'HMACSHA1',
-    'Association',
+    'KVForm',
+    'OIDUtil',
     'Parse',
-    'Consumer',
     'StoreTest'
     );
 

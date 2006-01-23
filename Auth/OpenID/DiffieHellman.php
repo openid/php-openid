@@ -17,7 +17,7 @@
  * Require CryptUtil because we need to get a Auth_OpenID_MathWrapper
  * object.
  */
-require_once('CryptUtil.php');
+require_once('BigMath.php');
 
 $_Auth_OpenID_DEFAULT_MOD = '155172898181473697471232257763715539915724801'.
 '966915404479707795314057629378541917580651227423698188993727816152646631'.
