@@ -190,7 +190,7 @@ function Auth_OpenID_randrange($stop)
     static $duplicate_cache = array();
     $lib =& Auth_OpenID_getMathLib();
 
-    // DO NOT MODIFY THIS VALUE.
+    // Used as the key for the duplicate cache
     $rbytes = Auth_OpenID_longToBinary($stop);
 
     if (array_key_exists($rbytes, $duplicate_cache)) {
