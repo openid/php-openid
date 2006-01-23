@@ -37,6 +37,8 @@ failures=
 # Run in repository root (parent of this directory)
 cd $(dirname "$HERE")
 
+chmod +x ./admin/findphp
+
 for test_name in $tests
   do
   echo "Running test $test_name" 1>&2

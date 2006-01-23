@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 #set -e
 
-bad_files=$(find Auth Tests -name \*.php |
-    xargs -l1 /usr/bin/env perl admin/docblocks.pl)
+bad_files=$(./admin/findphp | xargs -l1 /usr/bin/env perl admin/docblocks.pl)
 
 if [ "$bad_files" ]
     then
@@ -14,4 +13,3 @@ $bad_files
 EOF
     exit 1
 fi
-

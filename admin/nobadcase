@@ -1,40 +1,13 @@
 #!/usr/bin/env bash
 
-bad_true=$(grep -l "TRUE" $(find Auth Tests -name \*.php | grep -v darcs))
-bad_false=$(grep -l "FALSE" $(find Auth Tests -name \*.php | grep -v darcs))
-bad_null=$(grep -l "NULL" $(find Auth Tests -name \*.php | grep -v darcs))
+bad=$(./admin/findphp | xargs egrep -n "TRUE|FALSE|NULL")
 
-if [ "$bad_true" ]
+if [ ! -z "$bad" ]
     then
     cat <<EOF 1>&2
-These files contain TRUE tokens:
+These files contain wrongly capitalized constants:
 
-$bad_true
-
-EOF
-fi
-
-if [ "$bad_false" ]
-    then
-    cat <<EOF 1>&2
-These files contain FALSE tokens:
-
-$bad_false
+$bad
 
 EOF
-fi
-
-if [ "$bad_null" ]
-    then
-    cat <<EOF 1>&2
-These files contain NULL tokens:
-
-$bad_null
-
-EOF
-fi
-
-if [[ "$bad_true" || "$bad_false" || "$bad_null" ]]
-    then
-    exit 1
 fi

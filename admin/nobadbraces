@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
 set -e
 
-find Auth Tests -name \*.php |
-    xargs -l1 --replace=FILENAME /usr/bin/env perl admin/brace_style.pl FILENAME
+./admin/findphp | xargs -l1 /usr/bin/env perl admin/brace_style.pl

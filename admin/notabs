@@ -4,8 +4,7 @@
 # there are files with tabs, print the list of files and exit with
 # non-zero status.
 
-tabs=$(find ./ \( -name _darcs \) -prune -o \( -type f -a -name \*.php \) |
-            xargs egrep -l '	' | sort)
+tabs=$(./admin/findphp | xargs egrep -n '	' | sort)
 
 if [ ! -z "$tabs" ]
     then
@@ -15,4 +14,3 @@ $tabs
 EOF
     exit 1
 fi
-
