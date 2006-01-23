@@ -21,7 +21,10 @@ define('SHA1_BLOCKSIZE', 64);
 
 if (!function_exists('sha1')) {
     // XXX: include the SHA1 code from Dan Libby's OpenID library
-    trigger_error('No SHA1 function found', E_USER_ERROR);
+    function Auth_OpenID_sha1_raw($text)
+    {
+        trigger_error('No SHA1 function found', E_USER_ERROR);
+    }
 } else {
     function Auth_OpenID_sha1_raw($text)
         {
