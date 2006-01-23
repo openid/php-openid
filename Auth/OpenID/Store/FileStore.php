@@ -102,7 +102,7 @@ function _isFilenameSafe($char)
 
 function _safe64($str)
 {
-    $h64 = Auth_OpenID_toBase64(Auth_OpenID_CryptUtil::sha1($str));
+    $h64 = Auth_OpenID_toBase64(Auth_OpenID_SHA1($str));
     $h64 = str_replace('+', '_', $h64);
     $h64 = str_replace('/', '.', $h64);
     $h64 = str_replace('=', '', $h64);

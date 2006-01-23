@@ -53,7 +53,7 @@ class Auth_OpenID_DumbStore extends Auth_OpenID_OpenIDStore {
      */
     function Auth_OpenID_DumbStore($secret_phrase)
     {
-        $this->auth_key = Auth_OpenID_CryptUtil::sha1($secret_phrase);
+        $this->auth_key = Auth_OpenID_SHA1($secret_phrase);
     }
 
     /**
