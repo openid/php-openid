@@ -250,25 +250,16 @@ class Auth_OpenID_CryptUtil {
      * * N) = $start for some N
      * @return integer $result The resulting randomly-generated number
      */
-    function randrange($start, $stop = null, $step = 1)
+    function randrange($stop)
     {
-
-        static $Auth_OpenID_CryptUtil_duplicate_cache = array();
+        static $duplicate_cache = array();
         $lib =& Auth_OpenID_getMathLib();
 
-        if ($stop == null) {
-            $stop = $start;
-            $start = 0;
-        }
-
-        $r = $lib->div($lib->sub($stop, $start), $step);
-
         // DO NOT MODIFY THIS VALUE.
-        $rbytes = Auth_OpenID_longToBinary($r);
+        $rbytes = Auth_OpenID_longToBinary($stop);
 
-        if (array_key_exists($rbytes, $Auth_OpenID_CryptUtil_duplicate_cache)) {
-            list($duplicate, $nbytes) =
-                $Auth_OpenID_CryptUtil_duplicate_cache[$rbytes];
+        if (array_key_exists($rbytes, $duplicate_cache)) {
+            list($duplicate, $nbytes) = $duplicate_cache[$rbytes];
         } else {
             if ($rbytes[0] == "\x00") {
                 $nbytes = strlen($rbytes) - 1;
@@ -280,14 +271,13 @@ class Auth_OpenID_CryptUtil {
 
             // If we get a number less than this, then it is in the
             // duplicated range.
-            $duplicate = $lib->mod($mxrand, $r);
+            $duplicate = $lib->mod($mxrand, $stop);
 
-            if (count($Auth_OpenID_CryptUtil_duplicate_cache) > 10) {
-                $Auth_OpenID_CryptUtil_duplicate_cache = array();
+            if (count($duplicate_cache) > 10) {
+                $duplicate_cache = array();
             }
 
-            $Auth_OpenID_CryptUtil_duplicate_cache[$rbytes] =
-                array($duplicate, $nbytes);
+            $duplicate_cache[$rbytes] = array($duplicate, $nbytes);
         }
 
         while (1) {
@@ -300,7 +290,7 @@ class Auth_OpenID_CryptUtil {
             }
         }
 
-        return $lib->add($start, $lib->mul($lib->mod($n, $r), $step));
+        return $lib->mod($n, $stop);
     }
 
 }
