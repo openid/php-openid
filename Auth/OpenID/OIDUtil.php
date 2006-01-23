@@ -62,6 +62,26 @@ function Auth_OpenID_log($message, $unused_level = 0)
 }
 
 /**
+ * Rename specified query arguments back to 'openid.' from 'openid_'
+ *
+ * @param array $args An associative array of URL query arguments
+ *
+ * @param array $allowed A set of strings indicating which 'openid_'
+ *    keys should be renamed.
+ */
+function Auth_OpenID_fixArgs(&$args, $allowed)
+{
+    foreach ($allowed as $key_ext) {
+        $key = 'openid_' . $key_ext;
+        if (isset($args[$key])) {
+            $val = $args[$key];
+            unset($args[$key]);
+            $args['openid.' . $key_ext] = $val;
+        }
+    }
+}
+
+/**
  * Implements the PHP 5 'http_build_query' functionality.
  *
  * @param array $data Either an array key/value pairs or an array of

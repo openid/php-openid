@@ -137,7 +137,7 @@ class Tests_Auth_OpenID_BinLongConvertRnd extends PHPUnit_TestCase {
         }
         $s = Auth_OpenID_longToBinary($n);
         $this->assertTrue(is_string($s));
-        $n_prime = Auth_OpenID_CryptUtil::binaryToLong($s);
+        $n_prime = Auth_OpenID_binaryToLong($s);
         $this->assertEquals($this->lib->cmp($n, $n_prime), 0);
     }
 }
@@ -156,7 +156,7 @@ class Tests_Auth_OpenID_BinLongConvert extends PHPUnit_TestCase {
 
     function runTest()
     {
-        $n_prime = Auth_OpenID_CryptUtil::binaryToLong($this->bin);
+        $n_prime = Auth_OpenID_binaryToLong($this->bin);
         $s_prime = Auth_OpenID_longToBinary($this->lng);
         $this->assertEquals($this->lib->cmp($this->lng, $n_prime), 0);
         $this->assertTrue($this->bin == $s_prime);
@@ -177,7 +177,7 @@ class Tests_Auth_OpenID_Base64ToLong extends PHPUnit_TestCase {
 
     function runTest()
     {
-        $actual = Auth_OpenID_CryptUtil::base64ToLong($this->b64);
+        $actual = Auth_OpenID_base64ToLong($this->b64);
         $this->assertTrue($this->lib->cmp($this->num, $actual) == 0);
     }
 }
@@ -246,7 +246,7 @@ class Tests_Auth_OpenID_CryptUtil extends PHPUnit_TestSuite {
         if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
             $this->addTestSuite('Tests_Auth_OpenID_BigInt');
 
-            $lib =& Auth_OpenID_MathLibrary::getLibWrapper();
+            $lib =& Auth_OpenID_getMathLib();
             $max = Auth_OpenID_CryptUtil::maxint();
             $upper = defined('Tests_Auth_OpenID_thorough') ? 499 : 3;
 

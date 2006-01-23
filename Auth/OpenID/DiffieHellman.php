@@ -43,11 +43,11 @@ class Auth_OpenID_DiffieHellman {
     function fromBase64($mod, $gen)
     {
         if ($mod !== null) {
-            $mod = Auth_OpenID_CryptUtil::base64ToLong($mod);
+            $mod = Auth_OpenID_base64ToLong($mod);
         }
 
         if ($gen !== null) {
-            $gen = Auth_OpenID_CryptUtil::base64ToLong($gen);
+            $gen = Auth_OpenID_base64ToLong($gen);
         }
 
         return new Auth_OpenID_DiffieHellman($mod, $gen);
@@ -59,13 +59,13 @@ class Auth_OpenID_DiffieHellman {
         global $_Auth_OpenID_DEFAULT_MOD,
             $_Auth_OpenID_DEFAULT_GEN;
 
-        $this->lib =& Auth_OpenID_MathLibrary::getLibWrapper();
+        $this->lib =& Auth_OpenID_getMathLib();
 
         if (!$this->lib) {
             // This should NEVER occur because even if no math
             // extensions can be found, we should get an instance of
             // Auth_OpenID_MathWrapper, but if there's a bug in
-            // Auth_OpenID_MathLibrary::getLibWrapper, it might.
+            // Auth_OpenID_getMathLib, it might.
             trigger_error("Big integer fallback implementation unavailable.",
                           E_USER_ERROR);
         }

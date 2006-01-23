@@ -61,7 +61,7 @@ function Auth_OpenID_associate($qs, $assoc_secret, $assoc_handle)
         Auth_OpenID_array_get($query_data, 'openid.dh_modulus', null),
         Auth_OpenID_array_get($query_data, 'openid.dh_gen', null));
 
-    $composite = Auth_OpenID_CryptUtil::base64ToLong(
+    $composite = Auth_OpenID_base64ToLong(
         $query_data['openid.dh_consumer_public']);
 
     $enc_mac_key = Auth_OpenID_CryptUtil::toBase64(

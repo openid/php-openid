@@ -954,7 +954,7 @@ class Auth_OpenID_Consumer {
                 return null;
             }
 
-            $spub = Auth_OpenID_CryptUtil::base64ToLong(
+            $spub = Auth_OpenID_base64ToLong(
                          $results['dh_server_public']);
 
             $enc_mac_key = Auth_OpenID_CryptUtil::fromBase64(
