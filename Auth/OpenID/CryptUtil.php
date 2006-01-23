@@ -172,6 +172,63 @@ function Auth_OpenID_binaryToLong($str)
 }
 
 /**
+ * Returns a random number in the specified range.  This function
+ * accepts $start, $stop, and $step values of arbitrary magnitude
+ * and will utilize the local large-number math library when
+ * available.
+ *
+ * @param integer $start The start of the range, or the minimum
+ * random number to return
+ * @param integer $stop The end of the range, or the maximum
+ * random number to return
+ * @param integer $step The step size, such that $result - ($step
+ * * N) = $start for some N
+ * @return integer $result The resulting randomly-generated number
+ */
+function Auth_OpenID_randrange($stop)
+{
+    static $duplicate_cache = array();
+    $lib =& Auth_OpenID_getMathLib();
+
+    // DO NOT MODIFY THIS VALUE.
+    $rbytes = Auth_OpenID_longToBinary($stop);
+
+    if (array_key_exists($rbytes, $duplicate_cache)) {
+        list($duplicate, $nbytes) = $duplicate_cache[$rbytes];
+    } else {
+        if ($rbytes[0] == "\x00") {
+            $nbytes = strlen($rbytes) - 1;
+        } else {
+            $nbytes = strlen($rbytes);
+        }
+
+        $mxrand = $lib->pow(256, $nbytes);
+
+        // If we get a number less than this, then it is in the
+        // duplicated range.
+        $duplicate = $lib->mod($mxrand, $stop);
+
+        if (count($duplicate_cache) > 10) {
+            $duplicate_cache = array();
+        }
+
+        $duplicate_cache[$rbytes] = array($duplicate, $nbytes);
+    }
+
+    while (1) {
+        $bytes = "\x00" . Auth_OpenID_CryptUtil::getBytes($nbytes);
+        $n = Auth_OpenID_binaryToLong($bytes);
+        // Keep looping if this value is in the low duplicated
+        // range
+        if ($lib->cmp($n, $duplicate) >= 0) {
+            break;
+        }
+    }
+
+    return $lib->mod($n, $stop);
+}
+
+/**
  * Auth_OpenID_CryptUtil houses static utility functions.
  *
  * @package OpenID
@@ -234,63 +291,6 @@ class Auth_OpenID_CryptUtil {
         }
 
         return $str;
-    }
-
-    /**
-     * Returns a random number in the specified range.  This function
-     * accepts $start, $stop, and $step values of arbitrary magnitude
-     * and will utilize the local large-number math library when
-     * available.
-     *
-     * @param integer $start The start of the range, or the minimum
-     * random number to return
-     * @param integer $stop The end of the range, or the maximum
-     * random number to return
-     * @param integer $step The step size, such that $result - ($step
-     * * N) = $start for some N
-     * @return integer $result The resulting randomly-generated number
-     */
-    function randrange($stop)
-    {
-        static $duplicate_cache = array();
-        $lib =& Auth_OpenID_getMathLib();
-
-        // DO NOT MODIFY THIS VALUE.
-        $rbytes = Auth_OpenID_longToBinary($stop);
-
-        if (array_key_exists($rbytes, $duplicate_cache)) {
-            list($duplicate, $nbytes) = $duplicate_cache[$rbytes];
-        } else {
-            if ($rbytes[0] == "\x00") {
-                $nbytes = strlen($rbytes) - 1;
-            } else {
-                $nbytes = strlen($rbytes);
-            }
-
-            $mxrand = $lib->pow(256, $nbytes);
-
-            // If we get a number less than this, then it is in the
-            // duplicated range.
-            $duplicate = $lib->mod($mxrand, $stop);
-
-            if (count($duplicate_cache) > 10) {
-                $duplicate_cache = array();
-            }
-
-            $duplicate_cache[$rbytes] = array($duplicate, $nbytes);
-        }
-
-        while (1) {
-            $bytes = "\x00" . Auth_OpenID_CryptUtil::getBytes($nbytes);
-            $n = Auth_OpenID_binaryToLong($bytes);
-            // Keep looping if this value is in the low duplicated
-            // range
-            if ($lib->cmp($n, $duplicate) >= 0) {
-                break;
-            }
-        }
-
-        return $lib->mod($n, $stop);
     }
 
 }

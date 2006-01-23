@@ -127,7 +127,7 @@ class Tests_Auth_OpenID_BinLongConvertRnd extends PHPUnit_TestCase {
     {
         $n = $this->lib->init(0);
         foreach (range(0, 9) as $i) {
-            $rnd = Auth_OpenID_CryptUtil::randrange($this->max);
+            $rnd = Auth_OpenID_randrange($this->max);
             $n = $this->lib->add($n, $rnd);
         }
         $s = Auth_OpenID_longToBinary($n);
@@ -201,8 +201,8 @@ class Tests_Auth_OpenID_RandRange extends PHPUnit_TestCase {
     function runTest()
     {
         $stop = $this->lib->pow(2, 128);
-        $a = Auth_OpenID_CryptUtil::randrange($stop);
-        $b = Auth_OpenID_CryptUtil::randrange($stop);
+        $a = Auth_OpenID_randrange($stop);
+        $b = Auth_OpenID_randrange($stop);
 
         $this->assertFalse($this->lib->cmp($b, $a) == 0, "Same: $a $b");
 
@@ -211,7 +211,7 @@ class Tests_Auth_OpenID_RandRange extends PHPUnit_TestCase {
 
         // Make sure that we can generate random numbers that are
         // larger than platform int size
-        $result = Auth_OpenID_CryptUtil::randrange($n);
+        $result = Auth_OpenID_randrange($n);
 
         // What can we say about the result?
     }
