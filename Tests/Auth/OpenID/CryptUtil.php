@@ -16,6 +16,25 @@
 require_once('PHPUnit.php');
 require_once('Auth/OpenID/CryptUtil.php');
 
+/**
+ * Computes the maximum integer value for this PHP installation.
+ *
+ * @return int $max_int_value The maximum integer value for this
+ * PHP installation
+ */
+function Tests_Auth_OpenID_maxint()
+{
+    /* assumes largest integer is of form 2^n - 1 */
+    $to_test = pow(2, 16);
+    while (1) {
+        $last = $to_test;
+        $to_test = 2 * $to_test;
+        if (($to_test < $last) || (!is_int($to_test))) {
+            return($last + ($last - 1));
+        }
+    }
+}
+
 class Tests_Auth_OpenID_ByteOps extends PHPUnit_TestCase {
     function test_length()
     {
@@ -187,7 +206,7 @@ class Tests_Auth_OpenID_RandRange extends PHPUnit_TestCase {
 
         $this->assertFalse($this->lib->cmp($b, $a) == 0, "Same: $a $b");
 
-        $n = $this->lib->init(Auth_OpenID_CryptUtil::maxint());
+        $n = $this->lib->init(Tests_Auth_OpenID_maxint());
         $n = $this->lib->add($n, 1);
 
         // Make sure that we can generate random numbers that are
@@ -223,7 +242,7 @@ class Tests_Auth_OpenID_CryptUtil extends PHPUnit_TestSuite {
             $this->addTestSuite('Tests_Auth_OpenID_BigInt');
 
             $lib =& Auth_OpenID_getMathLib();
-            $max = Auth_OpenID_CryptUtil::maxint();
+            $max = Tests_Auth_OpenID_maxint();
             $upper = defined('Tests_Auth_OpenID_thorough') ? 499 : 3;
 
             foreach (range(0, $upper) as $iteration) {
