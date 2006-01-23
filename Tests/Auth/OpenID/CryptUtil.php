@@ -53,7 +53,7 @@ class Tests_Auth_OpenID_ByteOps extends PHPUnit_TestCase {
         $data = Auth_OpenID_CryptUtil::getBytes($num_iterations);
         for ($i = 0; $i < $num_iterations; $i++) {
             $last = $data;
-            $data = Auth_OpenID_CryptUtil::getBytes($num_iterations);
+            $data = Auth_OpenID_CryptUtil::getBytes($data_length);
             $this->assertFalse($data == $last);
         }
     }
