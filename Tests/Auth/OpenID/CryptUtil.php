@@ -92,30 +92,6 @@ class Tests_Auth_OpenID_ByteOps extends PHPUnit_TestCase {
             $this->assertNull($unexpected);
         }
     }
-
-    function test_reversed()
-    {
-        $cases = array(
-                       array('', ''),
-                       array('a', 'a'),
-                       array('ab', 'ba'),
-                       array('abc', 'cba'),
-                       array('abcdefg', 'gfedcba'),
-                       array(array(), array()),
-                       array(array(1), array(1)),
-                       array(array(1,2), array(2,1)),
-                       array(array(1,2,3), array(3,2,1)),
-                       array(range(0, 999), array_reverse(range(0, 999)))
-                       );
-
-        while (list($index, $values) = each($cases)) {
-            list($case, $expected) = $values;
-            $actual = Auth_OpenID_CryptUtil::reversed($case);
-            $this->assertEquals($actual, $expected);
-            $twice = Auth_OpenID_CryptUtil::reversed($actual);
-            $this->assertEquals($twice, $case);
-        }
-    }
 }
 
 class Tests_Auth_OpenID_BinLongConvertRnd extends PHPUnit_TestCase {

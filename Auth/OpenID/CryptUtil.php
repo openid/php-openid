@@ -306,23 +306,6 @@ class Auth_OpenID_CryptUtil {
     }
 
     /**
-     * Reverses a string or array.
-     *
-     * @param mixed $list A string or an array
-     * @return mixed $result The reversed string or array
-     */
-    function reversed($list)
-    {
-        if (is_string($list)) {
-            return strrev($list);
-        } else if (is_array($list)) {
-            return array_reverse($list);
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Returns a random number in the specified range.  This function
      * accepts $start, $stop, and $step values of arbitrary magnitude
      * and will utilize the local large-number math library when
