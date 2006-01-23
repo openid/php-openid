@@ -260,38 +260,6 @@ function Auth_OpenID_getBytes($num_bytes)
 }
 
 /**
- * Auth_OpenID_CryptUtil houses static utility functions.
- *
- * @package OpenID
- * @static
- */
-class Auth_OpenID_CryptUtil {
-    /**
-     * Given two strings of equal length, computes the exclusive-OR of
-     * the two strings' ordinal values and returns the resulting
-     * string.
-     *
-     * @param string $x A string
-     * @param string $y A string
-     * @return string $result The result of $x XOR $y
-     */
-    function strxor($x, $y)
-    {
-        if (strlen($x) != strlen($y)) {
-            return null;
-        }
-
-        $str = "";
-        for ($i = 0; $i < strlen($x); $i++) {
-            $str .= chr(ord($x[$i]) ^ ord($y[$i]));
-        }
-
-        return $str;
-    }
-
-}
-
-/**
  * Exposes math library functionality.
  *
  * Auth_OpenID_MathWrapper is a base class that defines the interface

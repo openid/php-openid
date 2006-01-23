@@ -69,48 +69,6 @@ class Tests_Auth_OpenID_ByteOps extends PHPUnit_TestCase {
         $this->assertEquals(strlen($t), 32);
         $this->assertFalse($s == $t);
     }
-
-    function test_strxor()
-    {
-        $NUL = "\x00";
-
-        $cases = array(
-                       array($NUL, $NUL, $NUL),
-                       array("\x01", $NUL, "\x01"),
-                       array("a", "a", $NUL),
-                       array("a", $NUL, "a"),
-                       array("abc", str_repeat($NUL, 3), "abc"),
-                       array(str_repeat("x", 10),
-                             str_repeat($NUL, 10),
-                             str_repeat("x", 10)),
-                       array("\x01", "\x02", "\x03"),
-                       array("\xf0", "\x0f", "\xff"),
-                       array("\xff", "\x0f", "\xf0"),
-                       );
-
-        while (list($index, $values) = each($cases)) {
-            list($aa, $bb, $expected) = $values;
-            $actual = Auth_OpenID_CryptUtil::strxor($aa, $bb);
-            $this->assertEquals($actual, $expected);
-        }
-
-        $exc_cases = array(
-                           array('', 'a'),
-                           array('foo', 'ba'),
-                           array(str_repeat($NUL, 3),
-                                 str_repeat($NUL, 4)),
-                           array(implode('', array_map('chr',
-                                                       range(0, 255))),
-                                 implode('', array_map('chr',
-                                                       range(0, 127))))
-                           );
-
-        while(list($index, $values) = each($exc_cases)) {
-            list($aa, $bb) = $values;
-            $unexpected = Auth_OpenID_CryptUtil::strxor($aa, $bb);
-            $this->assertNull($unexpected);
-        }
-    }
 }
 
 class Tests_Auth_OpenID_BinLongConvertRnd extends PHPUnit_TestCase {

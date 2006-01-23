@@ -99,6 +99,12 @@ class Auth_OpenID_DiffieHellman {
         $dh_shared = $this->getSharedSecret($composite);
         $dh_shared_str = Auth_OpenID_longToBinary($dh_shared);
         $sha1_dh_shared = Auth_OpenID_SHA1($dh_shared_str);
-        return Auth_OpenID_CryptUtil::strxor($secret, $sha1_dh_shared);
+
+        $xsecret = "";
+        for ($i = 0; $i < strlen($x); $i++) {
+            $xsecret .= chr(ord($secret[$i]) ^ ord($sha1_dh_shared[$i]));
+        }
+
+        return $xsecret;
     }
 }
