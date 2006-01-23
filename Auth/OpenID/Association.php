@@ -173,7 +173,7 @@ class Auth_OpenID_Association {
         $data = array(
                      'version' => '2',
                      'handle' => $this->handle,
-                     'secret' => Auth_OpenID_toBase64($this->secret),
+                     'secret' => base64_encode($this->secret),
                      'issued' => strval(intval($this->issued)),
                      'lifetime' => strval(intval($this->lifetime)),
                      'assoc_type' => $this->assoc_type
@@ -222,7 +222,7 @@ class Auth_OpenID_Association {
 
         $issued = intval($issued);
         $lifetime = intval($lifetime);
-        $secret = Auth_OpenID_fromBase64($secret);
+        $secret = base64_decode($secret);
 
         return new $class_name(
             $handle, $secret, $issued, $lifetime, $assoc_type);
@@ -259,7 +259,7 @@ class Auth_OpenID_Association {
             $pairs[] = array($field, $data[$prefix . $field]);
         }
 
-        return Auth_OpenID_toBase64($this->sign($pairs));
+        return base64_encode($this->sign($pairs));
     }
 
     function addSignature($fields, &$data, $prefix = 'openid.')

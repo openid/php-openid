@@ -755,7 +755,7 @@ class Auth_OpenID_Consumer {
         $sig = Auth_OpenID_HMACSHA1($this->store->getAuthKey(),
                                               $joined);
 
-        return Auth_OpenID_toBase64($sig . $joined);
+        return base64_encode($sig . $joined);
     }
 
     /**
@@ -765,7 +765,7 @@ class Auth_OpenID_Consumer {
     {
         global $_Auth_OpenID_TOKEN_LIFETIME;
 
-        $token = Auth_OpenID_fromBase64($token);
+        $token = base64_decode($token);
         if (strlen($token) < 20) {
             return null;
         }
@@ -946,7 +946,7 @@ class Auth_OpenID_Consumer {
 
         $session_type = Auth_OpenID_array_get($results, 'session_type', null);
         if ($session_type === null) {
-            $secret = Auth_OpenID_fromBase64($results['mac_key']);
+            $secret = base64_decode($results['mac_key']);
         } else {
             $fmt = 'Unsupported session_type returned from server %s: %s';
             if ($session_type != 'DH-SHA1') {
@@ -956,7 +956,7 @@ class Auth_OpenID_Consumer {
 
             $spub = Auth_OpenID_base64ToLong($results['dh_server_public']);
 
-            $enc_mac_key = Auth_OpenID_fromBase64($results['enc_mac_key']);
+            $enc_mac_key = base64_decode($results['enc_mac_key']);
 
             $secret = $dh->xorSecret($spub, $enc_mac_key);
         }

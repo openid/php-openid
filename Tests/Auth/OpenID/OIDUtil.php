@@ -50,9 +50,9 @@ class Tests_Auth_OpenID_OIDUtil extends PHPUnit_TestCase {
                        );
 
         foreach ($cases as $s) {
-            $b64 = Auth_OpenID_toBase64($s);
+            $b64 = base64_encode($s);
             checkEncoded($this, $b64, $allowed_d);
-            $s_prime = Auth_OpenID_fromBase64($b64);
+            $s_prime = base64_decode($b64);
             $this->assertEquals($s_prime, $s);
         }
 
@@ -67,9 +67,9 @@ class Tests_Auth_OpenID_OIDUtil extends PHPUnit_TestCase {
             $s = implode("", array_map('chr',
                                        array_map('random_ordinal',
                                                  range(0, $n))));
-            $b64 = Auth_OpenID_toBase64($s);
+            $b64 = base64_encode($s);
             checkEncoded($this, $b64, $allowed_d);
-            $s_prime = Auth_OpenID_fromBase64($b64);
+            $s_prime = base64_decode($b64);
             $this->assertEquals($s_prime, $s);
         }
     }

@@ -149,23 +149,6 @@ function Auth_OpenID_appendArgs($url, $args)
 }
 
 /**
- * Converts the specified string to a base64 representation.
- */
-function Auth_OpenID_toBase64($s)
-{
-    return base64_encode($s);
-}
-
-/**
- * Returns the original string representation of the specified
- * base64-encoded string.
- */
-function Auth_OpenID_fromBase64($s)
-{
-    return base64_decode($s);
-}
-
-/**
  * Turn a string into an ASCII string.
  *
  * Replace non-ascii characters with a %-encoded, UTF-8 encoding. This
