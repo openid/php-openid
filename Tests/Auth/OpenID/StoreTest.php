@@ -299,6 +299,14 @@ explicitly');
                             "Key length not equals AUTH_KEY_LEN");
     }
 
+    function test_memstore()
+    {
+        require_once 'Tests/Auth/OpenID/MemStore.php';
+        $store = new Tests_Auth_OpenID_MemStore('Bogus auth key      ');
+        $this->_testStore(&$store);
+        $this->_testNonce(&$store);
+    }
+
     function test_filestore()
     {
         require_once 'Auth/OpenID/Store/FileStore.php';
