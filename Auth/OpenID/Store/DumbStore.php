@@ -17,8 +17,8 @@
 /**
  * Import the interface for creating a new store class.
  */
-require_once 'Interface.php';
-require_once 'Auth/OpenID/CryptUtil.php';
+require_once 'Auth/OpenID/Store/Interface.php';
+require_once 'Auth/OpenID/HMACSHA1.php';
 
 /**
  * This is a store for use in the worst case, when you have no way of
