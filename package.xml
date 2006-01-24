@@ -72,13 +72,17 @@ http://pear.php.net/dtd/package-2.0.xsd">
      <pearinstaller>
        <min>1.6.0a1</min>
      </pearinstaller>
+   </required>
+   <optional>
+     <package>
+       <name>PHPUnit</name>
+       <min>1.1.1</min>
+     </package>
      <package>
        <name>PEAR_DB</name>
        <channel>pear.php.net</channel>
        <min>1.80</min>
      </package>
-   </required>
-   <optional>
      <extension>
        <name>pgsql</name>
      </extension>
