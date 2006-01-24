@@ -13,8 +13,8 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-require_once('PHPUnit.php');
-require_once('Auth/OpenID/CryptUtil.php');
+require_once 'PHPUnit.php';
+require_once 'Auth/OpenID/CryptUtil.php';
 
 class Tests_Auth_OpenID_CryptUtil extends PHPUnit_TestCase {
     function test_length()

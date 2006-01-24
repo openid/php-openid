@@ -13,7 +13,7 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-require_once('Auth/OpenID/Consumer/Parse.php');
+require_once 'Auth/OpenID/Consumer/Parse.php';
 
 class Tests_Auth_OpenID_Link extends PHPUnit_TestCase {
     function Tests_Auth_OpenID_Link($case)

@@ -15,7 +15,7 @@
  */
 
 // For rand
-require_once('Auth/OpenID/CryptUtil.php');
+require_once 'Auth/OpenID/CryptUtil.php';
 
 class Auth_OpenID_MathLibrary {
     /**

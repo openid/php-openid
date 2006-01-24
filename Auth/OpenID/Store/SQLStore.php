@@ -17,8 +17,8 @@
  * Require the PEAR DB module because we'll need it for the SQL-based
  * stores implemented here.
  */
-require_once('DB.php');
-require_once('Interface.php');
+require_once 'DB.php';
+require_once 'Interface.php';
 
 /**
  * Converts a query result to a boolean.  If the result is a PEAR

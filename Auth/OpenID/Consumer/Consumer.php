@@ -183,13 +183,13 @@
 /**
  * Require utility classes and functions for the consumer.
  */
-require_once("Auth/OpenID/Association.php");
-require_once("Auth/OpenID/Consumer/Fetchers.php");
-require_once("Auth/OpenID/Consumer/Parse.php");
-require_once("Auth/OpenID/CryptUtil.php");
-require_once("Auth/OpenID/DiffieHellman.php");
-require_once("Auth/OpenID/KVForm.php");
-require_once("Auth/OpenID/OIDUtil.php");
+require_once "Auth/OpenID/Association.php";
+require_once "Auth/OpenID/Consumer/Fetchers.php";
+require_once "Auth/OpenID/Consumer/Parse.php";
+require_once "Auth/OpenID/CryptUtil.php";
+require_once "Auth/OpenID/DiffieHellman.php";
+require_once "Auth/OpenID/KVForm.php";
+require_once "Auth/OpenID/OIDUtil.php";
 
 /**
  * This is the status code returned when either the of the beginAuth

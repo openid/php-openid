@@ -13,8 +13,8 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-require_once('PHPUnit.php');
-require_once('Auth/OpenID/Association.php');
+require_once 'PHPUnit.php';
+require_once 'Auth/OpenID/Association.php';
 
 class Tests_Auth_OpenID_Association extends PHPUnit_TestCase {
     function test_me()

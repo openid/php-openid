@@ -17,9 +17,9 @@
 /**
  * Includes for utility functions.
  */
-require_once('CryptUtil.php');
-require_once('KVForm.php');
-require_once('OIDUtil.php');
+require_once 'CryptUtil.php';
+require_once 'KVForm.php';
+require_once 'OIDUtil.php';
 
 /**
  * This class represents an association between a server and a

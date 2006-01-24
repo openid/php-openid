@@ -13,8 +13,8 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-require_once('PHPUnit.php');
-require_once('Auth/OpenID/BigMath.php');
+require_once 'PHPUnit.php';
+require_once 'Auth/OpenID/BigMath.php';
 
 class Tests_Auth_OpenID_BinLongConvertRnd extends PHPUnit_TestCase {
     var $lib;

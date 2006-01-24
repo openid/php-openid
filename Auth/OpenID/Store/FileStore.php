@@ -18,8 +18,8 @@
 /**
  * Require base class for creating a new interface.
  */
-require_once('Interface.php');
-require_once('Auth/OpenID/OIDUtil.php');
+require_once 'Interface.php';
+require_once 'Auth/OpenID/OIDUtil.php';
 
 function Auth_OpenID_rmtree($dir)
 {

@@ -13,8 +13,8 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-require_once('PHPUnit.php');
-require_once('Auth/OpenID/OIDUtil.php');
+require_once 'PHPUnit.php';
+require_once 'Auth/OpenID/OIDUtil.php';
 
 class Tests_Auth_OpenID_OIDUtil extends PHPUnit_TestCase {
     function test_base64()

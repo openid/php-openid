@@ -9,8 +9,8 @@
  * Require files to use the OpenID consumer.  We need the consumer
  * itself, an OpenID store implementation, and some utility functions.
  */
-require_once("Auth/OpenID/Consumer/Consumer.php");
-require_once("Auth/OpenID/OIDUtil.php");
+require_once "Auth/OpenID/Consumer/Consumer.php";
+require_once "Auth/OpenID/OIDUtil.php";
 
 /**
  * Create the OpenID store and consumer objects, which we'll use to
@@ -27,7 +27,7 @@ $store_type = 'file';
 
 if ($store_type == 'sqlite') {
 
-    require_once("Auth/OpenID/Store/SQLStore.php");
+    require_once "Auth/OpenID/Store/SQLStore.php";
 
     /**
      * This is where the example will store its OpenID information.
@@ -64,7 +64,7 @@ if ($store_type == 'sqlite') {
 
 } else if ($store_type == 'mysql') {
 
-    require_once("Auth/OpenID/Store/SQLStore.php");
+    require_once "Auth/OpenID/Store/SQLStore.php";
 
     /**
      * Assume that the database used by the MySQL store has already
@@ -98,7 +98,7 @@ if ($store_type == 'sqlite') {
 
 } else if ($store_type == 'pgsql') {
 
-    require_once("Auth/OpenID/Store/SQLStore.php");
+    require_once "Auth/OpenID/Store/SQLStore.php";
 
     /**
      * Assume that the database used by the PostgreSQL store has
@@ -132,7 +132,7 @@ if ($store_type == 'sqlite') {
 
 } else {
 
-    require_once("Auth/OpenID/Store/FileStore.php");
+    require_once "Auth/OpenID/Store/FileStore.php";
 
     /**
      * This is where the example will store its OpenID information.

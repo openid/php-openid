@@ -1,7 +1,7 @@
 <?php
 
-require_once('Tests/TestDriver.php');
-require_once('PHPUnit/TestResult.php');
+require_once 'Tests/TestDriver.php';
+require_once 'PHPUnit/TestResult.php';
 
 class TextTestResult extends PHPUnit_TestResult {
     function addError(&$test, &$t)

@@ -16,9 +16,9 @@
 /**
  * Require classes and functions to run the Store tests.
  */
-require_once('Auth/OpenID/Association.php');
-require_once('Auth/OpenID/CryptUtil.php');
-require_once('Auth/OpenID/OIDUtil.php');
+require_once 'Auth/OpenID/Association.php';
+require_once 'Auth/OpenID/CryptUtil.php';
+require_once 'Auth/OpenID/OIDUtil.php';
 
 /**
  * This is the host where the SQL stores' databases should be created
@@ -301,7 +301,7 @@ explicitly');
 
     function test_filestore()
     {
-        require_once('Auth/OpenID/Store/FileStore.php');
+        require_once 'Auth/OpenID/Store/FileStore.php';
 
         $temp_dir = Auth_OpenID_mkdtemp('/tmp');
 
@@ -327,8 +327,8 @@ explicitly');
             return;
         }
 
-        require_once('Auth/OpenID/Store/SQLStore.php');
-        require_once('DB.php');
+        require_once 'Auth/OpenID/Store/SQLStore.php';
+        require_once 'DB.php';
 
         global $_Auth_OpenID_db_test_host;
 
@@ -410,8 +410,8 @@ explicitly');
             return;
         }
 
-        require_once('Auth/OpenID/Store/SQLStore.php');
-        require_once('DB.php');
+        require_once 'Auth/OpenID/Store/SQLStore.php';
+        require_once 'DB.php';
 
         $temp_dir = Auth_OpenID_mkdtemp('/tmp');
 
@@ -446,8 +446,8 @@ explicitly');
             return;
         }
 
-        require_once('Auth/OpenID/Store/SQLStore.php');
-        require_once('DB.php');
+        require_once 'Auth/OpenID/Store/SQLStore.php';
+        require_once 'DB.php';
 
         global $_Auth_OpenID_db_test_host;
 

@@ -13,8 +13,8 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-require_once('PHPUnit.php');
-require_once('Auth/OpenID/KVForm.php');
+require_once 'PHPUnit.php';
+require_once 'Auth/OpenID/KVForm.php';
 
 $_Tests_Auth_OpenID_kverrors = null;
 /**

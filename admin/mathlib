@@ -1,10 +1,10 @@
 #!/usr/bin/env php
 <?php
 
-require_once('adminutil.php');
+require_once 'adminutil.php';
 includeAdd(getParent());
 
-require_once('Auth/OpenID/CryptUtil.php');
+require_once 'Auth/OpenID/CryptUtil.php';
 
 $lib =& Auth_OpenID_MathLibrary::getLibWrapper();
 

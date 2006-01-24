@@ -54,7 +54,7 @@ function loadTests($test_dir, $test_names)
 
 function global_require_once($name)
 {
-    require_once($name);
+    require_once $name;
     foreach (get_defined_vars() as $k => $v) {
         if (!in_array($k, array('name', 'GLOBALS'))) {
             $GLOBALS[$k] = $v;

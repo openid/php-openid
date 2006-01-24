@@ -14,8 +14,8 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-require_once('PHPUnit.php');
-require_once('Auth/OpenID/HMACSHA1.php');
+require_once 'PHPUnit.php';
+require_once 'Auth/OpenID/HMACSHA1.php';
 
 class Tests_Auth_OpenID_HMACSHA1_TestCase extends PHPUnit_TestCase {
     function Tests_Auth_OpenID_HMACSHA1_TestCase(

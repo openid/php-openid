@@ -1,6 +1,6 @@
 <?php
 
-require_once('Tests/TestDriver.php');
+require_once 'Tests/TestDriver.php';
 
 $suites = loadSuite();
 
