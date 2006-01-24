@@ -62,23 +62,22 @@ function Auth_OpenID_log($message, $unused_level = 0)
 }
 
 /**
- * Rename specified query arguments back to 'openid.' from 'openid_'
+ * Rename query arguments back to 'openid.' from 'openid_'
  *
  * @param array $args An associative array of URL query arguments
- *
- * @param array $allowed A set of strings indicating which 'openid_'
- *    keys should be renamed.
  */
-function Auth_OpenID_fixArgs(&$args, $allowed)
+function Auth_OpenID_fixArgs($args)
 {
-    foreach ($allowed as $key_ext) {
-        $key = 'openid_' . $key_ext;
-        if (isset($args[$key])) {
+    foreach (array_keys($args) as $key) {
+        $fixed = preg_replace('/^openid_/', 'openid.', $key);
+        if ($fixed != $key) {
             $val = $args[$key];
             unset($args[$key]);
-            $args['openid.' . $key_ext] = $val;
+            $args[$fixed] = $val;
         }
     }
+
+    return $args;
 }
 
 /**

@@ -450,29 +450,6 @@ class Auth_OpenID_Consumer {
     }
 
     /**
-     * Given an array of CGI data from PHP, this method replaces
-     * "openid_" with "openid." in the CGI key strings (NOT the
-     * values).  This is to work around the fact that PHP will mangle
-     * the CGI key strings to protect against register_globals
-     * problems.
-     */
-    function fixResponse($arr)
-    {
-        // Depending on PHP settings, the query data received may have
-        // been modified so that incoming "." values in the keys have
-        // been replaced with underscores.  Look specifically for
-        // "openid_" and replace it with "openid.".
-        $result = array();
-
-        foreach ($arr as $key => $value) {
-            $new_key = str_replace("openid_", "openid.", $key);
-            $result[$new_key] = $value;
-        }
-
-        return $result;
-    }
-
-    /**
      * This method is called to interpret the server's response to an
      * OpenID request.  It is called in Step 4 of the flow described
      * in the overview.
@@ -518,7 +495,7 @@ class Auth_OpenID_Consumer {
     {
         global $Auth_OpenID_SUCCESS, $Auth_OpenID_FAILURE;
 
-        $query = $this->fixResponse($query);
+        $query = Auth_OpenID_fixArgs($query);
 
         $mode = Auth_OpenID_array_get($query, 'openid.mode', '');
 
