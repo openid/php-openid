@@ -359,14 +359,9 @@ function process()
     // None or a string containing more information about the return
     // type.
 
-    // Because PHP mangles CGI names by replacing dots with
-    // underscores, try to fix the reponse by replacing underscores
-    // with dots so we can look for openid.* values.
-    $data = Auth_OpenID_Consumer::fixResponse($_GET);
-
     // Complete the authentication process using the server's
     // response.
-    list($status, $info) = $consumer->completeAuth($token, $data);
+    list($status, $info) = $consumer->completeAuth($token, $_GET);
 
     $css_class = 'error';
     $openid_url = null;
