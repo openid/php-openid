@@ -73,7 +73,8 @@ $_test_names = array(
     'KVForm',
     'OIDUtil',
     'Parse',
-    'StoreTest'
+    'StoreTest',
+    'Server'
     );
 
 function selectTests($names)
