@@ -14,7 +14,7 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-// For Auth_OpenID_randrange
+// For rand
 require_once('Auth/OpenID/CryptUtil.php');
 
 class Auth_OpenID_MathLibrary {
@@ -120,7 +120,7 @@ class Auth_OpenID_MathLibrary {
      * * N) = $start for some N
      * @return integer $result The resulting randomly-generated number
      */
-    function randrange($stop)
+    function rand($stop)
     {
         static $duplicate_cache = array();
 

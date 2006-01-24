@@ -30,7 +30,7 @@ class Tests_Auth_OpenID_BinLongConvertRnd extends PHPUnit_TestCase {
     {
         $n = $this->lib->init(0);
         foreach (range(0, 9) as $i) {
-            $rnd = $this->lib->randrange($this->max);
+            $rnd = $this->lib->rand($this->max);
             $n = $this->lib->add($n, $rnd);
         }
         $s = $this->lib->longToBinary($n);
@@ -95,8 +95,8 @@ class Tests_Auth_OpenID_LongToBase64 extends Tests_Auth_OpenID_Base64ToLong {
     }
 }
 
-class Tests_Auth_OpenID_RandRange extends PHPUnit_TestCase {
-    function Tests_Auth_OpenID_RandRange(&$lib)
+class Tests_Auth_OpenID_Rand extends PHPUnit_TestCase {
+    function Tests_Auth_OpenID_Rand(&$lib)
     {
         $this->lib =& $lib;
     }
@@ -104,8 +104,8 @@ class Tests_Auth_OpenID_RandRange extends PHPUnit_TestCase {
     function runTest()
     {
         $stop = $this->lib->pow(2, 128);
-        $a = $this->lib->randrange($stop);
-        $b = $this->lib->randrange($stop);
+        $a = $this->lib->rand($stop);
+        $b = $this->lib->rand($stop);
 
         $this->assertFalse($this->lib->cmp($b, $a) == 0, "Same: $a $b");
 
@@ -114,7 +114,7 @@ class Tests_Auth_OpenID_RandRange extends PHPUnit_TestCase {
 
         // Make sure that we can generate random numbers that are
         // larger than platform int size
-        $result = $this->lib->randrange($n);
+        $result = $this->lib->rand($n);
 
         // What can we say about the result?
     }
@@ -212,8 +212,8 @@ class Tests_Auth_OpenID_BigMath extends PHPUnit_TestSuite {
                 $this->addTest($test);
             }
 
-            $test = new Tests_Auth_OpenID_RandRange($lib);
-            $test->setName('Big number randrange');
+            $test = new Tests_Auth_OpenID_Rand($lib);
+            $test->setName('Big number rand');
             $this->addTest($test);
         }
     }

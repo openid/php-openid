@@ -64,7 +64,7 @@ class Auth_OpenID_DiffieHellman {
         }
 
         if ($private === null) {
-            $r = $this->lib->randrange($this->mod);
+            $r = $this->lib->rand($this->mod);
             $this->private = $this->lib->add($r, 1);
         } else {
             $this->private = $private;
