@@ -152,12 +152,11 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
     function _run(&$consumer, $user_url, $mode, $delegate_url,
                   &$fetcher, &$store)
     {
-        global $Auth_OpenID_SUCCESS,
-            $_Auth_OpenID_consumer_url,
+        global $_Auth_OpenID_consumer_url,
             $_Auth_OpenID_server_url;
 
         list($status, $info) = $consumer->beginAuth($user_url);
-        $this->assertEquals($Auth_OpenID_SUCCESS, $status);
+        $this->assertEquals(Auth_OpenID_SUCCESS, $status);
 
         $return_to = $_Auth_OpenID_consumer_url;
         $trust_root = $_Auth_OpenID_consumer_url;
@@ -205,7 +204,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
 
         list($status, $info) = $consumer->completeAuth($info->token, $query);
 
-        $this->assertEquals($Auth_OpenID_SUCCESS, $status);
+        $this->assertEquals(Auth_OpenID_SUCCESS, $status);
         $this->assertEquals($info, $user_url);
     }
 
@@ -292,8 +291,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
 
     function test_bad_fetch()
     {
-        global $_Auth_OpenID_filestore_base_dir,
-            $Auth_OpenID_HTTP_FAILURE;
+        global $_Auth_OpenID_filestore_base_dir;
 
         $store = new Auth_OpenID_FileStore(
             Auth_OpenID_mkdtemp($_Auth_OpenID_filestore_base_dir));
@@ -311,7 +309,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
             list($error_code, $url) = $case;
             $fetcher->get_responses[$url] = array($error_code, $url, null);
             list($status, $info) = $consumer->beginAuth($url);
-            $this->assertEquals($status, $Auth_OpenID_HTTP_FAILURE);
+            $this->assertEquals($status, Auth_OpenID_HTTP_FAILURE);
             $this->assertEquals($info, $error_code);
         }
 
@@ -320,8 +318,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
 
     function test_bad_parse()
     {
-        global $_Auth_OpenID_filestore_base_dir,
-            $Auth_OpenID_PARSE_ERROR;
+        global $_Auth_OpenID_filestore_base_dir;
 
         $store = new Auth_OpenID_FileStore(
             Auth_OpenID_mkdtemp($_Auth_OpenID_filestore_base_dir));
@@ -338,7 +335,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
                                                   null, null);
             $consumer = new Auth_OpenID_TestConsumer($store, $fetcher);
             list($status, $info) = $consumer->beginAuth($user_url);
-            $this->assertEquals($status, $Auth_OpenID_PARSE_ERROR);
+            $this->assertEquals($status, Auth_OpenID_PARSE_ERROR);
             $this->assertNull($info);
         }
 

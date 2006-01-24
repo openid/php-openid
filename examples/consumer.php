@@ -5,6 +5,8 @@
  * Auth/OpenID has been installed and is in your PHP include path.
  */
 
+set_include_path(get_include_path() . ":/home/cygnus/production/");
+
 /**
  * Require the OpenID consumer code.
  */
@@ -301,10 +303,7 @@ function render($message = null, $css_class = null,
  */
 function verify()
 {
-    global $consumer, $urls, $self_url,
-        $Auth_OpenID_HTTP_FAILURE,
-        $Auth_OpenID_PARSE_ERROR,
-        $Auth_OpenID_SUCCESS;
+    global $consumer, $urls, $self_url;
 
     // Render a default page if we got a submission without an
     // openid_url value.
@@ -320,13 +319,13 @@ function verify()
     list($status, $info) = $consumer->beginAuth($openid_url);
 
     // Handle failure status return values.
-    if (in_array($status, array($Auth_OpenID_HTTP_FAILURE, $Auth_OpenID_PARSE_ERROR))) {
-        if ($status == $Auth_OpenID_HTTP_FAILURE) {
+    if (in_array($status, array(Auth_OpenID_HTTP_FAILURE, Auth_OpenID_PARSE_ERROR))) {
+        if ($status == Auth_OpenID_HTTP_FAILURE) {
             render("HTTP failure");
         } else {
             render("HTTP Parse error");
         }
-    } else if ($status == $Auth_OpenID_SUCCESS) {
+    } else if ($status == Auth_OpenID_SUCCESS) {
         // If we got a successful return, continue the auth by
         // redirecting the user agent to the OpenID server.  Be sure
         // to give the server a URL that will cause this script's
@@ -347,9 +346,7 @@ function verify()
  */
 function process()
 {
-    global $consumer,
-        $Auth_OpenID_SUCCESS,
-        $Auth_OpenID_FAILURE;
+    global $consumer;
 
     // Retrieve the token from the session.
     $token = $_SESSION['openid_token'];
@@ -367,7 +364,7 @@ function process()
     $openid_url = null;
 
     // React to the server's response status.
-    if (($status == $Auth_OpenID_FAILURE) &&
+    if (($status == Auth_OpenID_FAILURE) &&
         $info) {
         // In the case of failure, if info is non-None, it is the URL
         // that we were verifying. We include it in the error message
@@ -375,7 +372,7 @@ function process()
         $openid_url = $info;
         $fmt = "Verification of %s failed.";
         $message = sprintf($fmt, $openid_url);
-    } else if ($status == $Auth_OpenID_SUCCESS) {
+    } else if ($status == Auth_OpenID_SUCCESS) {
         // Success means that the transaction completed without
         // error. If info is None, it means that the user cancelled
         // the verification.

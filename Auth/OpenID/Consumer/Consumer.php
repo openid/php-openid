@@ -183,6 +183,7 @@
 /**
  * Require utility classes and functions for the consumer.
  */
+require_once "Auth/OpenID/HMACSHA1.php";
 require_once "Auth/OpenID/Association.php";
 require_once "Auth/OpenID/Consumer/Fetchers.php";
 require_once "Auth/OpenID/Consumer/Parse.php";
@@ -195,13 +196,13 @@ require_once "Auth/OpenID/OIDUtil.php";
  * This is the status code returned when either the of the beginAuth
  * or completeAuth methods return successfully.
  */
-$Auth_OpenID_SUCCESS = 'success';
+define('Auth_OpenID_SUCCESS', 'success');
 
 /**
  * This is the status code completeAuth returns when the value it
  * received indicated an invalid login.
  */
-$Auth_OpenID_FAILURE = 'failure';
+define('Auth_OpenID_FAILURE', 'failure');
 
 /**
  * This is the status code completeAuth returns when the
@@ -209,20 +210,20 @@ $Auth_OpenID_FAILURE = 'failure';
  * server sends back a URL to send the user to to complete his or her
  * login.
  */
-$Auth_OpenID_SETUP_NEEDED = 'setup needed';
+define('Auth_OpenID_SETUP_NEEDED', 'setup needed');
 
 /**
  * This is the status code beginAuth returns when it is unable to
  * fetch the OpenID URL the user entered.
  */
-$Auth_OpenID_HTTP_FAILURE = 'http failure';
+define('Auth_OpenID_HTTP_FAILURE', 'http failure');
 
 /**
  * This is the status code beginAuth returns when the page fetched
  * from the entered OpenID URL doesn't contain the necessary link tags
  * to function as an identity page.
 */
-$Auth_OpenID_PARSE_ERROR = 'parse error';
+define('Auth_OpenID_PARSE_ERROR', 'parse error');
 
 /**
  * This is the characters that the nonces are made from.
@@ -339,8 +340,8 @@ class Auth_OpenID_Consumer {
      * First, the user's claimed identity page is fetched, to
      * determine their identity server.  If the page cannot be fetched
      * or if the page does not have the necessary link tags in it,
-     * this method returns one of $Auth_OpenID_HTTP_FAILURE or
-     * $Auth_OpenID_PARSE_ERROR, depending on where the process failed.
+     * this method returns one of Auth_OpenID_HTTP_FAILURE or
+     * Auth_OpenID_PARSE_ERROR, depending on where the process failed.
      *
      * Second, unless the store provided is a dumb store, it checks to
      * see if it has an association with that identity server, and
@@ -370,7 +371,7 @@ class Auth_OpenID_Consumer {
      * status code and additional information about the code.
      *
      * If there was a problem fetching the identity page the user
-     * gave, the status code is set to $Auth_OpenID_HTTP_FAILURE, and
+     * gave, the status code is set to Auth_OpenID_HTTP_FAILURE, and
      * the additional information value is either set to null if the
      * HTTP transaction failed or the HTTP return code, which will be
      * in the 400-500 range. This additional information value may
@@ -378,11 +379,11 @@ class Auth_OpenID_Consumer {
      *
      * If the identity page fetched successfully, but didn't include
      * the correct link tags, the status code is set to
-     * $Auth_OpenID_PARSE_ERROR, and the additional information value
+     * Auth_OpenID_PARSE_ERROR, and the additional information value
      * is currently set to null.  The additional information value may
      * change in a future release.
      *
-     * Otherwise, the status code is set to $Auth_OpenID_SUCCESS, and
+     * Otherwise, the status code is set to Auth_OpenID_SUCCESS, and
      * the additional information is an instance of
      * Auth_OpenID_AuthRequest.  The $token attribute contains the
      * token to be preserved for the next HTTP request.  The
@@ -392,10 +393,8 @@ class Auth_OpenID_Consumer {
      */
     function beginAuth($user_url)
     {
-        global $Auth_OpenID_SUCCESS;
-
         list($status, $info) = $this->_findIdentityInfo($user_url);
-        if ($status != $Auth_OpenID_SUCCESS) {
+        if ($status != Auth_OpenID_SUCCESS) {
             return array($status, $info);
         }
 
@@ -457,23 +456,23 @@ class Auth_OpenID_Consumer {
      * The return value is a pair, consisting of a status and
      * additional information.  The status values are strings, but
      * should be referred to by their symbolic values:
-     * $Auth_OpenID_SUCCESS, $Auth_OpenID_FAILURE, and
-     * $Auth_OpenID_SETUP_NEEDED.
+     * Auth_OpenID_SUCCESS, Auth_OpenID_FAILURE, and
+     * Auth_OpenID_SETUP_NEEDED.
      *
-     * When $Auth_OpenID_SUCCESS is returned, the additional
+     * When Auth_OpenID_SUCCESS is returned, the additional
      * information returned is either null or a string.  If it is
      * null, it means the user cancelled the login, and no further
      * information can be determined.  If the additional information
      * is a string, it is the identity that has been verified as
      * belonging to the user making this request.
      *
-     * When $Auth_OpenID_FAILURE is returned, the additional
+     * When Auth_OpenID_FAILURE is returned, the additional
      * information is either null or a string.  In either case, this
      * code means that the identity verification failed.  If it can be
      * determined, the identity that failed to verify is returned.
      * Otherwise null is returned.
      *
-     * When $Auth_OpenID_SETUP_NEEDED is returned, the additional
+     * When Auth_OpenID_SETUP_NEEDED is returned, the additional
      * information is the user setup URL.  This is a URL returned only
      * as a response to requests made with openid.mode=immediate,
      * which indicates that the login was unable to proceed, and the
@@ -493,14 +492,12 @@ class Auth_OpenID_Consumer {
      */
     function completeAuth($token, $query)
     {
-        global $Auth_OpenID_SUCCESS, $Auth_OpenID_FAILURE;
-
         $query = Auth_OpenID_fixArgs($query);
 
         $mode = Auth_OpenID_array_get($query, 'openid.mode', '');
 
         if ($mode == 'cancel') {
-            return array($Auth_OpenID_SUCCESS, null);
+            return array(Auth_OpenID_SUCCESS, null);
         } else if ($mode == 'error') {
 
             $error = Auth_OpenID_array_get($query, 'openid.error', null);
@@ -508,11 +505,11 @@ class Auth_OpenID_Consumer {
             if ($error !== null) {
                 Auth_OpenID_log($error);
             }
-            return array($Auth_OpenID_FAILURE, null);
+            return array(Auth_OpenID_FAILURE, null);
         } else if ($mode == 'id_res') {
             return $this->_doIdRes($token, $query);
         } else {
-            return array($Auth_OpenID_FAILURE, null);
+            return array(Auth_OpenID_FAILURE, null);
         }
     }
 
@@ -521,8 +518,7 @@ class Auth_OpenID_Consumer {
      */
     function _gotIdentityInfo($consumer_id, $server_id, $server_url)
     {
-        global $Auth_OpenID_SUCCESS, $_Auth_OpenID_NONCE_CHRS,
-            $_Auth_OpenID_NONCE_LEN;
+        global $_Auth_OpenID_NONCE_CHRS, $_Auth_OpenID_NONCE_LEN;
 
         $nonce = Auth_OpenID_randomString($_Auth_OpenID_NONCE_LEN,
                                           $_Auth_OpenID_NONCE_CHRS);
@@ -533,7 +529,7 @@ class Auth_OpenID_Consumer {
         $req = new Auth_OpenID_AuthRequest
             ($token, $server_id, $server_url, $nonce);
 
-        return array($Auth_OpenID_SUCCESS, $req);
+        return array(Auth_OpenID_SUCCESS, $req);
     }
 
     /**
@@ -561,12 +557,9 @@ class Auth_OpenID_Consumer {
      */
     function _doIdRes($token, $query)
     {
-        global $Auth_OpenID_FAILURE, $Auth_OpenID_SETUP_NEEDED,
-            $Auth_OpenID_SUCCESS;
-
         $ret = $this->_splitToken($token);
         if ($ret === null) {
-            return array($Auth_OpenID_FAILURE, null);
+            return array(Auth_OpenID_FAILURE, null);
         }
 
         list($nonce, $consumer_id, $server_id, $server_url) = $ret;
@@ -579,18 +572,18 @@ class Auth_OpenID_Consumer {
         if (($return_to === null) ||
             ($server_id === null) ||
             ($assoc_handle === null)) {
-            return array($Auth_OpenID_FAILURE, $consumer_id);
+            return array(Auth_OpenID_FAILURE, $consumer_id);
         }
 
         if ($server_id != $server_id2) {
-            return array($Auth_OpenID_FAILURE, $consumer_id);
+            return array(Auth_OpenID_FAILURE, $consumer_id);
         }
 
         $user_setup_url = Auth_OpenID_array_get($query,
                                                'openid.user_setup_url', null);
 
         if ($user_setup_url !== null) {
-            return array($Auth_OpenID_SETUP_NEEDED, $user_setup_url);
+            return array(Auth_OpenID_SETUP_NEEDED, $user_setup_url);
         }
 
         $assoc = $this->store->getAssociation($server_url);
@@ -609,21 +602,21 @@ class Auth_OpenID_Consumer {
         $signed = Auth_OpenID_array_get($query, 'openid.signed', null);
         if (($sig === null) ||
             ($signed === null)) {
-            return array($Auth_OpenID_FAILURE, $consumer_id);
+            return array(Auth_OpenID_FAILURE, $consumer_id);
         }
 
         $signed_list = explode(",", $signed);
         $v_sig = $assoc->signDict($signed_list, $query);
 
         if ($v_sig != $sig) {
-            return array($Auth_OpenID_FAILURE, $consumer_id);
+            return array(Auth_OpenID_FAILURE, $consumer_id);
         }
 
         if (!$this->store->useNonce($nonce)) {
-            return array($Auth_OpenID_FAILURE, $consumer_id);
+            return array(Auth_OpenID_FAILURE, $consumer_id);
         }
 
-        return array($Auth_OpenID_SUCCESS, $consumer_id);
+        return array(Auth_OpenID_SUCCESS, $consumer_id);
     }
 
     /**
@@ -631,11 +624,9 @@ class Auth_OpenID_Consumer {
      */
     function _checkAuth($nonce, $query, $server_url)
     {
-        global $Auth_OpenID_FAILURE, $Auth_OpenID_SUCCESS;
-
         $signed = Auth_OpenID_array_get($query, 'openid.signed', null);
         if ($signed === null) {
-            return $Auth_OpenID_FAILURE;
+            return Auth_OpenID_FAILURE;
         }
 
         $whitelist = array('assoc_handle', 'sig',
@@ -656,7 +647,7 @@ class Auth_OpenID_Consumer {
 
         $ret = $this->fetcher->post($server_url, $post_data);
         if ($ret === null) {
-            return $Auth_OpenID_FAILURE;
+            return Auth_OpenID_FAILURE;
         }
 
         $results = Auth_OpenID_KVForm::kvToArray($ret[2]);
@@ -672,10 +663,10 @@ class Auth_OpenID_Consumer {
             }
 
             if (!$this->store->useNonce($nonce)) {
-                return $Auth_OpenID_FAILURE;
+                return Auth_OpenID_FAILURE;
             }
 
-            return $Auth_OpenID_SUCCESS;
+            return Auth_OpenID_SUCCESS;
         }
 
         $error = Auth_OpenID_array_get($results, 'error', null);
@@ -684,7 +675,7 @@ class Auth_OpenID_Consumer {
                                    "check_authentication: %s", $error));
         }
 
-        return $Auth_OpenID_FAILURE;
+        return Auth_OpenID_FAILURE;
     }
 
     /**
@@ -784,17 +775,15 @@ class Auth_OpenID_Consumer {
      */
     function _findIdentityInfo($identity_url)
     {
-        global $Auth_OpenID_HTTP_FAILURE;
-
         $url = Auth_OpenID_normalizeUrl($identity_url);
         $ret = $this->fetcher->get($url);
         if ($ret === null) {
-            return array($Auth_OpenID_HTTP_FAILURE, null);
+            return array(Auth_OpenID_HTTP_FAILURE, null);
         }
 
         list($http_code, $consumer_id, $data) = $ret;
         if ($http_code != 200) {
-            return array($Auth_OpenID_HTTP_FAILURE, $http_code);
+            return array(Auth_OpenID_HTTP_FAILURE, $http_code);
         }
 
         // This method is split in two this way to allow for
@@ -807,14 +796,12 @@ class Auth_OpenID_Consumer {
      */
     function _parseIdentityInfo($data, $consumer_id)
     {
-        global $Auth_OpenID_PARSE_ERROR, $Auth_OpenID_SUCCESS;
-
         $link_attrs = Auth_OpenID_parseLinkAttrs($data);
         $server = Auth_OpenID_findFirstHref($link_attrs, 'openid.server');
         $delegate = Auth_OpenID_findFirstHref($link_attrs, 'openid.delegate');
 
         if ($server === null) {
-            return array($Auth_OpenID_PARSE_ERROR, null);
+            return array(Auth_OpenID_PARSE_ERROR, null);
         }
 
         if ($delegate !== null) {
@@ -831,7 +818,7 @@ class Auth_OpenID_Consumer {
             $normalized[] = Auth_OpenID_normalizeUrl($url);
         }
 
-        return array($Auth_OpenID_SUCCESS, $normalized);
+        return array(Auth_OpenID_SUCCESS, $normalized);
     }
 
     /**
