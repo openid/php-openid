@@ -254,12 +254,12 @@ explicitly');
                             false, "(25)");
     }
 
-    function _checkUseNonce(&$store, $nonce, $expected)
+    function _checkUseNonce(&$store, $nonce, $expected, $msg=null)
     {
         $actual = $store->useNonce($nonce);
         $expected = $store->isDumb() || $expected;
         $this->assertTrue(($actual && $expected) || (!$actual && !$expected),
-                          "_checkUseNonce failed");
+                          "_checkUseNonce failed: $msg");
     }
 
     function _testNonce(&$store)
@@ -270,19 +270,21 @@ explicitly');
         $nonce1 = $this->generateNonce();
 
         // A nonce is not present by default
-        $this->_checkUseNonce($store, $nonce1, false);
+        $this->_checkUseNonce($store, $nonce1, false, 1);
 
         // Storing once causes useNonce to return true the first, and
         // only the first, time it is called after the $store->
         $store->storeNonce($nonce1);
-        $this->_checkUseNonce($store, $nonce1, true);
-        $this->_checkUseNonce($store, $nonce1, false);
+        $this->_checkUseNonce($store, $nonce1, true, 2);
+        $this->_checkUseNonce($store, $nonce1, false, 3);
+        $this->_checkUseNonce($store, $nonce1, false, 4);
 
         // Storing twice has the same effect as storing once.
         $store->storeNonce($nonce1);
         $store->storeNonce($nonce1);
-        $this->_checkUseNonce($store, $nonce1, true);
-        $this->_checkUseNonce($store, $nonce1, false);
+        $this->_checkUseNonce($store, $nonce1, true, 5);
+        $this->_checkUseNonce($store, $nonce1, false, 6);
+        $this->_checkUseNonce($store, $nonce1, false, 7);
 
         // Auth key functions
 
