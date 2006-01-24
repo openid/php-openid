@@ -6,11 +6,9 @@
  */
 
 /**
- * Require files to use the OpenID consumer.  We need the consumer
- * itself, an OpenID store implementation, and some utility functions.
+ * Require the OpenID consumer code.
  */
 require_once "Auth/OpenID/Consumer/Consumer.php";
-require_once "Auth/OpenID/OIDUtil.php";
 
 /**
  * Create the OpenID store and consumer objects, which we'll use to
@@ -37,12 +35,7 @@ if ($store_type == 'sqlite') {
      */
     $store_path = "/tmp/_php_consumer_test";
 
-
-    /**
-     * Try to create the store directory.  ensureDir is provided by
-     * OIDUtil.php.
-     */
-    if (!ensureDir($store_path)) {
+    if (!file_exists($store_path) && !mkdir($store_path)) {
         print "Could not create the SQLiteStore directory '$store_path'. ".
             " Please check the effective permissions.";
         exit(0);
@@ -142,12 +135,7 @@ if ($store_type == 'sqlite') {
      */
     $store_path = "/tmp/_php_consumer_test";
 
-
-    /**
-     * Try to create the store directory.  ensureDir is provided by
-     * OIDUtil.php.
-     */
-    if (!ensureDir($store_path)) {
+    if (!file_exists($store_path) && !mkdir($store_path)) {
         print "Could not create the FileStore directory '$store_path'. ".
             " Please check the effective permissions.";
         exit(0);
