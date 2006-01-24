@@ -126,8 +126,12 @@ class Auth_OpenID_DiffieHellman {
             $gen = null;
         }
         
-        $dh = new Auth_OpenID_DiffieHellman($mod, $gen);
         $cpub64 = $consumer_args['openid.dh_consumer_public'];
+        if (!isset($cpub64)) {
+            return false;
+        }
+
+        $dh = new Auth_OpenID_DiffieHellman($mod, $gen);
 
         $mac_key = $dh->xorSecret64($cpub64, $assoc_secret);
         $enc_mac_key = base64_encode($mac_key);
@@ -145,6 +149,9 @@ class Auth_OpenID_DiffieHellman {
     function xorSecret64($composite64, $secret)
     {
         $spub = $this->lib->base64ToLong($composite64);
+        if ($this->lib->cmp($spub, 0) <= 0) {
+            return false;
+        }
         return $this->xorSecret($spub, $secret);
     }
 
