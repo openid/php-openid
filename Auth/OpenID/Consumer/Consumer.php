@@ -837,13 +837,6 @@ class Auth_OpenID_Consumer {
     /**
      * @access private
      */
-    function _createAssociateRequest($session_args)
-    {
-    }
-
-    /**
-     * @access private
-     */
     function _fetchAssociation($dh, $server_url, $body)
     {
         $ret = $this->fetcher->post($server_url, $body);
