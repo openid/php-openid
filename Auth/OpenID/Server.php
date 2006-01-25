@@ -318,7 +318,7 @@ class Auth_OpenID_Server {
 
     function getError($args, $msg)
     {
-        $return_to = $args['openid.return_to'];
+        $return_to = @$args['openid.return_to'];
         if (isset($return_to)) {
             $err = array(
                          'openid.mode' => 'error',
@@ -363,7 +363,7 @@ class Auth_OpenID_AuthorizationInfo {
 
     function getReturnTo()
     {
-        return $this->args['openid.return_to'];
+        return @$this->args['openid.return_to'];
     }
 
     function cancel()
@@ -388,7 +388,7 @@ class Auth_OpenID_AuthorizationInfo {
         if (isset($this->args['openid.trust_root'])) {
             return $this->args['openid.trust_root'];
         } else {
-            return $this->args['openid.return_to'];
+            return @$this->args['openid.return_to'];
         }
     }
 

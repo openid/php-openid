@@ -51,4 +51,18 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
             $this->fail($msg);
         }
     }
+
+    function test_getBadArgs()
+    {
+        $args = array(
+                      'openid.mode' => 'zebradance',
+                      'openid.identity' => $this->id_url,
+                      );
+
+        list($status, $info) = $this->server->getOpenIDResponse(
+            '_Auth_OpenID_NotAuthorized', 'GET', $args);
+
+        $this->assertEquals($status, Auth_OpenID_LOCAL_ERROR);
+        $this->assertTrue($info);
+    }
 }
