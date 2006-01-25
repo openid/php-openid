@@ -148,4 +148,37 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         $ra = Auth_OpenID_KVForm::kvToArray($info);
         $this->assertKeyExists('error', $ra);
     }
+
+    function _buildURL($base, $query)
+    {
+        $result = $base;
+        $div = '?';
+        foreach ($query as $k => $v) {
+            $result .= sprintf("%s%s=%s", $div, urlencode($k), urlencode($v));
+            $div = '&';
+        }
+        return $result;
+    }
+
+    function test_checkIdImmediateFailure()
+    {
+        $args = array('openid.mode' => 'checkid_immediate',
+                      'openid.identity' => $this->id_url,
+                      'openid.return_to' => $this->rt_url,
+                      );
+        $ainfo = new Auth_OpenID_AuthorizationInfo($this->sv_url, $args);
+        list($status, $info) = $this->server->getAuthResponse(&$ainfo, false);
+        $this->assertEquals(Auth_OpenID_REDIRECT, $status);
+
+        $setup_args = array('openid.identity' => $this->id_url,
+                            'openid.mode' => 'checkid_setup',
+                            'openid.return_to' => $this->rt_url,
+                            );
+        $setup_url = $this->_buildURL($this->sv_url, $setup_args);
+
+        $eargs = array('openid.mode' => 'id_res',
+                       'openid.user_setup_url' => $setup_url);
+        $expected = $this->_buildURL($this->rt_url, $eargs);
+        $this->assertEquals($expected, $info);
+    }
 }
