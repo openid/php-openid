@@ -154,9 +154,19 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
     {
         $args = array('openid.session_type' => 'DH-SHA1');
         list($status, $info) = $this->server->associate($args);
-        $this->assertEquals(Auth_OpenID_REMOTE_ERROR, $status);
-        $ra = Auth_OpenID_KVForm::kvToArray($info);
-        $this->assertKeyExists('error', $ra);
+        if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            $this->assertEquals(Auth_OpenID_REMOTE_OK, $status);
+            $ra = Auth_OpenID_KVForm::kvToArray($info);
+            $this->assertEquals('HMAC-SHA1', $ra['assoc_type']);
+            $this->assertKeyExists('assoc_handle', $ra);
+            $this->assertKeyExists('mac_key', $ra);
+            $exp = (integer)$ra['expires_in'];
+            $this->assertTrue($exp > 0);
+        } else {
+            $this->assertEquals(Auth_OpenID_REMOTE_ERROR, $status);
+            $ra = Auth_OpenID_KVForm::kvToArray($info);
+            $this->assertKeyExists('error', $ra);
+        }
     }
 
     function _buildURL($base, $query)
