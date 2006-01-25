@@ -5,6 +5,7 @@
  * Auth_OpenID_Server.
  */
 
+require_once "Auth/OpenID/Association.php";
 require_once "Auth/OpenID/CryptUtil.php";
 require_once "Auth/OpenID/DiffieHellman.php";
 require_once "Auth/OpenID/KVForm.php";
@@ -22,6 +23,8 @@ class Auth_OpenID_Server {
     var $server_url;
     var $_normal_key;
     var $_dumb_key;
+
+    var $SECRET_LIFETIME = 1209600; // 14 days, in seconds
 
     function Auth_OpenID_Server($server_url, $store)
     {
@@ -205,7 +208,7 @@ class Auth_OpenID_Server {
     {
         $reply = array();
 
-        $assoc_type = $query['openid.assoc_type'];
+        $assoc_type = @$query['openid.assoc_type'];
         if (!isset($assoc_type)) {
             $assoc_type = 'HMAC-SHA1';
         }
@@ -222,10 +225,12 @@ class Auth_OpenID_Server {
             $reply['assoc_type'] = $assoc_type;
         }
         $reply['assoc_handle'] = $assoc->handle;
-        $reply['expires_in'] = strval($assoc->expiresIn);
+        $reply['expires_in'] = strval($assoc->getExpiresIn());
 
         if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
             $session_type = null;
+        } else {
+            $session_type = @$args['openid.session_type'];
         }
 
         switch ($session_type) {

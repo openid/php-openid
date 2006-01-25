@@ -89,4 +89,30 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         $resultArgs = Auth_OpenID_KVForm::kvToArray($info);
         $this->assertTrue(array_key_exists('error', $resultArgs));
     }
+
+    function assertKeyExists($key, $ary)
+    {
+        $this->assertTrue(array_key_exists($key, $ary),
+                          "Failed to find $key in $ary");
+    }
+
+    function assertKeyAbsent($key, $ary)
+    {
+        $this->assertFalse(array_key_exists($key, $ary),
+                           "Unexpectedly found $key in $ary");
+    }
+
+    function test_associatePlain()
+    {
+        list($status, $info) = $this->server->associate(array());
+
+        $this->assertEquals(Auth_OpenID_REMOTE_OK, $status);
+        $ra = Auth_OpenID_KVForm::kvToArray($info);
+        $this->assertEquals('HMAC-SHA1', $ra['assoc_type']);
+        $this->assertKeyAbsent('session_type', $ra);
+        $this->assertKeyExists('assoc_handle', $ra);
+        $this->assertKeyExists('mac_key', $ra);
+        $exp = (integer)$ra['expires_in'];
+        $this->assertTrue($exp > 0);
+    }
 }
