@@ -74,4 +74,19 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
 
         $this->assertEquals(Auth_OpenID_DO_ABOUT, $status);
     }
+
+    function test_postError()
+    {
+        $args = array(
+                      'openid.mode' => 'pandadance',
+                      'openid.identity' => $this->id_url,
+                      );
+
+        list($status, $info) = $this->server->getOpenIDResponse(
+            $this->noauth, 'POST', $args);
+
+        $this->assertEquals(Auth_OpenID_REMOTE_ERROR, $status);
+        $resultArgs = Auth_OpenID_KVForm::kvToArray($info);
+        $this->assertTrue(array_key_exists('error', $resultArgs));
+    }
 }
