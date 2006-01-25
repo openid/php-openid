@@ -1,0 +1,26 @@
+OpenID Example Code
+-------------------
+
+To try the example consumer implementation (which is probably what you
+want), just copy the consumer/ directory into a place on your web
+server and point your browser at the new directory.  (Be sure that the
+'Auth' directory included in this package is installed in your PHP
+include_path.)
+
+The 'index.php' file will render a form and get you started.  These
+are the example consumer files:
+
+  consumer/index.php - Renders a form so you can begin the OpenID auth
+process.  The form submits the OpenID to try_auth.php.
+
+  consumer/try_auth.php - Starts the authentication with the OpenID
+server that manages your OpenID and redirects your browser to the
+server's login page.  Instructs the server to return to
+finish_auth.php when you're done authenticating.
+
+  consumer/finish_auth.php - Finishes the authentication by checking
+the server's response.  Tells you if the authentication was
+successful.
+
+  consumer/common.php - Includes the setup code you'll need to create
+a Consumer object and participate in an OpenID authentication.
