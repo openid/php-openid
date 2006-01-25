@@ -238,7 +238,6 @@ class Auth_OpenID_Association {
      */
     function sign($pairs)
     {
-        assert($this->assoc_type == 'HMAC-SHA1');
         $kv = Auth_OpenID_KVForm::arrayToKV($pairs);
         return Auth_OpenID_HMACSHA1($this->secret, $kv);
     }
@@ -256,7 +255,7 @@ class Auth_OpenID_Association {
     {
         $pairs = array();
         foreach ($fields as $field) {
-            $pairs[] = array($field, $data[$prefix . $field]);
+            $pairs[$field] = $data[$prefix . $field];
         }
 
         return base64_encode($this->sign($pairs));
