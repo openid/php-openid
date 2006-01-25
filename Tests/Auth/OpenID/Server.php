@@ -280,4 +280,13 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         $this->assertEquals(Auth_OpenID_REMOTE_OK, $status);
         $this->assertEquals("is_valid:false\n", $info);
     }
+
+    function test_checkAuthenticationFailHandle()
+    {
+        $args = $this->_setupCheckAuth();
+        $args['openid.assoc_handle'] = 'a bad handle';
+        list($status, $info) = $this->server->checkAuthentication($args);
+        $this->assertEquals(Auth_OpenID_REMOTE_OK, $status);
+        $this->assertEquals("is_valid:false\n", $info);
+    }
 }
