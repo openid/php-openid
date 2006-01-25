@@ -254,4 +254,21 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         $this->assertEquals($this->rt_url, $base);
         $this->assertEquals('cancel', $query['openid.mode']);
     }
+
+    function _setupCheckAuth()
+    {
+        $ret = $this->_startAuth('checkid_immediate', true);
+        list($base, $query) = $this->_parseRedirResp($ret);
+        $this->assertEquals($base, $this->rt_url);
+        $query['openid.mode'] = 'check_authentication';
+        return $query;
+    }
+
+    function test_checkAuthentication()
+    {
+        $args = $this->_setupCheckAuth();
+        list($status, $info) = $this->server->checkAuthentication($args);
+        $this->assertEquals(Auth_OpenID_REMOTE_OK, $status);
+        $this->assertEquals($info, "is_valid:true\n");
+    }
 }

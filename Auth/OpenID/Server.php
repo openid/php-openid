@@ -280,14 +280,14 @@ class Auth_OpenID_Server {
             $to_verify = $args;
             $to_verify['openid.mode'] = 'id_res';
             $fields = explode(',', trim($signed));
-            $tv_sig = $assoc->signDict($signed_fields, $to_verify);
+            $tv_sig = $assoc->signDict($fields, $to_verify);
             
             if ($tv_sig == $sig) {
                 $normal_key = $this->_normal_key;
-                $store->removeAssociation($normal_key, $assoc_handle);
+                $store->removeAssociation($normal_key, $assoc->handle);
                 $reply['is_valid'] = 'true';
 
-                $inv_handle = $args['openid.invalidate_handle'];
+                $inv_handle = @$args['openid.invalidate_handle'];
                 if (isset($inv_handle)) {
                     $assoc = $store->getAssociation($normal_key, $inv_handle);
                     if ($assoc !== null) {
