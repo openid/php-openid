@@ -65,4 +65,12 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         $this->assertEquals($status, Auth_OpenID_LOCAL_ERROR);
         $this->assertTrue($info);
     }
+
+    function test_getNoArgs()
+    {
+        list($status, $info) = $this->server->getOpenIDResponse(
+            '_Auth_OpenID_NotAuthorized', 'GET', array());
+
+        $this->assertEquals($status, Auth_OpenID_DO_ABOUT);
+    }
 }

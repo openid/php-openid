@@ -358,7 +358,7 @@ class Auth_OpenID_AuthorizationInfo {
 
     function getIdentityURL()
     {
-        return $this->args['openid.identity'];
+        return @$this->args['openid.identity'];
     }
 
     function getReturnTo()
