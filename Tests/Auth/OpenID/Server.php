@@ -228,4 +228,20 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
     {
         $this->_checkIDGood('checkid_setup');
     }
+
+    function test_checkIdSetupNeedAuth()
+    {
+        $args = array(
+                      'openid.mode' => 'checkid_setup',
+                      'openid.identity' => $this->id_url,
+                      'openid.return_to' => $this->rt_url,
+                      'openid.trust_root' => $this->tr_url,
+                      );
+
+        $ainfo = new Auth_OpenID_AuthorizationInfo($this->sv_url, $args);
+        list($status, $info) = $this->server->getAuthResponse(&$ainfo, false);
+        $this->assertEquals(Auth_OpenID_DO_AUTH, $status);
+        $this->assertEquals($this->tr_url, $info->getTrustRoot());
+        $this->assertEquals($this->id_url, $info->getIdentityURL());
+    }
 }
