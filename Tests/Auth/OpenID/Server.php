@@ -178,13 +178,13 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
                       'openid.return_to' => $this->rt_url,
                       );
         $ainfo = new Auth_OpenID_AuthorizationInfo($this->sv_url, $args);
-        $ret = $this->server->getAuthResponse(&$ainfo, $authorized);
-        return $this->_parseRedirResp($ret);
+        return $this->server->getAuthResponse(&$ainfo, $authorized);
     }
 
     function test_checkIdImmediateFailure()
     {
-        list($base, $query) = $this->_startAuth('checkid_immediate', false);
+        $ret = $this->_startAuth('checkid_immediate', false);
+        list($base, $query) = $this->_parseRedirResp($ret);
 
         $setup_args = array('openid.identity' => $this->id_url,
                             'openid.mode' => 'checkid_setup',
@@ -201,7 +201,8 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
 
     function _checkIDGood($mode)
     {
-        list($base, $query) = $this->_startAuth($mode, true);
+        $ret = $this->_startAuth($mode, true);
+        list($base, $query) = $this->_parseRedirResp($ret);
         $this->assertEquals($base, $this->rt_url);
         $this->assertEquals($query['openid.mode'], 'id_res');
         $this->assertEquals($query['openid.identity'], $this->id_url);
@@ -243,5 +244,14 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         $this->assertEquals(Auth_OpenID_DO_AUTH, $status);
         $this->assertEquals($this->tr_url, $info->getTrustRoot());
         $this->assertEquals($this->id_url, $info->getIdentityURL());
+    }
+
+    function test_checkIdSetupCancel()
+    {
+        list($status, $info) = $this->_startAuth('checkid_setup', false);
+        $this->assertEquals(Auth_OpenID_DO_AUTH, $status);
+        list($base, $query) = $this->_parseRedirResp($info->cancel());
+        $this->assertEquals($this->rt_url, $base);
+        $this->assertEquals('cancel', $query['openid.mode']);
     }
 }
