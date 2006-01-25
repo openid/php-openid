@@ -178,7 +178,7 @@ class Auth_OpenID_Server {
                        );
 
         $assoc = null;
-        $assoc_handle = $args['openid.assoc_handle'];
+        $assoc_handle = @$auth_info->args['openid.assoc_handle'];
         if (isset($assoc_handle)) {
             $key = $this->_normal_key;
             $assoc = $this->store->getAssociation($key, $assoc_handle);
@@ -199,7 +199,8 @@ class Auth_OpenID_Server {
         }
 
         $reply['openid.assoc_handle'] = $assoc->handle;
-        $assoc->addSignature($this->_signed_fields, &$reply);
+        $signed_fields = array('mode', 'identity', 'return_to');
+        $assoc->addSignature($signed_fields, &$reply);
         $redir_url = Auth_OpenID_appendArgs($return_to, $reply);
         return array(Auth_OpenID_REDIRECT, $redir_url);
     }
@@ -278,7 +279,7 @@ class Auth_OpenID_Server {
 
             $to_verify = $args;
             $to_verify['openid.mode'] = 'id_res';
-            $fields = explode(',', trim(signed));
+            $fields = explode(',', trim($signed));
             $tv_sig = $assoc->signDict($signed_fields, $to_verify);
             
             if ($tv_sig == $sig) {

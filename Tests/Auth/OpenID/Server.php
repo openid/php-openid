@@ -26,6 +26,22 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         $this->server =& new Auth_OpenID_Server($this->sv_url, &$this->store);
     }
 
+    function _parseRedirResp($ret)
+    {
+        list($status, $redir) = $ret;
+        if ($status != Auth_OpenID_REDIRECT) {
+            $this->fail("Bad status: $status");
+            return false;
+        }
+
+        list($base, $query_str) = explode('?', $redir, 2);
+
+        $query = array();
+        parse_str($query_str, $query);
+        $query = Auth_OpenID_fixArgs($query);
+        return array($base, $query);
+    }
+
     function test_getWithReturnToError()
     {
         $args = array(
@@ -34,15 +50,9 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
                       'openid.return_to' => $this->rt_url,
                       );
 
-        list($status, $info) = $this->server->getOpenIDResponse(
-            $this->noauth, 'GET', $args);
+        $ret = $this->server->getOpenIDResponse($this->noauth, 'GET', $args);
 
-        $this->assertEquals(Auth_OpenID_REDIRECT, $status);
-        list($rt_base, $query) = explode('?', $info, 2);
-
-        $resultArgs = array();
-        parse_str($query, $resultArgs);
-        $resultArgs = Auth_OpenID_fixArgs($resultArgs);
+        list($rt_base, $resultArgs) = $this->_parseRedirResp($ret);
 
         $this->assertEquals($this->rt_url, $rt_base);
         $this->assertEquals('error', $resultArgs['openid.mode']);
@@ -180,5 +190,32 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
                        'openid.user_setup_url' => $setup_url);
         $expected = $this->_buildURL($this->rt_url, $eargs);
         $this->assertEquals($expected, $info);
+    }
+
+    function test_checkIdImmediate()
+    {
+        $args = array(
+                      'openid.mode' => 'checkid_immediate',
+                      'openid.identity' => $this->id_url,
+                      'openid.return_to' => $this->rt_url,
+                      );
+        $ainfo = new Auth_OpenID_AuthorizationInfo($this->sv_url, $args);
+        $ret = $this->server->getAuthResponse(&$ainfo, true);
+        list($base, $query) = $this->_parseRedirResp($ret);
+        $this->assertEquals($base, $this->rt_url);
+        $this->assertEquals($query['openid.mode'], 'id_res');
+        $this->assertEquals($query['openid.identity'], $this->id_url);
+        $this->assertEquals($query['openid.return_to'], $this->rt_url);
+        $this->assertEquals('mode,identity,return_to', $query['openid.signed']);
+        
+        $assoc = $this->store->getAssociation($this->server->_dumb_key,
+                                              $query['openid.assoc_handle']);
+        $this->assertNotNull($assoc);
+        $expected = $assoc->sign(array('mode' => 'id_res',
+                                       'identity' => $this->id_url,
+                                       'return_to' => $this->rt_url,
+                                       ));
+        $expected64 = base64_encode($expected);
+        $this->assertEquals($expected64, $query['openid.sig']);
     }
 }
