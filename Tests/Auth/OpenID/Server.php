@@ -170,15 +170,21 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         return $result;
     }
 
-    function test_checkIdImmediateFailure()
+    function _startAuth($mode, $authorized)
     {
-        $args = array('openid.mode' => 'checkid_immediate',
+        $args = array(
+                      'openid.mode' => $mode,
                       'openid.identity' => $this->id_url,
                       'openid.return_to' => $this->rt_url,
                       );
         $ainfo = new Auth_OpenID_AuthorizationInfo($this->sv_url, $args);
-        list($status, $info) = $this->server->getAuthResponse(&$ainfo, false);
-        $this->assertEquals(Auth_OpenID_REDIRECT, $status);
+        $ret = $this->server->getAuthResponse(&$ainfo, $authorized);
+        return $this->_parseRedirResp($ret);
+    }
+
+    function test_checkIdImmediateFailure()
+    {
+        list($base, $query) = $this->_startAuth('checkid_immediate', false);
 
         $setup_args = array('openid.identity' => $this->id_url,
                             'openid.mode' => 'checkid_setup',
@@ -188,20 +194,14 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
 
         $eargs = array('openid.mode' => 'id_res',
                        'openid.user_setup_url' => $setup_url);
-        $expected = $this->_buildURL($this->rt_url, $eargs);
-        $this->assertEquals($expected, $info);
+
+        $this->assertEquals($eargs, $query);
+        $this->assertEquals($this->rt_url, $base);
     }
 
-    function test_checkIdImmediate()
+    function _checkIDGood($mode)
     {
-        $args = array(
-                      'openid.mode' => 'checkid_immediate',
-                      'openid.identity' => $this->id_url,
-                      'openid.return_to' => $this->rt_url,
-                      );
-        $ainfo = new Auth_OpenID_AuthorizationInfo($this->sv_url, $args);
-        $ret = $this->server->getAuthResponse(&$ainfo, true);
-        list($base, $query) = $this->_parseRedirResp($ret);
+        list($base, $query) = $this->_startAuth($mode, true);
         $this->assertEquals($base, $this->rt_url);
         $this->assertEquals($query['openid.mode'], 'id_res');
         $this->assertEquals($query['openid.identity'], $this->id_url);
@@ -217,5 +217,15 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
                                        ));
         $expected64 = base64_encode($expected);
         $this->assertEquals($expected64, $query['openid.sig']);
+    }
+
+    function test_checkIdImmediate()
+    {
+        $this->_checkIDGood('checkid_immediate');
+    }
+
+    function test_checkIdSetup()
+    {
+        $this->_checkIDGood('checkid_setup');
     }
 }
