@@ -269,6 +269,15 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         $args = $this->_setupCheckAuth();
         list($status, $info) = $this->server->checkAuthentication($args);
         $this->assertEquals(Auth_OpenID_REMOTE_OK, $status);
-        $this->assertEquals($info, "is_valid:true\n");
+        $this->assertEquals("is_valid:true\n", $info);
+    }
+
+    function test_checkAuthenticationFailSig()
+    {
+        $args = $this->_setupCheckAuth();
+        $args['openid.sig'] = str_rot13($args['openid.sig']);
+        list($status, $info) = $this->server->checkAuthentication($args);
+        $this->assertEquals(Auth_OpenID_REMOTE_OK, $status);
+        $this->assertEquals("is_valid:false\n", $info);
     }
 }
