@@ -139,4 +139,13 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         $this->assertEquals('string', gettype($secret));
         $this->assertTrue(strlen($secret) > 0);
     }
+
+    function test_associateDHnoKey()
+    {
+        $args = array('openid.session_type' => 'DH-SHA1');
+        list($status, $info) = $this->server->associate($args);
+        $this->assertEquals(Auth_OpenID_REMOTE_ERROR, $status);
+        $ra = Auth_OpenID_KVForm::kvToArray($info);
+        $this->assertKeyExists('error', $ra);
+    }
 }
