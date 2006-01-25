@@ -20,12 +20,13 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         $this->id_url = 'http://foo.com/';
         $this->rt_url = 'http://return.to/rt';
         $this->tr_url = 'http://return.to/';
+        $this->noauth = '_Auth_OpenID_NotAuthorized';
 
         $this->store = new Tests_Auth_OpenID_MemStore();
         $this->server =& new Auth_OpenID_Server($this->sv_url, &$this->store);
     }
 
-    function test_getWithReturnTo()
+    function test_getWithReturnToError()
     {
         $args = array(
                       'openid.mode' => 'monkeydance',
@@ -34,17 +35,17 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
                       );
 
         list($status, $info) = $this->server->getOpenIDResponse(
-            '_Auth_OpenID_NotAuthorized', 'GET', $args);
+            $this->noauth, 'GET', $args);
 
-        $this->assertEquals($status, Auth_OpenID_REDIRECT);
+        $this->assertEquals(Auth_OpenID_REDIRECT, $status);
         list($rt_base, $query) = explode('?', $info, 2);
 
         $resultArgs = array();
         parse_str($query, $resultArgs);
         $resultArgs = Auth_OpenID_fixArgs($resultArgs);
 
-        $this->assertEquals($rt_base, $this->rt_url);
-        $this->assertEquals($resultArgs['openid.mode'], 'error');
+        $this->assertEquals($this->rt_url, $rt_base);
+        $this->assertEquals('error', $resultArgs['openid.mode']);
         if (!array_key_exists('openid.error', $resultArgs)) {
             $dump = var_export($resultArgs, true);
             $msg = sprintf("no openid.error in %s", $dump);
@@ -52,7 +53,7 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         }
     }
 
-    function test_getBadArgs()
+    function test_getBadArgsError()
     {
         $args = array(
                       'openid.mode' => 'zebradance',
@@ -60,17 +61,17 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
                       );
 
         list($status, $info) = $this->server->getOpenIDResponse(
-            '_Auth_OpenID_NotAuthorized', 'GET', $args);
+            $this->noauth, 'GET', $args);
 
-        $this->assertEquals($status, Auth_OpenID_LOCAL_ERROR);
+        $this->assertEquals(Auth_OpenID_LOCAL_ERROR, $status);
         $this->assertTrue($info);
     }
 
-    function test_getNoArgs()
+    function test_getNoArgsError()
     {
         list($status, $info) = $this->server->getOpenIDResponse(
-            '_Auth_OpenID_NotAuthorized', 'GET', array());
+            $this->noauth, 'GET', array());
 
-        $this->assertEquals($status, Auth_OpenID_DO_ABOUT);
+        $this->assertEquals(Auth_OpenID_DO_ABOUT, $status);
     }
 }
