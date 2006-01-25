@@ -115,4 +115,28 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         $exp = (integer)$ra['expires_in'];
         $this->assertTrue($exp > 0);
     }
+
+    function test_associateDHdefaults()
+    {
+        if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            return;
+        }
+
+        $dh = new Auth_OpenID_DiffieHellman();
+        $args = $dh->getAssocArgs();
+        list($status, $info) = $this->server->associate($args);
+        $this->assertEquals(Auth_OpenID_REMOTE_OK, $status);
+
+        $ra = Auth_OpenID_KVForm::kvToArray($info);
+        $this->assertEquals('HMAC-SHA1', $ra['assoc_type']);
+        $this->assertEquals('DH-SHA1', $ra['session_type']);
+        $this->assertKeyExists('assoc_handle', $ra);
+        $this->assertKeyExists('dh_server_public', $ra);
+        $this->assertKeyAbsent('mac_key', $ra);
+        $exp = (integer)$ra['expires_in'];
+        $this->assertTrue($exp > 0);
+        $secret = $dh->consumerFinish($ra);
+        $this->assertEquals('string', gettype($secret));
+        $this->assertTrue(strlen($secret) > 0);
+    }
 }

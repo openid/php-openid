@@ -230,7 +230,7 @@ class Auth_OpenID_Server {
         if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
             $session_type = null;
         } else {
-            $session_type = @$args['openid.session_type'];
+            $session_type = @$query['openid.session_type'];
         }
 
         switch ($session_type) {

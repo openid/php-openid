@@ -13,11 +13,8 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-/**
- * Require CryptUtil because we need to get a Auth_OpenID_MathWrapper
- * object.
- */
-require_once 'BigMath.php';
+require_once 'Auth/OpenID/BigMath.php';
+require_once 'Auth/OpenID/HMACSHA1.php';
 
 $_Auth_OpenID_DEFAULT_MOD = '155172898181473697471232257763715539915724801'.
 '966915404479707795314057629378541917580651227423698188993727816152646631'.
@@ -132,8 +129,8 @@ class Auth_OpenID_DiffieHellman {
         }
 
         $dh = new Auth_OpenID_DiffieHellman($mod, $gen);
-
-        $mac_key = $dh->xorSecret64($cpub64, $assoc_secret);
+        $cpub = $lib->base64ToLong($cpub64);
+        $mac_key = $dh->xorSecret($cpub, $assoc_secret);
         $enc_mac_key = base64_encode($mac_key);
         $spub64 = $lib->longToBase64($dh->getPublicKey());
 
@@ -146,13 +143,14 @@ class Auth_OpenID_DiffieHellman {
         return $server_args;
     }
 
-    function xorSecret64($composite64, $secret)
+    function consumerFinish($reply)
     {
-        $spub = $this->lib->base64ToLong($composite64);
+        $spub = $this->lib->base64ToLong($reply['dh_server_public']);
         if ($this->lib->cmp($spub, 0) <= 0) {
             return false;
         }
-        return $this->xorSecret($spub, $secret);
+        $enc_mac_key = base64_decode($reply['enc_mac_key']);
+        return $this->xorSecret($spub, $enc_mac_key);
     }
 
     function xorSecret($composite, $secret)

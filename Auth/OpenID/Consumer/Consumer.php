@@ -892,10 +892,7 @@ class Auth_OpenID_Consumer {
                 return null;
             }
 
-            $enc_mac_key = base64_decode($results['enc_mac_key']);
-
-            $secret = $dh->xorSecret64($results['dh_server_public'],
-                                       $enc_mac_key);
+            $secret = $dh->consumerFinish($results);
         }
 
         $assoc = Auth_OpenID_Association::fromExpiresIn($expires_in,
