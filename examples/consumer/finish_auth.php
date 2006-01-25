@@ -3,7 +3,8 @@
 require_once "common.php";
 session_start();
 
-// Retrieve the token from the session.
+// Retrieve the token from the session so we can verify the server's
+// response.
 $token = $_SESSION['openid_token'];
 
 // Complete the authentication process using the server's response.
@@ -14,20 +15,19 @@ $openid = null;
 // React to the server's response.  $info is the OpenID that was
 // tried.
 if ($status != Auth_OpenID_SUCCESS) {
-    print sprintf("Verification of %s failed.", $info);
-    exit(0);
+    $msg = sprintf("Verification of %s failed.", $info);
+} else {
+    if ($info) {
+        // This means the authentication succeeded.
+        $openid = $info;
+        $success = sprintf("You have successfully verified %s as your identity.",
+                       $openid);
+    } else {
+        // This means the authentication was ancelled.
+        $msg = 'Verification cancelled.';
+    }
 }
 
-// The OpenID authentication either succeeded or was cancelled by the
-// user.
-if ($info) {
-    // This means the authentication succeeded.
-    $openid = $info;
-    print sprintf("You have successfully verified %s as your identity.",
-                  $openid);
-} else {
-    // Cancelled.
-    print 'Verification cancelled.';
-}
+include 'index.php';
 
 ?>

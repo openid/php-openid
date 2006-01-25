@@ -19,6 +19,10 @@
         border: 1px solid #e7dc2b;
         background: #fff888;
       }
+      .success {
+        border: 1px solid #669966;
+        background: #88ff88;
+      }
       .error {
         border: 1px solid #ff0000;
         background: #ffaaaa;
@@ -38,6 +42,10 @@
       OpenID</a> library. It just verifies that the URL that you enter
       is your identity URL.
     </p>
+
+    <?php if (isset($msg)) { print "<div class=\"alert\">$msg</div>"; } ?>
+    <?php if (isset($error)) { print "<div class=\"error\">$error</div>"; } ?>
+    <?php if (isset($success)) { print "<div class=\"success\">$success</div>"; } ?>
 
     <div id="verify-form">
       <form method="get" action="try_auth.php">

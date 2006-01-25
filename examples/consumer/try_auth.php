@@ -5,9 +5,9 @@ session_start();
 
 // Render a default page if we got a submission without an openid
 // value.
-if (!array_key_exists('openid_url', $_GET) ||
-    !$_GET['openid_url']) {
-    print "Expected an OpenID URL.";
+if (empty($_GET['openid_url'])) {
+    $error = "Expected an OpenID URL.";
+    include 'index.php';
     exit(0);
 }
 
@@ -21,18 +21,17 @@ $trust_root = sprintf("http://%s%s",
                       dirname($_SERVER['PHP_SELF']));
 
 // Begin the OpenID authentication process.
-list($status, $info) = $consumer->beginAuth($openid);
+list($status, $info) = @$consumer->beginAuth($openid);
 
 // Handle failure status return values.
 if ($status != Auth_OpenID_SUCCESS) {
-    print "Authentication error.";
+    $error = "Authentication error.";
+    include 'index.php';
     exit(0);
 }
 
-// If we got a successful return, continue the auth by redirecting the
-// user agent to the OpenID server.  Be sure to give the server a URL
-// that will cause this script's "process" function to process the
-// server's response.
+// Redirect the user to the OpenID server for authentication.  Store
+// the token for this authentication so we can verify the response.
 $_SESSION['openid_token'] = $info->token;
 $redirect_url = @$consumer->constructRedirect($info, $process_url,
                                               $trust_root);
