@@ -16,7 +16,7 @@ define('Auth_OpenID_REMOTE_ERROR', 'remote_error');
 define('Auth_OpenID_REMOTE_OK', 'remote_ok');
 define('Auth_OpenID_REDIRECT', 'redirect');
 define('Auth_OpenID_DO_AUTH', 'do_auth');
-define('Auth_OpenID_DO_ABOUT', 'do_auth');
+define('Auth_OpenID_DO_ABOUT', 'do_about');
 
 class Auth_OpenID_Server {
     var $store;
@@ -54,7 +54,7 @@ class Auth_OpenID_Server {
     function getOpenIDResponse($is_authorized, $method=null, $args=null)
     {
         if (!isset($method)) {
-            $method = $_SERVER['HTTP_METHOD'];
+            $method = $_SERVER['REQUEST_METHOD'];
         }
 
         switch ($method) {
@@ -70,7 +70,7 @@ class Auth_OpenID_Server {
 
         case 'POST':
             if ($args === null) {
-                $args = $_POST;
+                $args = Auth_OpenID_fixArgs($_POST);
             }
             $mode = $args['openid.mode'];
             switch ($mode) {
