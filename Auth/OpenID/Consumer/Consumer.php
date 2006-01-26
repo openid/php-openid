@@ -645,7 +645,7 @@ class Auth_OpenID_Consumer {
         $check_args['openid.mode'] = 'check_authentication';
         $post_data = Auth_OpenID_http_build_query($check_args);
 
-        $ret = $this->fetcher->post($server_url, $post_data);
+        $ret = @$this->fetcher->post($server_url, $post_data);
         if ($ret === null) {
             return Auth_OpenID_FAILURE;
         }
@@ -776,7 +776,7 @@ class Auth_OpenID_Consumer {
     function _findIdentityInfo($identity_url)
     {
         $url = Auth_OpenID_normalizeUrl($identity_url);
-        $ret = $this->fetcher->get($url);
+        $ret = @$this->fetcher->get($url);
         if ($ret === null) {
             return array(Auth_OpenID_HTTP_FAILURE, null);
         }
@@ -826,7 +826,7 @@ class Auth_OpenID_Consumer {
      */
     function _fetchAssociation($dh, $server_url, $body)
     {
-        $ret = $this->fetcher->post($server_url, $body);
+        $ret = @$this->fetcher->post($server_url, $body);
         if ($ret === null) {
             $fmt = 'Getting association: failed to fetch URL: %s';
             Auth_OpenID_log(sprintf($fmt, $server_url));
