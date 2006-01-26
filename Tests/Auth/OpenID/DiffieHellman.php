@@ -16,6 +16,7 @@
 
 require_once 'PHPUnit.php';
 require_once 'Auth/OpenID/DiffieHellman.php';
+require_once 'Tests/Auth/OpenID/Util.php';
 
 class Tests_Auth_OpenID_DiffieHellman_CheckCases extends PHPUnit_TestCase {
     function Tests_Auth_OpenID_DiffieHellman_CheckCases($cases, $n)
@@ -69,21 +70,9 @@ class Tests_Auth_OpenID_DiffieHellman_Exch extends PHPUnit_TestCase {
 }
 
 class Tests_Auth_OpenID_DiffieHellman extends PHPUnit_TestSuite {
-    function _getLines($base)
-    {
-        $path = dirname(realpath(__FILE__));
-        $dh_test_data_file = $path . DIRECTORY_SEPARATOR . $base;
-        $lines = file($dh_test_data_file);
-        if ($lines === false) {
-            trigger_error("Failed to open data file: $dh_test_data_file",
-                          E_USER_ERROR);
-        }
-        return $lines;
-    }
-
     function _readPrivateTestCases()
     {
-        $lines = Tests_Auth_OpenID_DiffieHellman::_getLines('dhpriv');
+        $lines = Tests_Auth_OpenID_readlines('dhpriv');
         $cases = array();
         foreach ($lines as $line) {
             $case = array();
@@ -106,7 +95,7 @@ class Tests_Auth_OpenID_DiffieHellman extends PHPUnit_TestSuite {
 
     function _readExchTestCases()
     {
-        $lines = Tests_Auth_OpenID_DiffieHellman::_getLines('dhexch');
+        $lines = Tests_Auth_OpenID_readlines('dhexch');
         $cases = array();
         foreach ($lines as $line) {
             $case = array();
