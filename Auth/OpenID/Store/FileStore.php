@@ -382,15 +382,15 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
 
         fclose($tmp_file);
 
-        if (!rename($tmp, $filename)) {
+        if (!@rename($tmp, $filename)) {
             // We only expect EEXIST to happen only on Windows. It's
             // possible that we will succeed in unlinking the existing
             // file, but not in putting the temporary file in place.
-            unlink($filename);
+            @unlink($filename);
 
             // Now the target should not exist. Try renaming again,
             // giving up if it fails.
-            if (!rename($tmp, $filename)) {
+            if (!@rename($tmp, $filename)) {
                 _removeIfPresent($tmp);
                 return null;
             }
