@@ -15,6 +15,7 @@
 
 require_once 'PHPUnit.php';
 require_once 'Auth/OpenID/BigMath.php';
+require_once 'Tests/Auth/OpenID/Util.php';
 
 class Tests_Auth_OpenID_BinLongConvertRnd extends PHPUnit_TestCase {
     var $lib;
@@ -143,11 +144,11 @@ function Tests_Auth_OpenID_maxint()
 class Tests_Auth_OpenID_BigMath extends PHPUnit_TestSuite {
     function _parseBase64Data()
     {
-        $lines = file_get_contents('Tests/n2b64', true);
-        $lines = explode("\n", $lines);
+        $lines = Tests_Auth_OpenID_readlines('n2b64');
 
         $data = array();
         foreach ($lines as $line) {
+            $line = trim($line);
             if (!$line) {
                 continue;
             }
@@ -157,62 +158,71 @@ class Tests_Auth_OpenID_BigMath extends PHPUnit_TestSuite {
         return $data;
     }
 
+    function _addB64Tests()
+    {
+        $lib =& Auth_OpenID_getMathLib();
+        $count = defined('Tests_Auth_OpenID_thorough') ? -1 : 2;
+        $data = $this->_parseBase64Data();
+        foreach ($data as $b64 => $num_s) {
+            // Only test the first few unless thorough is defined
+            if (strlen($num_s) > 5) {
+                if ($count == 0) {
+                    break;
+                } else {
+                    $count -= 1;
+                }
+            }
+            $num = $lib->init($num_s);
+            $test = new Tests_Auth_OpenID_Base64ToLong($lib, $b64, $num);
+            $test->setName("B64->Long $num_s");
+            $this->addTest($test);
+
+            $test = new Tests_Auth_OpenID_LongToBase64($lib, $b64, $num);
+            $test->setName("Long->B64 $num_s");
+            $this->addTest($test);
+        }
+    }
+
+    function _addBinLongTests()
+    {
+        $lib =& Auth_OpenID_getMathLib();
+        $max = Tests_Auth_OpenID_maxint();
+        $upper = defined('Tests_Auth_OpenID_thorough') ? 499 : 3;
+
+        foreach (range(0, $upper) as $iteration) {
+            $test = new Tests_Auth_OpenID_BinLongConvertRnd($lib, $max);
+            $test->setName("BinLongConvertRnd " . strval($iteration));
+            $this->addTest($test);
+        }
+
+        $cases = array(
+                       "\x00" => 0,
+                       "\x01" => 1,
+                       "\x00\xFF" => 255,
+                       "\x00\x80" => 128,
+                       "\x00\x81" => 129,
+                       "\x00\x80\x00" => 32768,
+                       "OpenID is cool" => "1611215304203901150134421257416556"
+                       );
+
+        foreach ($cases as $bin => $lng_m) {
+            $lng = $lib->init($lng_m);
+            $test = new Tests_Auth_OpenID_BinLongConvert($lib, $bin, $lng);
+            $test->setName('BinLongConvert ' . bin2hex($bin));
+            $this->addTest($test);
+        }
+
+    }
+
     function Tests_Auth_OpenID_BigMath($name)
     {
         $this->setName($name);
         
         if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
             $this->addTestSuite('Tests_Auth_OpenID_BigInt');
-
-            $lib =& Auth_OpenID_getMathLib();
-            $max = Tests_Auth_OpenID_maxint();
-            $upper = defined('Tests_Auth_OpenID_thorough') ? 499 : 3;
-
-            foreach (range(0, $upper) as $iteration) {
-                $test = new Tests_Auth_OpenID_BinLongConvertRnd($lib, $max);
-                $test->setName("BinLongConvertRnd " . strval($iteration));
-                $this->addTest($test);
-            }
-
-            $cases = array(
-                "\x00" => 0,
-                "\x01" => 1,
-                "\x00\xFF" => 255,
-                "\x00\x80" => 128,
-                "\x00\x81" => 129,
-                "\x00\x80\x00" => 32768,
-                "OpenID is cool" => "1611215304203901150134421257416556"
-                );
-
-            foreach ($cases as $bin => $lng_m) {
-                $lng = $lib->init($lng_m);
-                $test = new Tests_Auth_OpenID_BinLongConvert($lib, $bin, $lng);
-                $test->setName('BinLongConvert ' . bin2hex($bin));
-                $this->addTest($test);
-            }
-
-            $count = defined('Tests_Auth_OpenID_thorough') ? -1 : 2;
-            $data = $this->_parseBase64Data();
-            foreach ($data as $b64 => $num_s) {
-                // Only test the first few unless thorough is defined
-                if (strlen($num_s) > 5) {
-                    if ($count == 0) {
-                        break;
-                    } else {
-                        $count -= 1;
-                    }
-                }
-                $num = $lib->init($num_s);
-                $test = new Tests_Auth_OpenID_Base64ToLong($lib, $b64, $num);
-                $test->setName("B64->Long $num_s");
-                $this->addTest($test);
-
-                $test = new Tests_Auth_OpenID_LongToBase64($lib, $b64, $num);
-                $test->setName("Long->B64 $num_s");
-                $this->addTest($test);
-            }
-
-            $test = new Tests_Auth_OpenID_Rand($lib);
+            $this->_addB64Tests();
+            $this->_addBinLongTests();
+            $test = new Tests_Auth_OpenID_Rand(Auth_OpenID_getMathLib());
             $test->setName('Big number rand');
             $this->addTest($test);
         }
