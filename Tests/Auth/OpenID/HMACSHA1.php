@@ -16,6 +16,7 @@
 
 require_once 'PHPUnit.php';
 require_once 'Auth/OpenID/HMACSHA1.php';
+require_once 'Tests/Auth/OpenID/Util.php';
 
 class Tests_Auth_OpenID_HMACSHA1_TestCase extends PHPUnit_TestCase {
     function Tests_Auth_OpenID_HMACSHA1_TestCase(
@@ -58,15 +59,7 @@ class Tests_Auth_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
 
     function _readTestCases()
     {
-        $path = dirname(realpath(__FILE__));
-        $hmac_test_data_file = $path . DIRECTORY_SEPARATOR . 'hmac.txt';
-        $lines = file($hmac_test_data_file);
-        if ($lines === false) {
-            trigger_error("Failed to open data file: $dh_test_data_file",
-                       E_USER_ERROR);
-            return false;
-        }
-
+        $lines = Tests_Auth_OpenID_readlines('hmac.txt');
         $cases = array();
         $case = array();
         foreach ($lines as $line) {
