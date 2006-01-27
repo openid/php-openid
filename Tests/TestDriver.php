@@ -74,7 +74,8 @@ $_test_names = array(
     'OIDUtil',
     'Parse',
     'StoreTest',
-    'Server'
+    'Server',
+    'TrustRoot',
     );
 
 function selectTests($names)
