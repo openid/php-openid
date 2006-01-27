@@ -199,10 +199,10 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
      */
     function _setup()
     {
-        ensureDir(dirname($this->auth_key_name));
-        ensureDir($this->nonce_dir);
-        ensureDir($this->association_dir);
-        ensureDir($this->temp_dir);
+        return (ensureDir(dirname($this->auth_key_name)) &&
+                ensureDir($this->nonce_dir) &&
+                ensureDir($this->association_dir) &&
+                ensureDir($this->temp_dir));
     }
 
     /**
