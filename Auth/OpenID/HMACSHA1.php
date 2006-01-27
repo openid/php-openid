@@ -20,12 +20,19 @@
 define('Auth_OpenID_SHA1_BLOCKSIZE', 64);
 
 if (!function_exists('sha1')) {
-    // XXX: include the SHA1 code from Dan Libby's OpenID library
+    /**
+     * Return a raw SHA1 hash of the given string
+     *
+     * XXX: include the SHA1 code from Dan Libby's OpenID library
+     */
     function Auth_OpenID_SHA1($text)
     {
         trigger_error('No SHA1 function found', E_USER_ERROR);
     }
 } else {
+    /**
+     * @ignore
+     */
     function Auth_OpenID_SHA1($text)
         {
             $hex = sha1($text);
@@ -42,7 +49,10 @@ if (!function_exists('sha1')) {
 /**
  * Compute an HMAC/SHA1 hash.
  *
- * @ignore
+ * @access private
+ * @param string $key The HMAC key
+ * @param string $text The message text to hash
+ * @return string $mac The MAC
  */
 function Auth_OpenID_HMACSHA1($key, $text)
 {
