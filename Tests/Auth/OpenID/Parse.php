@@ -13,6 +13,7 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
+require_once 'Tests/Auth/OpenID/Util.php';
 require_once 'Auth/OpenID/Consumer/Parse.php';
 
 class Tests_Auth_OpenID_Link extends PHPUnit_TestCase {
@@ -98,11 +99,18 @@ class Tests_Auth_OpenID_Parse extends PHPUnit_TestSuite {
         return "Tests_Auth_OpenID_Parse";
     }
 
+    function _parseCheck($cond, $where)
+    {
+        if (!$cond) {
+            trigger_error('Parse error in ' . $where, E_USER_ERROR);
+        }
+    }
+
     function parseLink($line)
     {
         $parts = explode(" ", $line);
         $optional = intval($parts[0] == 'Link*:');
-        assert($optional || ($parts[0] == 'Link:'));
+        $this->_parseCheck($optional || ($parts[0] == 'Link:'), __FUNCTION__);
 
         $attrs = array();
         foreach (array_slice($parts, 1) as $attr) {
@@ -125,7 +133,7 @@ class Tests_Auth_OpenID_Parse extends PHPUnit_TestSuite {
         list($header, $markup) = explode("\n\n", $s, 2);
         $lines = explode("\n", $header);
         $name = array_shift($lines);
-        assert(strpos($name, 'Name: ') == 0);
+        $this->_parseCheck(strpos($name, 'Name: ') == 0, __FUNCTION__);
         $desc = substr($name, 6);
         $parsed = array();
         foreach ($lines as $line) {
@@ -143,7 +151,7 @@ class Tests_Auth_OpenID_Parse extends PHPUnit_TestSuite {
         $header = array_shift($cases);
         list($tests_line, $unused) = explode("\n", $header, 2);
         list($k, $v) = explode(": ", $tests_line);
-        assert($k == 'Num Tests');
+        $this->_parseCheck(('Num Tests' == $k), __FUNCTION__);
         $num_tests = intval($v);
 
         foreach (array_slice($cases, 0, count($cases) - 1) as $case) {
@@ -156,9 +164,7 @@ class Tests_Auth_OpenID_Parse extends PHPUnit_TestSuite {
 
     function Tests_Auth_OpenID_Parse()
     {
-        $here = realpath(dirname(__FILE__));
-        $test_data_file_name = $here . DIRECTORY_SEPARATOR . 'linkparse.txt';
-        $test_data = file_get_contents($test_data_file_name);
+        $test_data = Tests_Auth_OpenID_readdata('linkparse.txt');
 
         list($num_tests, $test_cases) = $this->parseTests($test_data);
 
