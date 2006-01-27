@@ -126,9 +126,9 @@ define('Auth_OpenID___TLDs',
  *
  * @return bool $sanity Whether the trust root looks OK
  */
-function Auth_OpenID_saneTrustRoot($tr)
+function Auth_OpenID_saneTrustRoot($trust_root)
 {
-    $parts = Auth_OpenID___normalizeTrustRoot($tr);
+    $parts = Auth_OpenID___normalizeTrustRoot($trust_root);
     if ($parts === false) {
         return false;
     }
