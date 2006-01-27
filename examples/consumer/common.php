@@ -1,5 +1,10 @@
 <?php
 
+$path_extra = dirname(dirname(dirname(__FILE__)));
+$path = ini_get('include_path');
+$path = $path_extra . ':' . $path;
+ini_set('include_path', $path);
+
 /**
  * Require the OpenID consumer code.
  */
