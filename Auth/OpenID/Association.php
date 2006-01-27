@@ -37,11 +37,15 @@ class Auth_OpenID_Association {
 
     /**
      * This is a HMAC-SHA1 specific value.
+     *
+     * @access private
      */
     var $SIG_LENGTH = 20;
 
     /**
      * The ordering and name of keys as stored by serialize.
+     *
+     * @access private
      */
     var $assoc_keys = array(
                             'version',
@@ -56,6 +60,8 @@ class Auth_OpenID_Association {
      * This is an alternate constructor used by the OpenID consumer
      * library to create associations.  OpenIDStore implementations
      * shouldn't use this constructor.
+     *
+     * @access private
      *
      * @param integer $expires_in This is the amount of time this
      * association is good for, measured in seconds since the

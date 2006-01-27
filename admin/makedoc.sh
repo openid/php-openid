@@ -1,2 +1,5 @@
 #!/bin/sh
-phpdoc -p -t doc -d Auth -ti "JanRain OpenID Library" -dn "OpenID" -o "HTML:frames:phphtmllib"
+set -v
+phpdoc -p -t doc -d Auth -ti "JanRain OpenID Library" \
+    --ignore \*~ \
+    -dn "OpenID" -o "HTML:frames:phphtmllib"

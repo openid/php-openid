@@ -8,15 +8,23 @@
  *
  * LICENSE: See the COPYING file included in this distribution.
  *
+ * @access private
  * @package OpenID
  * @author JanRain, Inc. <openid@janrain.com>
  * @copyright 2005 Janrain, Inc.
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-// For rand
+/**
+ * Needed for random number generation
+ */
 require_once 'Auth/OpenID/CryptUtil.php';
 
+/**
+ * The superclass of all big-integer math implementations
+ * @access private
+ * @package OpenID
+ */
 class Auth_OpenID_MathLibrary {
     /**
      * Given a long integer, returns the number converted to a binary
@@ -165,6 +173,7 @@ class Auth_OpenID_MathLibrary {
  * Auth_OpenID_BcMathWrapper wraps the functionality provided by the
  * BCMath extension.
  *
+ * @access private
  * @package OpenID
  */
 class Auth_OpenID_BcMathWrapper extends Auth_OpenID_MathLibrary{
@@ -245,6 +254,7 @@ class Auth_OpenID_BcMathWrapper extends Auth_OpenID_MathLibrary{
  * Auth_OpenID_GmpMathWrapper wraps the functionality provided by the
  * GMP extension.
  *
+ * @access private
  * @package OpenID
  */
 class Auth_OpenID_GmpMathWrapper extends Auth_OpenID_MathLibrary{

@@ -7,6 +7,7 @@
  *
  * LICENSE: See the COPYING file included in this distribution.
  *
+ * @access private
  * @package OpenID
  * @author JanRain, Inc. <openid@janrain.com>
  * @copyright 2005 Janrain, Inc.
@@ -14,6 +15,7 @@
  */
 
 /**
+ * Convert an array into an OpenID colon/newline separated string
  * @access private
  */
 function Auth_OpenID_arrayToKV($values)
@@ -48,6 +50,11 @@ function Auth_OpenID_arrayToKV($values)
     return $serialized;
 }
 
+/**
+ * Convert an OpenID colon/newline separated string into an
+ * associative array
+ * @access private
+ */
 function Auth_OpenID_kvToArray($kvs)
 {
     $lines = explode("\n", $kvs);

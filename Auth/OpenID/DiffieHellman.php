@@ -7,6 +7,7 @@
  *
  * LICENSE: See the COPYING file included in this distribution.
  *
+ * @access private
  * @package OpenID
  * @author JanRain, Inc. <openid@janrain.com>
  * @copyright 2005 Janrain, Inc.
@@ -28,6 +29,7 @@ $_Auth_OpenID_DEFAULT_GEN = '2';
  * The Diffie-Hellman key exchange class.  This class relies on
  * Auth_OpenID_MathLibrary to perform large number operations.
  *
+ * @access private
  * @package OpenID
  */
 class Auth_OpenID_DiffieHellman {

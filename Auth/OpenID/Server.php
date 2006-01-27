@@ -42,13 +42,13 @@ class Auth_OpenID_Server {
      * @param mixed $is_authorized: the name of a callback to use for
      * determining if a given identity URL should be authorized.
      *
-     * @param string $method: The HTTP method of the current
+     * @param string $method The HTTP method of the current
      * request. If omitted, $_SERVER['HTTP_METHOD'] will be used.
      *
-     * @param array $args: The arguments parsed from the request. If
+     * @param array $args The arguments parsed from the request. If
      * omitted, the arguments in the environment will be used.
      *
-     * @return array $array: A pair of elements in which the first is
+     * @return array $array A pair of elements in which the first is
      * a status code and the meaning of the second depends on the
      * status.
      */

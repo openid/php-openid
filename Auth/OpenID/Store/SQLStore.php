@@ -105,6 +105,7 @@ function _unoctify($str)
  * All methods other than the constructor and createTables should be
  * considered implementation details.
  *
+ * @access private
  * @package OpenID
  */
 class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {

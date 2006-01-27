@@ -7,6 +7,7 @@
  *
  * LICENSE: See the COPYING file included in this distribution.
  *
+ * @access private
  * @package OpenID
  * @author JanRain, Inc. <openid@janrain.com>
  * @copyright 2005 Janrain, Inc.

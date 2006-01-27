@@ -2,14 +2,25 @@
 
 /**
  * Functions for dealing with OpenID trust roots
+ *
+ * PHP versions 4 and 5
+ *
+ * LICENSE: See the COPYING file included in this distribution.
+ *
+ * @package OpenID
+ * @author JanRain, Inc. <openid@janrain.com>
+ * @copyright 2005 Janrain, Inc.
+ * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
 /**
  * Parse a URL into its trust_root parts.
  *
- * @param string $trust_root: The url to parse
+ * @access private
  *
- * @return mixed $parsed: Either an associative array of trust root
+ * @param string $trust_root The url to parse
+ *
+ * @return mixed $parsed Either an associative array of trust root
  * parts or false if parsing failed.
  */
 function Auth_OpenID___normalizeTrustRoot($trust_root)
@@ -73,6 +84,10 @@ function Auth_OpenID___normalizeTrustRoot($trust_root)
     return $parts;
 }
 
+/**
+ * A regular expression that matches a domain ending in a top-level domains
+ * @access private
+ */
 define('Auth_OpenID___TLDs',
        '/\.(com|edu|gov|int|mil|net|org|biz|info|name|museum|coop|aero|ac|' .
        'ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|az|ba|bb|bd|be|bf|bg|' .
@@ -107,9 +122,9 @@ define('Auth_OpenID___TLDs',
  * the users of the server when a consumer attempts to get the user to
  * accept a suspicious trust root.
  *
- * @param string $tr: The trust root to check
+ * @param string $trust_root The trust root to check
  *
- * @return bool $sanity: Whether the trust root looks OK
+ * @return bool $sanity Whether the trust root looks OK
  */
 function Auth_OpenID_saneTrustRoot($tr)
 {
@@ -117,14 +132,22 @@ function Auth_OpenID_saneTrustRoot($tr)
     if ($parts === false) {
         return false;
     }
+
+    // Localhost is a special case
     if ($parts['host'] == 'localhost') {
         return true;
     }
+
+    // Get the top-level domain of the host. If it is not a valid TLD,
+    // it's not sane.
     preg_match(Auth_OpenID___TLDs, $parts['host'], $matches);
     if (!$matches) {
         return false;
     }
     $tld = $matches[1];
+
+    // Require at least two levels of specificity for non-country tlds
+    // and three levels for country tlds.
     $elements = explode('.', $parts['host']);
     $n = count($elements);
     if ($parts['wildcard']) {
