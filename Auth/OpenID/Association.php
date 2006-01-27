@@ -181,7 +181,7 @@ class Auth_OpenID_Association {
 
         assert(array_keys($data) == $this->assoc_keys);
 
-        return Auth_OpenID_KVForm::arrayToKV($data, $strict = true);
+        return Auth_OpenID_arrayToKV($data, $strict = true);
     }
 
     /**
@@ -193,7 +193,7 @@ class Auth_OpenID_Association {
      */
     function deserialize($class_name, $assoc_s)
     {
-        $pairs = Auth_OpenID_KVForm::kvToArray($assoc_s, $strict = true);
+        $pairs = Auth_OpenID_kvToArray($assoc_s, $strict = true);
         $keys = array();
         $values = array();
         foreach ($pairs as $key => $value) {
@@ -238,7 +238,7 @@ class Auth_OpenID_Association {
      */
     function sign($pairs)
     {
-        $kv = Auth_OpenID_KVForm::arrayToKV($pairs);
+        $kv = Auth_OpenID_arrayToKV($pairs);
         return Auth_OpenID_HMACSHA1($this->secret, $kv);
     }
 

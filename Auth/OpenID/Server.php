@@ -254,7 +254,7 @@ class Auth_OpenID_Server {
         }
 
         $reply = array_merge($reply, $sess_reply);
-        $reply_kv = Auth_OpenID_KVForm::arrayToKV($reply);
+        $reply_kv = Auth_OpenID_arrayToKV($reply);
         return array(Auth_OpenID_REMOTE_OK, $reply_kv);
     }
 
@@ -301,7 +301,7 @@ class Auth_OpenID_Server {
             $store->removeAssociation($this->_dumb_key, $assoc_handle);
         }
         
-        $kv = Auth_OpenID_KVForm::arrayToKV($reply);
+        $kv = Auth_OpenID_arrayToKV($reply);
         return array(Auth_OpenID_REMOTE_OK, $kv);
     }
 
@@ -347,7 +347,7 @@ class Auth_OpenID_Server {
 
     function postError($msg)
     {
-        $kv = Auth_OpenID_KVForm::arrayToKV(array('error' => $msg));
+        $kv = Auth_OpenID_arrayToKV(array('error' => $msg));
         return array(Auth_OpenID_REMOTE_ERROR, $kv);
     }
 }

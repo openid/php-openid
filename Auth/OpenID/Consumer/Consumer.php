@@ -650,7 +650,7 @@ class Auth_OpenID_Consumer {
             return Auth_OpenID_FAILURE;
         }
 
-        $results = Auth_OpenID_KVForm::kvToArray($ret[2]);
+        $results = Auth_OpenID_kvToArray($ret[2]);
         $is_valid = Auth_OpenID_array_get($results, 'is_valid', 'false');
 
         if ($is_valid == 'true') {
@@ -834,7 +834,7 @@ class Auth_OpenID_Consumer {
         }
 
         list($http_code, $url, $data) = $ret;
-        $results = Auth_OpenID_KVForm::kvToArray($data);
+        $results = Auth_OpenID_kvToArray($data);
         if ($http_code == 400) {
             $server_error = Auth_OpenID_array_get($results, 'error',
                                                  '<no message from server>');
@@ -848,7 +848,7 @@ class Auth_OpenID_Consumer {
             return null;
         }
 
-        $results = Auth_OpenID_KVForm::kvToArray($data);
+        $results = Auth_OpenID_kvToArray($data);
 
         return $this->_parseAssociation($results, $dh, $server_url);
     }
