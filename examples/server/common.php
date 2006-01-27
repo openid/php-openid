@@ -60,7 +60,7 @@ function relURL($path)
 function newServer($store_dir=DEFAULT_STORE_DIR, $server_url=null)
 {
     if (!isset($server_url)) {
-        $server_url = getParentURL();
+        $server_url = getCurrentURL();
     }
     if (!file_exists($store_dir) && !mkdir($store_dir)) {
         print "Could not create the FileStore directory '$store_path'. ".
