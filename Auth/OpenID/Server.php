@@ -10,6 +10,7 @@ require_once "Auth/OpenID/CryptUtil.php";
 require_once "Auth/OpenID/DiffieHellman.php";
 require_once "Auth/OpenID/KVForm.php";
 require_once "Auth/OpenID/OIDUtil.php";
+require_once "Auth/OpenID/TrustRoot.php";
 
 define('Auth_OpenID_LOCAL_ERROR', 'local_error');
 define('Auth_OpenID_REMOTE_ERROR', 'remote_error');
@@ -121,8 +122,9 @@ class Auth_OpenID_Server {
         }
 
         $trust_root = $auth_info->getTrustRoot();
-        if (isset($trust_root)) {
-            // XXX: actually check trust root
+        if (isset($trust_root) &&
+            !Auth_OpenID_matchTrustRoot($trust_root, $return_to)) {
+            return array(false, 'Trust root does not match');
         }
         return array(true, $return_to);
     }
