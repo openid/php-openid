@@ -185,7 +185,7 @@ class Auth_OpenID_Server {
 
             // fall back to dumb mode if assoc_handle not found,
             // and send the consumer an invalidate_handle message
-            if (!isset($assoc) || $assoc->expiresIn <= 0) {
+            if (!isset($assoc) || $assoc->getExpiresIn() <= 0) {
                 $assoc = null;
                 $this->store->removeAssociation($key, $assoc_handle);
                 $reply['openid.invalidate_handle'] = $assoc_handle;
@@ -290,7 +290,7 @@ class Auth_OpenID_Server {
                 $inv_handle = @$args['openid.invalidate_handle'];
                 if (isset($inv_handle)) {
                     $assoc = $store->getAssociation($normal_key, $inv_handle);
-                    if ($assoc !== null) {
+                    if (!isset($assoc)) {
                         $reply['invalidate_handle'] = $inv_handle;
                     }
                 }
