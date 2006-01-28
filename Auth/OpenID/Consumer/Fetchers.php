@@ -34,6 +34,24 @@ $_Auth_OpenID_allowed_schemes = array('http', 'https');
 class Auth_OpenID_HTTPFetcher {
 
     /**
+     * Return whether a URL should be allowed. Override this method to
+     * conform to your local policy.
+     *
+     * By default, will attempt to fetch any http or https URL.
+     */
+    function allowedURL($url)
+    {
+        global $_Auth_OpenID_allowed_schemes;
+        foreach ($_Auth_OpenID_allowed_schemes as $scheme) {
+            if (strpos($url, sprintf("%s://", $scheme)) == 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * This performs an HTTP get, following redirects along the way.
      *
      * @return array $tuple This returns a three-tuple on success.
@@ -83,18 +101,6 @@ function Auth_OpenID_getHTTPFetcher()
     return $fetcher;
 }
 
-function Auth_OpenID_allowedURL($url)
-{
-    global $_Auth_OpenID_allowed_schemes;
-    foreach ($_Auth_OpenID_allowed_schemes as $scheme) {
-        if (strpos($url, sprintf("%s://", $scheme)) == 0) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 /**
  * This class implements a plain, hand-built socket-based fetcher
  * which will be used in the event that CURL is unavailable.
@@ -118,7 +124,7 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
 
     function get($url)
     {
-        if (!Auth_OpenID_allowedURL($url)) {
+        if (!$this->allowedURL($url)) {
             trigger_error("Bad URL scheme in url: " . $url,
                           E_USER_WARNING);
             return null;
@@ -131,7 +137,7 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
     {
         global $_Auth_OpenID_socket_timeout;
 
-        if (!Auth_OpenID_allowedURL($url)) {
+        if (!$this->allowedURL($url)) {
             trigger_error("Bad URL scheme in url: " . $url,
                           E_USER_WARNING);
             return null;
@@ -295,7 +301,7 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
         $off = $_Auth_OpenID_socket_timeout;
 
         while ($off > 0) {
-            if (!Auth_OpenID_allowedURL($url)) {
+            if (!$this->allowedURL($url)) {
                 trigger_error(sprintf("Fetching URL not allowed: %s", $url),
                               E_USER_WARNING);
                 return null;
@@ -338,7 +344,7 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
         global $_Auth_OpenID_socket_timeout;
         global $_Auth_OpenID_curl_data;
 
-        if (!Auth_OpenID_allowedURL($url)) {
+        if (!$this->allowedURL($url)) {
             trigger_error(sprintf("Fetching URL not allowed: %s", $url),
                           E_USER_WARNING);
             return null;
