@@ -17,9 +17,15 @@
 /**
  * Includes for utility functions.
  */
-require_once 'CryptUtil.php';
-require_once 'KVForm.php';
 require_once 'OIDUtil.php';
+/**
+ * @access private
+ */
+require_once 'CryptUtil.php';
+/**
+ * @access private
+ */
+require_once 'KVForm.php';
 
 /**
  * This class represents an association between a server and a
@@ -88,6 +94,10 @@ class Auth_OpenID_Association {
 
     /**
      * This is the standard constructor for creating an association.
+     * The library should create all of the necessary associations, so
+     * this constructor is not part of the external API.
+     *
+     * @access private
      *
      * @param string $handle This is the handle the server gave this
      * association.
@@ -154,18 +164,6 @@ class Auth_OpenID_Association {
                 && ($this->issued == $other->issued)
                 && ($this->lifetime == $other->lifetime)
                 && ($this->assoc_type == $other->assoc_type));
-    }
-
-    /**
-     * This checks to see if two Auth_OpenID_Association instances
-     * represent different associations.
-     *
-     * @return bool $result true if the two instances represent
-     * different associations, false otherwise.
-     */
-    function not_equal($other)
-    {
-        return !($this->equal($other));
     }
 
     /**
@@ -237,6 +235,7 @@ class Auth_OpenID_Association {
     /**
      * Generate a signature for a sequence of (key, value) pairs
      *
+     * @access private
      * @param array $pairs The pairs to sign, in order.  This is an
      * array of two-tuples.
      * @return string $signature The binary signature of this sequence
@@ -251,6 +250,7 @@ class Auth_OpenID_Association {
     /**
      * Generate a signature for some fields in a dictionary
      *
+     * @access private
      * @param array $fields The fields to sign, in order; this is an
      * array of strings.
      * @param array $data Dictionary of values to sign (an array of
@@ -267,6 +267,11 @@ class Auth_OpenID_Association {
         return base64_encode($this->sign($pairs));
     }
 
+    /**
+     * Add a signature to an array of fields
+     *
+     * @access private
+     */
     function addSignature($fields, &$data, $prefix = 'openid.')
     {
         $sig = $this->signDict($fields, $data, $prefix);
@@ -275,6 +280,12 @@ class Auth_OpenID_Association {
         $data[$prefix . 'signed'] = $signed;
     }
 
+    /**
+     * Confirm that the signature of these fields matches the
+     * signature contained in the data
+     *
+     * @access private
+     */
     function checkSignature($data, $prefix = 'openid.')
     {
         $signed = $data[$prefix . 'signed'];
