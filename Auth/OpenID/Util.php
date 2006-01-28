@@ -52,15 +52,6 @@ function Auth_OpenID_array_get($arr, $key, $fallback = null)
     }
 }
 
-
-/**
- * Prints the specified message using trigger_error(E_USER_NOTICE).
- */
-function Auth_OpenID_log($message, $unused_level = 0)
-{
-    trigger_error($message, E_USER_NOTICE);
-}
-
 /**
  * Rename query arguments back to 'openid.' from 'openid_'
  *

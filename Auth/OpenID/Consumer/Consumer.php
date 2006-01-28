@@ -503,7 +503,7 @@ class Auth_OpenID_Consumer {
             $error = Auth_OpenID_array_get($query, 'openid.error', null);
 
             if ($error !== null) {
-                Auth_OpenID_log($error);
+                trigger_error("In OpenID completeAuth: $error", E_USER_NOTICE);
             }
             return array(Auth_OpenID_FAILURE, null);
         } else if ($mode == 'id_res') {
@@ -671,8 +671,9 @@ class Auth_OpenID_Consumer {
 
         $error = Auth_OpenID_array_get($results, 'error', null);
         if ($error !== null) {
-            Auth_OpenID_log(sprintf("Error message from server during " .
-                                   "check_authentication: %s", $error));
+            $msg = sprintf("Error message from server during " .
+                           "check_authentication: %s", $error);
+            trigger_error($msg, E_USER_NOTICE);
         }
 
         return Auth_OpenID_FAILURE;
@@ -829,22 +830,23 @@ class Auth_OpenID_Consumer {
         $ret = @$this->fetcher->post($server_url, $body);
         if ($ret === null) {
             $fmt = 'Getting association: failed to fetch URL: %s';
-            Auth_OpenID_log(sprintf($fmt, $server_url));
+            trigger_error(sprintf($fmt, $server_url), E_USER_NOTICE);
             return null;
         }
 
         list($http_code, $url, $data) = $ret;
         $results = Auth_OpenID_kvToArray($data);
         if ($http_code == 400) {
-            $server_error = Auth_OpenID_array_get($results, 'error',
-                                                 '<no message from server>');
+            $error = Auth_OpenID_array_get($results, 'error',
+                                           '<no message from server>');
 
             $fmt = 'Getting association: error returned from server %s: %s';
-            Auth_OpenID_log(sprintf($fmt, $server_url, $server_error));
+            trigger_error(sprintf($fmt, $server_url, $error), E_USER_NOTICE);
             return null;
         } else if ($http_code != 200) {
             $fmt = 'Getting association: bad status code from server %s: %s';
-            Auth_OpenID_log(sprintf($fmt, $server_url, $http_code));
+            $msg = sprintf($fmt, $server_url, $http_code);
+            trigger_error($msg, E_USER_NOTICE);
             return null;
         }
 
@@ -863,10 +865,9 @@ class Auth_OpenID_Consumer {
 
         foreach ($required_keys as $key) {
             if (!array_key_exists($key, $results)) {
-                Auth_OpenID_log(sprintf("Getting association: missing key in ".
-                                       "response from %s: %s",
-                                       $server_url, $key),
-                               E_USER_WARNING);
+                $fmt = "associate: missing key in response from %s: %s";
+                $msg = sprintf($fmt, $server_url, $key);
+                trigger_error($msg, E_USER_NOTICE);
                 return null;
             }
         }
@@ -874,7 +875,8 @@ class Auth_OpenID_Consumer {
         $assoc_type = $results['assoc_type'];
         if ($assoc_type != 'HMAC-SHA1') {
             $fmt = 'Unsupported assoc_type returned from server %s: %s';
-            Auth_OpenID_log(sprintf($fmt, $server_url, $assoc_type));
+            $msg = sprintf($fmt, $server_url, $assoc_type);
+            trigger_error($msg, E_USER_NOTICE);
             return null;
         }
 
@@ -888,7 +890,8 @@ class Auth_OpenID_Consumer {
         } else {
             $fmt = 'Unsupported session_type returned from server %s: %s';
             if ($session_type != 'DH-SHA1') {
-                Auth_OpenID_log(sprintf($fmt, $server_url, $session_type));
+                $msg = sprintf($fmt, $server_url, $session_type);
+                trigger_error($msg, E_USER_NOTICE);
                 return null;
             }
 
