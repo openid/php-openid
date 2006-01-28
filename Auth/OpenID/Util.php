@@ -24,6 +24,8 @@ $_Auth_OpenID_punct = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
  * Create dir_name as a directory if it does not exist. If it exists,
  * make sure that it is, in fact, a directory.  Returns true if the
  * operation succeeded; false if not.
+ *
+ * @access private
  */
 function Auth_OpenID_ensureDir($dir_name)
 {
@@ -36,6 +38,8 @@ function Auth_OpenID_ensureDir($dir_name)
 
 /**
  * Convenience function for getting array values.
+ *
+ * @access private
  */
 function Auth_OpenID_array_get($arr, $key, $fallback = null)
 {
@@ -55,6 +59,7 @@ function Auth_OpenID_array_get($arr, $key, $fallback = null)
 /**
  * Rename query arguments back to 'openid.' from 'openid_'
  *
+ * @access private
  * @param array $args An associative array of URL query arguments
  */
 function Auth_OpenID_fixArgs($args)
@@ -74,6 +79,7 @@ function Auth_OpenID_fixArgs($args)
 /**
  * Implements the PHP 5 'http_build_query' functionality.
  *
+ * @access private
  * @param array $data Either an array key/value pairs or an array of
  * arrays, each of which holding two values: a key and a value,
  * sequentially.
@@ -149,6 +155,8 @@ function Auth_OpenID_appendArgs($url, $args)
  *
  * Do not escape anything that is already 7-bit safe, so we do the
  * minimal transform on the identity URL
+ *
+ * @access private
  */
 function Auth_OpenID_quoteMinimal($s)
 {
@@ -172,6 +180,7 @@ function Auth_OpenID_quoteMinimal($s)
  * Given the specified components of a URL, this function rebuilds and
  * returns the URL.
  *
+ * @access private
  * @param string $scheme The scheme (e.g. 'http').  Defaults to 'http'.
  * @param string $host The host.  Required.
  * @param string $port The port.
@@ -221,6 +230,7 @@ function Auth_OpenID_urlunparse($scheme, $host, $port = null, $path = '/',
  * or a leading http:// scheme where necessary.  Returns null if the
  * original URL is malformed and cannot be normalized.
  *
+ * @access private
  * @param string $url The URL to be normalized.
  * @return mixed $new_url The URL after normalization, or null if $url
  * was malformed.

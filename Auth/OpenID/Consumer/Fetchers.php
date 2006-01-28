@@ -29,6 +29,7 @@ $_Auth_OpenID_allowed_schemes = array('http', 'https');
  * library uses.  This interface is only important if you need to
  * write a new fetcher for some reason.
  *
+ * @access private
  * @package OpenID
  */
 class Auth_OpenID_HTTPFetcher {
@@ -84,15 +85,11 @@ class Auth_OpenID_HTTPFetcher {
 /**
  * Detect the presence of Curl and set a flag accordingly.
  */
-$_Auth_OpenID_curl_found = false;
-if (function_exists('curl_init')) {
-    $_Auth_OpenID_curl_found = true;
-}
+define('Auth_OpenID_CURL_PRESENT', function_exists('curl_init'));
 
 function Auth_OpenID_getHTTPFetcher()
 {
-    global $_Auth_OpenID_curl_found;
-    if (!$_Auth_OpenID_curl_found) {
+    if (!Auth_OpenID_CURL_PRESENT) {
         $fetcher = new Auth_OpenID_PlainHTTPFetcher();
     } else {
         $fetcher = new Auth_OpenID_ParanoidHTTPFetcher();
@@ -214,6 +211,8 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
 
 /**
  * An array to store headers and data from Curl calls.
+ *
+ * @access private
  */
 $_Auth_OpenID_curl_data = array();
 
@@ -221,6 +220,8 @@ $_Auth_OpenID_curl_data = array();
  * A function to prepare a "slot" in the global $_Auth_OpenID_curl_data
  * array so curl data can be stored there by curl callbacks in the
  * paranoid fetcher.
+ *
+ * @access private
  */
 function Auth_OpenID_initResponseSlot($ch)
 {
@@ -235,6 +236,8 @@ function Auth_OpenID_initResponseSlot($ch)
 
 /**
  * A callback function for curl so headers can be stored.
+ *
+ * @access private
  */
 function Auth_OpenID_writeHeaders($ch, $data)
 {
@@ -246,6 +249,8 @@ function Auth_OpenID_writeHeaders($ch, $data)
 
 /**
  * A callback function for curl so page data can be stored.
+ *
+ * @access private
  */
 function Auth_OpenID_writeData($ch, $data)
 {
@@ -265,8 +270,7 @@ function Auth_OpenID_writeData($ch, $data)
 class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
     function Auth_OpenID_ParanoidHTTPFetcher()
     {
-        global $_Auth_OpenID_curl_found;
-        if (!$_Auth_OpenID_curl_found) {
+        if (!Auth_OpenID_CURL_PRESENT) {
             trigger_error("Cannot use this class; CURL extension not found",
                           E_USER_ERROR);
         }

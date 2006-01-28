@@ -1,7 +1,7 @@
 <?php
 
 /**
- * A base class for SQL-backed OpenID stores.
+ * SQL-backed OpenID stores, including PostgreSQL, MySQL and SQLite.
  *
  * PHP versions 4 and 5
  *
@@ -18,13 +18,18 @@
  * stores implemented here.
  */
 require_once 'DB.php';
+/**
+ * @access private
+ */
 require_once 'Interface.php';
 
 /**
  * Converts a query result to a boolean.  If the result is a PEAR
  * error object, this returns false; otherwise, this returns true.
+ *
+ * @access private
  */
-function _resultToBool($obj)
+function Auth_OpenID_resultToBool($obj)
 {
     if (PEAR::isError($obj)) {
         return false;
@@ -37,8 +42,10 @@ function _resultToBool($obj)
  * "Octifies" a binary string by returning a string with escaped octal
  * bytes.  This is used for preparing binary data for PostgreSQL BYTEA
  * fields.
+ *
+ * @access private
  */
-function _octify($str)
+function Auth_OpenID_octify($str)
 {
     $result = "";
     for ($i = 0; $i < strlen($str); $i++) {
@@ -57,8 +64,10 @@ function _octify($str)
 /**
  * "Unoctifies" octal-escaped data from PostgreSQL and returns the
  * resulting ASCII (possibly binary) string.
+ *
+ * @access private
  */
-function _unoctify($str)
+function Auth_OpenID_unoctify($str)
 {
     $result = "";
     $i = 0;
@@ -338,19 +347,19 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
     function create_nonce_table()
     {
         $r = $this->connection->query($this->sql['nonce_table']);
-        return _resultToBool($r);
+        return Auth_OpenID_resultToBool($r);
     }
 
     function create_assoc_table()
     {
         $r = $this->connection->query($this->sql['assoc_table']);
-        return _resultToBool($r);
+        return Auth_OpenID_resultToBool($r);
     }
 
     function create_settings_table()
     {
         $r = $this->connection->query($this->sql['settings_table']);
-        return _resultToBool($r);
+        return Auth_OpenID_resultToBool($r);
     }
 
     /**
@@ -413,7 +422,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
     function storeAssociation($server_url, $association)
     {
-        if (_resultToBool($this->_set_assoc(
+        if (Auth_OpenID_resultToBool($this->_set_assoc(
                                             $server_url,
                                             $association->handle,
                                             $this->blobEncode(
@@ -457,7 +466,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
             return false;
         }
 
-        if (_resultToBool($this->connection->query(
+        if (Auth_OpenID_resultToBool($this->connection->query(
                               $this->sql['remove_assoc'],
                               array($server_url, $handle)))) {
             $this->connection->commit();
@@ -526,8 +535,9 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
      */
     function _add_nonce($nonce, $expires)
     {
-        return _resultToBool($this->connection->query($this->sql['add_nonce'],
-                                                     array($nonce, $expires)));
+        $sql = $this->sql['add_nonce'];
+        $result = $this->connection->query($sql, array($nonce, $expires));
+        return Auth_OpenID_resultToBool($result);
     }
 
     /**
@@ -598,6 +608,9 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
  * @package OpenID
  */
 class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
+    /**
+     * @access private
+     */
     function setSQL()
     {
         $this->sql['nonce_table'] =
@@ -684,24 +697,30 @@ class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
     function _add_nonce($nonce, $expires)
     {
         if ($this->_get_nonce($nonce)) {
-            return _resultToBool($this->connection->query(
+            return Auth_OpenID_resultToBool($this->connection->query(
                                       $this->sql['add_nonce']['update_nonce'],
                                       array($expires, $nonce)));
         } else {
-            return _resultToBool($this->connection->query(
+            return Auth_OpenID_resultToBool($this->connection->query(
                                       $this->sql['add_nonce']['insert_nonce'],
                                       array($nonce, $expires)));
         }
     }
 
+    /**
+     * @access private
+     */
     function blobEncode($blob)
     {
-        return _octify($blob);
+        return Auth_OpenID_octify($blob);
     }
 
+    /**
+     * @access private
+     */
     function blobDecode($blob)
     {
-        return _unoctify($blob);
+        return Auth_OpenID_unoctify($blob);
     }
 }
 
@@ -763,6 +782,9 @@ class Auth_OpenID_SQLiteStore extends Auth_OpenID_SQLStore {
  * @package OpenID
  */
 class Auth_OpenID_MySQLStore extends Auth_OpenID_SQLStore {
+    /**
+     * @access private
+     */
     function setSQL()
     {
         $this->sql['nonce_table'] =
@@ -809,6 +831,9 @@ class Auth_OpenID_MySQLStore extends Auth_OpenID_SQLStore {
             "DELETE FROM %s WHERE nonce = ?";
     }
 
+    /**
+     * @access private
+     */
     function blobEncode($blob)
     {
         return "0x" . bin2hex($blob);
