@@ -2,6 +2,10 @@
 
 HERE=$(readlink --canonicalize $(dirname "$0"))
 
+test_import () {
+    ./admin/checkimports
+}
+
 test_tabs () {
     /usr/bin/env bash "$HERE/notabs"
 }
@@ -30,14 +34,15 @@ test_php () {
     /usr/bin/env php "$HERE/texttest.php"
 }
 
-tests="tabs longlines nobadbraces nobadcase opentag docblocks php"
+tests="tabs longlines nobadbraces nobadcase opentag docblocks php import"
 
 failures=
 
 # Run in repository root (parent of this directory)
 cd $(dirname "$HERE")
 
-chmod +x ./admin/findphp
+chmod +x ./admin/fixperms
+./admin/fixperms
 
 for test_name in $tests
   do

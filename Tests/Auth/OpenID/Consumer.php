@@ -19,6 +19,7 @@ require_once 'Auth/OpenID/Store/FileStore.php';
 require_once 'Auth/OpenID/OIDUtil.php';
 require_once 'Auth/OpenID/KVForm.php';
 require_once 'Auth/OpenID/Consumer/Consumer.php';
+require_once 'PHPUnit.php';
 
 class Auth_OpenID_TestConsumer extends Auth_OpenID_Consumer {
     /**

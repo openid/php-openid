@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 chmod +x admin/makedoc.sh admin/docblocks admin/runtests admin/mathlib \
-    admin/fixperms admin/prepare-release
+    admin/fixperms admin/prepare-release admin/checkimport admin/checkimports \
+    admin/findphp

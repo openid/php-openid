@@ -19,6 +19,7 @@
 require_once 'Auth/OpenID/Association.php';
 require_once 'Auth/OpenID/CryptUtil.php';
 require_once 'Auth/OpenID/OIDUtil.php';
+require_once 'PHPUnit.php';
 
 /**
  * This is the host where the SQL stores' databases should be created
