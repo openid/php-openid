@@ -17,7 +17,7 @@
 /**
  * Includes for utility functions.
  */
-require_once 'OIDUtil.php';
+require_once 'Util.php';
 /**
  * @access private
  */

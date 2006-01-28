@@ -9,7 +9,7 @@ require_once "Auth/OpenID/Association.php";
 require_once "Auth/OpenID/CryptUtil.php";
 require_once "Auth/OpenID/DiffieHellman.php";
 require_once "Auth/OpenID/KVForm.php";
-require_once "Auth/OpenID/OIDUtil.php";
+require_once "Auth/OpenID/Util.php";
 require_once "Auth/OpenID/TrustRoot.php";
 
 define('Auth_OpenID_LOCAL_ERROR', 'local_error');

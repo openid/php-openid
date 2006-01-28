@@ -16,7 +16,7 @@
 
 require_once 'PHPUnit.php';
 require_once 'Auth/OpenID/DiffieHellman.php';
-require_once 'Tests/Auth/OpenID/Util.php';
+require_once 'Tests/Auth/OpenID/TestUtil.php';
 
 class Tests_Auth_OpenID_DiffieHellman_CheckCases extends PHPUnit_TestCase {
     function Tests_Auth_OpenID_DiffieHellman_CheckCases($cases, $n)

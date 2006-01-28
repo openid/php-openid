@@ -13,7 +13,7 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-require_once 'Tests/Auth/OpenID/Util.php';
+require_once 'Tests/Auth/OpenID/TestUtil.php';
 require_once 'Auth/OpenID/Consumer/Parse.php';
 require_once 'PHPUnit.php';
 

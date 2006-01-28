@@ -71,7 +71,7 @@ $_test_names = array(
     'DiffieHellman',
     'HMACSHA1',
     'KVForm',
-    'OIDUtil',
+    'Util',
     'Parse',
     'StoreTest',
     'Server',

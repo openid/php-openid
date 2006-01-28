@@ -5,7 +5,7 @@
  */
 
 require_once "Auth/OpenID/TrustRoot.php";
-require_once "Tests/Auth/OpenID/Util.php";
+require_once "Tests/Auth/OpenID/TestUtil.php";
 require_once "PHPUnit.php";
 
 class Tests_Auth_OpenID_TRParseCase extends PHPUnit_TestCase {

@@ -20,7 +20,7 @@
  */
 require_once 'Auth/OpenID/Store/Interface.php';
 require_once 'Auth/OpenID/HMACSHA1.php';
-require_once 'Auth/OpenID/OIDUtil.php';
+require_once 'Auth/OpenID/Util.php';
 
 function Auth_OpenID_rmtree($dir)
 {

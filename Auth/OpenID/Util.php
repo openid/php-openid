@@ -1,7 +1,7 @@
 <?php
 
 /**
- * OIDUtil: URL manipulation utility functions for the OpenID library.
+ * Util: URL manipulation utility functions for the OpenID library.
  *
  * PHP versions 4 and 5
  *

@@ -190,7 +190,7 @@ require_once "Auth/OpenID/Consumer/Parse.php";
 require_once "Auth/OpenID/CryptUtil.php";
 require_once "Auth/OpenID/DiffieHellman.php";
 require_once "Auth/OpenID/KVForm.php";
-require_once "Auth/OpenID/OIDUtil.php";
+require_once "Auth/OpenID/Util.php";
 
 /**
  * This is the status code returned when either the of the beginAuth
