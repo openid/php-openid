@@ -25,7 +25,7 @@ $_Auth_OpenID_punct = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
  * make sure that it is, in fact, a directory.  Returns true if the
  * operation succeeded; false if not.
  */
-function ensureDir($dir_name)
+function Auth_OpenID_ensureDir($dir_name)
 {
     if (@mkdir($dir_name) || is_dir($dir_name)) {
         return true;
