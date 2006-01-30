@@ -93,7 +93,7 @@ http://foo.com                        http://Foo.com
 http://foo.com/?x=y                   http://foo.com/?x=y&a=b
 
 ----------------------------------------
-22: does not match
+23: does not match
 ----------------------------------------
 http://*/                             ftp://foo.com/
 http://*/                             xxx
@@ -117,3 +117,4 @@ http://*:80                           http://foo.com:81
 http://foo.com/?a=b                   http://foo.com/?x=y
 http://foo.com/?a=b                   http://foo.com/?x=y&a=b
 http://foo.com/?a=b                   http://foo.com/
+http://*.oo.com/                      http://foo.com/
