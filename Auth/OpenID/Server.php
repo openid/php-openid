@@ -3,6 +3,15 @@
 /**
  * This module contains an implementation of an OpenID server as
  * Auth_OpenID_Server.
+ *
+ * PHP versions 4 and 5
+ *
+ * LICENSE: See the COPYING file included in this distribution.
+ *
+ * @package OpenID
+ * @author JanRain, Inc. <openid@janrain.com>
+ * @copyright 2005 Janrain, Inc.
+ * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
 require_once "Auth/OpenID/Association.php";
@@ -12,21 +21,101 @@ require_once "Auth/OpenID/KVForm.php";
 require_once "Auth/OpenID/Util.php";
 require_once "Auth/OpenID/TrustRoot.php";
 
+/**
+ * Status code returned when the only option is to show an error page,
+ * since we do not have enough information to redirect back to the
+ * consumer. The associated value is an error message that should be
+ * displayed on an HTML error page.
+ */
 define('Auth_OpenID_LOCAL_ERROR', 'local_error');
+
+/**
+ * Status code returned when there is an error to return in key-value
+ * form to the consumer. The caller should return a 400 Bad Request
+ * response with content-type text/plain and the value as the body.
+ */
 define('Auth_OpenID_REMOTE_ERROR', 'remote_error');
+
+/**
+ * Status code returned when there is a key-value form OK response to
+ * the consumer. The value associated with this code is the
+ * response. The caller should return a 200 OK response with
+ * content-type text/plain and the value as the body.
+ */
 define('Auth_OpenID_REMOTE_OK', 'remote_ok');
+
+/**
+ * Status code returned when there is a redirect back to the
+ * consumer. The value is the URL to redirect back to. The caller
+ * should return a 302 Found redirect with a Location: header
+ * containing the URL.
+ */
 define('Auth_OpenID_REDIRECT', 'redirect');
+
+/**
+ * Status code returned when the caller needs to authenticate the
+ * user. The associated value is a Auth_OpenID_AuthorizationInfo
+ * object that can be used to complete the authentication. If the user
+ * has taken some authentication action, use the retry() method of the
+ * Auth_OpenID_AuthorizationInfo object to complete the request.
+ */
 define('Auth_OpenID_DO_AUTH', 'do_auth');
+
+/**
+ * Status code returned when there were no OpenID arguments
+ * passed. This code indicates that the caller should return a 200 OK
+ * response and display an HTML page that says that this is an OpenID
+ * server endpoint.
+ */
 define('Auth_OpenID_DO_ABOUT', 'do_about');
 
+/**
+ * An object that implements the OpenID protocol for a single URL.
+ *
+ * Use this object by calling getOpenIDResponse when you get any
+ * request for the server URL.
+ */
 class Auth_OpenID_Server {
+
+    /**
+     * A store implementing the interface in Auth/OpenID/Store/Interface.php
+     */
     var $store;
+
+    /**
+     * The URL of the server that this instance represents.
+     */
     var $server_url;
+
+    /**
+     * The server URL with a namespace indicating that this
+     * association is a shared association.
+     *
+     * @access private
+     */
     var $_normal_key;
+
+    /**
+     * The server URL with a namespace indicating that this
+     * association is a private (dumb-mode) association.
+     *
+     * @access private
+     */
     var $_dumb_key;
 
-    var $SECRET_LIFETIME = 1209600; // 14 days, in seconds
+    /**
+     * How long an association should be valid for (in seconds)
+     */
+    var $association_lifetime = 1209600; // 14 days, in seconds
 
+    /**
+     * Constructor.
+     *
+     * @param string $server_url The URL of the OpenID server
+     *
+     * @param mixed $store The association store for this
+     *     instance. See Auth_OpenID_OpenIDStore
+     */
     function Auth_OpenID_Server($server_url, $store)
     {
         $this->server_url = $server_url;
@@ -40,7 +129,9 @@ class Auth_OpenID_Server {
      * This is the initial entry point for a server URL.
      *
      * @param mixed $is_authorized: the name of a callback to use for
-     * determining if a given identity URL should be authorized.
+     * determining if a given identity URL should be authorized. It
+     * will be called with the identity URL and the trust_root for
+     * this request.
      *
      * @param string $method The HTTP method of the current
      * request. If omitted, $_SERVER['HTTP_METHOD'] will be used.
@@ -48,9 +139,10 @@ class Auth_OpenID_Server {
      * @param array $args The arguments parsed from the request. If
      * omitted, the arguments in the environment will be used.
      *
-     * @return array $array A pair of elements in which the first is
-     * a status code and the meaning of the second depends on the
-     * status.
+     * @return array $array A pair of elements in which the first is a
+     * status code and the meaning of the second depends on the
+     * status. See the status codes defined in this file for
+     * information about each response.
      */
     function getOpenIDResponse($is_authorized, $method=null, $args=null)
     {
@@ -93,6 +185,15 @@ class Auth_OpenID_Server {
         }
     }
 
+    /**
+     * @access private
+     *
+     * @param object $auth_info The Auth_OpenID_AuthorizationInfo
+     * object representing this request.
+     *
+     * @param bool $authorized Whether the user making this request is
+     * capable of approving this authorization request.
+     */
     function getAuthResponse(&$auth_info, $authorized)
     {
         $identity = $auth_info->getIdentityURL();
@@ -114,6 +215,12 @@ class Auth_OpenID_Server {
         }
     }
 
+    /**
+     * Return whether the return_to URL matches the trust_root for
+     * this request.
+     *
+     * @access private
+     */
     function _checkTrustRoot(&$auth_info)
     {
         $return_to = $auth_info->getReturnTo();
@@ -129,6 +236,9 @@ class Auth_OpenID_Server {
         return array(true, $return_to);
     }
 
+    /**
+     * @access private
+     */
     function _getAuthNotAuthorized(&$auth_info, $return_to)
     {
         $mode = $auth_info->getMode();
@@ -162,6 +272,9 @@ class Auth_OpenID_Server {
         }
     }
 
+    /**
+     * @access private
+     */
     function _getAuthAuthorized(&$auth_info, $return_to)
     {
         $mode = $auth_info->getMode();
@@ -207,6 +320,11 @@ class Auth_OpenID_Server {
         return array(Auth_OpenID_REDIRECT, $redir_url);
     }
 
+    /**
+     * Perform an openid.mode=associate query
+     *
+     * @access private
+     */
     function associate($query)
     {
         $reply = array();
@@ -258,6 +376,11 @@ class Auth_OpenID_Server {
         return array(Auth_OpenID_REMOTE_OK, $reply_kv);
     }
 
+    /**
+     * Perform an openid.mode=check_authentication request
+     *
+     * @access private
+     */
     function checkAuthentication($args)
     {
         $handle = $args['openid.assoc_handle'];
@@ -305,6 +428,11 @@ class Auth_OpenID_Server {
         return array(Auth_OpenID_REMOTE_OK, $kv);
     }
 
+    /**
+     * Create a new association and store it
+     *
+     * @access private
+     */
     function createAssociation($assoc_type)
     {
         if ($assoc_type == 'HMAC-SHA1') {
@@ -317,13 +445,18 @@ class Auth_OpenID_Server {
         $uniq = base64_encode(Auth_OpenID_getBytes(4));
         $handle = sprintf('{%s}{%x}{%s}', $assoc_type, time(), $uniq);
 
-        $ltime = $this->SECRET_LIFETIME;
+        $ltime = $this->association_lifetime;
         $assoc = Auth_OpenID_Association::
             fromExpiresIn($ltime, $handle, $secret, $assoc_type);
 
         return $assoc;
     }
 
+    /**
+     * Return an error response for GET requests
+     *
+     * @access private
+     */
     function getError($args, $msg)
     {
         $return_to = @$args['openid.return_to'];
@@ -345,6 +478,11 @@ class Auth_OpenID_Server {
         }
     }
 
+    /**
+     * Return an error response for POST requests
+     *
+     * @access private
+     */
     function postError($msg)
     {
         $kv = Auth_OpenID_arrayToKV(array('error' => $msg));
