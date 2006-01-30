@@ -14,6 +14,9 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
+/**
+ * Required imports
+ */
 require_once "Auth/OpenID/Association.php";
 require_once "Auth/OpenID/CryptUtil.php";
 require_once "Auth/OpenID/DiffieHellman.php";
@@ -74,6 +77,8 @@ define('Auth_OpenID_DO_ABOUT', 'do_about');
  *
  * Use this object by calling getOpenIDResponse when you get any
  * request for the server URL.
+ *
+ * @package OpenID
  */
 class Auth_OpenID_Server {
 
@@ -490,33 +495,82 @@ class Auth_OpenID_Server {
     }
 }
 
+/**
+ * Object that represents a server request
+ *
+ * With accessor functions to get at the internal request data.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_AuthorizationInfo {
+    /**
+     * The arguments for this request
+     */
+    var $args;
+
+    /**
+     * The URL of the server for this request
+     */
+    var $server_url;
+
+    /**
+     * Constructor
+     *
+     * @internal This is private because the library user should not
+     * have to make instances of this class.
+     *
+     * @access private
+     *
+     * @param string $server_url The openid.server URL for the server
+     * that goes with this request.
+     *
+     * @param array $args The query arguments for this request
+     */
     function Auth_OpenID_AuthorizationInfo($server_url, $args)
     {
         $this->server_url = $server_url;
         $this->args = $args;
     }
 
+    /**
+     * @access private
+     */
     function getMode()
     {
         return $this->args['openid.mode'];
     }
 
+    /**
+     * Get the identity URL that is being checked
+     */
     function getIdentityURL()
     {
         return @$this->args['openid.identity'];
     }
 
+    /**
+     * Get the return_to URL for the consumer that initiated this request.
+     *
+     * @return string $return_to The return_to URL for the consumer
+     */
     function getReturnTo()
     {
         return @$this->args['openid.return_to'];
     }
 
+    /**
+     * Get a cancel response for this URL
+     *
+     * @return array $response The status code and data
+     */
     function cancel()
     {
         return array(Auth_OpenID_REDIRECT, $this->getCancelURL());
     }
 
+    /**
+     * Return a cancel URL for this request
+     */
     function getCancelURL()
     {
         $cancel_args = array('openid.mode' => 'cancel');
@@ -524,11 +578,17 @@ class Auth_OpenID_AuthorizationInfo {
         return Auth_OpenID_appendArgs($return_to, $cancel_args);
     }
 
+    /**
+     * Get a URL that will initiate this request again.
+     */
     function getRetryURL()
     {
         return Auth_OpenID_appendArgs($this->server_url, $this->args);
     }
 
+    /**
+     * Return the trust_root for this request
+     */
     function getTrustRoot()
     {
         if (isset($this->args['openid.trust_root'])) {
@@ -538,6 +598,15 @@ class Auth_OpenID_AuthorizationInfo {
         }
     }
 
+    /**
+     * Attempt to authenticate again, given a server and
+     * authentication checking function.
+     *
+     * @param object $server An instance of Auth_OpenID_Server
+     *
+     * @param mixed $is_authorized The callback to use to determine
+     * whether the current user can authorize this request.
+     */
     function retry(&$server, $is_authorized)
     {
         $trust_root = $this->getTrustRoot();
