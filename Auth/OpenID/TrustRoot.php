@@ -201,11 +201,22 @@ function Auth_OpenID_matchTrustRoot($trust_root, $url)
         }
     }
 
-    // Check path matching
+    // Check path and query matching
     $base_path = $trust_root_parsed['path'];
     $path = $url_parsed['path'];
-    if (substr($path, 0, strlen($base_path)) != $base_path) {
-        return false;
+    if (!isset($trust_root_parsed['query'])) {
+        if (substr($path, 0, strlen($base_path)) != $base_path) {
+            return false;
+        }
+    } else {
+        $base_query = $trust_root_parsed['query'];
+        $query = @$url_parsed['query'];
+        $qplus = substr($query, 0, strlen($base_query) + 1);
+        $bqplus = $base_query . '&';
+        if ($base_path != $path ||
+            ($base_query != $query && $qplus != $bqplus)) {
+            return false;
+        }
     }
 
     // The port and scheme need to match exactly

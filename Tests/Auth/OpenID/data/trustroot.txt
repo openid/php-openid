@@ -59,7 +59,7 @@ return_to matching
 ========================================
 
 ----------------------------------------
-29: matches
+30: matches
 ----------------------------------------
 http://*/                             http://cnn.com/
 http://*/                             http://livejournal.com/
@@ -90,9 +90,10 @@ http://goathack.livejournal.org:8020/ http://goathack.livejournal.org:8020/openi
 https://foo.com                       https://foo.com
 http://Foo.com                        http://foo.com
 http://foo.com                        http://Foo.com
+http://foo.com/?x=y                   http://foo.com/?x=y&a=b
 
 ----------------------------------------
-19: does not match
+22: does not match
 ----------------------------------------
 http://*/                             ftp://foo.com/
 http://*/                             xxx
@@ -113,3 +114,6 @@ http://foo.com:80                     http://foo.com
 http://foo.com                        http://foo.com:80
 http://foo.com:81                     http://foo.com:80
 http://*:80                           http://foo.com:81
+http://foo.com/?a=b                   http://foo.com/?x=y
+http://foo.com/?a=b                   http://foo.com/?x=y&a=b
+http://foo.com/?a=b                   http://foo.com/
