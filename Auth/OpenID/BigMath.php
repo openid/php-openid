@@ -329,7 +329,7 @@ class Auth_OpenID_GmpMathWrapper extends Auth_OpenID_MathLibrary{
  * You can define new math library implementations and add them to
  * this array.
  */
-$_Auth_OpenID_supported_extensions = array(
+$_Auth_OpenID_math_extensions = array(
     array('modules' => array('gmp', 'php_gmp'),
           'extension' => 'gmp',
           'class' => 'Auth_OpenID_GmpMathWrapper'),
@@ -338,6 +338,9 @@ $_Auth_OpenID_supported_extensions = array(
           'class' => 'Auth_OpenID_BcMathWrapper')
     );
 
+/**
+ * Detect which (if any) math library is available
+ */
 function Auth_OpenID_detectMathLibrary($exts)
 {
     $loaded = false;
@@ -363,7 +366,7 @@ function Auth_OpenID_detectMathLibrary($exts)
         // Auth_OpenID_MathWrapper which wraps the specified
         // module's functionality.
         if ($loaded) {
-            return $extension['class'];
+            return $extension;
         }
     }
 
@@ -409,8 +412,8 @@ function &Auth_OpenID_getMathLib()
     // If this method has not been called before, look at
     // $Auth_OpenID_supported_extensions and try to find an
     // extension that works.
-    global $_Auth_OpenID_supported_extensions;
-    $ext = Auth_OpenID_detectMathLibrary($_Auth_OpenID_supported_extensions);
+    global $_Auth_OpenID_math_extensions;
+    $ext = Auth_OpenID_detectMathLibrary($_Auth_OpenID_math_extensions);
     if ($ext === false) {
         $tried = array();
         foreach ($_Auth_OpenID_supported_extensions as $extinfo) {
@@ -424,7 +427,8 @@ function &Auth_OpenID_getMathLib()
     }
 
     // Instantiate a new wrapper
-    $lib = new $ext();
+    $class = $ext['class'];
+    $lib = new $class();
 
     return $lib;
 }
