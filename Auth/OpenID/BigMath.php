@@ -246,6 +246,11 @@ class Auth_OpenID_BcMathWrapper extends Auth_OpenID_MathLibrary{
             return $this->_powmod($base, $exponent, $modulus);
         }
     }
+
+    function toString($num)
+    {
+        return $num;
+    }
 }
 
 /**
@@ -305,6 +310,10 @@ class Auth_OpenID_GmpMathWrapper extends Auth_OpenID_MathLibrary{
         return gmp_powm($base, $exponent, $modulus);
     }
 
+    function toString($num)
+    {
+        return gmp_strval($num);
+    }
 }
 
 /**
