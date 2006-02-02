@@ -22,6 +22,11 @@ class PlainText {
         }
     }
 
+    function b($text)
+    {
+        return '*' . $text . '*';
+    }
+
     function contentType()
     {
         return 'text/plain';
@@ -93,6 +98,11 @@ class HTML {
     function contentType()
     {
         return 'text/html';
+    }
+
+    function b($text)
+    {
+        return '<strong>' . $text . '</strong>';
     }
 
     function p($text)
@@ -312,11 +322,62 @@ function detect_stores($r, &$out)
     return false;
 }
 
+function detect_fetcher($r, &$out)
+{
+    $out .= $r->h2('HTTP Fetching');
+    require_once "Auth/OpenID/Consumer/Fetchers.php";
+    if (Auth_OpenID_CURL_PRESENT) {
+        // XXX: actually fetch a URL.
+        $out .= $r->p('This PHP installation has support for libcurl. Good.');
+    } else {
+        $out .= $r->p('This PHP installation does not have support for ' .
+                      'libcurl. Some functionality, such as fetching ' .
+                      'https:// URLs, will be missing and performance ' .
+                      'will not be as good.');
+        $lnk = $r->link('http://us3.php.net/manual/en/ref.curl.php');
+        $out .= $r->p('See ' . $lnk . ' about enabling the libcurl support ' .
+                      'for PHP.');
+    }
+    $ok = true;
+    $fetcher = Auth_OpenID_getHTTPFetcher();
+    $fetch_url = 'http://www.openidenabled.com/resources/php-fetch-test';
+    $expected_url = $fetch_url . '.txt';
+    $result = $fetcher->get($fetch_url);
+    if (isset($result)) {
+        $parts = array('An HTTP request was completed.');
+        list ($code, $url, $data) = $result;
+        if ($code != '200') {
+            $ok = false;
+            $parts[] = $r->b(
+                sprintf('Got %s instead of the expected HTTP status code ' .
+                        '(200).', $code));
+        }
+        if ($url != $expected_url) {
+            $ok = false;
+            if ($url == $fetch_url) {
+                $msg = 'The redirected URL was not returned.';
+            } else {
+                $msg = 'An unexpected URL was returned: <' . $url . '>.';
+            }
+            $parts[] = $r->b($msg);
+        }
+        if ($data != 'Hello World!') {
+            $ok = false;
+            $parts[] = $r->b('Unexpected data was returned.');
+        }
+        $out .= $r->p(implode(' ', $parts));
+    } else {
+        $ok = false;
+        $out .= $r->p('Fetching URL ' . $lnk . ' failed!');
+    }
+    return $ok;
+}
+
 header('Content-Type: ' . $r->contentType() . '; charset=us-ascii');
 
 $status = array();
 
-$title = 'PHP OpenID Library Support Report';
+$title = 'OpenID Library Support Report';
 $out = $r->start($title) .
     $r->h1($title) .
     $r->p('This script checks your PHP installation to determine if you ' .
@@ -333,6 +394,7 @@ if (!include('Auth/OpenID/BigMath.php')) {
     $status['math'] = detect_math($r, $body);
     $status['random'] = detect_random($r, $body);
     $status['stores'] = detect_stores($r, $body);
+    $status['fetcher'] = detect_fetcher($r, $body);
 }
 
 $out .= $body . $r->end();
