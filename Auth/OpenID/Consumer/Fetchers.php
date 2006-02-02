@@ -20,9 +20,14 @@
 $_Auth_OpenID_socket_timeout = 20;
 
 /**
- * Specify allowed URL schemes for fetching.
+ * Is this an http or https URL?
+ *
+ * @access private
  */
-$_Auth_OpenID_allowed_schemes = array('http', 'https');
+function Auth_OpenID_URLHasAllowedScheme($url)
+{
+    return (bool)preg_match('/^https?:\/\//i', $url);
+}
 
 /**
  * This class is the interface for HTTP fetchers the OpenID consumer
@@ -42,14 +47,7 @@ class Auth_OpenID_HTTPFetcher {
      */
     function allowedURL($url)
     {
-        global $_Auth_OpenID_allowed_schemes;
-        foreach ($_Auth_OpenID_allowed_schemes as $scheme) {
-            if (strpos($url, sprintf("%s://", $scheme)) == 0) {
-                return true;
-            }
-        }
-
-        return false;
+        return Auth_OpenID_URLHasAllowedScheme($url);
     }
 
     /**
@@ -89,10 +87,10 @@ define('Auth_OpenID_CURL_PRESENT', function_exists('curl_init'));
 
 function Auth_OpenID_getHTTPFetcher()
 {
-    if (!Auth_OpenID_CURL_PRESENT) {
-        $fetcher = new Auth_OpenID_PlainHTTPFetcher();
-    } else {
+    if (Auth_OpenID_CURL_PRESENT) {
         $fetcher = new Auth_OpenID_ParanoidHTTPFetcher();
+    } else {
+        $fetcher = new Auth_OpenID_PlainHTTPFetcher();
     }
 
     return $fetcher;
