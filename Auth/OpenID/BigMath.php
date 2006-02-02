@@ -379,12 +379,11 @@ function Auth_OpenID_detectMathLibrary($exts)
  * which exposes the module's functionality.
  *
  * Checks for the existence of an extension module described by the
- * local Auth_OpenID_supported_extensions array and returns an
- * instance of a wrapper for that extension module.  If no extension
- * module is found, an instance of Auth_OpenID_MathWrapper is
- * returned, which wraps the native PHP integer implementation.  The
- * proper calling convention for this method is $lib =&
- * Auth_OpenID_getMathLib().
+ * local Auth_OpenID_math_extensions array and returns an instance of
+ * a wrapper for that extension module.  If no extension module is
+ * found, an instance of Auth_OpenID_MathWrapper is returned, which
+ * wraps the native PHP integer implementation.  The proper calling
+ * convention for this method is $lib =& Auth_OpenID_getMathLib().
  *
  * This function checks for the existence of specific long number
  * implementations in the following order: GMP followed by BCmath.
@@ -410,13 +409,13 @@ function &Auth_OpenID_getMathLib()
     }
 
     // If this method has not been called before, look at
-    // $Auth_OpenID_supported_extensions and try to find an
-    // extension that works.
+    // $Auth_OpenID_math_extensions and try to find an extension that
+    // works.
     global $_Auth_OpenID_math_extensions;
     $ext = Auth_OpenID_detectMathLibrary($_Auth_OpenID_math_extensions);
     if ($ext === false) {
         $tried = array();
-        foreach ($_Auth_OpenID_supported_extensions as $extinfo) {
+        foreach ($_Auth_OpenID_math_extensions as $extinfo) {
             $tried[] = $extinfo['extension'];
         }
         $triedstr = implode(", ", $tried);
