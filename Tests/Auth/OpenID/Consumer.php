@@ -151,7 +151,7 @@ $_Auth_OpenID_consumer_url = "http://consumer.example.com/";
 class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
 
     function _run(&$consumer, $user_url, $mode, $delegate_url,
-                  &$fetcher, &$store)
+                  &$fetcher, &$store, $immediate)
     {
         global $_Auth_OpenID_consumer_url,
             $_Auth_OpenID_server_url;
@@ -162,7 +162,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
         $return_to = $_Auth_OpenID_consumer_url;
         $trust_root = $_Auth_OpenID_consumer_url;
         $redirect_url = $consumer->constructRedirect($info, $return_to,
-                                                     $trust_root);
+                                                     $trust_root, $immediate);
 
         $parsed = parse_url($redirect_url);
         $qs = $parsed['query'];
@@ -230,12 +230,12 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
                                               $_Auth_OpenID_assocs[0][0],
                                               $_Auth_OpenID_assocs[0][1]);
 
-        $consumer = new Auth_OpenID_TestConsumer($store, &$fetcher, $immediate);
+        $consumer = new Auth_OpenID_TestConsumer($store, &$fetcher);
 
         $expected_num_assocs = 0;
         $this->assertEquals($expected_num_assocs, $fetcher->num_assocs);
         $this->_run($consumer, $user_url, $mode, $delegate_url,
-                    $fetcher, $store);
+                    $fetcher, $store, $immediate);
 
         if ($consumer->_use_assocs) {
             $expected_num_assocs += 1;
@@ -245,7 +245,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
 
         // Test that doing it again uses the existing association
         $this->_run($consumer, $user_url, $mode, $delegate_url,
-                    $fetcher, $store);
+                    $fetcher, $store, $immediate);
 
         $this->assertEquals($expected_num_assocs, $fetcher->num_assocs);
 
@@ -254,7 +254,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
                                   $fetcher->assoc_handle);
 
         $this->_run($consumer, $user_url, $mode, $delegate_url,
-                    $fetcher, $store);
+                    $fetcher, $store, $immediate);
 
         if ($consumer->_use_assocs) {
             $expected_num_assocs += 1;
@@ -264,7 +264,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
 
         // Test that doing it again uses the existing association
         $this->_run($consumer, $user_url, $mode, $delegate_url,
-                    $fetcher, $store);
+                    $fetcher, $store, $immediate);
 
         $this->assertEquals($expected_num_assocs, $fetcher->num_assocs);
 

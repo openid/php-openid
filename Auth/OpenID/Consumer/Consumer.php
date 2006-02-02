@@ -273,11 +273,6 @@ class Auth_OpenID_Consumer {
     var $mode;
 
     /**
-     * A boolean indicating whether the consumer is in immediate mode.
-     */
-    var $immediate;
-
-    /**
      * This method initializes a new Auth_OpenID_Consumer instance to
      * access the library.
      *
@@ -306,7 +301,7 @@ class Auth_OpenID_Consumer {
      * in the module description.  The default value is False, which
      * disables immediate mode.
      */
-    function Auth_OpenID_Consumer(&$store, $fetcher = null, $immediate = false)
+    function Auth_OpenID_Consumer(&$store, $fetcher = null)
     {
         if ($store === null) {
             trigger_error("Must supply non-null store to create consumer",
@@ -324,14 +319,6 @@ class Auth_OpenID_Consumer {
         } else {
             $this->fetcher =& $fetcher;
         }
-
-        if ($immediate) {
-            $this->mode = 'checkid_immediate';
-        } else {
-            $this->mode = 'checkid_setup';
-        }
-
-        $this->immediate = $immediate;
     }
 
     /**
@@ -433,7 +420,8 @@ class Auth_OpenID_Consumer {
      * @return string $url This method returns a string containing the
      * URL to redirect to when such a URL is successfully constructed.
     */
-    function constructRedirect($auth_request, $return_to, $trust_root)
+    function constructRedirect($auth_request, $return_to, $trust_root,
+                               $immediate = false)
     {
         $assoc = $this->_getAssociation($auth_request->server_url,
                                         $replace = 1);
@@ -444,8 +432,20 @@ class Auth_OpenID_Consumer {
             return null;
         }
 
-        return $this->_constructRedirect($assoc, $auth_request,
-                                         $return_to, $trust_root);
+        $mode = $immediate ? 'checkid_immediate' : 'checkid_setup';
+        $redir_args = array(
+                            'openid.identity' => $auth_request->server_id,
+                            'openid.return_to' => $return_to,
+                            'openid.trust_root' => $trust_root,
+                            'openid.mode' => $mode,
+                            );
+
+        if ($assoc !==  null) {
+            $redir_args['openid.assoc_handle'] = $assoc->handle;
+        }
+
+        $this->store->storeNonce($auth_request->nonce);
+        return Auth_OpenID_appendArgs($auth_request->server_url, $redir_args);
     }
 
     /**
@@ -530,26 +530,6 @@ class Auth_OpenID_Consumer {
             ($token, $server_id, $server_url, $nonce);
 
         return array(Auth_OpenID_SUCCESS, $req);
-    }
-
-    /**
-     * @access private
-     */
-    function _constructRedirect($assoc, $auth_req, $return_to, $trust_root)
-    {
-        $redir_args = array(
-                            'openid.identity' => $auth_req->server_id,
-                            'openid.return_to' => $return_to,
-                            'openid.trust_root' => $trust_root,
-                            'openid.mode' => $this->mode,
-                            );
-
-        if ($assoc !==  null) {
-            $redir_args['openid.assoc_handle'] = $assoc->handle;
-        }
-
-        $this->store->storeNonce($auth_req->nonce);
-        return Auth_OpenID_appendArgs($auth_req->server_url, $redir_args);
     }
 
     /**
