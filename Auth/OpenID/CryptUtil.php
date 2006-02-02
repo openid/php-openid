@@ -26,26 +26,35 @@ if (!defined('Auth_OpenID_RAND_SOURCE')) {
 /** 
  * Get the specified number of random bytes.
  *
- * Attempts to use a cryptographically secure (not predictable)
- * source of randomness if available. If there is no high-entropy
- * randomness source available, it will fail. As a last resort,
- * for non-critical systems, define
- * <code>Auth_OpenID_USE_INSECURE_RAND</code>, and the code will
- * fall back on a pseudo-random number generator.
+ * Attempts to use a cryptographically secure (not predictable) source
+ * of randomness if available. If there is no high-entropy randomness
+ * source available, it will fail. As a last resort, for non-critical
+ * systems, define <code>Auth_OpenID_RAND_SOURCE</code> as
+ * <code>null</code>, and the code will fall back on a pseudo-random
+ * number generator.
  *
  * @param int $num_bytes The length of the return value
  * @return string $bytes random bytes
  */
 function Auth_OpenID_getBytes($num_bytes)
 {
+    static $f = null;
     $bytes = '';
-    $f = @fopen(Auth_OpenID_RAND_SOURCE, "r");
-    if ($f === false) {
-        if (!defined('Auth_OpenID_USE_INSECURE_RAND')) {
-            $msg = 'Set Auth_OpenID_USE_INSECURE_RAND to continue with an ' .
-                'insecure random number generator.';
-            trigger_error($msg, E_USER_ERROR);
+    if ($f === null) {
+        if (Auth_OpenID_RAND_SOURCE === null) {
+            trigger_error("Using insecure randomness source", E_USER_NOTICE);
+            $f = false;
+        } else {
+            $f = @fopen(Auth_OpenID_RAND_SOURCE, "r");
+            if ($f === false) {
+                $msg = 'Define Auth_OpenID_RAND_SOURCE as null to continue ' .
+                    'with an insecure random number generator.';
+                trigger_error($msg, E_USER_ERROR);
+            }
         }
+    }
+    if ($f === false) {
+        // pseudorandom used
         $bytes = '';
         for ($i = 0; $i < $num_bytes; $i += 4) {
             $bytes .= pack('L', mt_rand());
@@ -53,7 +62,6 @@ function Auth_OpenID_getBytes($num_bytes)
         $bytes = substr($bytes, 0, $num_bytes);
     } else {
         $bytes = fread($f, $num_bytes);
-        fclose($f);
     }
     return $bytes;
 }
