@@ -369,6 +369,9 @@ explicitly');
             return;
         }
 
+        $template_db->disconnect();
+        unset($template_db);
+
         // Disconnect from template1 and reconnect to the temporary
         // testing database.
         $dsn['database'] = $temp_db_name;
@@ -386,6 +389,7 @@ explicitly');
         $this->_testNonce($store);
 
         $db->disconnect();
+        unset($db);
 
         // Connect to template1 again so we can drop the temporary
         // database.
@@ -407,6 +411,8 @@ explicitly');
                         $result->getMessage());
             return;
         }
+
+        $template_db->disconnect();
     }
 
     function test_sqlitestore()
