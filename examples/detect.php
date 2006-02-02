@@ -141,7 +141,11 @@ class HTML {
     }
 }
 
-$r = new PlainText();
+if (isset($_SERVER['REQUEST_METHOD'])) {
+    $r = new HTML();
+} else {
+    $r = new PlainText();
+}
 
 function detect_math($r, &$out)
 {
