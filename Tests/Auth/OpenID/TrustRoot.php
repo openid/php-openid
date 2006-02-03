@@ -63,7 +63,8 @@ function Tests_Auth_OpenID_parseHeadings($data, $c)
     $offset = 0;
     $headings = array();
     while (true) {
-        preg_match($heading_pat, $data, $matches, PREG_OFFSET_CAPTURE, $offset);
+        preg_match($heading_pat, substr($data, $offset), $matches,
+                   PREG_OFFSET_CAPTURE);
         if (!$matches) {
             break;
         }
@@ -71,10 +72,10 @@ function Tests_Auth_OpenID_parseHeadings($data, $c)
         $heading = $matches[2][0];
         $end = $matches[3][1];
         $headings[] = array('heading' => $heading,
-                            'start' => $start,
-                            'end' => $end,
+                            'start' => $offset + $start,
+                            'end' => $offset + $end,
                             );
-        $offset = $end;
+        $offset += $end;
     }
     return $headings;
 }
