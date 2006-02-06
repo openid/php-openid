@@ -13,6 +13,11 @@ class PlainText {
         return '';
     }
 
+    function tt($text)
+    {
+        return $text;
+    }
+
     function link($href, $text=null)
     {
         if ($text) {
@@ -93,6 +98,11 @@ class HTML {
     function start($title)
     {
         return '<html><head><title>' . $title . '</title></head><body>' . "\n";
+    }
+
+    function tt($text)
+    {
+        return '<code>' . $text . '</code>';
     }
 
     function contentType()
@@ -290,6 +300,39 @@ function detect_random($r, &$out)
 function detect_stores($r, &$out)
 {
     $out .= $r->h2('Data storage');
+
+    $found = array();
+    foreach (array('sqlite', 'mysql', 'pgsql') as $dbext) {
+        if (extension_loaded($dbext) || @dl($dbext . '.' . PHP_SHLIB_SUFFIX)) {
+            $found[] = $dbext;
+        }
+    }
+    if (count($found) == 0) {
+        $text = 'No SQL database support was found in this PHP ' .
+            'installation. See the PHP manual if you need to ' .
+            'use an SQL database.';
+    } else {
+        $text = 'Support was found for ';
+        if (count($found) == 1) {
+            $text .= $found[0];
+        } else {
+            $last = array_pop($found);
+            $text .= implode(', ', $found) . ' and ' . $last;
+        }
+    }
+    $text .= ' The library supports the MySQL, PostgreSQL, and SQLite ' .
+        'database engines.';
+    $out .= $r->p($text);
+
+    $processUser = posix_getpwuid(posix_geteuid());
+    $web_user = $r->tt($processUser['name']);
+
+    if (in_array('sqlite', $found)) {
+        $out .= $r->p('If you are using SQLite, your database must be ' .
+                      'writable by ' . $web_user . ' and not available over' .
+                      ' the web.');
+    }
+
     $basedir_str = ini_get('open_basedir');
     if (gettype($basedir_str) == 'string') {
         $url = 'http://us3.php.net/manual/en/features.safe-mode.php' . 
@@ -302,23 +345,9 @@ function detect_stores($r, &$out)
         $out .= $r->pre(var_export($basedir_str, true));
     }
 
-    $out .= $r->p('The library supports MySQL, PostgreSQL, and SQLite as ' .
-                  'database engines.');
-    $found = array();
-    foreach (array('sqlite', 'mysql', 'pgsql') as $dbext) {
-        if (extension_loaded($dbext) || @dl($dbext . '.' . PHP_SHLIB_SUFFIX)) {
-            $out .= $r->p('Database extension ' . $dbext . ' available');
-            $found[] = $dbext;
-        }
-    }
-    if (count($found) == 0) {
-        $out .= $r->p('The filesystem store is available, but no SQL ' .
-                      'database support was found in this PHP ' .
-                      'installation.  See the PHP manual if you need to ' .
-                      'use an SQL database.');
-    } else {
-        $out .= $r->p('The filesystem store is also available.');
-    }
+    $out .= $r->p('If you are using the filesystem store, your ' .
+                  'data directory must be readable and writable by ' .
+                  $web_user . ' and not availabe over the Web.');
     return false;
 }
 
