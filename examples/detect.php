@@ -335,7 +335,7 @@ function detect_stores($r, &$out)
 
     $basedir_str = ini_get('open_basedir');
     if (gettype($basedir_str) == 'string') {
-        $url = 'http://us3.php.net/manual/en/features.safe-mode.php' . 
+        $url = 'http://us3.php.net/manual/en/features.safe-mode.php' .
             '#ini.open-basedir';
         $lnk = $r->link($url, 'open_basedir');
         $out .= $r->p('If you are using a filesystem-based store or SQLite, ' .
