@@ -1,0 +1,24 @@
+div.error {
+    background: #ffeeee;
+    border: 1px solid red;
+    padding: 0.5em;
+}
+
+.login th {
+    text-align: left;
+}
+
+div.login {
+    border: thin solid #999999;
+    background: #eeeeee;
+    padding: 0.5em;
+    margin-top: 1em;
+}
+
+div.login p {
+    margin-top: 0;
+}
+
+body {
+    max-width: 50em;
+}
