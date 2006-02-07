@@ -154,6 +154,9 @@ function Auth_OpenID_filenameEscape($str)
  */
 function Auth_OpenID_removeIfPresent($filename)
 {
+    // XXX: will return false if the file exists and cannot be
+    // removed. It's unclear what to do in that case (want to raise an
+    // exception)
     return @unlink($filename);
 }
 
@@ -186,6 +189,10 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
      */
     function Auth_OpenID_FileStore($directory)
     {
+        if (!Auth_OpenID_ensureDir($directory)) {
+            trigger_error('Not a directory and failed to create: '
+                          . $directory, E_USER_ERROR);
+        }
         $directory = realpath($directory);
 
         $this->directory = $directory;
@@ -204,7 +211,10 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
 
         $this->max_nonce_age = 6 * 60 * 60; // Six hours, in seconds
 
-        $this->_setup();
+        if (!$this->_setup()) {
+            trigger_error('Failed to initialize OpenID file store in ' .
+                          $directory, E_USER_ERROR);
+        }
     }
 
     function destroy()
@@ -384,7 +394,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
     {
         if (!$this->active) {
             trigger_error("FileStore no longer active", E_USER_ERROR);
-            return null;
+            return false;
         }
 
         $association_s = $association->serialize();
@@ -395,7 +405,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
         if (!$tmp_file) {
             trigger_error("_mktemp didn't return a valid file descriptor",
                           E_USER_WARNING);
-            return null;
+            return false;
         }
 
         fwrite($tmp_file, $association_s);
@@ -404,23 +414,24 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
 
         fclose($tmp_file);
 
-        if (!@rename($tmp, $filename)) {
-            // We only expect EEXIST to happen only on Windows. It's
-            // possible that we will succeed in unlinking the existing
-            // file, but not in putting the temporary file in place.
+        if (@rename($tmp, $filename)) {
+            return true;
+        } else {
+            // In case we are running on Windows, try unlinking the
+            // file in case it exists.
             @unlink($filename);
 
             // Now the target should not exist. Try renaming again,
             // giving up if it fails.
-            if (!@rename($tmp, $filename)) {
-                Auth_OpenID_removeIfPresent($tmp);
-                return null;
+            if (@rename($tmp, $filename)) {
+                return true;
             }
         }
 
         // If there was an error, don't leave the temporary file
         // around.
         Auth_OpenID_removeIfPresent($tmp);
+        return false;
     }
 
     /**
