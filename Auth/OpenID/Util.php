@@ -29,10 +29,14 @@ $_Auth_OpenID_punct = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
  */
 function Auth_OpenID_ensureDir($dir_name)
 {
-    if (@mkdir($dir_name) || is_dir($dir_name)) {
+    if (is_dir($dir_name) || @mkdir($dir_name)) {
         return true;
     } else {
-        return false;
+        if (Auth_OpenID_ensureDir(dirname($dir_name))) {
+            return is_dir($dir_name) || @mkdir($dir_name);
+        } else {
+            return false;
+        }
     }
 }
 
