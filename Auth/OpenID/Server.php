@@ -149,7 +149,7 @@ class Auth_OpenID_Server {
      * status. See the status codes defined in this file for
      * information about each response.
      */
-    function getOpenIDResponse($is_authorized, $method=null, $args=null)
+    function getOpenIDResponse($is_authorized=false, $method=null, $args=null)
     {
         if (!isset($method)) {
             $method = $_SERVER['REQUEST_METHOD'];
@@ -614,7 +614,7 @@ class Auth_OpenID_AuthorizationInfo {
 
         // If there is no return_to or trust_root or there is no
         // identity_url, then it's impossible to continue.
-        if (isset($identity_url) && isset($trust_root)) {
+        if (isset($identity_url) && isset($trust_root) && $is_authorized) {
             $authorized = $is_authorized($identity_url, $trust_root);
         } else {
             $authorized = false;
