@@ -1,12 +1,18 @@
 <?php
 
-require_once "common.php";
+require_once 'config.php';
+require_once 'lib/session.php';
+require_once 'lib/actions.php';
 
-// Set up the current session
 init();
 
-$server = getServer();
-$response = $server->getOpenIDResponse();
-handleResponse($response, 'doAuth');
+$action = getAction();
+if (!function_exists($action)) {
+    $action = 'action_default';
+}
+
+$resp = $action();
+
+writeResponse($resp);
 
 ?>

@@ -20,8 +20,12 @@ if ($status != Auth_OpenID_SUCCESS) {
     if ($info) {
         // This means the authentication succeeded.
         $openid = $info;
-        $success = sprintf("You have successfully verified %s as your identity.",
-                       $openid);
+        $esc_identity = htmlspecialchars($openid, ENT_QUOTES);
+        $success = sprintf('You have successfully verified ' .
+                           '<a href="%s">%s</a> as your identity.',
+                           $esc_identity,
+                           $esc_identity
+                           );
     } else {
         // This means the authentication was ancelled.
         $msg = 'Verification cancelled.';
