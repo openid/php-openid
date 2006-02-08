@@ -453,7 +453,7 @@ explicitly');
 
     function test_mysqlstore()
     {
-        // If the postgres extension isn't loaded or loadable, succeed
+        // If the mysql extension isn't loaded or loadable, succeed
         // because we can't run the test.
         if (!(extension_loaded('mysql') ||
               @dl('mysql.' . PHP_SHLIB_SUFFIX))) {
