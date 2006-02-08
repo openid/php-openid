@@ -24,21 +24,6 @@ require_once 'DB.php';
 require_once 'Interface.php';
 
 /**
- * Converts a query result to a boolean.  If the result is a PEAR
- * error object, this returns false; otherwise, this returns true.
- *
- * @access private
- */
-function Auth_OpenID_resultToBool($obj)
-{
-    if (PEAR::isError($obj)) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
-/**
  * "Octifies" a binary string by returning a string with escaped octal
  * bytes.  This is used for preparing binary data for PostgreSQL BYTEA
  * fields.
@@ -215,6 +200,29 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
     }
 
     /**
+     * Returns true if $value constitutes a database error; returns
+     * false otherwise.
+     */
+    function isError($value)
+    {
+        return PEAR::isError($value);
+    }
+
+    /**
+     * Converts a query result to a boolean.  If the result is a
+     * database error according to $this->isError(), this returns
+     * false; otherwise, this returns true.
+     */
+    function resultToBool($obj)
+    {
+        if ($this->isError($obj)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * This method should be overridden by subclasses.  This method is
      * called by the constructor to set values in $this->sql, which is
      * an array keyed on sql name.
@@ -347,19 +355,19 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
     function create_nonce_table()
     {
         $r = $this->connection->query($this->sql['nonce_table']);
-        return Auth_OpenID_resultToBool($r);
+        return $this->resultToBool($r);
     }
 
     function create_assoc_table()
     {
         $r = $this->connection->query($this->sql['assoc_table']);
-        return Auth_OpenID_resultToBool($r);
+        return $this->resultToBool($r);
     }
 
     function create_settings_table()
     {
         $r = $this->connection->query($this->sql['settings_table']);
-        return Auth_OpenID_resultToBool($r);
+        return $this->resultToBool($r);
     }
 
     /**
@@ -422,7 +430,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
     function storeAssociation($server_url, $association)
     {
-        if (Auth_OpenID_resultToBool($this->_set_assoc(
+        if ($this->resultToBool($this->_set_assoc(
                                             $server_url,
                                             $association->handle,
                                             $this->blobEncode(
@@ -444,7 +452,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
     {
         $result = $this->connection->getRow($this->sql['get_assoc'],
                                             array($server_url, $handle));
-        if (PEAR::isError($result)) {
+        if ($this->isError($result)) {
             return null;
         } else {
             return $result;
@@ -466,7 +474,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
             return false;
         }
 
-        if (Auth_OpenID_resultToBool($this->connection->query(
+        if ($this->resultToBool($this->connection->query(
                               $this->sql['remove_assoc'],
                               array($server_url, $handle)))) {
             $this->connection->commit();
@@ -537,7 +545,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
     {
         $sql = $this->sql['add_nonce'];
         $result = $this->connection->query($sql, array($nonce, $expires));
-        return Auth_OpenID_resultToBool($result);
+        return $this->resultToBool($result);
     }
 
     /**
@@ -560,7 +568,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         $result = $this->connection->getRow($this->sql['get_nonce'],
                                             array($nonce));
 
-        if (PEAR::isError($result)) {
+        if ($this->isError($result)) {
             return null;
         } else {
             return $result;
@@ -697,11 +705,11 @@ class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
     function _add_nonce($nonce, $expires)
     {
         if ($this->_get_nonce($nonce)) {
-            return Auth_OpenID_resultToBool($this->connection->query(
+            return $this->resultToBool($this->connection->query(
                                       $this->sql['add_nonce']['update_nonce'],
                                       array($expires, $nonce)));
         } else {
-            return Auth_OpenID_resultToBool($this->connection->query(
+            return $this->resultToBool($this->connection->query(
                                       $this->sql['add_nonce']['insert_nonce'],
                                       array($nonce, $expires)));
         }
