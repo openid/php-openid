@@ -118,12 +118,12 @@ function Auth_OpenID_tagMatcher($tag_name, $close_tags = null)
     return sprintf("/%s/%s", $expr, $_Auth_OpenID_re_flags);
 }
 
-function Auth_OpenID_html_find()
+function Auth_OpenID_htmlFind()
 {
     return Auth_OpenID_tagMatcher('html');
 }
 
-function Auth_OpenID_head_find()
+function Auth_OpenID_headFind()
 {
     return Auth_OpenID_tagMatcher('head', array('body'));
 }
@@ -196,14 +196,14 @@ function Auth_OpenID_parseLinkAttrs($html)
                              $html);
 
     // Try to find the <HTML> tag.
-    $html_re = Auth_OpenID_html_find();
+    $html_re = Auth_OpenID_htmlFind();
     $html_matches = array();
     if (!preg_match($html_re, $stripped, $html_matches)) {
         return array();
     }
 
     // Try to find the <HEAD> tag.
-    $head_re = Auth_OpenID_head_find();
+    $head_re = Auth_OpenID_headFind();
     $head_matches = array();
     if (!preg_match($head_re, $html_matches[0], $head_matches)) {
         return array();
@@ -254,7 +254,7 @@ function Auth_OpenID_linkHasRel($link_attrs, $target_rel)
 {
     // Does this link have target_rel as a relationship?
     // XXX: TESTME
-    $rel_attr = Auth_OpenID_array_get($link_attrs, 'rel', null);
+    $rel_attr = Auth_OpenID_arrayGet($link_attrs, 'rel', null);
     return ($rel_attr && Auth_OpenID_relMatches($rel_attr, $target_rel));
 }
 
@@ -283,7 +283,7 @@ function Auth_OpenID_findFirstHref($link_attrs_list, $target_rel)
         return null;
     }
     $first = $matches[0];
-    return Auth_OpenID_array_get($first, 'href', null);
+    return Auth_OpenID_arrayGet($first, 'href', null);
 }
 
 ?>

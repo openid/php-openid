@@ -45,7 +45,7 @@ function Auth_OpenID_ensureDir($dir_name)
  *
  * @access private
  */
-function Auth_OpenID_array_get($arr, $key, $fallback = null)
+function Auth_OpenID_arrayGet($arr, $key, $fallback = null)
 {
     if (is_array($arr)) {
         if (array_key_exists($key, $arr)) {
@@ -54,7 +54,7 @@ function Auth_OpenID_array_get($arr, $key, $fallback = null)
             return $fallback;
         }
     } else {
-        trigger_error("Auth_OpenID_array_get expected " .
+        trigger_error("Auth_OpenID_arrayGet expected " .
                       "array as first parameter", E_USER_WARNING);
         return false;
     }
