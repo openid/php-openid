@@ -168,6 +168,10 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
             }
         }
 
+        if ($parts['scheme'] == 'https') {
+            $parts['host'] = sprintf("ssl://%s", $parts['host']);
+        }
+
         // Connect to the remote server.
         $sock = fsockopen($parts['host'], $parts['port']);
         stream_set_timeout($sock, $_Auth_OpenID_socket_timeout);
