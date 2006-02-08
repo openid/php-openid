@@ -80,6 +80,44 @@ function Auth_OpenID_unoctify($str)
     return $result;
 }
 
+class Auth_OpenID_DatabaseConnection {
+    function setFetchMode($mode)
+    {
+    }
+
+    function autoCommit($mode)
+    {
+    }
+
+    function query($sql)
+    {
+    }
+
+    function begin()
+    {
+    }
+
+    function commit()
+    {
+    }
+
+    function rollback()
+    {
+    }
+
+    function getOne($sql)
+    {
+    }
+
+    function getRow($sql)
+    {
+    }
+
+    function getAll($sql)
+    {
+    }
+}
+
 /**
  * This is the parent class for the SQL stores, which contains the
  * logic common to all of the SQL stores.
@@ -136,9 +174,12 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         // Check the connection object type to be sure it's a PEAR
         // database connection.
         if (!(is_object($connection) &&
-              is_subclass_of($connection, 'db_common'))) {
+              (is_subclass_of($connection, 'db_common') ||
+               is_subclass_of($connection,
+                              'auth_openid_databaseconnection')))) {
             trigger_error("Auth_OpenID_SQLStore expected PEAR connection " .
-                          "object", E_USER_ERROR);
+                          "object (got ".get_class($connection).")",
+                          E_USER_ERROR);
             return;
         }
 
