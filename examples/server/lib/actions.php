@@ -13,7 +13,7 @@ require_once "lib/render/sites.php";
 function action_default()
 {
     $server = getServer();
-    return handleResponse($server->getOpenIDResponse());
+    return handleResponse($server->getOpenIDResponse('isTrusted'));
 }
 
 /**

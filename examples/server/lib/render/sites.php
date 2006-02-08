@@ -31,7 +31,7 @@ define('sites_row',
 <td><label for=%s>%s %s</label></td>
 </tr>');
 
-function siteListRow_render($i, $site)
+function siteListRow_render($i, $site, $trusted)
 {
     $esc_site = htmlspecialchars($site, ENT_QUOTES);
     if ($trusted) {
@@ -48,7 +48,7 @@ function siteList_render($sites)
     $rows = '';
     $i = 0;
     foreach ($sites as $site => $trusted) {
-        $rows .= siteListRow_render($i, $site);
+        $rows .= siteListRow_render($i, $site, $trusted);
         $i += 1;
     }
     return $rows;

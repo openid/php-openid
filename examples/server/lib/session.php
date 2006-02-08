@@ -75,7 +75,7 @@ function getServer()
 /**
  * Return whether the trust root is currently trusted
  */
-function isTrusted($trust_root)
+function isTrusted($identity_url, $trust_root)
 {
     // from config.php
     global $trusted_sites;

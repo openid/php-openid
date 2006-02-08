@@ -64,7 +64,7 @@ function doAuth($info, $trusted=null, $fail_cancels=false)
     }
 
     $trust_root = $info->getTrustRoot();
-    $trusted = isset($trusted) ? $trusted : isTrusted($trust_root);
+    $trusted = isset($trusted) ? $trusted : isTrusted($req_url, $trust_root);
     if ($trusted) {
         setRequestInfo();
         $server = getServer();
