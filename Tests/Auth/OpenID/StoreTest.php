@@ -359,11 +359,24 @@ explicitly');
             return;
         }
 
-        // Try to create the test database.
-        $result = $template_db->query(sprintf("CREATE DATABASE %s",
-                                              $temp_db_name));
+        $allowed_failures = 5;
+        $failures = 0;
+        $success = false;
 
-        if (PEAR::isError($result)) {
+        while (($failures < $allowed_failures) && !$success) {
+            // Try to create the test database.
+            $result = $template_db->query(sprintf("CREATE DATABASE %s",
+                                                  $temp_db_name));
+
+            if (PEAR::isError($result)) {
+                $failures++;
+                sleep(1);
+            } else {
+                $success = true;
+            }
+        }
+
+        if (!$success) {
             $this->fail("Temporary database creation failed ".
                         "('$temp_db_name'): " . $result->getMessage());
             return;
