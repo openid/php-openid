@@ -17,15 +17,15 @@
 /**
  * Includes for utility functions.
  */
-require_once 'Util.php';
+require_once 'Auth/OpenID/Util.php';
 /**
  * @access private
  */
-require_once 'CryptUtil.php';
+require_once 'Auth/OpenID/CryptUtil.php';
 /**
  * @access private
  */
-require_once 'KVForm.php';
+require_once 'Auth/OpenID/KVForm.php';
 
 /**
  * This class represents an association between a server and a

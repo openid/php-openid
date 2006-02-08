@@ -21,7 +21,7 @@ require_once 'DB.php';
 /**
  * @access private
  */
-require_once 'Interface.php';
+require_once 'Auth/OpenID/Store/Interface.php';
 
 /**
  * "Octifies" a binary string by returning a string with escaped octal
