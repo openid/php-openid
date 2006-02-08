@@ -27,7 +27,7 @@ if ($status != Auth_OpenID_SUCCESS) {
                            $esc_identity
                            );
     } else {
-        // This means the authentication was ancelled.
+        // This means the authentication was cancelled.
         $msg = 'Verification cancelled.';
     }
 }
