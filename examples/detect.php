@@ -324,8 +324,13 @@ function detect_stores($r, &$out)
         'database engines.';
     $out .= $r->p($text);
 
-    $processUser = posix_getpwuid(posix_geteuid());
-    $web_user = $r->tt($processUser['name']);
+    if (function_exists('posix_getpwuid') &&
+        function_exists('posix_geteuid')) {
+        $processUser = posix_getpwuid(posix_geteuid());
+        $web_user = $r->tt($processUser['name']);
+    } else {
+        $web_user = 'the PHP process';
+    }
 
     if (in_array('sqlite', $found)) {
         $out .= $r->p('If you are using SQLite, your database must be ' .
