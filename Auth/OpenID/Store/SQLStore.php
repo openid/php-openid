@@ -240,6 +240,13 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         $this->_fixSQL();
     }
 
+    function tableExists($table_name)
+    {
+        return !$this->isError(
+                      $this->connection->query("SELECT * FROM %s LIMIT 0",
+                                               $table_name));
+    }
+
     /**
      * Returns true if $value constitutes a database error; returns
      * false otherwise.
@@ -380,35 +387,44 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
     function createTables()
     {
+        $this->connection->autoCommit(true);
         $n = $this->create_nonce_table();
         $a = $this->create_assoc_table();
         $s = $this->create_settings_table();
+        $this->connection->autoCommit(false);
 
         if ($n && $a && $s) {
-            $this->connection->commit();
             return true;
         } else {
-            $this->connection->rollback();
             return false;
         }
     }
 
     function create_nonce_table()
     {
-        $r = $this->connection->query($this->sql['nonce_table']);
-        return $this->resultToBool($r);
+        if (!$this->tableExists($this->nonces_table_name)) {
+            $r = $this->connection->query($this->sql['nonce_table']);
+            return $this->resultToBool($r);
+        }
+        return true;
     }
 
     function create_assoc_table()
     {
-        $r = $this->connection->query($this->sql['assoc_table']);
-        return $this->resultToBool($r);
+        if (!$this->tableExists($this->associations_table_name)) {
+            $r = $this->connection->query($this->sql['assoc_table']);
+            return $this->resultToBool($r);
+        }
+        return true;
     }
 
     function create_settings_table()
     {
-        $r = $this->connection->query($this->sql['settings_table']);
-        return $this->resultToBool($r);
+        if (!$this->tableExists($this->settings_table_name)) {
+            $r = $this->connection->query($this->sql['settings_table']);
+            return $this->resultToBool($r);
+        }
+        return true;
     }
 
     /**
@@ -543,6 +559,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
             return null;
         } else {
             $associations = array();
+
             foreach ($assocs as $assoc_row) {
                 $assoc = new Auth_OpenID_Association($assoc_row['handle'],
                                                      $assoc_row['secret'],
