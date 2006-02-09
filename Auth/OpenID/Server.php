@@ -411,7 +411,7 @@ class Auth_OpenID_Server {
             $to_verify['openid.mode'] = 'id_res';
             $fields = explode(',', trim($signed));
             $tv_sig = $assoc->signDict($fields, $to_verify);
-            
+
             if ($tv_sig == $sig) {
                 $normal_key = $this->_normal_key;
                 $store->removeAssociation($normal_key, $assoc->handle);
@@ -428,7 +428,7 @@ class Auth_OpenID_Server {
         } elseif ($assoc !== null) {
             $store->removeAssociation($this->_dumb_key, $assoc_handle);
         }
-        
+
         $kv = Auth_OpenID_arrayToKV($reply);
         return array(Auth_OpenID_REMOTE_OK, $kv);
     }
