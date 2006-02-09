@@ -100,16 +100,17 @@ function action_sites()
 {
     $sites = getSessionSites();
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        if (isset($_POST['clear'])) {
+        if (isset($_POST['forget'])) {
             $sites = null;
-        } else {
+            setSessionSites($sites);
+        } elseif (isset($_POST['remove'])) {
             foreach ($_POST as $k => $v) {
                 if (preg_match('/^site[0-9]+$/', $k) && isset($sites[$v])) {
                     unset($sites[$v]);
                 }
             }
+            setSessionSites($sites);
         }
-        setSessionSites($sites);
     }
     return sites_render($sites);
 }

@@ -4,15 +4,18 @@ require_once "lib/session.php";
 
 define('sites_form',
        '<div class="form">
-<p>These sites have been approved for this session:</p>
+<p>These decisions have been remembered for this session:</p>
 <form method="post" action="%s">
 <table>
 <tbody>
 %s
 </tbody>
 </table>
-<input type="submit" value="Remove selected" />
+<input type="submit" name="remove" value="Remove Selected" />
+<input type="submit" name="refresh" value="Refresh List" />
+<input type="submit" name="forget" value="Forget All" />
 </form>
+<p>All decisions will be forgotten when this session ends.</p>
 </div>
 ');
 
