@@ -100,6 +100,7 @@ function isTrusted($identity_url, $trust_root)
     if (in_array($trust_root, $trusted_sites)) {
         return true;
     }
+
     $sites = getSessionSites();
     return isset($sites[$trust_root]) && $sites[$trust_root];
 }
