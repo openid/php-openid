@@ -235,7 +235,7 @@ class Auth_OpenID_Server {
 
         $trust_root = $auth_info->getTrustRoot();
         if (isset($trust_root) &&
-            !Auth_OpenID_matchTrustRoot($trust_root, $return_to)) {
+            !Auth_OpenID_TrustRoot::match($trust_root, $return_to)) {
             return array(false, 'Trust root does not match');
         }
         return array(true, $return_to);
