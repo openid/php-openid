@@ -96,11 +96,6 @@ function action_trust()
     return doAuth($info, $trusted, true);
 }
 
-function htmlRepr(&$x)
-{
-    return '<pre>' . htmlspecialchars(var_export($_POST, true)) . '</pre>';
-}
-
 function action_sites()
 {
     $sites = getSessionSites();
