@@ -73,7 +73,7 @@ function Auth_OpenID_associate($qs, $assoc_secret, $assoc_handle)
     return Auth_OpenID_arrayToKV($reply_dict);
 }
 
-class Auth_OpenID_TestFetcher {
+class Auth_OpenID_TestFetcher extends Auth_OpenID_HTTPFetcher {
     function Auth_OpenID_TestFetcher($user_url, $user_page,
                                     $assoc_secret, $assoc_handle)
     {

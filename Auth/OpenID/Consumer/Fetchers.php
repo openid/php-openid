@@ -78,6 +78,32 @@ class Auth_OpenID_HTTPFetcher {
     {
         trigger_error("not implemented", E_USER_ERROR);
     }
+
+    function findIdentityInfo($identity_url)
+    {
+        $url = Auth_OpenID_normalizeURL($identity_url);
+        $ret = @$this->get($url);
+        if ($ret === null) {
+            return array(Auth_OpenID_HTTP_FAILURE, null);
+        }
+
+        list($http_code, $consumer_id, $data) = $ret;
+        if ($http_code != 200) {
+            return array(Auth_OpenID_HTTP_FAILURE, $http_code);
+        }
+
+        $link_attrs = Auth_OpenID_parseLinkAttrs($data);
+        $server = Auth_OpenID_findFirstHref($link_attrs, 'openid.server');
+        $delegate = Auth_OpenID_findFirstHref($link_attrs, 'openid.delegate');
+
+        if ($server === null) {
+            return array(Auth_OpenID_PARSE_ERROR, null);
+        } else {
+            $server_id = $delegate ? $delegate : $consumer_id;
+            $urls = array($consumer_id, $server_id, $server);
+            return array(Auth_OpenID_SUCCESS, $urls);
+        }
+    }
 }
 
 /**
