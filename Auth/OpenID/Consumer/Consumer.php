@@ -689,7 +689,7 @@ class Auth_OpenID_Consumer {
                           'openid.mode' =>  'associate',
                           'openid.assoc_type' => 'HMAC-SHA1',
                           );
-            
+
             $dh = $this->_createDiffieHellman();
             $args = array_merge($args, $dh->getAssocArgs());
             $body = Auth_OpenID_http_build_query($args);
