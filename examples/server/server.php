@@ -2,7 +2,7 @@
 
 require_once 'config.php';
 
-if ($server_url) {
+if (function_exists('getOpenIDStore') && isset($openid_users)) {
     require_once 'lib/session.php';
     require_once 'lib/actions.php';
 
