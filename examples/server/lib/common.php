@@ -63,7 +63,9 @@ function doAuth($info, $trusted=null, $fail_cancels=false)
         return login_render(array(), $req_url, $req_url);
     }
 
+    $sites = getSessionSites();
     $trust_root = $info->getTrustRoot();
+    $fail_cancels = $fail_cancels || isset($sites[$trust_root]);
     $trusted = isset($trusted) ? $trusted : isTrusted($req_url, $trust_root);
     if ($trusted) {
         setRequestInfo();
