@@ -177,11 +177,11 @@ class Auth_OpenID_TrustRoot {
      * does not check whether the trust root is sane. If the URL or
      * trust root do not parse, this function will return false.
      *
-     * @param string $trust_root: The trust root to match against
+     * @param string $trust_root The trust root to match against
      *
-     * @param string $url: The URL to check
+     * @param string $url The URL to check
      *
-     * @return bool $matches: Whether the URL matches against the
+     * @return bool $matches Whether the URL matches against the
      * trust root
      */
     function match($trust_root, $url)
