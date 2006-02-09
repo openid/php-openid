@@ -17,8 +17,8 @@ function init()
  */
 function getStyle()
 {
-    global $style;
-    return $style;
+    $url = htmlspecialchars(dirname(buildURL()) . '/default.css', ENT_QUOTES);
+    return sprintf('<link rel="stylesheet" type="text/css" href="%s" />', $url);
 }
 
 /**
