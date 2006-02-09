@@ -92,6 +92,11 @@ function isTrusted($identity_url, $trust_root)
 {
     // from config.php
     global $trusted_sites;
+
+    if ($identity_url != getLoggedInUser()) {
+        return false;
+    }
+
     if (in_array($trust_root, $trusted_sites)) {
         return true;
     }
