@@ -389,7 +389,14 @@ class Auth_OpenID_Consumer {
         }
 
         list($consumer_id, $server_id, $server_url) = $info;
-        return $this->_gotIdentityInfo($consumer_id, $server_id, $server_url);
+        $nonce = $this->_generateNonce();
+        $token = $this->_genToken($nonce, $consumer_id,
+                                  $server_id, $server_url);
+
+        $req = new Auth_OpenID_AuthenticationRequest
+            ($token, $server_id, $server_url, $nonce);
+
+        return array(Auth_OpenID_SUCCESS, $req);
     }
 
     /**
@@ -514,25 +521,6 @@ class Auth_OpenID_Consumer {
         } else {
             return array(Auth_OpenID_FAILURE, null);
         }
-    }
-
-    /**
-     * @access private
-     */
-    function _gotIdentityInfo($consumer_id, $server_id, $server_url)
-    {
-        global $_Auth_OpenID_NONCE_CHRS, $_Auth_OpenID_NONCE_LEN;
-
-        $nonce = Auth_OpenID_randomString($_Auth_OpenID_NONCE_LEN,
-                                          $_Auth_OpenID_NONCE_CHRS);
-
-        $token = $this->_genToken($nonce, $consumer_id,
-                                  $server_id, $server_url);
-
-        $req = new Auth_OpenID_AuthenticationRequest
-            ($token, $server_id, $server_url, $nonce);
-
-        return array(Auth_OpenID_SUCCESS, $req);
     }
 
     /**
@@ -700,6 +688,17 @@ class Auth_OpenID_Consumer {
         }
 
         return $assoc;
+    }
+
+    /**
+     * @static
+     * @access private
+     */
+    function _generateNonce()
+    {
+        global $_Auth_OpenID_NONCE_CHRS, $_Auth_OpenID_NONCE_LEN;
+        return Auth_OpenID_randomString($_Auth_OpenID_NONCE_LEN,
+                                        $_Auth_OpenID_NONCE_CHRS);
     }
 
     /**
