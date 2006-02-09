@@ -17,8 +17,27 @@ function init()
  */
 function getStyle()
 {
-    $url = htmlspecialchars(dirname(buildURL()) . '/default.css', ENT_QUOTES);
+    $parent = rtrim(dirname(getServerURL()), '/');
+    $url = htmlspecialchars($parent . '/openid-server.css', ENT_QUOTES);
     return sprintf('<link rel="stylesheet" type="text/css" href="%s" />', $url);
+}
+
+/**
+ * Get the URL of the current script
+ */
+function getServerURL()
+{
+    $path = $_SERVER['SCRIPT_NAME'];
+    $host = $_SERVER['HTTP_HOST'];
+    $port = $_SERVER['SERVER_PORT'];
+    $s = $_SERVER['HTTPS'] ? 's' : '';
+    if (($s && $port == "443") || (!$s && $port == "80")) {
+        $p = '';
+    } else {
+        $p = ':' . $port;
+    }
+    
+    return "http$s://$host$p$path";
 }
 
 /**
@@ -26,10 +45,7 @@ function getStyle()
  */
 function buildURL($action=null, $escaped=true)
 {
-    // from config.php
-    global $server_url;
-
-    $url = $server_url;
+    $url = getServerURL();
     if ($action) {
         $url .= '/' . $action;
     }
@@ -62,12 +78,9 @@ function writeResponse($resp)
  */
 function getServer()
 {
-    // from config.php
-    global $server_url;
-
     static $server = null;
     if (!isset($server)) {
-        $server = new Auth_OpenID_Server($server_url, getOpenIDStore());
+        $server = new Auth_OpenID_Server(getServerURL(), getOpenIDStore());
     }
     return $server;
 }
