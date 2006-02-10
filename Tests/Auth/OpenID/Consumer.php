@@ -203,10 +203,9 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
             $query['openid.sig'] = 'fake';
         }
 
-        list($status, $info) = $consumer->completeAuth($info->token, $query);
+        $result = $consumer->completeAuth($info->token, $query);
 
-        $this->assertEquals(Auth_OpenID_SUCCESS, $status);
-        $this->assertEquals($info, $user_url);
+        $this->assertEquals(array(Auth_OpenID_SUCCESS, $user_url), $result);
     }
 
     function _test_success($user_url, $delegate_url, $links, $immediate = false)
