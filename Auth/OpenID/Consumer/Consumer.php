@@ -731,8 +731,6 @@ class Auth_OpenID_Consumer {
      */
     function _splitToken($token)
     {
-        global $_Auth_OpenID_TOKEN_LIFETIME;
-
         $token = base64_decode($token);
         if (strlen($token) < 20) {
             return null;
@@ -755,7 +753,7 @@ class Auth_OpenID_Consumer {
             return null;
         }
 
-        if ($ts + $_Auth_OpenID_TOKEN_LIFETIME < time()) {
+        if ($ts + $this->token_lifetime < time()) {
             return null;
         }
 
