@@ -201,7 +201,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
                 'assoc_handle,sig,signed';
             $query['openid.assoc_handle'] = $fetcher->assoc_handle;
             $query['openid.sig'] = 'fake';
-        }            
+        }
 
         list($status, $info) = $consumer->completeAuth($info->token, $query);
 
