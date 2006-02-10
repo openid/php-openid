@@ -521,17 +521,21 @@ class Auth_OpenID_Consumer {
 
         if ($mode == 'cancel') {
             return array(Auth_OpenID_SUCCESS, null);
-        } else if ($mode == 'error') {
+        } elseif ($mode == 'error') {
 
             $error = Auth_OpenID_arrayGet($query, 'openid.error', null);
 
             if ($error !== null) {
                 trigger_error("In OpenID completeAuth: $error", E_USER_NOTICE);
+            } else {
+                trigger_error("Error response from server", E_USER_NOTICE);
             }
             return array(Auth_OpenID_FAILURE, null);
-        } else if ($mode == 'id_res') {
+        } elseif ($mode == 'id_res') {
             return $this->_doIdRes($token, $query);
         } else {
+            trigger_error("No openid.mode in response from server",
+                          E_USER_NOTICE);
             return array(Auth_OpenID_FAILURE, null);
         }
     }
