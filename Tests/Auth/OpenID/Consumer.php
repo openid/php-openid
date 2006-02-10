@@ -18,7 +18,7 @@ require_once 'Auth/OpenID/DiffieHellman.php';
 require_once 'Auth/OpenID/Store/FileStore.php';
 require_once 'Auth/OpenID/Util.php';
 require_once 'Auth/OpenID/KVForm.php';
-require_once 'Auth/OpenID/Consumer/Consumer.php';
+require_once 'Auth/OpenID/Consumer.php';
 require_once 'PHPUnit.php';
 
 class Auth_OpenID_TestConsumer extends Auth_OpenID_Consumer {
