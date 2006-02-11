@@ -70,7 +70,7 @@ function Auth_OpenID_associate($qs, $assoc_secret, $assoc_handle)
 
     $reply_dict = array_merge($reply_dict, $dh_args);
 
-    return Auth_OpenID_arrayToKV($reply_dict);
+    return Auth_OpenID_KVForm::fromArray($reply_dict);
 }
 
 class Auth_OpenID_TestFetcher extends Auth_OpenID_HTTPFetcher {

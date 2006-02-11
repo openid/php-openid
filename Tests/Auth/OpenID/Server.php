@@ -96,7 +96,7 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
             $this->noauth, 'POST', $args);
 
         $this->assertEquals(Auth_OpenID_REMOTE_ERROR, $status);
-        $resultArgs = Auth_OpenID_kvToArray($info);
+        $resultArgs = Auth_OpenID_KVForm::toArray($info);
         $this->assertTrue(array_key_exists('error', $resultArgs));
     }
 
@@ -117,7 +117,7 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         list($status, $info) = $this->server->associate(array());
 
         $this->assertEquals(Auth_OpenID_REMOTE_OK, $status);
-        $ra = Auth_OpenID_kvToArray($info);
+        $ra = Auth_OpenID_KVForm::toArray($info);
         $this->assertEquals('HMAC-SHA1', $ra['assoc_type']);
         $this->assertKeyAbsent('session_type', $ra);
         $this->assertKeyExists('assoc_handle', $ra);
@@ -137,7 +137,7 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         list($status, $info) = $this->server->associate($args);
         $this->assertEquals(Auth_OpenID_REMOTE_OK, $status);
 
-        $ra = Auth_OpenID_kvToArray($info);
+        $ra = Auth_OpenID_KVForm::toArray($info);
         $this->assertEquals('HMAC-SHA1', $ra['assoc_type']);
         $this->assertEquals('DH-SHA1', $ra['session_type']);
         $this->assertKeyExists('assoc_handle', $ra);
@@ -156,7 +156,7 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         list($status, $info) = $this->server->associate($args);
         if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
             $this->assertEquals(Auth_OpenID_REMOTE_OK, $status);
-            $ra = Auth_OpenID_kvToArray($info);
+            $ra = Auth_OpenID_KVForm::toArray($info);
             $this->assertEquals('HMAC-SHA1', $ra['assoc_type']);
             $this->assertKeyExists('assoc_handle', $ra);
             $this->assertKeyExists('mac_key', $ra);
@@ -164,7 +164,7 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
             $this->assertTrue($exp > 0);
         } else {
             $this->assertEquals(Auth_OpenID_REMOTE_ERROR, $status);
-            $ra = Auth_OpenID_kvToArray($info);
+            $ra = Auth_OpenID_KVForm::toArray($info);
             $this->assertKeyExists('error', $ra);
         }
     }

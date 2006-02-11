@@ -1,7 +1,8 @@
 <?php
 
 /**
- * This is the KVForm module.
+ * OpenID protocol key-value/comma-newline format parsing and
+ * serialization
  *
  * PHP versions 4 and 5
  *
@@ -15,89 +16,122 @@
  */
 
 /**
- * Convert an array into an OpenID colon/newline separated string
- * @access private
+ * Container for key-value/comma-newline OpenID format and parsing
  */
-function Auth_OpenID_arrayToKV($values)
-{
-    if ($values === null) {
-        return null;
+class Auth_OpenID_KVForm {
+    /**
+     * Issue a warning when parsing KV form
+     *
+     * @static
+     * @access private
+     */
+    function _warn($msg)
+    {
+        trigger_error($msg, E_USER_WARNING);
     }
 
-    $serialized = '';
-    foreach ($values as $key => $value) {
-        if (is_array($value)) {
-            list($key, $value) = $value;
+    /**
+     * Convert an OpenID colon/newline separated string into an
+     * associative array
+     *
+     * @static
+     * @access private
+     */
+    function toArray($kvs, $strict=false)
+    {
+        $lines = explode("\n", $kvs);
+
+        $last = array_pop($lines);
+        if ($last !== '') {
+            $msg = 'No newline at end of kv string:' . var_export($kvs, true);
+            Auth_OpenID_KVForm::_warn($msg);
+            array_push($lines, $last);
+            if ($strict) {
+                return false;
+            }
         }
 
-        if (strpos($key, ':') !== false) {
-            trigger_error('":" in key:' . addslashes($key), E_USER_WARNING);
+        $values = array();
+
+        for ($lineno = 0; $lineno < count($lines); $lineno++) {
+            $line = $lines[$lineno];
+            $kv = explode(':', $line, 2);
+            if (count($kv) != 2) {
+                $msg = "No colon on line $lineno: " . var_export($line, true);
+                Auth_OpenID_KVForm::_warn($msg);
+                if ($strict) {
+                    return false;
+                }
+                continue;
+            }
+
+            $key = $kv[0];
+            $tkey = trim($key);
+            if ($tkey != $key) {
+                $msg = "Whitespace in key on line $lineno:" .
+                    var_export($key, true);
+                Auth_OpenID_KVForm::_warn($msg);
+                if ($strict) {
+                    return false;
+                }
+            }
+
+            $value = $kv[1];
+            $tval = trim($value);
+            if ($tval != $value) {
+                $msg = "Whitespace in value on line $lineno: " .
+                    var_export($value, true);
+                Auth_OpenID_KVForm::_warn($msg);
+                if ($strict) {
+                    return false;
+                }
+            }
+
+            $values[$tkey] = $tval;
+        }
+
+        return $values;
+    }
+
+    /**
+     * Convert an array into an OpenID colon/newline separated string
+     *
+     * @static
+     * @access private
+     */
+    function fromArray($values)
+    {
+        if ($values === null) {
             return null;
         }
 
-        if (strpos($key, "\n") !== false) {
-            trigger_error('"\n" in key:' . addslashes($key), E_USER_WARNING);
-            return null;
-        }
+        $serialized = '';
+        foreach ($values as $key => $value) {
+            if (is_array($value)) {
+                list($key, $value) = $value;
+            }
 
-        if (strpos($value, "\n") !== false) {
-            trigger_error('"\n" in value:' . addslashes($value),
-                          E_USER_WARNING);
-            return null;
+            if (strpos($key, ':') !== false) {
+                $msg = '":" in key:' . var_export($key, true);
+                Auth_OpenID_KVForm::_warn($msg);
+                return null;
+            }
+
+            if (strpos($key, "\n") !== false) {
+                $msg = '"\n" in key:' . var_export($key, true);
+                Auth_OpenID_KVForm::_warn($msg);
+                return null;
+            }
+
+            if (strpos($value, "\n") !== false) {
+                $msg = '"\n" in value:' . var_export($value, true);
+                Auth_OpenID_KVForm::_warn($msg);
+                return null;
+            }
+            $serialized .= "$key:$value\n";
         }
-        $serialized .= "$key:$value\n";
+        return $serialized;
     }
-    return $serialized;
-}
-
-/**
- * Convert an OpenID colon/newline separated string into an
- * associative array
- * @access private
- */
-function Auth_OpenID_kvToArray($kvs)
-{
-    $lines = explode("\n", $kvs);
-
-    $last = array_pop($lines);
-    if ($last !== '') {
-        trigger_error('No newline at end of kv string:' . addslashes($kvs),
-                      E_USER_WARNING);
-        array_push($lines, $last);
-    }
-
-    $values = array();
-
-    for ($lineno = 0; $lineno < count($lines); $lineno++) {
-        $line = $lines[$lineno];
-        $kv = explode(':', $line, 2);
-        if (count($kv) != 2) {
-            $esc = addslashes($line);
-            trigger_error("No colon on line $lineno: $esc",
-                          E_USER_WARNING);
-            continue;
-        }
-
-        $key = $kv[0];
-        $tkey = trim($key);
-        if ($tkey != $key) {
-            $esc = addslashes($key);
-            trigger_error("Whitespace in key on line $lineno: '$esc'",
-                          E_USER_WARNING);
-        }
-
-        $value = $kv[1];
-        $tval = trim($value);
-        if ($tval != $value) {
-            $esc = addslashes($value);
-            trigger_error("Whitespace in value on line $lineno: '$esc'",
-                          E_USER_WARNING);
-        }
-
-        $values[$tkey] = $tval;
-    }
-
-    return $values;
 }
 
 ?>

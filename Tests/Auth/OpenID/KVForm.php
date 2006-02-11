@@ -68,8 +68,8 @@ extends Tests_Auth_OpenID_KVForm_TestCase {
     {
         // Do one parse, after which arrayToKV and kvToArray should be
         // inverses.
-        $parsed1 = Auth_OpenID_kvToArray($this->str);
-        $serial1 = Auth_OpenID_arrayToKV($this->arr);
+        $parsed1 = Auth_OpenID_KVForm::toArray($this->str);
+        $serial1 = Auth_OpenID_KVForm::fromArray($this->arr);
 
         if ($this->lossy == "neither" || $this->lossy == "str") {
             $this->assertEquals($this->arr, $parsed1, "str was lossy");
@@ -79,12 +79,12 @@ extends Tests_Auth_OpenID_KVForm_TestCase {
             $this->assertEquals($this->str, $serial1, "array was lossy");
         }
 
-        $parsed2 = Auth_OpenID_kvToArray($serial1);
-        $serial2 = Auth_OpenID_arrayToKV($parsed1);
+        $parsed2 = Auth_OpenID_KVForm::toArray($serial1);
+        $serial2 = Auth_OpenID_KVForm::fromArray($parsed1);
 
         // Round-trip both
-        $parsed3 = Auth_OpenID_kvToArray($serial2);
-        $serial3 = Auth_OpenID_arrayToKV($parsed2);
+        $parsed3 = Auth_OpenID_KVForm::toArray($serial2);
+        $serial3 = Auth_OpenID_KVForm::fromArray($parsed2);
 
         $this->assertEquals($serial2, $serial3, "serialized forms differ");
 
@@ -104,7 +104,7 @@ extends Tests_Auth_OpenID_KVForm_TestCase {
 
     function _runTest()
     {
-        $serialized = Auth_OpenID_arrayToKV($this->arr);
+        $serialized = Auth_OpenID_KVForm::fromArray($this->arr);
         $this->assertTrue($serialized === null,
                           'serialization unexpectedly succeeded');
     }
