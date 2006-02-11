@@ -4,6 +4,7 @@ admin/checkimport
 admin/checkimports
 admin/docblocks
 admin/findphp
+admin/findglobals
 admin/fixperms
 admin/makedoc.sh
 admin/mathlib
