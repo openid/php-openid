@@ -342,7 +342,7 @@ class Auth_OpenID_Server {
         $assoc = $this->createAssociation($assoc_type);
         if (!isset($assoc)) {
             $fmt = 'unable to create an association for type %s';
-            return self.postError(sprinft($fmt, $assoc_type));
+            return $this->postError(sprinft($fmt, $assoc_type));
         }
 
         $this->store->storeAssociation($this->_normal_key, $assoc);
