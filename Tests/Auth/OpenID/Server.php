@@ -187,7 +187,7 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
                       'openid.identity' => $this->id_url,
                       'openid.return_to' => $this->rt_url,
                       );
-        $ainfo = new Auth_OpenID_AuthorizationInfo($this->sv_url, $args);
+        $ainfo = new Auth_OpenID_ServerRequest($this->sv_url, $args);
         return $this->server->getAuthResponse(&$ainfo, $authorized);
     }
 
@@ -249,7 +249,7 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
                       'openid.trust_root' => $this->tr_url,
                       );
 
-        $ainfo = new Auth_OpenID_AuthorizationInfo($this->sv_url, $args);
+        $ainfo = new Auth_OpenID_ServerRequest($this->sv_url, $args);
         list($status, $info) = $this->server->getAuthResponse(&$ainfo, false);
         $this->assertEquals(Auth_OpenID_DO_AUTH, $status);
         $this->assertEquals($this->tr_url, $info->getTrustRoot());

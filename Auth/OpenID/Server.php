@@ -23,6 +23,7 @@ require_once "Auth/OpenID/DiffieHellman.php";
 require_once "Auth/OpenID/KVForm.php";
 require_once "Auth/OpenID/Util.php";
 require_once "Auth/OpenID/TrustRoot.php";
+require_once "Auth/OpenID/ServerRequest.php";
 
 /**
  * Status code returned when the only option is to show an error page,
@@ -57,10 +58,10 @@ define('Auth_OpenID_REDIRECT', 'redirect');
 
 /**
  * Status code returned when the caller needs to authenticate the
- * user. The associated value is a Auth_OpenID_AuthorizationInfo
+ * user. The associated value is a Auth_OpenID_ServerRequest
  * object that can be used to complete the authentication. If the user
  * has taken some authentication action, use the retry() method of the
- * Auth_OpenID_AuthorizationInfo object to complete the request.
+ * Auth_OpenID_ServerRequest object to complete the request.
  */
 define('Auth_OpenID_DO_AUTH', 'do_auth');
 
@@ -162,9 +163,8 @@ class Auth_OpenID_Server {
             if ($args === null) {
                 $args = Auth_OpenID_fixArgs($_GET);
             }
-            $auth_info =
-                new Auth_OpenID_AuthorizationInfo($this->server_url, $args);
-            return $auth_info->retry(&$this, $is_authorized);
+            $request = new Auth_OpenID_ServerRequest($this->server_url, $args);
+            return $request->retry(&$this, $is_authorized);
 
         case 'POST':
             if ($args === null) {
@@ -193,30 +193,30 @@ class Auth_OpenID_Server {
     /**
      * @access private
      *
-     * @param object $auth_info The Auth_OpenID_AuthorizationInfo
+     * @param object $request The Auth_OpenID_ServerRequest
      * object representing this request.
      *
      * @param bool $authorized Whether the user making this request is
      * capable of approving this authorization request.
      */
-    function getAuthResponse(&$auth_info, $authorized)
+    function getAuthResponse(&$request, $authorized)
     {
-        $identity = $auth_info->getIdentityURL();
+        $identity = $request->getIdentityURL();
         if (!isset($identity)) {
-            return $this->getError($auth_info->args, 'No identity specified');
+            return $this->getError($request, 'No identity specified');
         }
 
-        list($status, $info) = $this->_checkTrustRoot(&$auth_info);
+        list($status, $info) = $this->_checkTrustRoot(&$request);
         if (!$status) {
-            return $this->getError($auth_info->args, $info);
+            return $this->getError($request, $info);
         } else {
             $return_to = $info;
         }
 
         if (!$authorized) {
-            return $this->_getAuthNotAuthorized(&$auth_info, $return_to);
+            return $this->_getAuthNotAuthorized(&$request, $return_to);
         } else {
-            return $this->_getAuthAuthorized(&$auth_info, $return_to);
+            return $this->_getAuthAuthorized(&$request, $return_to);
         }
     }
 
@@ -226,14 +226,14 @@ class Auth_OpenID_Server {
      *
      * @access private
      */
-    function _checkTrustRoot(&$auth_info)
+    function _checkTrustRoot(&$request)
     {
-        $return_to = $auth_info->getReturnTo();
+        $return_to = $request->getReturnTo();
         if (!isset($return_to)) {
             return array(false, 'No return_to URL specified');
         }
 
-        $trust_root = $auth_info->getTrustRoot();
+        $trust_root = $request->getTrustRoot();
         if (isset($trust_root) &&
             !Auth_OpenID_TrustRoot::match($trust_root, $return_to)) {
             return array(false, 'Trust root does not match');
@@ -244,15 +244,15 @@ class Auth_OpenID_Server {
     /**
      * @access private
      */
-    function _getAuthNotAuthorized(&$auth_info, $return_to)
+    function _getAuthNotAuthorized(&$request, $return_to)
     {
-        $mode = $auth_info->getMode();
+        $mode = $request->getMode();
         switch ($mode) {
         case 'checkid_immediate':
             // Build a URL that is just the URL that came here
             // with the mode changed from checkid_immediate to
             // checkid_setup.
-            $args = $auth_info->args;
+            $args = $request->args;
             $args['openid.mode'] = 'checkid_setup';
             $setup_url = Auth_OpenID_appendArgs($this->server_url, $args);
 
@@ -269,36 +269,36 @@ class Auth_OpenID_Server {
         case 'checkid_setup':
             // Return to the application indicating that the user
             // needs to authenticate.
-            return array(Auth_OpenID_DO_AUTH, &$auth_info);
+            return array(Auth_OpenID_DO_AUTH, &$request);
 
         default:
             $err = sprintf('invalid openid.mode (%s) for GET requests', $mode);
-            return $this->getError($auth_info->args, $err);
+            return $this->getError($request, $err);
         }
     }
 
     /**
      * @access private
      */
-    function _getAuthAuthorized(&$auth_info, $return_to)
+    function _getAuthAuthorized(&$request, $return_to)
     {
-        $mode = $auth_info->getMode();
+        $mode = $request->getMode();
         switch ($mode) {
         case 'checkid_immediate':
         case 'checkid_setup':
             break;
         default:
             $err = sprintf('invalid openid.mode (%s) for GET requests', $mode);
-            return $this->getError($auth_info->args, $err);
+            return $this->getError($request, $err);
         }
 
         $reply = array('openid.mode' => 'id_res',
                        'openid.return_to' => $return_to,
-                       'openid.identity' => $auth_info->getIdentityURL()
+                       'openid.identity' => $request->getIdentityURL()
                        );
 
         $assoc = null;
-        $assoc_handle = @$auth_info->args['openid.assoc_handle'];
+        $assoc_handle = @$request->args['openid.assoc_handle'];
         if (isset($assoc_handle)) {
             $key = $this->_normal_key;
             $assoc = $this->store->getAssociation($key, $assoc_handle);
@@ -462,8 +462,9 @@ class Auth_OpenID_Server {
      *
      * @access private
      */
-    function getError($args, $msg)
+    function getError($request, $msg)
     {
+        $args = $request->args;
         $return_to = @$args['openid.return_to'];
         if (isset($return_to)) {
             $err = array(
@@ -495,131 +496,4 @@ class Auth_OpenID_Server {
     }
 }
 
-/**
- * Object that represents a server request
- *
- * With accessor functions to get at the internal request data.
- *
- * @package OpenID
- */
-class Auth_OpenID_AuthorizationInfo {
-    /**
-     * The arguments for this request
-     */
-    var $args;
-
-    /**
-     * The URL of the server for this request
-     */
-    var $server_url;
-
-    /**
-     * Constructor
-     *
-     * @internal This is private because the library user should not
-     * have to make instances of this class.
-     *
-     * @access private
-     *
-     * @param string $server_url The openid.server URL for the server
-     * that goes with this request.
-     *
-     * @param array $args The query arguments for this request
-     */
-    function Auth_OpenID_AuthorizationInfo($server_url, $args)
-    {
-        $this->server_url = $server_url;
-        $this->args = $args;
-    }
-
-    /**
-     * @access private
-     */
-    function getMode()
-    {
-        return $this->args['openid.mode'];
-    }
-
-    /**
-     * Get the identity URL that is being checked
-     */
-    function getIdentityURL()
-    {
-        return @$this->args['openid.identity'];
-    }
-
-    /**
-     * Get the return_to URL for the consumer that initiated this request.
-     *
-     * @return string $return_to The return_to URL for the consumer
-     */
-    function getReturnTo()
-    {
-        return @$this->args['openid.return_to'];
-    }
-
-    /**
-     * Get a cancel response for this URL
-     *
-     * @return array $response The status code and data
-     */
-    function cancel()
-    {
-        return array(Auth_OpenID_REDIRECT, $this->getCancelURL());
-    }
-
-    /**
-     * Return a cancel URL for this request
-     */
-    function getCancelURL()
-    {
-        $cancel_args = array('openid.mode' => 'cancel');
-        $return_to = $this->args['openid.return_to'];
-        return Auth_OpenID_appendArgs($return_to, $cancel_args);
-    }
-
-    /**
-     * Get a URL that will initiate this request again.
-     */
-    function getRetryURL()
-    {
-        return Auth_OpenID_appendArgs($this->server_url, $this->args);
-    }
-
-    /**
-     * Return the trust_root for this request
-     */
-    function getTrustRoot()
-    {
-        if (isset($this->args['openid.trust_root'])) {
-            return $this->args['openid.trust_root'];
-        } else {
-            return @$this->args['openid.return_to'];
-        }
-    }
-
-    /**
-     * Attempt to authenticate again, given a server and
-     * authentication checking function.
-     *
-     * @param object $server An instance of Auth_OpenID_Server
-     *
-     * @param mixed $is_authorized The callback to use to determine
-     * whether the current user can authorize this request.
-     */
-    function retry(&$server, $is_authorized)
-    {
-        $trust_root = $this->getTrustRoot();
-        $identity_url = $this->getIdentityURL();
-
-        // If there is no return_to or trust_root or there is no
-        // identity_url, then it's impossible to continue.
-        if (isset($identity_url) && isset($trust_root) && $is_authorized) {
-            $authorized = $is_authorized($identity_url, $trust_root);
-        } else {
-            $authorized = false;
-        }
-
-        return $server->getAuthResponse(&$this, $authorized);
-    }
-}
+?>
