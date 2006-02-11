@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
-chmod +x admin/makedoc.sh admin/docblocks admin/runtests admin/mathlib \
-    admin/fixperms admin/prepare-release admin/checkimport admin/checkimports \
-    admin/findphp
+cat <<EOF | xargs chmod +x
+admin/checkimport
+admin/checkimports
+admin/docblocks
+admin/findphp
+admin/fixperms
+admin/makedoc.sh
+admin/mathlib
+admin/prepare-release
+admin/runtests
+EOF
