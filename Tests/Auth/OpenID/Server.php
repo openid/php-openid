@@ -218,7 +218,7 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
         $this->assertEquals($query['openid.identity'], $this->id_url);
         $this->assertEquals($query['openid.return_to'], $this->rt_url);
         $this->assertEquals('mode,identity,return_to', $query['openid.signed']);
-        
+
         $assoc = $this->store->getAssociation($this->server->_dumb_key,
                                               $query['openid.assoc_handle']);
         $this->assertNotNull($assoc);
