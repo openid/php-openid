@@ -1,8 +1,7 @@
 <?php
-
 /**
- * This module contains the HTTP fetcher interface and several
- * implementations.
+ * This module contains HTTP fetcher implementations
+ * XXX pear fixes needed
  *
  * PHP versions 4 and 5
  *
@@ -13,6 +12,11 @@
  * @copyright 2005 Janrain, Inc.
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
+
+/**
+ * Interface import
+ */
+require_once "Auth/OpenID/HTTPFetcher.php";
 
 /**
  * Specify a socket timeout setting, in seconds.
@@ -30,87 +34,14 @@ function Auth_OpenID_URLHasAllowedScheme($url)
 }
 
 /**
- * This class is the interface for HTTP fetchers the OpenID consumer
- * library uses.  This interface is only important if you need to
- * write a new fetcher for some reason.
- *
- * @access private
- * @package OpenID
- */
-class Auth_OpenID_HTTPFetcher {
-
-    /**
-     * Return whether a URL should be allowed. Override this method to
-     * conform to your local policy.
-     *
-     * By default, will attempt to fetch any http or https URL.
-     */
-    function allowedURL($url)
-    {
-        return Auth_OpenID_URLHasAllowedScheme($url);
-    }
-
-    /**
-     * This performs an HTTP get, following redirects along the way.
-     *
-     * @return array $tuple This returns a three-tuple on success.
-     * The first value is the http return code. The second value is
-     * the final url that was fetched, after following any redirects.
-     * The third value is the data that was retrieved from the site.
-     * If the fetch didn't succeed, return null.
-    */
-    function get($url)
-    {
-        trigger_error("not implemented", E_USER_ERROR);
-    }
-
-    /**
-     * This performs an HTTP post.  If it makes sense, it will follow
-     * redirects along the way.
-     *
-     * @return array $tuple This returns a three-tuple on success.
-     * The first value is the http return code. The second value is
-     * the final url that was fetched, after following any redirects.
-     * The third value is the data that was retrieved from the site.
-     * If the fetch didn't succeed, return null.
-     */
-    function post($url, $body)
-    {
-        trigger_error("not implemented", E_USER_ERROR);
-    }
-
-    function findIdentityInfo($identity_url)
-    {
-        $url = Auth_OpenID_normalizeURL($identity_url);
-        $ret = @$this->get($url);
-        if ($ret === null) {
-            return array(Auth_OpenID_HTTP_FAILURE, null);
-        }
-
-        list($http_code, $consumer_id, $data) = $ret;
-        if ($http_code != 200) {
-            return array(Auth_OpenID_HTTP_FAILURE, $http_code);
-        }
-
-        $link_attrs = Auth_OpenID_parseLinkAttrs($data);
-        $server = Auth_OpenID_findFirstHref($link_attrs, 'openid.server');
-        $delegate = Auth_OpenID_findFirstHref($link_attrs, 'openid.delegate');
-
-        if ($server === null) {
-            return array(Auth_OpenID_PARSE_ERROR, null);
-        } else {
-            $server_id = $delegate ? $delegate : $consumer_id;
-            $urls = array($consumer_id, $server_id, $server);
-            return array(Auth_OpenID_SUCCESS, $urls);
-        }
-    }
-}
-
-/**
  * Detect the presence of Curl and set a flag accordingly.
  */
 define('Auth_OpenID_CURL_PRESENT', function_exists('curl_init'));
 
+/**
+ * Factory function that will return an instance of the appropriate
+ * HTTP fetcher
+ */
 function Auth_OpenID_getHTTPFetcher()
 {
     if (Auth_OpenID_CURL_PRESENT) {

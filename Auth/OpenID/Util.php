@@ -14,6 +14,66 @@
  */
 
 /**
+ * Status code returned by the server when the only option is to show
+ * an error page, since we do not have enough information to redirect
+ * back to the consumer. The associated value is an error message that
+ * should be displayed on an HTML error page.
+ *
+ * @see Auth_OpenID_Server
+ */
+define('Auth_OpenID_LOCAL_ERROR', 'local_error');
+
+/**
+ * Status code returned when there is an error to return in key-value
+ * form to the consumer. The caller should return a 400 Bad Request
+ * response with content-type text/plain and the value as the body.
+ *
+ * @see Auth_OpenID_Server
+ */
+define('Auth_OpenID_REMOTE_ERROR', 'remote_error');
+
+/**
+ * Status code returned when there is a key-value form OK response to
+ * the consumer. The value associated with this code is the
+ * response. The caller should return a 200 OK response with
+ * content-type text/plain and the value as the body.
+ *
+ * @see Auth_OpenID_Server
+ */
+define('Auth_OpenID_REMOTE_OK', 'remote_ok');
+
+/**
+ * Status code returned when there is a redirect back to the
+ * consumer. The value is the URL to redirect back to. The caller
+ * should return a 302 Found redirect with a Location: header
+ * containing the URL.
+ *
+ * @see Auth_OpenID_Server
+ */
+define('Auth_OpenID_REDIRECT', 'redirect');
+
+/**
+ * Status code returned when the caller needs to authenticate the
+ * user. The associated value is a Auth_OpenID_ServerRequest
+ * object that can be used to complete the authentication. If the user
+ * has taken some authentication action, use the retry() method of the
+ * Auth_OpenID_ServerRequest object to complete the request.
+ *
+ * @see Auth_OpenID_Server
+ */
+define('Auth_OpenID_DO_AUTH', 'do_auth');
+
+/**
+ * Status code returned when there were no OpenID arguments
+ * passed. This code indicates that the caller should return a 200 OK
+ * response and display an HTML page that says that this is an OpenID
+ * server endpoint.
+ *
+ * @see Auth_OpenID_Server
+ */
+define('Auth_OpenID_DO_ABOUT', 'do_about');
+
+/**
  * Some constants for string checking.
  */
 $_Auth_OpenID_letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";

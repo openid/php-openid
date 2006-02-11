@@ -18,7 +18,6 @@
  * Imports
  */
 require_once "Auth/OpenID/Util.php";
-require_once "Auth/OpenID/Server.php";
 
 /**
  * Object that holds the state of a request to the OpenID server
