@@ -19,6 +19,11 @@
 define('Auth_OpenID_HTTP_FAILURE', 'http failure');
 
 /**
+ * The maximum allowed timeout for fetcher operations.
+ */
+define('Auth_OpenID_FETCHER_TIMEOUT', 20);
+
+/**
  * This class is the interface for HTTP fetchers the OpenID consumer
  * library uses.  This interface is only important if you need to
  * write a new fetcher for some reason.
@@ -29,6 +34,11 @@ define('Auth_OpenID_HTTP_FAILURE', 'http failure');
 class Auth_OpenID_HTTPFetcher {
 
     /**
+     * Allowed socket timeout in seconds.
+     */
+    var $timeout = Auth_OpenID_FETCHER_TIMEOUT;
+
+    /**
      * Return whether a URL should be allowed. Override this method to
      * conform to your local policy.
      *
@@ -37,6 +47,20 @@ class Auth_OpenID_HTTPFetcher {
     function allowedURL($url)
     {
         return Auth_OpenID_URLHasAllowedScheme($url);
+    }
+
+    /**
+     * @access private
+     */
+    function _findRedirect($headers)
+    {
+        foreach ($headers as $line) {
+            if (strpos($line, "Location: ") === 0) {
+                $parts = explode(" ", $line, 2);
+                return $parts[1];
+            }
+        }
+        return null;
     }
 
     /**

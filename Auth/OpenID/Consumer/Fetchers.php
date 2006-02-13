@@ -19,11 +19,6 @@
 require_once "Auth/OpenID/HTTPFetcher.php";
 
 /**
- * Specify a socket timeout setting, in seconds.
- */
-$_Auth_OpenID_socket_timeout = 20;
-
-/**
  * Is this an http or https URL?
  *
  * @access private
@@ -62,8 +57,6 @@ function Auth_OpenID_getHTTPFetcher()
 class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
     function get($url)
     {
-        global $_Auth_OpenID_socket_timeout;
-
         if (!$this->allowedURL($url)) {
             trigger_error("Bad URL scheme in url: " . $url,
                           E_USER_WARNING);
@@ -71,10 +64,11 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
         }
 
         $redir = true;
-        $duration = 1;
 
-        while ($redir && ($duration > 0)) {
-            $stop = time() + $_Auth_OpenID_socket_timeout;
+        $stop = time() + $this->timeout;
+        $off = $this->timeout;
+
+        while ($redir && ($off > 0)) {
 
             $parts = parse_url($url);
 
@@ -112,12 +106,12 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
             $errstr = '';
 
             $sock = fsockopen($host, $parts['port'], $errno, $errstr,
-                              $_Auth_OpenID_socket_timeout);
+                              $this->timeout);
             if ($sock === false) {
                 return false;
             }
 
-            stream_set_timeout($sock, $_Auth_OpenID_socket_timeout);
+            stream_set_timeout($sock, $this->timeout);
 
             fputs($sock, implode("\r\n", $headers) . "\r\n\r\n");
 
@@ -137,14 +131,12 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
 
             if (in_array($code, array('301', '302'))) {
                 $url = $this->_findRedirect($headers);
-                print "REDIRECT to $url\n";
-                exit(0);
                 $redir = true;
             } else {
                 $redir = false;
             }
 
-            $duration = $stop - time();
+            $off = $stop - time();
         }
 
         return array($code, $url, $body);
@@ -152,8 +144,6 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
 
     function post($url, $body)
     {
-        global $_Auth_OpenID_socket_timeout;
-
         if (!$this->allowedURL($url)) {
             trigger_error("Bad URL scheme in url: " . $url,
                           E_USER_WARNING);
@@ -199,7 +189,7 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
         $errstr = '';
 
         $sock = fsockopen($parts['host'], $parts['port'], $errno, $errstr,
-                          $_Auth_OpenID_socket_timeout);
+                          $this->timeout);
 
         if ($sock === false) {
             trigger_error("Could not connect to " . $parts['host'] .
@@ -208,7 +198,7 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
             return null;
         }
 
-        stream_set_timeout($sock, $_Auth_OpenID_socket_timeout);
+        stream_set_timeout($sock, $this->timeout);
 
         // Write the POST request.
         fputs($sock, $request);
@@ -305,23 +295,8 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
         }
     }
 
-    /**
-     * @access private
-     */
-    function _findRedirect($headers)
-    {
-        foreach ($headers as $line) {
-            if (strpos($line, "Location: ") == 0) {
-                $parts = explode(" ", $line, 2);
-                return $parts[1];
-            }
-        }
-        return null;
-    }
-
     function get($url)
     {
-        global $_Auth_OpenID_socket_timeout;
         global $_Auth_OpenID_curl_data;
 
         $c = curl_init();
@@ -330,8 +305,8 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
 
         curl_setopt($c, CURLOPT_NOSIGNAL, true);
 
-        $stop = time() + $_Auth_OpenID_socket_timeout;
-        $off = $_Auth_OpenID_socket_timeout;
+        $stop = time() + $this->timeout;
+        $off = $this->timeout;
 
         while ($off > 0) {
             if (!$this->allowedURL($url)) {
@@ -374,7 +349,6 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
 
     function post($url, $body)
     {
-        global $_Auth_OpenID_socket_timeout;
         global $_Auth_OpenID_curl_data;
 
         if (!$this->allowedURL($url)) {
@@ -390,7 +364,7 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
         curl_setopt($c, CURLOPT_NOSIGNAL, true);
         curl_setopt($c, CURLOPT_POST, true);
         curl_setopt($c, CURLOPT_POSTFIELDS, $body);
-        curl_setopt($c, CURLOPT_TIMEOUT, $_Auth_OpenID_socket_timeout);
+        curl_setopt($c, CURLOPT_TIMEOUT, $this->timeout);
         curl_setopt($c, CURLOPT_URL, $url);
         curl_setopt($c, CURLOPT_WRITEFUNCTION, "Auth_OpenID_writeData");
 
