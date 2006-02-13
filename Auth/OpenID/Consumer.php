@@ -215,12 +215,6 @@ define('Auth_OpenID_FAILURE', 'failure');
 define('Auth_OpenID_SETUP_NEEDED', 'setup needed');
 
 /**
- * This is the status code beginAuth returns when it is unable to
- * fetch the OpenID URL the user entered.
- */
-define('Auth_OpenID_HTTP_FAILURE', 'http failure');
-
-/**
  * This is the status code beginAuth returns when the page fetched
  * from the entered OpenID URL doesn't contain the necessary link tags
  * to function as an identity page.
