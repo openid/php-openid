@@ -184,10 +184,10 @@
 /**
  * Require utility classes and functions for the consumer.
  */
+require_once "Auth/OpenID.php";
 require_once "Auth/OpenID/HMACSHA1.php";
 require_once "Auth/OpenID/Association.php";
 require_once "Auth/OpenID/AuthenticationRequest.php";
-require_once "Auth/OpenID/Consumer/Fetchers.php";
 require_once "Auth/OpenID/Consumer/Parse.php";
 require_once "Auth/OpenID/CryptUtil.php";
 require_once "Auth/OpenID/DiffieHellman.php";
@@ -325,7 +325,7 @@ class Auth_OpenID_Consumer {
               $this->store->isDumb());
 
         if ($fetcher === null) {
-            $this->fetcher = Auth_OpenID_getHTTPFetcher();
+            $this->fetcher = Auth_OpenID::getHTTPFetcher();
         } else {
             $this->fetcher =& $fetcher;
         }
