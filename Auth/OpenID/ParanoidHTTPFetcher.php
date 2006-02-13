@@ -93,16 +93,16 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
     {
         global $_Auth_OpenID_curl_data;
 
-        $c = curl_init();
-
-        $curl_key = Auth_OpenID_initResponseSlot($c);
-
-        curl_setopt($c, CURLOPT_NOSIGNAL, true);
-
         $stop = time() + $this->timeout;
         $off = $this->timeout;
 
-        while ($off > 0) {
+        $redir = true;
+
+        while ($redir && ($off > 0)) {
+            $c = curl_init();
+            $curl_key = Auth_OpenID_initResponseSlot($c);
+            curl_setopt($c, CURLOPT_NOSIGNAL, true);
+
             if (!$this->allowedURL($url)) {
                 trigger_error(sprintf("Fetching URL not allowed: %s", $url),
                               E_USER_WARNING);
@@ -127,7 +127,9 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
 
             if (in_array($code, array(301, 302, 303, 307))) {
                 $url = $this->_findRedirect($headers);
+                $redir = true;
             } else {
+                $redir = false;
                 curl_close($c);
                 return array($code, $url, $body);
             }

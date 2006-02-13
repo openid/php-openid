@@ -359,7 +359,6 @@ function detect_stores($r, &$out)
 function detect_fetcher($r, &$out)
 {
     $out .= $r->h2('HTTP Fetching');
-    require_once "Auth/OpenID.php";
     if (Auth_OpenID_CURL_PRESENT) {
         // XXX: actually fetch a URL.
         $out .= $r->p('This PHP installation has support for libcurl. Good.');
@@ -418,7 +417,11 @@ $out = $r->start($title) .
           'are set up to use the JanRain PHP OpenID library.');
 
 $body = '';
-if (!include('Auth/OpenID/BigMath.php')) {
+
+$_file1 = include 'Auth/OpenID.php';
+$_file2 = include 'Auth/OpenID/BigMath.php';
+
+if (!($file1 && $file2)) {
     $path = ini_get('include_path');
     $body .= $r->p(
         'Cannot find the OpenID library. It must be in your PHP include ' .
