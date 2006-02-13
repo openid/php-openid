@@ -218,7 +218,7 @@ define('Auth_OpenID_SETUP_NEEDED', 'setup needed');
  * This is the status code beginAuth returns when the page fetched
  * from the entered OpenID URL doesn't contain the necessary link tags
  * to function as an identity page.
-*/
+ */
 define('Auth_OpenID_PARSE_ERROR', 'parse error');
 
 /**
