@@ -359,7 +359,7 @@ function detect_stores($r, &$out)
 function detect_fetcher($r, &$out)
 {
     $out .= $r->h2('HTTP Fetching');
-    require_once "Auth/OpenID/Consumer/Fetchers.php";
+    require_once "Auth/OpenID.php";
     if (Auth_OpenID_CURL_PRESENT) {
         // XXX: actually fetch a URL.
         $out .= $r->p('This PHP installation has support for libcurl. Good.');
@@ -373,7 +373,7 @@ function detect_fetcher($r, &$out)
                       'for PHP.');
     }
     $ok = true;
-    $fetcher = Auth_OpenID_getHTTPFetcher();
+    $fetcher = Auth_OpenID::getHTTPFetcher();
     $fetch_url = 'http://www.openidenabled.com/resources/php-fetch-test';
     $expected_url = $fetch_url . '.txt';
     $result = $fetcher->get($fetch_url);
