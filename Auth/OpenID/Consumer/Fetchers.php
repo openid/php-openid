@@ -19,16 +19,6 @@
 require_once "Auth/OpenID/HTTPFetcher.php";
 
 /**
- * Is this an http or https URL?
- *
- * @access private
- */
-function Auth_OpenID_URLHasAllowedScheme($url)
-{
-    return (bool)preg_match('/^https?:\/\//i', $url);
-}
-
-/**
  * Detect the presence of Curl and set a flag accordingly.
  */
 define('Auth_OpenID_CURL_PRESENT', function_exists('curl_init'));

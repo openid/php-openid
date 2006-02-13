@@ -46,7 +46,17 @@ class Auth_OpenID_HTTPFetcher {
      */
     function allowedURL($url)
     {
-        return Auth_OpenID_URLHasAllowedScheme($url);
+        return $this->URLHasAllowedScheme($url);
+    }
+
+    /**
+     * Is this an http or https URL?
+     *
+     * @access private
+     */
+    function URLHasAllowedScheme($url)
+    {
+        return (bool)preg_match('/^https?:\/\//i', $url);
     }
 
     /**
