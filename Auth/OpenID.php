@@ -18,9 +18,10 @@
  */
 
 /**
- * Detect the presence of Curl and set a flag accordingly.
+ * Require the fetcher code.
  */
-define('Auth_OpenID_CURL_PRESENT', function_exists('curl_init'));
+require_once "Auth/OpenID/PlainHTTPFetcher.php";
+require_once "Auth/OpenID/ParanoidHTTPFetcher.php";
 
 class Auth_OpenID {
 
