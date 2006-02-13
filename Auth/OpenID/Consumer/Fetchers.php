@@ -60,29 +60,94 @@ function Auth_OpenID_getHTTPFetcher()
  * @package OpenID
  */
 class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
-    /**
-     * @access private
-     */
-    function _fetch($url)
-    {
-        $data = @file_get_contents($url);
-
-        if ($data !== false) {
-            return array(200, $url, $data);
-        } else {
-            return null;
-        }
-    }
-
     function get($url)
     {
+        global $_Auth_OpenID_socket_timeout;
+
         if (!$this->allowedURL($url)) {
             trigger_error("Bad URL scheme in url: " . $url,
                           E_USER_WARNING);
             return null;
         }
 
-        return $this->_fetch($url);
+        $redir = true;
+        $duration = 1;
+
+        while ($redir && ($duration > 0)) {
+            $stop = time() + $_Auth_OpenID_socket_timeout;
+
+            $parts = parse_url($url);
+
+            // Set a default port.
+            if (!array_key_exists('port', $parts)) {
+                if ($parts['scheme'] == 'http') {
+                    $parts['port'] = 80;
+                } elseif ($parts['scheme'] == 'https') {
+                    $parts['port'] = 443;
+                } else {
+                    trigger_error("fetcher post method doesn't support " .
+                                  " scheme '" . $parts['scheme'] .
+                                  "', no default port available",
+                                  E_USER_WARNING);
+                    return null;
+                }
+            }
+
+            $host = $parts['host'];
+
+            if ($parts['scheme'] == 'https') {
+                $host = 'ssl://' . $host;
+            }
+
+            $user_agent = $this->user_agent;
+
+            $headers = array(
+                             "GET ".$parts['path']." HTTP/1.0",
+                             "User-Agent: $user_agent",
+                             "Host: ".$parts['host'].":".$parts['port'],
+                             "Port: ".$parts['port'],
+                             "Cache-Control: no-cache");
+
+            $errno = 0;
+            $errstr = '';
+
+            $sock = fsockopen($host, $parts['port'], $errno, $errstr,
+                              $_Auth_OpenID_socket_timeout);
+            if ($sock === false) {
+                return false;
+            }
+
+            stream_set_timeout($sock, $_Auth_OpenID_socket_timeout);
+
+            fputs($sock, implode("\r\n", $headers) . "\r\n\r\n");
+
+            $data = "";
+            while (!feof($sock)) {
+                $data .= fgets($sock, 1024);
+            }
+
+            fclose($sock);
+
+            // Split response into header and body sections
+            list($headers, $body) = explode("\r\n\r\n", $data, 2);
+            $headers = explode("\r\n", $headers);
+
+            $http_code = explode(" ", $headers[0]);
+            $code = $http_code[1];
+
+            if (in_array($code, array('301', '302'))) {
+                $url = $this->_findRedirect($headers);
+                print "REDIRECT to $url\n";
+                exit(0);
+                $redir = true;
+            } else {
+                $redir = false;
+            }
+
+            $duration = $stop - time();
+        }
+
+        return array($code, $url, $body);
     }
 
     function post($url, $body)
