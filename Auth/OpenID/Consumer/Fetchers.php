@@ -195,8 +195,11 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
         }
 
         // Connect to the remote server.
-        $sock = fsockopen($parts['host'], $parts['port']);
-        stream_set_timeout($sock, $_Auth_OpenID_socket_timeout);
+        $errno = 0;
+        $errstr = '';
+
+        $sock = fsockopen($parts['host'], $parts['port'], $errno, $errstr,
+                          $_Auth_OpenID_socket_timeout);
 
         if ($sock === false) {
             trigger_error("Could not connect to " . $parts['host'] .
@@ -204,6 +207,8 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
                           E_USER_WARNING);
             return null;
         }
+
+        stream_set_timeout($sock, $_Auth_OpenID_socket_timeout);
 
         // Write the POST request.
         fputs($sock, $request);
