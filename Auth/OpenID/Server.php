@@ -206,7 +206,7 @@ class Auth_OpenID_Server {
             // checkid_setup.
             $args = $request->args;
             $args['openid.mode'] = 'checkid_setup';
-            $setup_url = Auth_OpenID_appendArgs($this->server_url, $args);
+            $setup_url = Auth_OpenID::appendArgs($this->server_url, $args);
 
             // Return to the consumer, instructing it that the user
             // needs to do something in order to verify his identity.
@@ -215,7 +215,7 @@ class Auth_OpenID_Server {
                            'openid.user_setup_url' => $setup_url
                            );
 
-            $redir_url = Auth_OpenID_appendArgs($return_to, $rargs);
+            $redir_url = Auth_OpenID::appendArgs($return_to, $rargs);
             return array(Auth_OpenID_REDIRECT, $redir_url);
 
         case 'checkid_setup':
@@ -273,7 +273,7 @@ class Auth_OpenID_Server {
         $reply['openid.assoc_handle'] = $assoc->handle;
         $signed_fields = array('mode', 'identity', 'return_to');
         $assoc->addSignature($signed_fields, &$reply);
-        $redir_url = Auth_OpenID_appendArgs($return_to, $reply);
+        $redir_url = Auth_OpenID::appendArgs($return_to, $reply);
         return array(Auth_OpenID_REDIRECT, $redir_url);
     }
 
@@ -423,7 +423,7 @@ class Auth_OpenID_Server {
                          'openid.mode' => 'error',
                          'openid.error' => $msg
                          );
-            $redir_url = Auth_OpenID_appendArgs($return_to, $err);
+            $redir_url = Auth_OpenID::appendArgs($return_to, $err);
             return array(Auth_OpenID_REDIRECT, $redir_url);
         } else {
             foreach (array_keys($args) as $k) {

@@ -461,7 +461,7 @@ class Auth_OpenID_Consumer {
         }
 
         $this->store->storeNonce($auth_request->nonce);
-        return Auth_OpenID_appendArgs($auth_request->server_url, $redir_args);
+        return Auth_OpenID::appendArgs($auth_request->server_url, $redir_args);
     }
 
     /**
@@ -624,7 +624,7 @@ class Auth_OpenID_Consumer {
         }
 
         $check_args['openid.mode'] = 'check_authentication';
-        $post_data = Auth_OpenID_http_build_query($check_args);
+        $post_data = Auth_OpenID::httpBuildQuery($check_args);
 
         $ret = @$this->fetcher->post($server_url, $post_data);
         if ($ret === null) {
@@ -689,7 +689,7 @@ class Auth_OpenID_Consumer {
 
             $dh = $this->_createDiffieHellman();
             $args = array_merge($args, $dh->getAssocArgs());
-            $body = Auth_OpenID_http_build_query($args);
+            $body = Auth_OpenID::httpBuildQuery($args);
 
             $assoc = $this->_fetchAssociation($dh, $server_url, $body);
         }

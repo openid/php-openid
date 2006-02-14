@@ -17,7 +17,7 @@
 /**
  * Imports
  */
-require_once "Auth/OpenID/Util.php";
+require_once "Auth/OpenID.php";
 
 /**
  * Object that holds the state of a request to the OpenID server
@@ -100,7 +100,7 @@ class Auth_OpenID_ServerRequest {
     {
         $cancel_args = array('openid.mode' => 'cancel');
         $return_to = $this->args['openid.return_to'];
-        return Auth_OpenID_appendArgs($return_to, $cancel_args);
+        return Auth_OpenID::appendArgs($return_to, $cancel_args);
     }
 
     /**
@@ -108,7 +108,7 @@ class Auth_OpenID_ServerRequest {
      */
     function getRetryURL()
     {
-        return Auth_OpenID_appendArgs($this->server_url, $this->args);
+        return Auth_OpenID::appendArgs($this->server_url, $this->args);
     }
 
     /**

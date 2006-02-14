@@ -15,6 +15,7 @@
 
 require_once 'PHPUnit.php';
 require_once 'Auth/OpenID/Util.php';
+require_once 'Auth/OpenID.php';
 
 class Tests_Auth_OpenID_Util extends PHPUnit_TestCase {
     function test_base64()
@@ -252,7 +253,7 @@ assert not should_raise and actual == expected, case
             list($desc, $data, $expected) = $case;
             list($url, $query) = $data;
             $this->assertEquals($expected,
-                    Auth_OpenID_appendArgs($url, $query));
+                    Auth_OpenID::appendArgs($url, $query));
         }
     }
 }
