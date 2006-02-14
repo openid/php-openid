@@ -333,7 +333,7 @@ explicitly');
             return;
         }
 
-        require_once 'Auth/OpenID/SQLStore.php';
+        require_once 'Auth/OpenID/PostgreSQLStore.php';
         require_once 'DB.php';
 
         global $_Auth_OpenID_db_test_host;
