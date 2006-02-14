@@ -80,44 +80,6 @@ function Auth_OpenID_unoctify($str)
     return $result;
 }
 
-class Auth_OpenID_DatabaseConnection {
-    function setFetchMode($mode)
-    {
-    }
-
-    function autoCommit($mode)
-    {
-    }
-
-    function query($sql)
-    {
-    }
-
-    function begin()
-    {
-    }
-
-    function commit()
-    {
-    }
-
-    function rollback()
-    {
-    }
-
-    function getOne($sql)
-    {
-    }
-
-    function getRow($sql)
-    {
-    }
-
-    function getAll($sql)
-    {
-    }
-}
-
 /**
  * This is the parent class for the SQL stores, which contains the
  * logic common to all of the SQL stores.
