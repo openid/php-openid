@@ -18,6 +18,7 @@
 /**
  * Require base class for creating a new interface.
  */
+require_once 'Auth/OpenID.php';
 require_once 'Auth/OpenID/Store/Interface.php';
 require_once 'Auth/OpenID/HMACSHA1.php';
 require_once 'Auth/OpenID/Util.php';
@@ -189,7 +190,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
      */
     function Auth_OpenID_FileStore($directory)
     {
-        if (!Auth_OpenID_ensureDir($directory)) {
+        if (!Auth_OpenID::ensureDir($directory)) {
             trigger_error('Not a directory and failed to create: '
                           . $directory, E_USER_ERROR);
         }
@@ -231,10 +232,10 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
      */
     function _setup()
     {
-        return (Auth_OpenID_ensureDir(dirname($this->auth_key_name)) &&
-                Auth_OpenID_ensureDir($this->nonce_dir) &&
-                Auth_OpenID_ensureDir($this->association_dir) &&
-                Auth_OpenID_ensureDir($this->temp_dir));
+        return (Auth_OpenID::ensureDir(dirname($this->auth_key_name)) &&
+                Auth_OpenID::ensureDir($this->nonce_dir) &&
+                Auth_OpenID::ensureDir($this->association_dir) &&
+                Auth_OpenID::ensureDir($this->temp_dir));
     }
 
     /**

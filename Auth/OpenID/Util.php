@@ -21,26 +21,6 @@ $_Auth_OpenID_digits = "0123456789";
 $_Auth_OpenID_punct = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
 
 /**
- * Create dir_name as a directory if it does not exist. If it exists,
- * make sure that it is, in fact, a directory.  Returns true if the
- * operation succeeded; false if not.
- *
- * @access private
- */
-function Auth_OpenID_ensureDir($dir_name)
-{
-    if (is_dir($dir_name) || @mkdir($dir_name)) {
-        return true;
-    } else {
-        if (Auth_OpenID_ensureDir(dirname($dir_name))) {
-            return is_dir($dir_name) || @mkdir($dir_name);
-        } else {
-            return false;
-        }
-    }
-}
-
-/**
  * Convenience function for getting array values.
  *
  * @access private

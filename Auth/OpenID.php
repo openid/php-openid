@@ -119,6 +119,26 @@ class Auth_OpenID {
 
         return $args;
     }
+
+    /**
+     * Create dir_name as a directory if it does not exist. If it
+     * exists, make sure that it is, in fact, a directory.  Returns
+     * true if the operation succeeded; false if not.
+     *
+     * @access private
+     */
+    function ensureDir($dir_name)
+    {
+        if (is_dir($dir_name) || @mkdir($dir_name)) {
+            return true;
+        } else {
+            if (Auth_OpenID::ensureDir(dirname($dir_name))) {
+                return is_dir($dir_name) || @mkdir($dir_name);
+            } else {
+                return false;
+            }
+        }
+    }
 }
 
 ?>
