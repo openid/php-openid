@@ -216,7 +216,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
             $_Auth_OpenID_assocs;
 
         $store = new Auth_OpenID_FileStore(
-           Auth_OpenID_mkdtemp($_Auth_OpenID_filestore_base_dir));
+           Auth_OpenID_FileStore::_mkdtemp($_Auth_OpenID_filestore_base_dir));
 
         if ($immediate) {
             $mode = 'checkid_immediate';
@@ -294,7 +294,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
         global $_Auth_OpenID_filestore_base_dir;
 
         $store = new Auth_OpenID_FileStore(
-            Auth_OpenID_mkdtemp($_Auth_OpenID_filestore_base_dir));
+            Auth_OpenID_FileStore::_mkdtemp($_Auth_OpenID_filestore_base_dir));
 
         $fetcher = new Auth_OpenID_TestFetcher(null, null, null, null);
         $consumer = new Auth_OpenID_TestConsumer($store, &$fetcher);
@@ -321,7 +321,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
         global $_Auth_OpenID_filestore_base_dir;
 
         $store = new Auth_OpenID_FileStore(
-            Auth_OpenID_mkdtemp($_Auth_OpenID_filestore_base_dir));
+            Auth_OpenID_FileStore::_mkdtemp($_Auth_OpenID_filestore_base_dir));
 
         $user_url = 'http://user.example.com/';
         $cases = array(

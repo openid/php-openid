@@ -308,11 +308,12 @@ explicitly');
     {
         require_once 'Auth/OpenID/Store/FileStore.php';
 
-        $temp_dir = Auth_OpenID_mkdtemp('/tmp');
+        $temp_dir = Auth_OpenID_FileStore::_mkdtemp('/tmp');
 
         if (!$temp_dir) {
             trigger_error('Could not create temporary directory ' .
-                          'with Auth_OpenID_mkdtemp', E_USER_WARNING);
+                          'with Auth_OpenID_FileStore::_mkdtemp',
+                          E_USER_WARNING);
             return null;
         }
 
@@ -437,11 +438,12 @@ explicitly');
         require_once 'Auth/OpenID/Store/SQLStore.php';
         require_once 'DB.php';
 
-        $temp_dir = Auth_OpenID_mkdtemp('/tmp');
+        $temp_dir = Auth_OpenID_FileStore::_mkdtemp('/tmp');
 
         if (!$temp_dir) {
             trigger_error('Could not create temporary directory ' .
-                          'with Auth_OpenID_mkdtemp', E_USER_WARNING);
+                          'with Auth_OpenID_FileStore::_mkdtemp',
+                          E_USER_WARNING);
             return null;
         }
 
