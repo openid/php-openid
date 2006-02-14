@@ -159,7 +159,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
             return null;
         }
 
-        $auth_key = Auth_OpenID_randomString($this->AUTH_KEY_LEN);
+        $auth_key = Auth_OpenID_CryptUtil::randomString($this->AUTH_KEY_LEN);
 
         list($file_obj, $tmp) = $this->_mktemp();
 

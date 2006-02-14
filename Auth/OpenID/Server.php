@@ -393,13 +393,13 @@ class Auth_OpenID_Server {
     function createAssociation($assoc_type)
     {
         if ($assoc_type == 'HMAC-SHA1') {
-            $secret = Auth_OpenID_getBytes(20);
+            $secret = Auth_OpenID_CryptUtil::getBytes(20);
         } else {
             // XXX: log
             return false;
         }
 
-        $uniq = base64_encode(Auth_OpenID_getBytes(4));
+        $uniq = base64_encode(Auth_OpenID_CryptUtil::getBytes(4));
         $handle = sprintf('{%s}{%x}{%s}', $assoc_type, time(), $uniq);
 
         $ltime = $this->association_lifetime;

@@ -702,8 +702,8 @@ class Auth_OpenID_Consumer {
      */
     function _generateNonce()
     {
-        return Auth_OpenID_randomString(Auth_OpenID_NONCE_LEN,
-                                        $this->nonce_chrs);
+        return Auth_OpenID_CryptUtil::randomString(Auth_OpenID_NONCE_LEN,
+                                                   $this->nonce_chrs);
     }
 
     /**
