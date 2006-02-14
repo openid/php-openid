@@ -83,6 +83,12 @@ define('Auth_OpenID_DO_AUTH', 'do_auth');
  */
 define('Auth_OpenID_DO_ABOUT', 'do_about');
 
+/**
+ * The OpenID utility function class.
+ *
+ * @package OpenID
+ * @access private
+ */
 class Auth_OpenID {
 
     /**
