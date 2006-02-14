@@ -24,57 +24,6 @@ require_once "Auth/OpenID/HTTPFetcher.php";
 define('Auth_OpenID_CURL_PRESENT', function_exists('curl_init'));
 
 /**
- * An array to store headers and data from Curl calls.
- *
- * @access private
- */
-$_Auth_OpenID_curl_data = array();
-
-/**
- * A function to prepare a "slot" in the global $_Auth_OpenID_curl_data
- * array so curl data can be stored there by curl callbacks in the
- * paranoid fetcher.
- *
- * @access private
- */
-function Auth_OpenID_initResponseSlot($ch)
-{
-    global $_Auth_OpenID_curl_data;
-    $key = strval($ch);
-    if (!array_key_exists($key, $_Auth_OpenID_curl_data)) {
-        $_Auth_OpenID_curl_data[$key] = array('headers' => array(),
-                                             'body' => "");
-    }
-    return $key;
-}
-
-/**
- * A callback function for curl so headers can be stored.
- *
- * @access private
- */
-function Auth_OpenID_writeHeaders($ch, $data)
-{
-    global $_Auth_OpenID_curl_data;
-    $key = Auth_OpenID_initResponseSlot($ch);
-    $_Auth_OpenID_curl_data[$key]['headers'][] = rtrim($data);
-    return strlen($data);
-}
-
-/**
- * A callback function for curl so page data can be stored.
- *
- * @access private
- */
-function Auth_OpenID_writeData($ch, $data)
-{
-    global $_Auth_OpenID_curl_data;
-    $key = Auth_OpenID_initResponseSlot($ch);
-    $_Auth_OpenID_curl_data[$key]['body'] .= $data;
-    return strlen($data);
-}
-
-/**
  * A paranoid Auth_OpenID_HTTPFetcher class which uses CURL for
  * fetching.
  *
@@ -87,20 +36,42 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
             trigger_error("Cannot use this class; CURL extension not found",
                           E_USER_ERROR);
         }
+
+        $this->headers = array();
+        $this->data = "";
+
+        $this->reset();
+    }
+
+    function reset()
+    {
+        $this->headers = array();
+        $this->data = "";
+    }
+
+    function _writeHeader($ch, $header)
+    {
+        array_push($this->headers, rtrim($header));
+        return strlen($header);
+    }
+
+    function _writeData($ch, $data)
+    {
+        $this->data .= $data;
+        return strlen($data);
     }
 
     function get($url)
     {
-        global $_Auth_OpenID_curl_data;
-
         $stop = time() + $this->timeout;
         $off = $this->timeout;
 
         $redir = true;
 
         while ($redir && ($off > 0)) {
+            $this->reset();
+
             $c = curl_init();
-            $curl_key = Auth_OpenID_initResponseSlot($c);
             curl_setopt($c, CURLOPT_NOSIGNAL, true);
 
             if (!$this->allowedURL($url)) {
@@ -109,16 +80,19 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
                 return null;
             }
 
-            curl_setopt($c, CURLOPT_WRITEFUNCTION, "Auth_OpenID_writeData");
-            curl_setopt($c, CURLOPT_HEADERFUNCTION, "Auth_OpenID_writeHeaders");
+            curl_setopt($c, CURLOPT_WRITEFUNCTION,
+                        array(&$this, "_writeData"));
+            curl_setopt($c, CURLOPT_HEADERFUNCTION,
+                        array(&$this, "_writeHeader"));
+
             curl_setopt($c, CURLOPT_TIMEOUT, $off);
             curl_setopt($c, CURLOPT_URL, $url);
 
             curl_exec($c);
 
             $code = curl_getinfo($c, CURLINFO_HTTP_CODE);
-            $body = $_Auth_OpenID_curl_data[$curl_key]['body'];
-            $headers = $_Auth_OpenID_curl_data[$curl_key]['headers'];
+            $body = $this->data;
+            $headers = $this->headers;
 
             if (!$code) {
                 trigger_error("No HTTP code returned", E_USER_WARNING);
@@ -145,7 +119,7 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
 
     function post($url, $body)
     {
-        global $_Auth_OpenID_curl_data;
+        $this->reset();
 
         if (!$this->allowedURL($url)) {
             trigger_error(sprintf("Fetching URL not allowed: %s", $url),
@@ -155,14 +129,13 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
 
         $c = curl_init();
 
-        $curl_key = Auth_OpenID_initResponseSlot($c);
-
         curl_setopt($c, CURLOPT_NOSIGNAL, true);
         curl_setopt($c, CURLOPT_POST, true);
         curl_setopt($c, CURLOPT_POSTFIELDS, $body);
         curl_setopt($c, CURLOPT_TIMEOUT, $this->timeout);
         curl_setopt($c, CURLOPT_URL, $url);
-        curl_setopt($c, CURLOPT_WRITEFUNCTION, "Auth_OpenID_writeData");
+        curl_setopt($c, CURLOPT_WRITEFUNCTION,
+                    array(&$this, "_writeData"));
 
         curl_exec($c);
 
@@ -173,7 +146,7 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
             return null;
         }
 
-        $body = $_Auth_OpenID_curl_data[$curl_key]['body'];
+        $body = $this->data;
 
         curl_close($c);
         return array($code, $url, $body);
