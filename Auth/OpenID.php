@@ -99,6 +99,26 @@ class Auth_OpenID {
         }
         return $fetcher;
     }
+
+    /**
+     * Rename query arguments back to 'openid.' from 'openid_'
+     *
+     * @access private
+     * @param array $args An associative array of URL query arguments
+     */
+    function fixArgs($args)
+    {
+        foreach (array_keys($args) as $key) {
+            $fixed = preg_replace('/^openid_/', 'openid.', $key);
+            if ($fixed != $key) {
+                $val = $args[$key];
+                unset($args[$key]);
+                $args[$fixed] = $val;
+            }
+        }
+
+        return $args;
+    }
 }
 
 ?>

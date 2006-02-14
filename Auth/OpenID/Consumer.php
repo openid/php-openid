@@ -508,7 +508,7 @@ class Auth_OpenID_Consumer {
      */
     function completeAuth($token, $query)
     {
-        $query = Auth_OpenID_fixArgs($query);
+        $query = Auth_OpenID::fixArgs($query);
 
         $mode = Auth_OpenID_arrayGet($query, 'openid.mode', '');
 

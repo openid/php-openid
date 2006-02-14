@@ -6,6 +6,7 @@
 
 require_once "PHPUnit.php";
 require_once "Tests/Auth/OpenID/MemStore.php";
+require_once "Auth/OpenID.php";
 require_once "Auth/OpenID/Server.php";
 
 function _Auth_OpenID_NotAuthorized()
@@ -38,7 +39,7 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestCase {
 
         $query = array();
         parse_str($query_str, $query);
-        $query = Auth_OpenID_fixArgs($query);
+        $query = Auth_OpenID::fixArgs($query);
         return array($base, $query);
     }
 

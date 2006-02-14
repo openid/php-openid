@@ -61,26 +61,6 @@ function Auth_OpenID_arrayGet($arr, $key, $fallback = null)
 }
 
 /**
- * Rename query arguments back to 'openid.' from 'openid_'
- *
- * @access private
- * @param array $args An associative array of URL query arguments
- */
-function Auth_OpenID_fixArgs($args)
-{
-    foreach (array_keys($args) as $key) {
-        $fixed = preg_replace('/^openid_/', 'openid.', $key);
-        if ($fixed != $key) {
-            $val = $args[$key];
-            unset($args[$key]);
-            $args[$fixed] = $val;
-        }
-    }
-
-    return $args;
-}
-
-/**
  * Implements the PHP 5 'http_build_query' functionality.
  *
  * @access private

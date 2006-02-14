@@ -113,14 +113,14 @@ class Auth_OpenID_Server {
         case 'GET':
             // Convert anything that starts with openid_ to openid.
             if ($args === null) {
-                $args = Auth_OpenID_fixArgs($_GET);
+                $args = Auth_OpenID::fixArgs($_GET);
             }
             $request = new Auth_OpenID_ServerRequest($this->server_url, $args);
             return $request->retry(&$this, $is_authorized);
 
         case 'POST':
             if ($args === null) {
-                $args = Auth_OpenID_fixArgs($_POST);
+                $args = Auth_OpenID::fixArgs($_POST);
             }
             $mode = $args['openid.mode'];
             switch ($mode) {
