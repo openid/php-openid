@@ -24,63 +24,6 @@ require_once 'DB.php';
 require_once 'Auth/OpenID/Store/Interface.php';
 
 /**
- * "Octifies" a binary string by returning a string with escaped octal
- * bytes.  This is used for preparing binary data for PostgreSQL BYTEA
- * fields.
- *
- * @access private
- */
-function Auth_OpenID_octify($str)
-{
-    $result = "";
-    for ($i = 0; $i < strlen($str); $i++) {
-        $ch = substr($str, $i, 1);
-        if ($ch == "\\") {
-            $result .= "\\\\\\\\";
-        } else if (ord($ch) == 0) {
-            $result .= "\\\\000";
-        } else {
-            $result .= "\\" . strval(decoct(ord($ch)));
-        }
-    }
-    return $result;
-}
-
-/**
- * "Unoctifies" octal-escaped data from PostgreSQL and returns the
- * resulting ASCII (possibly binary) string.
- *
- * @access private
- */
-function Auth_OpenID_unoctify($str)
-{
-    $result = "";
-    $i = 0;
-    while ($i < strlen($str)) {
-        $char = $str[$i];
-        if ($char == "\\") {
-            // Look to see if the next char is a backslash and append
-            // it.
-            if ($str[$i + 1] != "\\") {
-                $octal_digits = substr($str, $i + 1, 3);
-                $dec = octdec($octal_digits);
-                $char = chr($dec);
-                $i += 4;
-            } else {
-                $char = "\\";
-                $i += 2;
-            }
-        } else {
-            $i += 1;
-        }
-
-        $result .= $char;
-    }
-
-    return $result;
-}
-
-/**
  * This is the parent class for the SQL stores, which contains the
  * logic common to all of the SQL stores.
  *
@@ -628,6 +571,63 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
         return $present;
     }
+
+    /**
+     * "Octifies" a binary string by returning a string with escaped
+     * octal bytes.  This is used for preparing binary data for
+     * PostgreSQL BYTEA fields.
+     *
+     * @access private
+     */
+    function _octify($str)
+    {
+        $result = "";
+        for ($i = 0; $i < strlen($str); $i++) {
+            $ch = substr($str, $i, 1);
+            if ($ch == "\\") {
+                $result .= "\\\\\\\\";
+            } else if (ord($ch) == 0) {
+                $result .= "\\\\000";
+            } else {
+                $result .= "\\" . strval(decoct(ord($ch)));
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * "Unoctifies" octal-escaped data from PostgreSQL and returns the
+     * resulting ASCII (possibly binary) string.
+     *
+     * @access private
+     */
+    function _unoctify($str)
+    {
+        $result = "";
+        $i = 0;
+        while ($i < strlen($str)) {
+            $char = $str[$i];
+            if ($char == "\\") {
+                // Look to see if the next char is a backslash and
+                // append it.
+                if ($str[$i + 1] != "\\") {
+                    $octal_digits = substr($str, $i + 1, 3);
+                    $dec = octdec($octal_digits);
+                    $char = chr($dec);
+                    $i += 4;
+                } else {
+                    $char = "\\";
+                    $i += 2;
+                }
+            } else {
+                $i += 1;
+            }
+
+            $result .= $char;
+        }
+
+        return $result;
+    }
 }
 
 /**
@@ -740,7 +740,7 @@ class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
      */
     function blobEncode($blob)
     {
-        return Auth_OpenID_octify($blob);
+        return $this->_octify($blob);
     }
 
     /**
@@ -748,7 +748,7 @@ class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
      */
     function blobDecode($blob)
     {
-        return Auth_OpenID_unoctify($blob);
+        return $this->_unoctify($blob);
     }
 }
 
