@@ -13,6 +13,11 @@
  */
 
 /**
+ * Require the parser.
+ */
+require_once "Auth/OpenID/Parse.php";
+
+/**
  * This is the status code beginAuth returns when it is unable to
  * fetch the OpenID URL the user entered.
  */
@@ -129,9 +134,11 @@ class Auth_OpenID_HTTPFetcher {
             return array(Auth_OpenID_HTTP_FAILURE, $http_code);
         }
 
-        $link_attrs = Auth_OpenID_parseLinkAttrs($data);
-        $server = Auth_OpenID_findFirstHref($link_attrs, 'openid.server');
-        $delegate = Auth_OpenID_findFirstHref($link_attrs, 'openid.delegate');
+        $parser = new Auth_OpenID_Parse();
+
+        $link_attrs = $parser->parseLinkAttrs($data);
+        $server = $parser->findFirstHref($link_attrs, 'openid.server');
+        $delegate = $parser->findFirstHref($link_attrs, 'openid.delegate');
 
         if ($server === null) {
             return array(Auth_OpenID_PARSE_ERROR, null);

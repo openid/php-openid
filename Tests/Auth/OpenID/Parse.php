@@ -14,7 +14,7 @@
  */
 
 require_once 'Tests/Auth/OpenID/TestUtil.php';
-require_once 'Auth/OpenID/Consumer/Parse.php';
+require_once 'Auth/OpenID/Parse.php';
 require_once 'PHPUnit.php';
 
 class Tests_Auth_OpenID_Link extends PHPUnit_TestCase {
@@ -25,6 +25,7 @@ class Tests_Auth_OpenID_Link extends PHPUnit_TestCase {
         $this->markup = $markup;
         $this->expected_links = $links;
         $this->case_text = $case_text;
+        $this->parser = new Auth_OpenID_Parse();
     }
 
     function getName()
@@ -34,7 +35,7 @@ class Tests_Auth_OpenID_Link extends PHPUnit_TestCase {
 
     function runTest()
     {
-        $parsed = Auth_OpenID_parseLinkAttrs($this->markup);
+        $parsed = $this->parser->parseLinkAttrs($this->markup);
         $i = 0;
 
         foreach ($this->expected_links as $expected) {
