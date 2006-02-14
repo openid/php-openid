@@ -17,11 +17,11 @@
 /**
  * Required imports
  */
+require_once "Auth/OpenID.php";
 require_once "Auth/OpenID/Association.php";
 require_once "Auth/OpenID/CryptUtil.php";
 require_once "Auth/OpenID/DiffieHellman.php";
 require_once "Auth/OpenID/KVForm.php";
-require_once "Auth/OpenID/Util.php";
 require_once "Auth/OpenID/TrustRoot.php";
 require_once "Auth/OpenID/ServerRequest.php";
 
