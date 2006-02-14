@@ -435,7 +435,7 @@ explicitly');
             return;
         }
 
-        require_once 'Auth/OpenID/SQLStore.php';
+        require_once 'Auth/OpenID/SQLiteStore.php';
         require_once 'DB.php';
 
         $temp_dir = Auth_OpenID_FileStore::_mkdtemp('/tmp');
