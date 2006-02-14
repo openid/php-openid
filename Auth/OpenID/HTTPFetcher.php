@@ -13,9 +13,10 @@
  */
 
 /**
- * Require the parser.
+ * Require the parser and OpenID util functions.
  */
 require_once "Auth/OpenID/Parse.php";
+require_once "Auth/OpenID.php";
 
 /**
  * This is the status code beginAuth returns when it is unable to
@@ -123,7 +124,7 @@ class Auth_OpenID_HTTPFetcher {
      */
     function findIdentityInfo($identity_url)
     {
-        $url = Auth_OpenID_normalizeURL($identity_url);
+        $url = Auth_OpenID::normalizeURL($identity_url);
         $ret = @$this->get($url);
         if ($ret === null) {
             return array(Auth_OpenID_HTTP_FAILURE, null);

@@ -78,35 +78,35 @@ class Tests_Auth_OpenID_Util extends PHPUnit_TestCase {
     function test_normalizeUrl()
     {
         $this->assertEquals("http://foo.com/",
-                            Auth_OpenID_normalizeUrl("foo.com"));
+                            Auth_OpenID::normalizeUrl("foo.com"));
 
         $this->assertEquals("http://foo.com/",
-                            Auth_OpenID_normalizeUrl("http://foo.com"));
+                            Auth_OpenID::normalizeUrl("http://foo.com"));
 
         $this->assertEquals("https://foo.com/",
-                            Auth_OpenID_normalizeUrl("https://foo.com"));
+                            Auth_OpenID::normalizeUrl("https://foo.com"));
 
         $this->assertEquals("http://foo.com/bar",
-                            Auth_OpenID_normalizeUrl("foo.com/bar"));
+                            Auth_OpenID::normalizeUrl("foo.com/bar"));
 
         $this->assertEquals("http://foo.com/bar",
-                            Auth_OpenID_normalizeUrl("http://foo.com/bar"));
+                            Auth_OpenID::normalizeUrl("http://foo.com/bar"));
 
         $this->assertEquals("http://foo.com/",
-                            Auth_OpenID_normalizeUrl("http://foo.com/"));
+                            Auth_OpenID::normalizeUrl("http://foo.com/"));
 
         $this->assertEquals("https://foo.com/",
-                            Auth_OpenID_normalizeUrl("https://foo.com/"));
+                            Auth_OpenID::normalizeUrl("https://foo.com/"));
 
         $this->assertEquals("https://foo.com/bar" ,
-                            Auth_OpenID_normalizeUrl("https://foo.com/bar"));
+                            Auth_OpenID::normalizeUrl("https://foo.com/bar"));
 
         if (0) {
             $this->assertEquals("http://foo.com/%E8%8D%89",
-                             Auth_OpenID_normalizeUrl("foo.com/\u8349"));
+                           Auth_OpenID::normalizeUrl("foo.com/\u8349"));
 
             $this->assertEquals("http://foo.com/%E8%8D%89",
-                             Auth_OpenID_normalizeUrl("http://foo.com/\u8349"));
+                           Auth_OpenID::normalizeUrl("http://foo.com/\u8349"));
         }
 
         $non_ascii_domain_cases = array(
@@ -141,16 +141,16 @@ class Tests_Auth_OpenID_Util extends PHPUnit_TestCase {
 
     for expected, case in non_ascii_domain_cases:
 try:
-actual = Auth_OpenID_normalizeUrl(case)
+actual = Auth_OpenID::normalizeUrl(case)
          except UnicodeError:
             assert should_raise
     else:
 assert not should_raise and actual == expected, case
         */
 
-        $this->assertNull(Auth_OpenID_normalizeUrl(null));
-        $this->assertNull(Auth_OpenID_normalizeUrl(''));
-        $this->assertNull(Auth_OpenID_normalizeUrl('http://'));
+        $this->assertNull(Auth_OpenID::normalizeUrl(null));
+        $this->assertNull(Auth_OpenID::normalizeUrl(''));
+        $this->assertNull(Auth_OpenID::normalizeUrl('http://'));
     }
 
     function test_appendArgs()

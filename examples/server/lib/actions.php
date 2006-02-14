@@ -7,6 +7,8 @@ require_once "lib/render.php";
 require_once "lib/render/login.php";
 require_once "lib/render/sites.php";
 
+require_once "Auth/OpenID.php";
+
 /**
  * Handle a standard OpenID server request
  */
@@ -42,7 +44,7 @@ function login_checkInput($input)
     }
     if (count($errors) == 0) {
         $openid_url = $input['openid_url'];
-        $openid_url = Auth_OpenID_normalizeUrl($openid_url);
+        $openid_url = Auth_OpenID::normalizeUrl($openid_url);
         $password = $input['password'];
         if (!checkLogin($openid_url, $password)) {
             $errors[] = 'The entered password does not match the ' .
