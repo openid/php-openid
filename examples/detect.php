@@ -421,7 +421,7 @@ $body = '';
 $_file1 = include 'Auth/OpenID.php';
 $_file2 = include 'Auth/OpenID/BigMath.php';
 
-if (!($file1 && $file2)) {
+if (!($_file1 && $_file2)) {
     $path = ini_get('include_path');
     $body .= $r->p(
         'Cannot find the OpenID library. It must be in your PHP include ' .
