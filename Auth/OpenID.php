@@ -139,6 +139,26 @@ class Auth_OpenID {
             }
         }
     }
+
+    /**
+     * Convenience function for getting array values.
+     *
+     * @access private
+     */
+    function arrayGet($arr, $key, $fallback = null)
+    {
+        if (is_array($arr)) {
+            if (array_key_exists($key, $arr)) {
+                return $arr[$key];
+            } else {
+                return $fallback;
+            }
+        } else {
+            trigger_error("Auth_OpenID::arrayGet expected " .
+                          "array as first parameter", E_USER_WARNING);
+            return false;
+        }
+    }
 }
 
 ?>

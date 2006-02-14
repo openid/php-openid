@@ -510,13 +510,13 @@ class Auth_OpenID_Consumer {
     {
         $query = Auth_OpenID::fixArgs($query);
 
-        $mode = Auth_OpenID_arrayGet($query, 'openid.mode', '');
+        $mode = Auth_OpenID::arrayGet($query, 'openid.mode', '');
 
         if ($mode == 'cancel') {
             return array(Auth_OpenID_SUCCESS, null);
         } elseif ($mode == 'error') {
 
-            $error = Auth_OpenID_arrayGet($query, 'openid.error', null);
+            $error = Auth_OpenID::arrayGet($query, 'openid.error', null);
 
             if ($error !== null) {
                 trigger_error("In OpenID completeAuth: $error", E_USER_NOTICE);
@@ -545,9 +545,9 @@ class Auth_OpenID_Consumer {
 
         list($nonce, $consumer_id, $server_id, $server_url) = $ret;
 
-        $return_to = Auth_OpenID_arrayGet($query, 'openid.return_to', null);
-        $server_id2 = Auth_OpenID_arrayGet($query, 'openid.identity', null);
-        $assoc_handle = Auth_OpenID_arrayGet($query,
+        $return_to = Auth_OpenID::arrayGet($query, 'openid.return_to', null);
+        $server_id2 = Auth_OpenID::arrayGet($query, 'openid.identity', null);
+        $assoc_handle = Auth_OpenID::arrayGet($query,
                                              'openid.assoc_handle', null);
 
         if (($return_to === null) ||
@@ -560,7 +560,7 @@ class Auth_OpenID_Consumer {
             return array(Auth_OpenID_FAILURE, $consumer_id);
         }
 
-        $user_setup_url = Auth_OpenID_arrayGet($query,
+        $user_setup_url = Auth_OpenID::arrayGet($query,
                                                'openid.user_setup_url', null);
 
         if ($user_setup_url !== null) {
@@ -579,8 +579,8 @@ class Auth_OpenID_Consumer {
         }
 
         // Check the signature
-        $sig = Auth_OpenID_arrayGet($query, 'openid.sig', null);
-        $signed = Auth_OpenID_arrayGet($query, 'openid.signed', null);
+        $sig = Auth_OpenID::arrayGet($query, 'openid.sig', null);
+        $signed = Auth_OpenID::arrayGet($query, 'openid.signed', null);
         if (($sig === null) ||
             ($signed === null)) {
             return array(Auth_OpenID_FAILURE, $consumer_id);
@@ -605,7 +605,7 @@ class Auth_OpenID_Consumer {
      */
     function _checkAuth($nonce, $query, $server_url)
     {
-        $signed = Auth_OpenID_arrayGet($query, 'openid.signed', null);
+        $signed = Auth_OpenID::arrayGet($query, 'openid.signed', null);
         if ($signed === null) {
             return Auth_OpenID_FAILURE;
         }
@@ -632,10 +632,10 @@ class Auth_OpenID_Consumer {
         }
 
         $results = Auth_OpenID_KVForm::toArray($ret[2]);
-        $is_valid = Auth_OpenID_arrayGet($results, 'is_valid', 'false');
+        $is_valid = Auth_OpenID::arrayGet($results, 'is_valid', 'false');
 
         if ($is_valid == 'true') {
-            $invalidate_handle = Auth_OpenID_arrayGet($results,
+            $invalidate_handle = Auth_OpenID::arrayGet($results,
                                                       'invalidate_handle',
                                                       null);
             if ($invalidate_handle !== null) {
@@ -650,7 +650,7 @@ class Auth_OpenID_Consumer {
             return Auth_OpenID_SUCCESS;
         }
 
-        $error = Auth_OpenID_arrayGet($results, 'error', null);
+        $error = Auth_OpenID::arrayGet($results, 'error', null);
         if ($error !== null) {
             $msg = sprintf("Error message from server during " .
                            "check_authentication: %s", $error);
@@ -772,7 +772,7 @@ class Auth_OpenID_Consumer {
         list($http_code, $url, $data) = $ret;
         $results = Auth_OpenID_KVForm::toArray($data);
         if ($http_code == 400) {
-            $error = Auth_OpenID_arrayGet($results, 'error',
+            $error = Auth_OpenID::arrayGet($results, 'error',
                                            '<no message from server>');
 
             $fmt = 'Getting association: error returned from server %s: %s';
@@ -816,10 +816,10 @@ class Auth_OpenID_Consumer {
         }
 
         $assoc_handle = $results['assoc_handle'];
-        $expires_in = intval(Auth_OpenID_arrayGet($results, 'expires_in',
+        $expires_in = intval(Auth_OpenID::arrayGet($results, 'expires_in',
                              '0'));
 
-        $session_type = Auth_OpenID_arrayGet($results, 'session_type', null);
+        $session_type = Auth_OpenID::arrayGet($results, 'session_type', null);
         if ($session_type === null) {
             $secret = base64_decode($results['mac_key']);
         } else {

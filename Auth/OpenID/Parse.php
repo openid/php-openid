@@ -80,9 +80,9 @@
  */
 
 /**
- * Require Auth_OpenID_arrayGet.
+ * Require Auth_OpenID::arrayGet().
  */
-require_once "Util.php";
+require_once "Auth/OpenID.php";
 
 class Auth_OpenID_Parse {
 
@@ -252,7 +252,7 @@ class Auth_OpenID_Parse {
     {
         // Does this link have target_rel as a relationship?
         // XXX: TESTME
-        $rel_attr = Auth_OpeniD_arrayGet($link_attrs, 'rel', null);
+        $rel_attr = Auth_OpeniD::arrayGet($link_attrs, 'rel', null);
         return ($rel_attr && $this->relMatches($rel_attr,
                                                $target_rel));
     }
@@ -283,7 +283,7 @@ class Auth_OpenID_Parse {
             return null;
         }
         $first = $matches[0];
-        return Auth_OpenID_arrayGet($first, 'href', null);
+        return Auth_OpenID::arrayGet($first, 'href', null);
     }
 }
 

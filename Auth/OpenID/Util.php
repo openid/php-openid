@@ -21,26 +21,6 @@ $_Auth_OpenID_digits = "0123456789";
 $_Auth_OpenID_punct = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
 
 /**
- * Convenience function for getting array values.
- *
- * @access private
- */
-function Auth_OpenID_arrayGet($arr, $key, $fallback = null)
-{
-    if (is_array($arr)) {
-        if (array_key_exists($key, $arr)) {
-            return $arr[$key];
-        } else {
-            return $fallback;
-        }
-    } else {
-        trigger_error("Auth_OpenID_arrayGet expected " .
-                      "array as first parameter", E_USER_WARNING);
-        return false;
-    }
-}
-
-/**
  * Implements the PHP 5 'http_build_query' functionality.
  *
  * @access private
