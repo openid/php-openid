@@ -19,7 +19,7 @@
  * Require base class for creating a new interface.
  */
 require_once 'Auth/OpenID.php';
-require_once 'Auth/OpenID/Store/Interface.php';
+require_once 'Auth/OpenID/Interface.php';
 require_once 'Auth/OpenID/HMACSHA1.php';
 
 /**

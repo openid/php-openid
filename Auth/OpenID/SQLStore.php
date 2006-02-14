@@ -21,7 +21,7 @@ require_once 'DB.php';
 /**
  * @access private
  */
-require_once 'Auth/OpenID/Store/Interface.php';
+require_once 'Auth/OpenID/Interface.php';
 
 /**
  * This is the parent class for the SQL stores, which contains the

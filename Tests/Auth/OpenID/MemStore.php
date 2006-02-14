@@ -3,7 +3,7 @@
 /**
  * In-memory OpenID store implementation for testing only
  */
-require_once "Auth/OpenID/Store/Interface.php";
+require_once "Auth/OpenID/Interface.php";
 
 class Tests_Auth_OpenID_MemStore extends Auth_OpenID_OpenIDStore {
     var $assocs = null;

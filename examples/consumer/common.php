@@ -14,7 +14,7 @@ require_once "Auth/OpenID/Consumer.php";
  * Require the "file store" module, which we'll need to store OpenID
  * information.
  */
-require_once "Auth/OpenID/Store/FileStore.php";
+require_once "Auth/OpenID/FileStore.php";
 
 /**
  * This is where the example will store its OpenID information.  You

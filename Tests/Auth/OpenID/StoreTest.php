@@ -306,7 +306,7 @@ explicitly');
 
     function test_filestore()
     {
-        require_once 'Auth/OpenID/Store/FileStore.php';
+        require_once 'Auth/OpenID/FileStore.php';
 
         $temp_dir = Auth_OpenID_FileStore::_mkdtemp('/tmp');
 
@@ -333,7 +333,7 @@ explicitly');
             return;
         }
 
-        require_once 'Auth/OpenID/Store/SQLStore.php';
+        require_once 'Auth/OpenID/SQLStore.php';
         require_once 'DB.php';
 
         global $_Auth_OpenID_db_test_host;
@@ -435,7 +435,7 @@ explicitly');
             return;
         }
 
-        require_once 'Auth/OpenID/Store/SQLStore.php';
+        require_once 'Auth/OpenID/SQLStore.php';
         require_once 'DB.php';
 
         $temp_dir = Auth_OpenID_FileStore::_mkdtemp('/tmp');
@@ -472,7 +472,7 @@ explicitly');
             return;
         }
 
-        require_once 'Auth/OpenID/Store/SQLStore.php';
+        require_once 'Auth/OpenID/SQLStore.php';
         require_once 'DB.php';
 
         global $_Auth_OpenID_db_test_host;

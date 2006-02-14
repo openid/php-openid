@@ -36,7 +36,7 @@ require_once "Auth/OpenID/ServerRequest.php";
 class Auth_OpenID_Server {
 
     /**
-     * A store implementing the interface in Auth/OpenID/Store/Interface.php
+     * A store implementing the interface in Auth/OpenID/Interface.php
      */
     var $store;
 
