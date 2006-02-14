@@ -21,7 +21,6 @@
 require_once 'Auth/OpenID.php';
 require_once 'Auth/OpenID/Store/Interface.php';
 require_once 'Auth/OpenID/HMACSHA1.php';
-require_once 'Auth/OpenID/Util.php';
 
 /**
  * @access private
@@ -111,9 +110,8 @@ function Auth_OpenID_listdir($dir)
  */
 function Auth_OpenID_isFilenameSafe($char)
 {
-    global $_Auth_OpenID_letters, $_Auth_OpenID_digits;
-    $_Auth_OpenID_filename_allowed = $_Auth_OpenID_letters .
-        $_Auth_OpenID_digits . ".";
+    $_Auth_OpenID_filename_allowed = Auth_OpenID_letters .
+        Auth_OpenID_digits . ".";
     return (strpos($_Auth_OpenID_filename_allowed, $char) !== false);
 }
 

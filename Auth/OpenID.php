@@ -84,6 +84,18 @@ define('Auth_OpenID_DO_AUTH', 'do_auth');
 define('Auth_OpenID_DO_ABOUT', 'do_about');
 
 /**
+ * Defines for regexes and format checking.
+ */
+define('Auth_OpenID_letters',
+       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+define('Auth_OpenID_digits',
+       "0123456789");
+
+define('Auth_OpenID_punct',
+       "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~");
+
+/**
  * The OpenID utility function class.
  *
  * @package OpenID

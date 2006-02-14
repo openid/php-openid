@@ -15,13 +15,10 @@
  */
 
 /**
- * Includes for utility functions.
- */
-require_once 'Auth/OpenID/Util.php';
-/**
  * @access private
  */
 require_once 'Auth/OpenID/CryptUtil.php';
+
 /**
  * @access private
  */

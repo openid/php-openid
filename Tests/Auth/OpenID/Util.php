@@ -14,7 +14,6 @@
  */
 
 require_once 'PHPUnit.php';
-require_once 'Auth/OpenID/Util.php';
 require_once 'Auth/OpenID.php';
 
 class Tests_Auth_OpenID_Util extends PHPUnit_TestCase {

@@ -18,7 +18,6 @@
  */
 require_once 'Auth/OpenID/Association.php';
 require_once 'Auth/OpenID/CryptUtil.php';
-require_once 'Auth/OpenID/Util.php';
 require_once 'PHPUnit.php';
 
 /**
@@ -55,12 +54,9 @@ class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
      */
     function setUp()
     {
-        global $_Auth_OpenID_letters, $_Auth_OpenID_digits,
-            $_Auth_OpenID_punct;
-
-        $this->letters = $_Auth_OpenID_letters;
-        $this->digits = $_Auth_OpenID_digits;
-        $this->punct = $_Auth_OpenID_punct;
+        $this->letters = Auth_OpenID_letters;
+        $this->digits = Auth_OpenID_digits;
+        $this->punct = Auth_OpenID_punct;
         $this->allowed_nonce = $this->letters . $this->digits;
         $this->allowed_handle = $this->letters . $this->digits . $this->punct;
     }
