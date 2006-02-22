@@ -1,15 +1,88 @@
-This is the PHP OpenID library.
+
+PHP OpenID
+----------
+
+This is the PHP OpenID library by JanRain, Inc.  You can visit our
+website for more information about this package and other OpenID
+implementations and tools:
+
+  http://www.openidenabled.com/
+
+INSTALLATION
+============
+
+Follow these steps:
+
+1. Install dependencies.
+
+   - Enable either the GMP extension or Bcmath extension. (GMP is
+     STRONGLY recommended because it's MUCH faster!)
+
+   - If you plan to use SQLite, PostgreSQL, or MySQL to store OpenID
+     data, you'll need PEAR DB.  You can install this by running this
+     as root:
+
+     # pear install DB
+
+     You'll also need to install and enable the appropriate PHP
+     database extension.  Alternatively, you can store OpenID data on
+     the filesystem instead of using a relational database.  Nothing
+     special is required for using the filesystem method.
+
+2. Copy the Auth/ directory into your PHP include path.
+
+TESTING YOUR SETUP
+==================
+
+We recommend that you use our example code to test your setup.  To run
+the example consumer, follow these steps:
+
+1. Check to be sure that /tmp is in your "open_basedir" configuration,
+   if open_basedir is being used to restrict PHP's file I/O.  See
+   http://us2.php.net/features.safe-mode for more information.  For
+   example, in your php.ini, change
+
+   open_basedir = "..."
+
+   to
+
+   open_basedir = "/tmp:..."
+
+   (If you really don't want to add /tmp to your open_basedir, you can
+   modify examples/consumer/common.php and change $store_path so it
+   doesn't create the store directory in /tmp.)
+
+2. Copy or symlink the examples/consumer directory into a part of your
+   webserver's docroot.  For example, if your DocumentRoot is
+   /var/www/, do this:
+
+   # cd /var/www
+   # ln -s /path/to/PHP-OpenID-X.Y.Z/examples/consumer consumer
+
+3. Navigate to http://www.example.com/consumer and enter an OpenID
+   into the form presented there and click "Verify".
+
+USING THE API
+=============
+
+The best way to get started using the API is to take a look at the
+example consumer and server in the examples/ directory.  See the
+examples/README file for more details.
+
+GETTING HELP
+============
+
+If you have any questions, recommendations, or patches, please tell
+us!  Subscribe to our OpenID development discussion list at
+
+  http://lists.openidenabled.com/mailman/listinfo/dev
 
 DOCUMENTATION
 =============
 
-This library's code documentation strives to conform to the PEAR
-standard, detailed at:
-
-  http://www.pear.php.net/manual/en/standards.header.php
-
-The directives found in the documentation blocks are phpDocumentor
-directives:
+This package's documentation is in PhpDoc format.  To generate the
+documentation, install phpdoc and run the admin/makedoc.sh script.
+Phpdoc lives at:
 
   http://www.phpdoc.org/
 
