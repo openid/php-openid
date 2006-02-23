@@ -14,7 +14,7 @@ define('about_body',
        '<p>
   This is an <a href="http://www.openid.net/">OpenID</a> server
   endpoint. This server is built on the <a
-  href="http://www.openidenabled.com/libraries/php">JanRain PHP OpenID
+  href="http://www.openidenabled.com/openid/libraries/php">JanRain PHP OpenID
   library</a>. Since OpenID consumer sites will need to directly contact this
   server, it must be accessible over the Internet (not behind a firewall).
 </p>
