@@ -49,12 +49,18 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
         $this->data = "";
     }
 
+    /**
+     * @access private
+     */
     function _writeHeader($ch, $header)
     {
         array_push($this->headers, rtrim($header));
         return strlen($header);
     }
 
+    /**
+     * @access private
+     */
     function _writeData($ch, $data)
     {
         $this->data .= $data;
