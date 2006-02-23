@@ -38,6 +38,10 @@ $server_url = false;
  */
 function getOpenIDStore()
 {
+    // Example for using a FileStore:
+    //
+    // require_once "Auth/OpenID/FileStore.php";
+    // return new Auth_OpenID_FileStore("/tmp/_server_test_store");
     return false;
 }
 
@@ -50,6 +54,11 @@ function getOpenIDStore()
  *
  * This must be set for the server to be usable. If it is not set, no
  * users will be able to log in.
+ *
+ * Example:
+ * $openid_users = array(
+ *                    'http://joe.example.com/' => sha1('foo')
+ *                      )
  */
 $openid_users = false;
 
