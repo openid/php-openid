@@ -8,6 +8,10 @@ can do, and you can use them as the basis for your own OpenID support.
 consumer/: OpenID Example Consumer
 ==================================
 
+NOTE: If you want to try the example consumer without installing this
+package, just make sure you add the package's 'Auth' directory to your
+PHP include path.
+
 To try the example consumer implementation, just copy the consumer/
 directory into a place on your web server and point your browser at
 the new directory.
@@ -113,6 +117,6 @@ to make them easier to use.
 
   lib/render.php - Miscellaneous page rendering code.
 
-  lib/session.php - More miscellaneous page rendering code.
+  lib/session.php - Code to handle session data for user settings.
 
   lib/render/*.php - Files for each page presented by the server.

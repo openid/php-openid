@@ -35,8 +35,8 @@ TESTING YOUR SETUP
 ==================
 
 We recommend that you use our example code to test your setup.  To run
-the example consumer, follow the instructions in the examples/README
-file.
+the example consumer or server, follow the instructions in the
+examples/README file.
 
 USING THE API
 =============
