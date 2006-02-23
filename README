@@ -35,32 +35,8 @@ TESTING YOUR SETUP
 ==================
 
 We recommend that you use our example code to test your setup.  To run
-the example consumer, follow these steps:
-
-1. Check to be sure that /tmp is in your "open_basedir" configuration,
-   if open_basedir is being used to restrict PHP's file I/O.  See
-   http://us2.php.net/features.safe-mode for more information.  For
-   example, in your php.ini, change
-
-   open_basedir = "..."
-
-   to
-
-   open_basedir = "/tmp:..."
-
-   (If you really don't want to add /tmp to your open_basedir, you can
-   modify examples/consumer/common.php and change $store_path so it
-   doesn't create the store directory in /tmp.)
-
-2. Copy or symlink the examples/consumer directory into a part of your
-   webserver's docroot.  For example, if your DocumentRoot is
-   /var/www/, do this:
-
-   # cd /var/www
-   # ln -s /path/to/PHP-OpenID-X.Y.Z/examples/consumer consumer
-
-3. Navigate to http://www.example.com/consumer and enter an OpenID
-   into the form presented there and click "Verify".
+the example consumer, follow the instructions in the examples/README
+file.
 
 USING THE API
 =============
