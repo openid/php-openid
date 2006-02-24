@@ -364,8 +364,7 @@ function generate_config() {
 <h2>OpenID Server Configuration</h2>
 
 <p>
-Put this text into a config file called <strong>config.php</strong>
-and put it in the server example directory alongside server.php.
+Put the following text into <strong><? print dirname(__FILE__); print DIRECTORY_SEPARATOR; ?>config.php</strong>.
 </p>
 
 <p>
