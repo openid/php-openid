@@ -25,6 +25,8 @@ $store_types = array("Filesystem" => "Auth_OpenID_FileStore",
  * Main.
  */
 
+$messages = array();
+
 session_start();
 init_session();
 
@@ -38,7 +40,62 @@ if (!check_session()) {
  * Functions.
  */
 
+function check_url($url) {
+    $p = parse_url($url);
+
+    if ($p === false) {
+        return false;
+    }
+
+    if (!array_key_exists('host', $p)) {
+        return false;
+    }
+
+    return true;
+}
+
 function check_session() {
+
+    global $messages;
+
+    if ($_GET && isset($_GET['clear'])) {
+        session_destroy();
+        $_SESSION = array();
+        init_session();
+        return false;
+    }
+
+    if (isset($_GET['generate'])) {
+        if (!$_SESSION['server_url']) {
+            $messages[] = "Please enter a server URL.";
+        }
+
+        if (!$_SESSION['store_type']) {
+            $messages[] = "No store type chosen.";
+        } else {
+            switch ($_SESSION['store_type']) {
+            case "Filesystem":
+                if (!$_SESSION['store_data']['fs_path']) {
+                    $messages[] = "Please specify a filesystem store path.";
+                }
+                break;
+
+            case "SQLite":
+                if (!$_SESSION['store_data']['sqlite_path']) {
+                    $messages[] = "Please specify a SQLite database path.";
+                }
+                break;
+
+            default:
+                if (!($_SESSION['store_data']['host'] &&
+                      $_SESSION['store_data']['database'] &&
+                      $_SESSION['store_data']['username'] &&
+                      $_SESSION['store_data']['password'])) {
+                    $messages[] = "Please specify database connection details.";
+                }
+            }
+        }
+    }
 
     if ($_SESSION['store_type'] &&
         $_SESSION['server_url'] &&
@@ -51,6 +108,7 @@ function check_session() {
           $_SESSION['store_data']['username'] &&
           $_SESSION['store_data']['database'] &&
           $_SESSION['store_data']['password']))) {
+
         return true;
     }
 
@@ -59,8 +117,7 @@ function check_session() {
 
 function render_form() {
 
-    global $store_types;
-    global $fields;
+    global $store_types, $fields, $messages;
 
     $basedir_msg = "";
 
@@ -106,11 +163,26 @@ div.store_fields > div > div {
     margin-left: 0.4in;
 }
 
+div.errors {
+ background: #faa;
+ border: 1px solid red;
+}
+
 </style>
 </head>
 <body>
 
 <h2>OpenID Server Configuration</h2>
+
+<?
+if ($messages) {
+    print "<div class=\"errors\">";
+    foreach ($messages as $m) {
+        print "<div>$m</div>";
+    }
+    print "</div>";
+}
+?>
 
 <p>
 This form will auto-generate an OpenID server configuration
@@ -164,11 +236,61 @@ for use with the OpenID server example.
         <label for="i_m_password" class="field">Password:</label><input type="password" name="password" id="i_m_password" value="<? print $_SESSION['store_data']['password']; ?>">
       </div>
     </div>
+</div>
+</div>
+<div>
+  <span class="label">OpenID URLs to serve:</span>
+
+  <div class="store_fields">
+<?
+if ($_SESSION['users']) {
+    print "<div><table><tr><th>OpenID URL</th><th>Password Hash</th></tr>";
+    foreach ($_SESSION['users'] as $url => $p) {
+        print "<tr><td>".$url."</td><td>".$p."</td></tr>";
+    }
+    print "</table></div>";
+}
+?>
+   <div>
+        <span>Add an OpenID:</span>
+    <div>
+      <label for="i_add_user" class="field">OpenID URL:</label><input type="text" name="openid_url" id="i_add_user">
+    </div>
+    <div>
+      <label for="i_p1" class="field">Password:</label><input type="password" name="p1" id="i_p1">
+    </div>
+    <div>
+      <label for="i_p2" class="field">Password (confirm):</label><input type="password" name="p2" id="i_p2">
+    </div>
+   </div>
 
   </div>
 </div>
 
-<input type="submit" value="Generate Configuration">
+<div>
+  <span class="label">Trusted sites:</span>
+
+  <div class="store_fields">
+<?
+if ($_SESSION['trust_roots']) {
+    print "<div><table><tr><th>Trusted site URL</th></tr>";
+    foreach ($_SESSION['trust_roots'] as $url) {
+        print "<tr><td>".$url."</td></tr>";
+    }
+    print "</table></div>";
+}
+?>
+   <div>
+    <span>Add a trusted site:</span>
+    <div>
+      <label for="i_tr" class="field">Trusted site URL:</label><input type="text" name="trust_root" id="i_tr">
+    </div>
+   </div>
+
+  </div>
+</div>
+
+<input type="submit" name="generate" value="Generate Configuration">
 </form>
 </body>
 </html>
@@ -176,6 +298,9 @@ for use with the OpenID server example.
 }
 
 function init_session() {
+
+    global $messages;
+
     foreach (array('server_url', 'include_path', 'store_type') as $key) {
         if (!isset($_SESSION[$key])) {
             $_SESSION[$key] = "";
@@ -184,6 +309,14 @@ function init_session() {
 
     if (!isset($_SESSION['store_data'])) {
         $_SESSION['store_data'] = array();
+    }
+
+    if (!isset($_SESSION['users'])) {
+        $_SESSION['users'] = array();
+    }
+
+    if (!isset($_SESSION['trust_roots'])) {
+        $_SESSION['trust_roots'] = array();
     }
 
     foreach (array('server_url', 'include_path', 'store_type') as $field) {
@@ -196,6 +329,30 @@ function init_session() {
         if (array_key_exists($field, $_GET)) {
             $_SESSION['store_data'][$field] = $_GET[$field];
         }
+    }
+
+    if ($_GET &&
+        isset($_GET['openid_url']) &&
+        isset($_GET['p1']) &&
+        isset($_GET['p2']) &&
+        $_GET['p1'] == $_GET['p2'] &&
+        $_GET['p1']) {
+
+        if (check_url($_GET['openid_url'])) {
+            $_SESSION['users'][$_GET['openid_url']] = sha1($_GET['p1']);
+        } else {
+            $messages[] = "Cannot add OpenID URL; '".$_GET['openid_url']."' doesn't look like a URL.";
+        }
+
+    } else if ($_GET &&
+               isset($_GET['trust_root']) &&
+               $_GET['trust_root']) {
+        if (!in_array($_GET['trust_root'], $_SESSION['trust_roots'])) {
+            $_SESSION['trust_roots'][] = $_GET['trust_root'];
+        }
+    } else if ($_GET &&
+               isset($_GET['del_user'])) {
+        unset($_SESSION['users'][$_GET['del_user']]);
     }
 }
 
@@ -211,19 +368,11 @@ Put this text into a config file called <strong>config.php</strong>
 and put it in the server example directory alongside server.php.
 </p>
 
-<pre style="border: 1px solid gray; background: #eee; padding: 5px;">
-/**
- * OpenID server example settings
- *
- * The variables in this file must be customized before you can use
- * the server.
- *
- * @package OpenID.Examples
- * @author JanRain, Inc. <openid@janrain.com>
- * @copyright 2005 Janrain, Inc.
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
- */
+<p>
+<a href="setup.php?clear=1">Back to form</a>
+</p>
 
+<pre style="border: 1px solid gray; background: #eee; padding: 5px;">
 <? if ($_SESSION['include_path']) { ?>
 /**
  * Set any extra include paths needed to use the library
@@ -333,7 +482,18 @@ function getOpenIDStore()
  *                    'http://joe.example.com/' => sha1('foo')
  *                      )
  */
-$openid_users = array();
+$openid_users = array(<?
+$i = 0;
+foreach ($_SESSION['users'] as $url => $hash) {
+    $i++;
+    print "\n    '$url' => '$hash'";
+    if ($i < count($_SESSION['users'])) {
+        print ",";
+    }
+}
+?>
+
+);
 
 /**
  * Trusted sites is an array of trust roots.
@@ -343,7 +503,18 @@ $openid_users = array();
  *
  * In a more robust server, this site should be a per-user setting.
  */
-$trusted_sites = array();
+$trusted_sites = array(<?
+$i = 0;
+foreach ($_SESSION['trust_roots'] as $url) {
+    $i++;
+    print "\n    '$url'";
+    if ($i < count($_SESSION['trust_roots'])) {
+        print ",";
+    }
+}
+?>
+
+);
 </pre>
 </body>
 </html>
