@@ -67,6 +67,25 @@ function build_url() {
     }
 }
 
+function check_open_basedir($path) {
+  if (ini_get('open_basedir')) {
+    $parts = explode(PATH_SEPARATOR, ini_get('open_basedir'));
+
+    $found = false;
+
+    foreach ($parts as $p) {
+      if (strpos($path, $p) === 0) {
+        $found = true;
+        break;
+      }
+    }
+
+    return $found;
+  } else {
+    return true;
+  }
+}
+
 function check_session() {
 
     global $messages;
@@ -77,6 +96,8 @@ function check_session() {
         init_session();
         return false;
     }
+
+    $bad_path = false;
 
     if (isset($_GET['generate'])) {
         if (!$_SESSION['server_url']) {
@@ -90,12 +111,22 @@ function check_session() {
             case "Filesystem":
                 if (!$_SESSION['store_data']['fs_path']) {
                     $messages[] = "Please specify a filesystem store path.";
+                } else {
+                  if (!check_open_basedir($_SESSION['store_data']['fs_path'])) {
+                    $messages[] = "The filesystem store path violates PHP's <code>open_basedir</code> setting.";
+                    $bad_path = true;
+                  }
                 }
                 break;
 
             case "SQLite":
                 if (!$_SESSION['store_data']['sqlite_path']) {
                     $messages[] = "Please specify a SQLite database path.";
+                } else {
+                  if (!check_open_basedir($_SESSION['store_data']['sqlite_path'])) {
+                    $messages[] = "The SQLite store path violates PHP's <code>open_basedir</code> setting.";
+                    $bad_path = true;
+                  }
                 }
                 break;
 
@@ -120,7 +151,8 @@ function check_session() {
          ($_SESSION['store_data']['host'] &&
           $_SESSION['store_data']['username'] &&
           $_SESSION['store_data']['database'] &&
-          $_SESSION['store_data']['password']))) {
+          $_SESSION['store_data']['password'])) &&
+        !$bad_path) {
 
         return true;
     }
@@ -136,7 +168,7 @@ function render_form() {
 
     if (ini_get('open_basedir')) {
         $basedir_msg = "</br><span class=\"notice\">Note: Due to the ".
-            "<strong>open_basedir</strong> setting, be sure to ".
+            "<code>open_basedir</code> php.ini setting, be sure to ".
             "choose a path in one of the following directories:<ul><li>".
             implode("<li>",
                     explode(PATH_SEPARATOR, ini_get('open_basedir'))).
@@ -236,7 +268,8 @@ for use with the OpenID server example.
 <div>
 
   <p>
-  The server URL is the URL that points to the "server.php" file.
+  The server URL is the URL that points to the "server.php" file.  It
+  looks like your server URL should be <code><? print build_url(); ?></code>.
   </p>
 
   <span class="label"><label for="i_server_url">Server URL:</label></span>
