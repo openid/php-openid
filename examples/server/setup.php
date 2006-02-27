@@ -143,6 +143,24 @@ function render_form() {
             "</ul></span>";
     }
 
+    $sqlite_found = false;
+    if (extension_loaded('sqlite') ||
+        @dl('sqlite.' . PHP_SHLIB_SUFFIX)) {
+      $sqlite_found = true;
+    }
+
+    $mysql_found = false;
+    if (extension_loaded('mysql') ||
+        @dl('mysql.' . PHP_SHLIB_SUFFIX)) {
+      $mysql_found = true;
+    }
+
+    $pgsql_found = false;
+    if (extension_loaded('pgsql') ||
+        @dl('pgsql.' . PHP_SHLIB_SUFFIX)) {
+      $pgsql_found = true;
+    }
+
 ?>
 <html>
   <head>
@@ -205,6 +223,7 @@ if ($messages) {
         print "<div>$m</div>";
     }
     print "</div>";
+
 }
 ?>
 
@@ -248,7 +267,7 @@ for use with the OpenID server example.
 
   <p>
   The server needs to store OpenID information in a "store".  The
-  following store types are available:
+  following store types are available on your PHP installation:
   </p>
 
   <span class="label">Store method:</span>
@@ -266,6 +285,7 @@ for use with the OpenID server example.
       </div>
     </div>
 
+<? if ($sqlite_found) { ?>
     <div>
       <input type="radio" name="store_type" value="SQLite"
        id="i_sqlite"<? if ($_SESSION['store_type'] == 'SQLite') { print " CHECKED"; } ?>>
@@ -277,14 +297,23 @@ for use with the OpenID server example.
         <? print $basedir_msg; ?>
       </div>
     </div>
+<? } ?>
 
+
+<? if ($mysql_found || $pgsql_found) { ?>
     <div>
+
+<? if ($mysql_found) { ?>
       <input type="radio" name="store_type" value="MySQL"
        id="i_mysql"<? if ($_SESSION['store_type'] == 'MySQL') { print " CHECKED"; } ?>>
       <label for="i_mysql">MySQL</label>
+<? } ?>
+
+<? if ($pgsql_found) { ?>
       <input type="radio" name="store_type" value="PostgreSQL"
        id="i_pgsql"<? if ($_SESSION['store_type'] == 'PostgreSQL') { print " CHECKED"; } ?>>
       <label for="i_pgsql">PostgreSQL</label>
+<? } ?>
 
       <div>
         <label for="i_m_host" class="field">Host:</label>
@@ -303,6 +332,7 @@ for use with the OpenID server example.
         <input type="password" name="password" id="i_m_password" value="<? print $_SESSION['store_data']['password']; ?>">
       </div>
     </div>
+<? } ?>
 </div>
 </div>
 <div>
