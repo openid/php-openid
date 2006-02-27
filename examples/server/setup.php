@@ -489,11 +489,13 @@ function getOpenIDStore()
     switch ($_SESSION['store_type']) {
     case "Filesystem":
 
+        print "require_once \"Auth/OpenID/FileStore.php\";\n    ";
         print "return new Auth_OpenID_FileStore(\"".$_SESSION['store_data']['fs_path']."\");\n";
         break;
 
     case "SQLite":
 
+        print "require_once \"Auth/OpenID/SQLiteStore.php\";\n    ";
         print "return new Auth_OpenID_SQLiteStore(\"".$_SESSION['store_data']['sqlite_path']."\");\n";
         break;
 
