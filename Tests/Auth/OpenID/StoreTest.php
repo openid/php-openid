@@ -374,8 +374,8 @@ explicitly');
         }
 
         if (!$success) {
-            $this->fail("Temporary database creation failed ".
-                        "('$temp_db_name'): " . $result->getMessage());
+            $this->fail("Temporary database creation failed after $failures ".
+                        " tries ('$temp_db_name'): " . $result->getMessage());
             return;
         }
 
