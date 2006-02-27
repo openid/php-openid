@@ -54,6 +54,19 @@ function check_url($url) {
     return true;
 }
 
+function build_url() {
+    $port = (($_SERVER['SERVER_PORT'] == 80) ? null : $_SERVER['SERVER_PORT']);
+
+    $parts = explode("/", $_SERVER['SERVER_PROTOCOL']);
+    $scheme = strtolower($parts[0]);
+
+    if ($port) {
+        return sprintf("%s://%s:%s%s/server.php", $scheme, $_SERVER['SERVER_NAME'], $port, dirname($_SERVER['PHP_SELF']));
+    } else {
+        return sprintf("%s://%s%s/server.php", $scheme, $_SERVER['SERVER_NAME'], dirname($_SERVER['PHP_SELF']));
+    }
+}
+
 function check_session() {
 
     global $messages;
@@ -122,12 +135,12 @@ function render_form() {
     $basedir_msg = "";
 
     if (ini_get('open_basedir')) {
-        $basedir_msg = "</br><font color='red'>Note: Due to the ".
+        $basedir_msg = "</br><span class=\"notice\">Note: Due to the ".
             "<strong>open_basedir</strong> setting, be sure to ".
             "choose a path in:<ul><li>".
             implode("<li>",
                     explode(PATH_SEPARATOR, ini_get('open_basedir'))).
-            "</ul></font>";
+            "</ul></span>";
     }
 
 ?>
@@ -137,6 +150,17 @@ function render_form() {
 span.label {
  float: left;
  width: 2in;
+}
+
+span.notice {
+ color: red;
+ font-size: 80%;
+}
+
+div p {
+    border-top: 1px solid black;
+    font-style: italic;
+    padding-top: 0.5em;
 }
 
 div {
@@ -191,54 +215,102 @@ for use with the OpenID server example.
 
 <form>
 <div>
+
+  <p>
+  The server URL is the URL that points to the "server.php" file.
+  </p>
+
   <span class="label"><label for="i_server_url">Server URL:</label></span>
-  <span><input type="text" id="i_server_url" size="35" name="server_url" value="<? print $_SESSION['server_url'] ?>"></span>
+  <span>
+    <input type="text" id="i_server_url" size="35" name="server_url"
+     value="<? print $_SESSION['server_url'] ?>">
+  </span>
 </div>
+
 <div>
-  <span class="label"><label for="i_include_path">Include path (optional):</label></span>
-  <span><input type="text" id="i_include_path" size="35" name="include_path" value="<? print $_SESSION['include_path'] ?>"></span>
+
+  <p>
+  If this package isn't installed in the PHP include path, the package's
+  directory should be added.  For example, if the package is in
+  <code>/home/me/PHP-OpenID/</code>, you should enter that directory here.
+  </p>
+
+  <span class="label">
+    <label for="i_include_path">Include path (optional):</label>
+  </span>
+  <span>
+    <input type="text" id="i_include_path" size="35" name="include_path"
+     value="<? print $_SESSION['include_path'] ?>">
+  </span>
 </div>
+
 <div>
+
+  <p>
+  The server needs to store OpenID information in a "store".  The
+  following store types are available:
+  </p>
+
   <span class="label">Store method:</span>
   <div class="store_fields">
 
     <div>
-      <input type="radio" name="store_type" value="Filesystem" id="i_filesystem"<? if ($_SESSION['store_type'] == 'Filesystem') { print " CHECKED"; } ?>> <label for="i_filesystem">Filesystem</label>
+      <input type="radio" name="store_type" value="Filesystem"
+       id="i_filesystem"<? if ($_SESSION['store_type'] == 'Filesystem') { print " CHECKED"; } ?>>
+      <label for="i_filesystem">Filesystem</label>
       <div>
         <label for="i_fs_path" class="field">Filesystem path:</label>
-        <input type="text" name="fs_path" id="i_fs_path" value="<? print $_SESSION['store_data']['fs_path']; ?>">
+        <input type="text" name="fs_path" id="i_fs_path"
+         value="<? print $_SESSION['store_data']['fs_path']; ?>">
         <? print $basedir_msg; ?>
       </div>
     </div>
 
     <div>
-      <input type="radio" name="store_type" value="SQLite" id="i_sqlite"<? if ($_SESSION['store_type'] == 'SQLite') { print " CHECKED"; } ?>> <label for="i_sqlite">SQLite</label>
+      <input type="radio" name="store_type" value="SQLite"
+       id="i_sqlite"<? if ($_SESSION['store_type'] == 'SQLite') { print " CHECKED"; } ?>>
+      <label for="i_sqlite">SQLite</label>
       <div>
-        <label for="i_sqlite_path" class="field">SQLite database path:</label><input type="text" value="<? print $_SESSION['store_data']['sqlite_path']; ?>" name="sqlite_path" id="i_sqlite_path">
+        <label for="i_sqlite_path" class="field">SQLite database path:</label>
+        <input type="text" value="<? print $_SESSION['store_data']['sqlite_path']; ?>"
+         name="sqlite_path" id="i_sqlite_path">
         <? print $basedir_msg; ?>
       </div>
     </div>
 
     <div>
-      <input type="radio" name="store_type" value="MySQL" id="i_mysql"<? if ($_SESSION['store_type'] == 'MySQL') { print " CHECKED"; } ?>> <label for="i_mysql">MySQL</label>
-      <input type="radio" name="store_type" value="PostgreSQL" id="i_pgsql"<? if ($_SESSION['store_type'] == 'PostgreSQL') { print " CHECKED"; } ?>> <label for="i_pgsql">PostgreSQL</label>
+      <input type="radio" name="store_type" value="MySQL"
+       id="i_mysql"<? if ($_SESSION['store_type'] == 'MySQL') { print " CHECKED"; } ?>>
+      <label for="i_mysql">MySQL</label>
+      <input type="radio" name="store_type" value="PostgreSQL"
+       id="i_pgsql"<? if ($_SESSION['store_type'] == 'PostgreSQL') { print " CHECKED"; } ?>>
+      <label for="i_pgsql">PostgreSQL</label>
 
       <div>
-        <label for="i_m_host" class="field">Host:</label><input type="text" value="<? print $_SESSION['store_data']['host']; ?>" name="host" id="i_m_host">
+        <label for="i_m_host" class="field">Host:</label>
+        <input type="text" value="<? print $_SESSION['store_data']['host']; ?>" name="host" id="i_m_host">
       </div>
       <div>
-        <label for="i_m_database" class="field">Database:</label><input value="<? print $_SESSION['store_data']['database']; ?>" type="text" name="database" id="i_m_database">
+        <label for="i_m_database" class="field">Database:</label>
+        <input value="<? print $_SESSION['store_data']['database']; ?>" type="text" name="database" id="i_m_database">
       </div>
       <div>
-        <label for="i_m_username" class="field">Username:</label><input type="text" name="username" id="i_m_username" value="<? print $_SESSION['store_data']['username']; ?>">
+        <label for="i_m_username" class="field">Username:</label>
+        <input type="text" name="username" id="i_m_username" value="<? print $_SESSION['store_data']['username']; ?>">
       </div>
       <div>
-        <label for="i_m_password" class="field">Password:</label><input type="password" name="password" id="i_m_password" value="<? print $_SESSION['store_data']['password']; ?>">
+        <label for="i_m_password" class="field">Password:</label>
+        <input type="password" name="password" id="i_m_password" value="<? print $_SESSION['store_data']['password']; ?>">
       </div>
     </div>
 </div>
 </div>
 <div>
+
+  <p>
+  Your OpenID server will need to know what URLs it can authenticate.  Supply URLs and passwords here.
+  </p>
+
   <span class="label">OpenID URLs to serve:</span>
 
   <div class="store_fields">
@@ -268,6 +340,11 @@ if ($_SESSION['users']) {
 </div>
 
 <div>
+
+  <p>
+  Your OpenID server can be configured to trust a set of sites by default.  Enter those here.
+  </p>
+
   <span class="label">Trusted sites:</span>
 
   <div class="store_fields">
@@ -300,6 +377,11 @@ if ($_SESSION['trust_roots']) {
 function init_session() {
 
     global $messages;
+
+    // Set a guess value for the server url.
+    if (!array_key_exists('server_url', $_SESSION)) {
+        $_SESSION['server_url'] = build_url();
+    }
 
     foreach (array('server_url', 'include_path', 'store_type') as $key) {
         if (!isset($_SESSION[$key])) {
