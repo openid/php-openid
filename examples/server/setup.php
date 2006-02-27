@@ -137,7 +137,7 @@ function render_form() {
     if (ini_get('open_basedir')) {
         $basedir_msg = "</br><span class=\"notice\">Note: Due to the ".
             "<strong>open_basedir</strong> setting, be sure to ".
-            "choose a path in:<ul><li>".
+            "choose a path in one of the following directories:<ul><li>".
             implode("<li>",
                     explode(PATH_SEPARATOR, ini_get('open_basedir'))).
             "</ul></span>";
@@ -196,7 +196,7 @@ div.errors {
 </head>
 <body>
 
-<h2>OpenID Server Configuration</h2>
+<h2>OpenID Example Server Configuration</h2>
 
 <?
 if ($messages) {
@@ -209,7 +209,7 @@ if ($messages) {
 ?>
 
 <p>
-This form will auto-generate an OpenID server configuration
+This form will auto-generate an OpenID example server configuration
 for use with the OpenID server example.
 </p>
 
@@ -443,7 +443,7 @@ function generate_config() {
 <html>
 <body>
 
-<h2>OpenID Server Configuration</h2>
+<h2>OpenID Example Server Configuration</h2>
 
 <p>
 Put the following text into <strong><? print dirname(__FILE__); print DIRECTORY_SEPARATOR; ?>config.php</strong>.
