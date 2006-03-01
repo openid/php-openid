@@ -37,12 +37,16 @@ require_once 'Auth/OpenID/Interface.php';
  *
  * This class shouldn't be used directly.  Use one of its subclasses
  * instead, as those contain the code necessary to use a specific
- * database.
+ * database.  If you're an OpenID integrator and you'd like to create
+ * an SQL-driven store that wraps an application's database
+ * abstraction, be sure to create a subclass of
+ * {@link Auth_OpenID_DatabaseConnection} that calls the application's
+ * database abstraction calls.  Then, pass an instance of your new
+ * database connection class to your SQLStore subclass constructor.
  *
  * All methods other than the constructor and createTables should be
  * considered implementation details.
  *
- * @access private
  * @package OpenID
  */
 class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {

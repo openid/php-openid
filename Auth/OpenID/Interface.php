@@ -17,7 +17,8 @@
  * This is the interface for the store objects the OpenID library
  * uses. It is a single class that provides all of the persistence
  * mechanisms that the OpenID library needs, for both servers and
- * consumers.
+ * consumers.  If you want to create an SQL-driven store, please see
+ * then {@link Auth_OpenID_SQLStore} class.
  *
  * @package OpenID
  * @author JanRain, Inc. <openid@janrain.com>
