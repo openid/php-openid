@@ -35,14 +35,26 @@
   <refsect2 id="{@id users}">
    <title>For Package Users</title>
 
-   <para></para>
+   <para>
+    To install this package, copy the <literal>Auth/</literal>
+    directory in this package to a directory in your PHP include path.
+    Alternatively, modify your PHP include path to include the
+    directory that contains <literal>Auth/</literal>.
+  </para>
 
   </refsect2>
 
   <refsect2 id="{@id developers}">
    <title>For Developers</title>
 
-   <para></para>
+   <para>
+
+    See the server and consumer examples in the
+    <literal>examples/</literal> directory of the package.  For
+    details on how to run the examples, see
+    <literal>examples/README</literal>.
+
+   </para>
 
   </refsect2>
 
@@ -53,7 +65,7 @@
   <para>
    <itemizedlist>
     <listitem>
-     {@link http://www.openidenabled.com/openid/libraries/php PHP OpenID Libarry}
+     {@link http://www.openidenabled.com/openid/libraries/php PHP OpenID Library}
     </listitem>
 
     <listitem>
