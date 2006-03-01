@@ -208,7 +208,7 @@ span.notice {
 }
 
 div p {
-    border-top: 1px solid black;
+    border-top: 1px solid #ccc;
     font-style: italic;
     padding-top: 0.5em;
 }
