@@ -225,7 +225,7 @@ class Auth_OpenID_Parse {
                 $value = $this->replaceEntities(
                               $this->removeQuotes($attr_matches[2][$index]));
 
-                $link_attrs[$name] = $value;
+                $link_attrs[strtolower($name)] = $value;
             }
             $link_data[] = $link_attrs;
         }
