@@ -1,0 +1,71 @@
+<refentry id="{@id}">
+ <refnamediv>
+  <refname>PHP OpenID API</refname>
+
+  <!--<refpurpose>What makes good documentation?  This is
+  unanswerable, but there are a few things to keep in
+  mind</refpurpose>-->
+
+ </refnamediv>
+ <refsynopsisdiv>
+  <author>
+   JanRain, Inc.
+   <authorblurb>
+    {@link mailto:openid@janrain.com openid@janrain.com}
+   </authorblurb>
+  </author>
+ </refsynopsisdiv>
+
+ <para>
+ This is a complete implementation of the OpenID authentication
+ protocol for PHP applications.  This package contains:
+
+   <itemizedlist>
+     <listitem>An OpenID server</listitem>
+     <listitem>An OpenID consumer</listitem>
+     <listitem>Stores for MySQL, PostgreSQL, SQLite, and filesystem-based OpenID data storage</listitem>
+     <listitem>PHPUnit unit tests</listitem>
+     <listitem>An example server and consumer</listitem>
+   </itemizedlist>
+ </para>
+
+ <refsect1 id="{@id howto}">
+  <title>How to Use This Package</title>
+
+  <refsect2 id="{@id users}">
+   <title>For Package Users</title>
+
+   <para></para>
+
+  </refsect2>
+
+  <refsect2 id="{@id developers}">
+   <title>For Developers</title>
+
+   <para></para>
+
+  </refsect2>
+
+ </refsect1>
+
+ <refsect1 id="{@id references}">
+  <title>References</title>
+  <para>
+   <itemizedlist>
+    <listitem>
+     {@link http://www.openidenabled.com/openid/libraries/php PHP OpenID Libarry}
+    </listitem>
+
+    <listitem>
+     {@link http://www.janrain.com JanRain, Inc.}
+    </listitem>
+
+    <listitem>
+     {@link http://lists.openidenabled.com/mailman/listinfo/dev OpenID Development Discussion List}
+    </listitem>
+   </itemizedlist>
+  </para>
+ </refsect1>
+
+</refentry>
+
