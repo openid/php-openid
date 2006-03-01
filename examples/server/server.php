@@ -1,6 +1,10 @@
 <?php
 
-require_once 'config.php';
+$try_include = @include 'config.php';
+
+if (!$try_include) {
+    header("Location: setup.php");
+}
 
 if (function_exists('getOpenIDStore') && isset($openid_users)) {
     require_once 'lib/session.php';

@@ -260,8 +260,9 @@ if ($messages) {
 ?>
 
 <p>
-This form will auto-generate an OpenID example server configuration
-for use with the OpenID server example.
+Your browser has been redirected to this page so you can configure the
+server example.  This form will auto-generate an OpenID example server
+configuration for use with the OpenID server example.
 </p>
 
 <form>
