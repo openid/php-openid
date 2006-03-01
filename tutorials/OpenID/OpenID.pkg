@@ -18,7 +18,7 @@
 
  <para>
  This is a complete implementation of the OpenID authentication
- protocol for PHP applications.  This package contains:
+ protocol.  This package contains:
 
    <itemizedlist>
      <listitem>An OpenID server</listitem>
