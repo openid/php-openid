@@ -29,22 +29,20 @@
    </itemizedlist>
  </para>
 
- <refsect1 id="{@id howto}">
-  <title>How to Use This Package</title>
-
-  <refsect2 id="{@id users}">
+ <refsect1 id="{@id users}">
    <title>For Package Users</title>
 
    <para>
     To install this package, copy the <literal>Auth/</literal>
     directory in this package to a directory in your PHP include path.
     Alternatively, modify your PHP include path to include the
-    directory that contains <literal>Auth/</literal>.
-  </para>
+    directory that contains <literal>Auth/</literal>.  Any
+    applications that need this package will then be able to use it.
+   </para>
 
-  </refsect2>
+ </refsect1>
 
-  <refsect2 id="{@id developers}">
+ <refsect1 id="{@id developers}">
    <title>For Developers</title>
 
    <para>
@@ -52,11 +50,11 @@
     See the server and consumer examples in the
     <literal>examples/</literal> directory of the package.  For
     details on how to run the examples, see
-    <literal>examples/README</literal>.
+    <literal>examples/README</literal>.  If you want to create your
+    own OpenID data storage class, please see the {@link Auth_OpenID_OpenIDStore}
+    class.
 
    </para>
-
-  </refsect2>
 
  </refsect1>
 
