@@ -6,62 +6,28 @@
 http://pear.php.net/dtd/tasks-1.0.xsd
 http://pear.php.net/dtd/package-2.0
 http://pear.php.net/dtd/package-2.0.xsd">
- <name>OpenID</name>
+ <name>%(package_name)s</name>
  <channel>pear.php.net</channel>
- <summary>Any one-line summary</summary>
+ <summary>%(package_summary)s</summary>
  <description>
-   An implementation of the OpenID single sign-on authentication protocol.
+   %(package_description)s
  </description>
- <lead>
-   <name>Jonathan Daugherty</name>
-   <user>cygnus</user>
-   <email>cygnus@janrain.com</email>
-   <active>yes</active>
- </lead>
- <lead>
-   <name>Josh Hoyt</name>
-   <user>jhoyt</user>
-   <email>josh@janrain.com</email>
-   <active>yes</active>
- </lead>
- <date>2006-01-23</date>
+ %(leads)s
+ <date>%(date)s</date>
  <version>
-   <release>0.8.1</release>
-   <api>0.8.1</api>
+   <release>%(version)s</release>
+   <api>%(version)s</api>
  </version>
  <stability>
-   <release>beta</release>
-   <api>beta</api>
+   <release>%(release_stability)s</release>
+   <api>%(release_stability)s</api>
  </stability>
- <license uri="http://www.gnu.org/copyleft/lesser.txt">LGPL</license>
+ <license uri="%(license_uri)s">%(license_name)s</license>
  <notes>
-   This release includes SQL store implementations for MySQL,
-   PostgreSQL, and SQLite.
+   <!-- Release-specific notes should go here. -->
  </notes>
  <contents>
-   <dir name="/">
-     <dir name="Auth">
-       <dir name="OpenID">
-         <file name="Association.php" role="php" />
-         <file name="CryptUtil.php" role="php" />
-         <file name="DiffieHellman.php" role="php" />
-         <file name="HMACSHA1.php" role="php" />
-         <file name="KVForm.php" role="php" />
-         <file name="OIDUtil.php" role="php" />
-         <dir name="Consumer">
-           <file name="Consumer.php" role="php" />
-           <file name="Fetchers.php" role="php" />
-           <file name="Parse.php" role="php" />
-         </dir>
-         <dir name="Store">
-           <file name="DumbStore.php" role="php" />
-           <file name="FileStore.php" role="php" />
-           <file name="Interface.php" role="php" />
-           <file name="SQLStore.php" role="php" />
-         </dir>
-       </dir>
-     </dir>
-   </dir>
+ %(contents)s
  </contents>
  <dependencies>
    <required>
