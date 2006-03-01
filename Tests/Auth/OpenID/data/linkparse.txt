@@ -1,4 +1,4 @@
-Num Tests: 72
+Num Tests: 73
 
 OpenID link parsing test cases
 Copyright (C) 2005-2006, JanRain, Inc.
@@ -25,6 +25,17 @@ Optional Links and attributes have a trailing `*'. A compilant
 implementation may produce this as output or may not. A compliant
 implementation will not produce any output that is absent from this
 file.
+
+
+Name: Well-formed link rel (in CAPS)
+Link: rel=openid.server href=http://www.myopenid.com/server
+
+<HTML>
+  <HEAD>
+    <LINK REL="openid.server"
+          HREF="http://www.myopenid.com/server" />
+  </HEAD>
+</HTML>
 
 
 Name: No link tag at all
