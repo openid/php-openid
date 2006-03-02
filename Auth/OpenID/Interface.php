@@ -148,9 +148,9 @@ class Auth_OpenID_OpenIDStore {
      * This method returns a key used to sign the tokens, to ensure
      * that they haven't been tampered with in transit. It should
      * return the same key every time it is called. The key returned
-     * should be $AUTH_KEY_LEN bytes long.
+     * should be {@link AUTH_KEY_LEN} bytes long.
      *
-     * @return string The key. It should be $AUTH_KEY_LEN bytes in
+     * @return string The key. It should be {@link AUTH_KEY_LEN} bytes in
      * length, and use the full range of byte values. That is, it
      * should be treated as a lump of binary data stored in a string.
      */
