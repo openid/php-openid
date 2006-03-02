@@ -115,8 +115,8 @@ class Auth_OpenID_HTTPFetcher {
      * @param string $identity_url The URL that the user entered
      *
      * @return array list($status, $info) The information parsed from
-     * the page or an error. If the status is Auth_OpenID_SUCCESS, the
-     * information returned is array($consumer_id, $server_id,
+     * the page or an error. If the status is {@link Auth_OpenID_SUCCESS},
+     * the information returned is array($consumer_id, $server_id,
      * $server_url). The $server_url is the OpenID server's URL. The
      * consumer ID is the identifier by which the user should be known
      * to the consumer. The server ID is the identifier by which the
