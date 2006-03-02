@@ -27,7 +27,7 @@ $_Auth_OpenID_DEFAULT_GEN = '2';
 
 /**
  * The Diffie-Hellman key exchange class.  This class relies on
- * Auth_OpenID_MathLibrary to perform large number operations.
+ * {@link Auth_OpenID_MathLibrary} to perform large number operations.
  *
  * @access private
  * @package OpenID
