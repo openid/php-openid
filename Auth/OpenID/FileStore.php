@@ -34,17 +34,14 @@ require_once 'Auth/OpenID/HMACSHA1.php';
  * People wishing to just use this store need only pay attention to
  * the constructor.
  *
- * Methods of this object can raise OSError if unexpected filesystem
- * conditions, such as bad permissions or missing directories, occur.
- *
  * @package OpenID
  */
 class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
 
     /**
-     * Initializes a new FileOpenIDStore.  This initializes the nonce
-     * and association directories, which are subdirectories of the
-     * directory passed in.
+     * Initializes a new {@link Auth_OpenID_FileStore}.  This
+     * initializes the nonce and association directories, which are
+     * subdirectories of the directory passed in.
      *
      * @param string $directory This is the directory to put the store
      * directories in.
