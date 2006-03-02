@@ -165,8 +165,8 @@ class Auth_OpenID_OpenIDStore {
      * store. Unlike all other methods in this class, this one
      * provides a default implementation, which returns false.
      *
-     * In general, any custom subclass of Auth_OpenID_OpenIDStore won't
-     * override this method, as custom subclasses are only likely to
+     * In general, any custom subclass of {@link Auth_OpenID_OpenIDStore}
+     * won't override this method, as custom subclasses are only likely to
      * be created when the store is fully functional.
      *
      * @return bool true if the store works fully, false if the
