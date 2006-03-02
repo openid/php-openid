@@ -127,7 +127,7 @@ class Auth_OpenID_ServerRequest {
      * Attempt to authenticate again, given a server and
      * authentication checking function.
      *
-     * @param object $server An instance of Auth_OpenID_Server
+     * @param object $server An instance of {@link Auth_OpenID_Server}
      *
      * @param mixed $is_authorized The callback to use to determine
      * whether the current user can authorize this request.
