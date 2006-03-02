@@ -170,8 +170,8 @@ class Auth_OpenID_MathLibrary {
 /**
  * Exposes BCmath math library functionality.
  *
- * Auth_OpenID_BcMathWrapper wraps the functionality provided by the
- * BCMath extension.
+ * {@link Auth_OpenID_BcMathWrapper} wraps the functionality provided
+ * by the BCMath extension.
  *
  * @access private
  * @package OpenID
@@ -256,8 +256,8 @@ class Auth_OpenID_BcMathWrapper extends Auth_OpenID_MathLibrary{
 /**
  * Exposes GMP math library functionality.
  *
- * Auth_OpenID_GmpMathWrapper wraps the functionality provided by the
- * GMP extension.
+ * {@link Auth_OpenID_GmpMathWrapper} wraps the functionality provided
+ * by the GMP extension.
  *
  * @access private
  * @package OpenID
@@ -323,8 +323,8 @@ class Auth_OpenID_GmpMathWrapper extends Auth_OpenID_MathLibrary{
  * values will be suffixed with a library file extension (e.g. ".so").
  * 'extension' is the name of a PHP extension which will be tested
  * before 'modules' are loaded.  'class' is the string name of a
- * Auth_OpenID_MathWrapper subclass which should be instantiated if a
- * given extension is present.
+ * {@link Auth_OpenID_MathWrapper} subclass which should be
+ * instantiated if a given extension is present.
  *
  * You can define new math library implementations and add them to
  * this array.
@@ -374,22 +374,24 @@ function Auth_OpenID_detectMathLibrary($exts)
 }
 
 /**
- * Auth_OpenID_getMathLib checks for the presence of long number
- * extension modules and returns an instance of Auth_OpenID_MathWrapper
- * which exposes the module's functionality.
+ * {@link Auth_OpenID_getMathLib} checks for the presence of long
+ * number extension modules and returns an instance of
+ * {@link Auth_OpenID_MathWrapper} which exposes the module's
+ * functionality.
  *
  * Checks for the existence of an extension module described by the
- * local Auth_OpenID_math_extensions array and returns an instance of
- * a wrapper for that extension module.  If no extension module is
- * found, an instance of Auth_OpenID_MathWrapper is returned, which
- * wraps the native PHP integer implementation.  The proper calling
- * convention for this method is $lib =& Auth_OpenID_getMathLib().
+ * local {@link Auth_OpenID_math_extensions} array and returns an
+ * instance of a wrapper for that extension module.  If no extension
+ * module is found, an instance of {@link Auth_OpenID_MathWrapper} is
+ * returned, which wraps the native PHP integer implementation.  The
+ * proper calling convention for this method is $lib =&
+ * Auth_OpenID_getMathLib().
  *
  * This function checks for the existence of specific long number
  * implementations in the following order: GMP followed by BCmath.
  *
  * @return Auth_OpenID_MathWrapper $instance An instance of
- * Auth_OpenID_MathWrapper or one of its subclasses
+ * {@link Auth_OpenID_MathWrapper} or one of its subclasses
  *
  * @package OpenID
  */
