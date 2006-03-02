@@ -38,20 +38,21 @@
  * At a high level, there are two important parts in the consumer
  * library.  The first important part is this module, which contains
  * the interface to actually use this library.  The second is the
- * Auth_OpenID_Interface class, which describes the interface to use if
- * you need to create a custom method for storing the state this
- * library needs to maintain between requests.
+ * {@link Auth_OpenID_OpenIDStore} class, which describes the
+ * interface to use if you need to create a custom method for storing
+ * the state this library needs to maintain between requests.
  *
  * In general, the second part is less important for users of the
  * library to know about, as several implementations are provided
  * which cover a wide variety of situations in which consumers may
  * use the library.
  *
- * This module contains a class, Auth_OpenID_Consumer, with methods
- * corresponding to the actions necessary in each of steps 2, 3, and 4
- * described in the overview.  Use of this library should be as easy
- * as creating a Auth_OpenID_Consumer instance and calling the methods
- * appropriate for the action the site wants to take.
+ * This module contains a class, {@link Auth_OpenID_Consumer}, with
+ * methods corresponding to the actions necessary in each of steps 2,
+ * 3, and 4 described in the overview.  Use of this library should be
+ * as easy as creating a {@link Auth_OpenID_Consumer} instance and
+ * calling the methods appropriate for the action the site wants to
+ * take.
  *
  * STORES AND DUMB MODE
  *
@@ -70,8 +71,8 @@
  *
  * Several store implementation are provided, and the interface is
  * fully documented so that custom stores can be used as well.  See
- * the documentation for the Auth_OpenID_Consumer class for more
- * information on the interface for stores.  The concrete
+ * the documentation for the {@link Auth_OpenID_Consumer} class for
+ * more information on the interface for stores.  The concrete
  * implementations that are provided allow the consumer site to store
  * the necessary data in several different ways: in the filesystem, in
  * a MySQL database, or in an SQLite database.
@@ -114,23 +115,24 @@
  * a request to the your site which includes that OpenID URL.
  *
  * When your site receives that request, it should create an
- * Auth_OpenID_Consumer instance, and call beginAuth on it.  If
- * beginAuth completes successfully, it will return an
- * Auth_OpenID_AuthenticationRequest instance.  Otherwise it will
- * provide some useful information for giving the user an error
+ * {@link Auth_OpenID_Consumer} instance, and call beginAuth on it.
+ * If beginAuth completes successfully, it will return an
+ * {@link Auth_OpenID_AuthenticationRequest} instance.  Otherwise it
+ * will provide some useful information for giving the user an error
  * message.
  *
- * Now that you have the Auth_OpenID_AuthenticationRequest object, you
- * need to preserve the value in its $token field for lookup on the
- * user's next request from your site.  There are several approaches
- * for doing this which will work.  If your environment has any kind
- * of session-tracking system, storing the token in the session is a
- * good approach.  If it doesn't you can store the token in either a
- * cookie or in the return_to url provided in the next step.
+ * Now that you have the {@link Auth_OpenID_AuthenticationRequest}
+ * object, you need to preserve the value in its $token field for
+ * lookup on the user's next request from your site.  There are
+ * several approaches for doing this which will work.  If your
+ * environment has any kind of session-tracking system, storing the
+ * token in the session is a good approach.  If it doesn't you can
+ * store the token in either a cookie or in the return_to url provided
+ * in the next step.
  *
  * The next step is to call the constructRedirect method on the
- * Auth_OpenID_Consumer object.  Pass it the
- * Auth_OpenID_AuthenticationRequest object returned by the previous
+ * {@link Auth_OpenID_Consumer} object.  Pass it the
+ * {@link Auth_OpenID_AuthenticationRequest} object returned by the previous
  * call to beginAuth along with the return_to and trust_root URLs.
  * The return_to URL is the URL that the OpenID server will send the
  * user back to after attempting to verify his or her identity.  The
@@ -158,7 +160,7 @@
  * proceed.
 
  * Otherwise, the next step is to extract the token value set in the
- * first half of the OpenID login.  Create a Auth_OpenID_Consumer
+ * first half of the OpenID login.  Create a {@link Auth_OpenID_Consumer}
  * object, and call its completeAuth method with that token and a
  * dictionary of all the query arguments.  This call will return a
  * status code and some additional information describing the the
@@ -206,9 +208,9 @@ define('Auth_OpenID_FAILURE', 'failure');
 
 /**
  * This is the status code completeAuth returns when the
- * Auth_OpenID_Consumer instance is in immediate mode, and the identity
- * server sends back a URL to send the user to to complete his or her
- * login.
+ * {@link Auth_OpenID_Consumer} instance is in immediate mode, and the
+ * identity server sends back a URL to send the user to to complete his
+ * or her login.
  */
 define('Auth_OpenID_SETUP_NEEDED', 'setup needed');
 
@@ -281,23 +283,23 @@ class Auth_OpenID_Consumer {
     var $token_lifetime = Auth_OpenID_DEFAULT_TOKEN_LIFETIME;
 
     /**
-     * This method initializes a new Auth_OpenID_Consumer instance to
-     * access the library.
+     * This method initializes a new {@link Auth_OpenID_Consumer}
+     * instance to access the library.
      *
      * @param Auth_OpenID_OpenIDStore $store This must be an object
-     * that implements the interface in Auth_OpenID_Store.  Several
-     * concrete implementations are provided, to cover most common use
+     * that implements the interface in {@link Auth_OpenID_OpenIDStore}.
+     * Several concrete implementations are provided, to cover most common use
      * cases.  For stores backed by MySQL, PostgreSQL, or SQLite, see
-     * the Auth_OpenID_SQLStore class and its sublcasses.  For a
-     * filesystem-backed store, see the Auth_OpenID_FileStore module.
+     * the {@link Auth_OpenID_SQLStore} class and its sublcasses.  For a
+     * filesystem-backed store, see the {@link Auth_OpenID_FileStore} module.
      * As a last resort, if it isn't possible for the server to store
-     * state at all, an instance of Auth_OpenID_DumbStore can be used.
+     * state at all, an instance of {@link Auth_OpenID_DumbStore} can be used.
      * This should be an absolute last resort, though, as it makes the
      * consumer vulnerable to replay attacks over the lifespan of the
      * tokens the library creates.
      *
      * @param Auth_OpenID_HTTPFetcher $fetcher This is an optional
-     * reference to an instance of Auth_OpenID_HTTPFetcher.  If
+     * reference to an instance of {@link Auth_OpenID_HTTPFetcher}.  If
      * present, the provided fetcher is used by the library to fetch
      * users' identity pages and make direct requests to the identity
      * server.  If it is not present, a default fetcher is used.  The
@@ -335,8 +337,9 @@ class Auth_OpenID_Consumer {
      * First, the user's claimed identity page is fetched, to
      * determine their identity server.  If the page cannot be fetched
      * or if the page does not have the necessary link tags in it,
-     * this method returns one of Auth_OpenID_HTTP_FAILURE or
-     * Auth_OpenID_PARSE_ERROR, depending on where the process failed.
+     * this method returns one of {@link Auth_OpenID_HTTP_FAILURE} or
+     * {@link Auth_OpenID_PARSE_ERROR}, depending on where the process
+     * failed.
      *
      * Second, unless the store provided is a dumb store, it checks to
      * see if it has an association with that identity server, and
@@ -366,21 +369,21 @@ class Auth_OpenID_Consumer {
      * status code and additional information about the code.
      *
      * If there was a problem fetching the identity page the user
-     * gave, the status code is set to Auth_OpenID_HTTP_FAILURE, and
-     * the additional information value is either set to null if the
+     * gave, the status code is set to {@link Auth_OpenID_HTTP_FAILURE},
+     * and the additional information value is either set to null if the
      * HTTP transaction failed or the HTTP return code, which will be
      * in the 400-500 range. This additional information value may
      * change in a future release.
      *
      * If the identity page fetched successfully, but didn't include
      * the correct link tags, the status code is set to
-     * Auth_OpenID_PARSE_ERROR, and the additional information value
-     * is currently set to null.  The additional information value may
-     * change in a future release.
+     * {@link Auth_OpenID_PARSE_ERROR}, and the additional information
+     * value is currently set to null.  The additional information value
+     * may change in a future release.
      *
-     * Otherwise, the status code is set to Auth_OpenID_SUCCESS, and
-     * the additional information is an instance of
-     * Auth_OpenID_AuthenticationRequest.  The $token attribute
+     * Otherwise, the status code is set to {@link Auth_OpenID_SUCCESS},
+     * and the additional information is an instance of
+     * {@link Auth_OpenID_AuthenticationRequest}.  The $token attribute
      * contains the token to be preserved for the next HTTP request.
      * The $server_url might also be of interest, if you wish to
      * blacklist or whitelist OpenID servers.  The other contents of
@@ -412,8 +415,8 @@ class Auth_OpenID_Consumer {
      * initiated the authorization request.
      *
      * @param Auth_OpenID_AuthenticationRequest $auth_request This
-     * must be a Auth_OpenID_AuthenticationRequest instance which was
-     * returned from a previous call to beginAuth.  It contains
+     * must be a {@link Auth_OpenID_AuthenticationRequest} instance which
+     * was returned from a previous call to beginAuth.  It contains
      * information found during the beginAuth call which is needed to
      * build the redirect URL.
      *
@@ -424,7 +427,7 @@ class Auth_OpenID_Consumer {
      *
      * @param string $trust_root This is a URL that will be sent to
      * the server to identify this site.  The OpenID spec at
-     * http://www.openid.net/specs.bml#mode-checkid_immediate has more
+     * {@link http://www.openid.net/specs.bml#mode-checkid_immediate} has more
      * information on what the trust_root value is for and what its
      * form can be.  While the trust root is officially optional in
      * the OpenID specification, this implementation requires that it
@@ -471,23 +474,23 @@ class Auth_OpenID_Consumer {
      * The return value is a pair, consisting of a status and
      * additional information.  The status values are strings, but
      * should be referred to by their symbolic values:
-     * Auth_OpenID_SUCCESS, Auth_OpenID_FAILURE, and
-     * Auth_OpenID_SETUP_NEEDED.
+     * {@link Auth_OpenID_SUCCESS}, {@link Auth_OpenID_FAILURE}, and
+     * {@link Auth_OpenID_SETUP_NEEDED}.
      *
-     * When Auth_OpenID_SUCCESS is returned, the additional
+     * When {@link Auth_OpenID_SUCCESS} is returned, the additional
      * information returned is either null or a string.  If it is
      * null, it means the user cancelled the login, and no further
      * information can be determined.  If the additional information
      * is a string, it is the identity that has been verified as
      * belonging to the user making this request.
      *
-     * When Auth_OpenID_FAILURE is returned, the additional
+     * When {@link Auth_OpenID_FAILURE} is returned, the additional
      * information is either null or a string.  In either case, this
      * code means that the identity verification failed.  If it can be
      * determined, the identity that failed to verify is returned.
      * Otherwise null is returned.
      *
-     * When Auth_OpenID_SETUP_NEEDED is returned, the additional
+     * When {@link Auth_OpenID_SETUP_NEEDED} is returned, the additional
      * information is the user setup URL.  This is a URL returned only
      * as a response to requests made with openid.mode=immediate,
      * which indicates that the login was unable to proceed, and the
