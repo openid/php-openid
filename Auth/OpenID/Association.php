@@ -28,7 +28,7 @@ require_once 'Auth/OpenID/KVForm.php';
  * This class represents an association between a server and a
  * consumer.  In general, users of this library will never see
  * instances of this object.  The only exception is if you implement a
- * custom Auth_OpenID_OpenIDStore.
+ * custom {@link Auth_OpenID_OpenIDStore}.
  *
  * If you do implement such a store, it will need to store the values
  * of the handle, secret, issued, lifetime, and assoc_type instance
@@ -60,9 +60,9 @@ class Auth_OpenID_Association {
                             );
 
     /**
-     * This is an alternate constructor used by the OpenID consumer
-     * library to create associations.  OpenIDStore implementations
-     * shouldn't use this constructor.
+     * This is an alternate constructor (factory method) used by the
+     * OpenID consumer library to create associations.  OpenID store
+     * implementations shouldn't use this constructor.
      *
      * @access private
      *
@@ -76,10 +76,13 @@ class Auth_OpenID_Association {
      * @param string secret This is the shared secret the server
      * generated for this association.
      *
-     * @param assoc_type: This is the type of association this
+     * @param assoc_type This is the type of association this
      * instance represents.  The only valid value of this field at
      * this time is 'HMAC-SHA1', but new types may be defined in the
      * future.
+     *
+     * @return association An {@link Auth_OpenID_Association}
+     * instance.
      */
     function fromExpiresIn($expires_in, $handle, $secret, $assoc_type)
     {
@@ -147,8 +150,8 @@ class Auth_OpenID_Association {
     }
 
     /**
-     * This checks to see if two Auth_OpenID_Association instances
-     * represent the same association.
+     * This checks to see if two {@link Auth_OpenID_Association}
+     * instances represent the same association.
      *
      * @return bool $result true if the two instances represent the
      * same association, false otherwise.
