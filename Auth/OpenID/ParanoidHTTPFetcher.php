@@ -24,8 +24,8 @@ require_once "Auth/OpenID/HTTPFetcher.php";
 define('Auth_OpenID_CURL_PRESENT', function_exists('curl_init'));
 
 /**
- * A paranoid Auth_OpenID_HTTPFetcher class which uses CURL for
- * fetching.
+ * A paranoid {@link Auth_OpenID_HTTPFetcher} class which uses CURL
+ * for fetching.
  *
  * @package OpenID
  */
