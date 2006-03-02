@@ -72,7 +72,7 @@ class Auth_OpenID_Server {
      * @param string $server_url The URL of the OpenID server
      *
      * @param mixed $store The association store for this
-     *     instance. See Auth_OpenID_OpenIDStore
+     *     instance. See {@link Auth_OpenID_OpenIDStore}.
      */
     function Auth_OpenID_Server($server_url, $store)
     {
