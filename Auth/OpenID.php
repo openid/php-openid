@@ -64,10 +64,10 @@ define('Auth_OpenID_REDIRECT', 'redirect');
 
 /**
  * Status code returned when the caller needs to authenticate the
- * user. The associated value is a Auth_OpenID_ServerRequest
+ * user. The associated value is a {@link Auth_OpenID_ServerRequest}
  * object that can be used to complete the authentication. If the user
  * has taken some authentication action, use the retry() method of the
- * Auth_OpenID_ServerRequest object to complete the request.
+ * {@link Auth_OpenID_ServerRequest} object to complete the request.
  *
  * @see Auth_OpenID_Server
  */
