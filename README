@@ -22,6 +22,9 @@ Follow these steps:
    - Enable either the GMP extension or Bcmath extension. (GMP is
      STRONGLY recommended because it's MUCH faster!)
 
+   - Enable the CURL extension.  This is not required, but it is
+     recommended.
+
    - If you plan to use SQLite, PostgreSQL, or MySQL to store OpenID
      data, you'll need PEAR DB.  You can install this by running this
      as root:
