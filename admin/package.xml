@@ -12,7 +12,7 @@
   <date>%(date)s</date>
   <state>%(release_stability)s</state>
   <notes>
-    <!-- Release notes here. -->
+  %(release_notes)s
   </notes>
   %(contents_version_1)s
  </release>

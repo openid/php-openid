@@ -90,6 +90,9 @@ def buildDocsXML(*dirs):
     return "\n".join(lines)
 
 if __name__ == "__main__":
+    def usage(progname):
+        print "Usage: %s <package version> <xml template file> <release notes file>" % (progname)
+
     import sys
     import time
 
@@ -104,7 +107,7 @@ if __name__ == "__main__":
     try:
         template_f = open(sys.argv[2], 'r')
     except Exception, e:
-        print "Usage: %s <package version> <xml template file>" % (sys.argv[0])
+        usage(sys.argv[0])
         print "Could not open template file:", str(e)
         sys.exit(1)
 
@@ -113,8 +116,19 @@ if __name__ == "__main__":
     try:
         version = sys.argv[1]
     except:
-        print "Usage: %s <package version> <xml template file>" % (sys.argv[0])
+        usage(sys.argv[0])
         sys.exit(2)
+
+    # Expect sys.argv[3] to be the name of the release notes file.
+    try:
+        release_file = sys.argv[3]
+        release_file_h = open(release_file, 'r')
+        release_notes = release_file_h.read()
+        release_file_h.close()
+    except Exception, e:
+        usage(sys.argv[0])
+        print str(e)
+        sys.exit(3)
 
     data = xmlconfig.__dict__.copy()
 
@@ -135,6 +149,7 @@ if __name__ == "__main__":
     data['version'] = version
     data['uri'] = "%s%s-%s.tgz" % (data['package_base_uri'], data['package_name'],
                                    version)
+    data['release_notes'] = release_notes
 
     template_data = template_f.read()
     print template_data % data
