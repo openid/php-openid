@@ -48,15 +48,14 @@ def buildContentsXMLFordir(dir_or_file, roles, depth=0, dir_role=None,
             if not all_files:
                 return []
 
-        if extension in roles: # Ends in an extension we care about
+        if all_files and dir_role:
+            return ['%s<file name="%s" role="%s" />' %
+                    (INDENT_STRING * depth, os.path.basename(dir_or_file), dir_role)]
+        elif extension in roles: # Ends in an extension we care about
             return ['%s<file name="%s" role="%s" />' %
                     (INDENT_STRING * depth, os.path.basename(dir_or_file),
                      roles[extension])]
-        elif all_files:
-            return ['%s<file name="%s" />' %
-                    (INDENT_STRING * depth, os.path.basename(dir_or_file))]
         else:
-            print "FOOB for %s %s" % (all_files, dir_or_file)
             return []
 
 def buildContentsXML(roles, *dirs):

@@ -33,10 +33,9 @@ http://pear.php.net/dtd/package-2.0.xsd">
    <required>
      <php>
        <min>4.3.0</min>
-       <max>5.1</max>
      </php>
      <pearinstaller>
-       <min>1.6.0a1</min>
+       <min>1.4.5</min>
      </pearinstaller>
    </required>
    <optional>

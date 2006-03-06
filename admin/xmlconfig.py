@@ -48,7 +48,7 @@ contents_dirs = ['../Auth']
 # subdirectories in these directories will be included in the
 # <contents> element in the output XML and will be assigned the role
 # 'doc'.
-docs_dirs = ['../doc']
+docs_dirs = ['../doc', '../examples']
 
 # The HTTP package base URI.  This is the place on the web where the
 # PEAR-installable tarballs will live, and this (plus the package
