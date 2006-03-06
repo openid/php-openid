@@ -11,6 +11,10 @@ implementations and tools:
 INSTALLATION
 ============
 
+You will need PHP 4.3.0 or greater to use this library.  We have
+tested the library on PHP 4.3.0, 4.4.1, and 5.1.1.  We expect it to
+work on 4.2.0, but it is untested.
+
 Follow these steps:
 
 1. Install dependencies.
@@ -29,15 +33,17 @@ Follow these steps:
      the filesystem instead of using a relational database.  Nothing
      special is required for using the filesystem method.
 
-2. Copy the Auth/ directory into your PHP include path OR use the PEAR
-   installer to install the package.  To use the PEAR installer, run
-   this command from the package directory:
+2. Use the PEAR installer to install the package.  To use the PEAR
+   installer, run this command from the package directory:
 
    # pear install package.xml
 
    If your PEAR version is sufficiently new, you can run this instead:
 
    # pear install package2.xml
+
+   If the PEAR installer isn't available, you can copy the Auth/
+   directory into your PHP include path.
 
 TESTING YOUR SETUP
 ==================
