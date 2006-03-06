@@ -123,7 +123,7 @@ if __name__ == "__main__":
     try:
         release_file = sys.argv[3]
         release_file_h = open(release_file, 'r')
-        release_notes = release_file_h.read()
+        release_notes = release_file_h.read().strip()
         release_file_h.close()
     except Exception, e:
         usage(sys.argv[0])
