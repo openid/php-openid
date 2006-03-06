@@ -48,7 +48,7 @@ docs_dirs = ['../doc', '../examples']
 # The HTTP package base URI.  This is the place on the web where the
 # PEAR-installable tarballs will live, and this (plus the package
 # tarball name) will be the URL that users pass to "pear install".
-package_base_uri = 'http://localhost/'
+package_base_uri = 'http://www.openidenabled.com/resources/downloads/php-openid/pear/'
 
 # The release stability.  Maybe this should be a commandline parameter
 # since it might differ from release to release.
