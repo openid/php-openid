@@ -18,11 +18,6 @@ leads = [
      'active': 'yes'}
     ]
 
-# This is the XML file containing %(...)s formatters.  You'll probably
-# never want to change this unless you make a copy of package.xml and
-# change it somehow.
-template = 'package.xml'
-
 # The package name.
 package_name = 'Auth_OpenID'
 

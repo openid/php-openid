@@ -3,6 +3,20 @@
 import os
 import os.path
 
+def makeMaintainerXML(leads):
+    maintainer_template = """
+  <maintainer>
+   <user>%(user)s</user>
+   <name>%(name)s</name>
+   <email>%(email)s</email>
+   <role>lead</role>
+  </maintainer>
+  """
+
+    return "<maintainers>" + \
+           "".join([maintainer_template % l for l in leads]) + \
+           "</maintainers>"
+
 def makeLeadXML(leads):
     lead_template = """
 <lead>
@@ -85,9 +99,12 @@ if __name__ == "__main__":
         print "Could not import XML configuration module xmlconfig"
         sys.exit(1)
 
+    # Expect sys.argv[2] to be the name of the XML file template to
+    # use for processing.
     try:
-        template_f = open(xmlconfig.template, 'r')
+        template_f = open(sys.argv[2], 'r')
     except Exception, e:
+        print "Usage: %s <package version> <xml template file>" % (sys.argv[0])
         print "Could not open template file:", str(e)
         sys.exit(1)
 
@@ -96,17 +113,24 @@ if __name__ == "__main__":
     try:
         version = sys.argv[1]
     except:
-        print "Usage: %s <package version>" % (sys.argv[0])
+        print "Usage: %s <package version> <xml template file>" % (sys.argv[0])
         sys.exit(2)
 
     data = xmlconfig.__dict__.copy()
 
-    contents = '<dir name="/">\n' + \
-               buildContentsXML({'php': 'php'}, *xmlconfig.contents_dirs) + \
-               "\n" + buildDocsXML(*xmlconfig.docs_dirs) + '\n  </dir>'
+    contentsXml = buildContentsXML({'php': 'php'}, *xmlconfig.contents_dirs)
+    docsXml = buildDocsXML(*xmlconfig.docs_dirs)
+
+    contents = '<dir name="/">\n' + contentsXml + \
+               "\n" + docsXml + '\n  </dir>'
+
+    contents_v1 = '<filelist><dir name="/" baseinstalldir="Auth">\n' + contentsXml + \
+                  "\n" + docsXml + '\n  </dir></filelist>'
 
     data['contents'] = contents
+    data['contents_version_1'] = contents_v1
     data['leads'] = makeLeadXML(xmlconfig.leads)
+    data['maintainers'] = makeMaintainerXML(xmlconfig.leads)
     data['date'] = time.strftime("%Y-%m-%d")
     data['version'] = version
     data['uri'] = "%s%s-%s.tgz" % (data['package_base_uri'], data['package_name'],
