@@ -17,6 +17,6 @@
   %(contents_version_1)s
  </release>
  <deps>
-  <dep type="php" rel="ge" version="4.2.0" />
+  <dep type="php" rel="ge" version="4.3.0" />
  </deps>
 </package>
