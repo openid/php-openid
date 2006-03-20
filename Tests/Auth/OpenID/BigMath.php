@@ -196,16 +196,18 @@ class Tests_Auth_OpenID_BigMath extends PHPUnit_TestSuite {
         }
 
         $cases = array(
-                       "\x00" => 0,
-                       "\x01" => 1,
-                       "\x00\xFF" => 255,
-                       "\x00\x80" => 128,
-                       "\x00\x81" => 129,
-                       "\x00\x80\x00" => 32768,
-                       "OpenID is cool" => "1611215304203901150134421257416556"
+                       array("\x00", 0),
+                       array("\x01", 1),
+                       array("\x00\xFF", 255),
+                       array("\x00\x80", 128),
+                       array("\x00\x81", 129),
+                       array("\x00\x80\x00", 32768),
+                       array("OpenID is cool",
+                             "1611215304203901150134421257416556")
                        );
 
-        foreach ($cases as $bin => $lng_m) {
+        foreach ($cases as $case) {
+            list($bin, $lng_m) = $case;
             $lng = $lib->init($lng_m);
             $test = new Tests_Auth_OpenID_BinLongConvert($lib, $bin, $lng);
             $test->setName('BinLongConvert ' . bin2hex($bin));
