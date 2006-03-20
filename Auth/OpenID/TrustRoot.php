@@ -65,6 +65,12 @@ class Auth_OpenID_TrustRoot {
             return false;
         }
 
+        // Return false if the original trust root value has more than
+        // one port specification.
+        if (preg_match("/:\/\/[^:]+(:\d+){2,}(\/|$)/", $trust_root)) {
+            return false;
+        }
+
         $scheme = strtolower($parts['scheme']);
         $allowed_schemes = array('http', 'https');
         if (!in_array($scheme, $allowed_schemes)) {
@@ -92,6 +98,7 @@ class Auth_OpenID_TrustRoot {
         if (strpos($host, ':') !== false) {
             return false;
         }
+
         $parts['host'] = $host;
 
         if (isset($parts['path'])) {
