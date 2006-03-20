@@ -367,7 +367,7 @@ explicitly');
 
             if (PEAR::isError($result)) {
                 $failures++;
-                sleep(1);
+                sleep($failures + 1);
             } else {
                 $success = true;
             }
