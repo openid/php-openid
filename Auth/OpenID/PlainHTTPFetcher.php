@@ -67,7 +67,7 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
             $user_agent = "PHP OpenID Library Fetcher";
 
             $headers = array(
-                             "GET ".$parts['path']." HTTP/1.0",
+                             "GET ".$parts['path']." HTTP/1.1",
                              "User-Agent: $user_agent",
                              "Host: ".$parts['host'].":".$parts['port'],
                              "Port: ".$parts['port'],
