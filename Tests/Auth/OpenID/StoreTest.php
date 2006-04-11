@@ -367,7 +367,7 @@ explicitly');
 
             if (PEAR::isError($result)) {
                 $failures++;
-                sleep(3 * ($failures + 1));
+                sleep((mt_rand(1, 100) / 100.0) * pow($failures, 2));
             } else {
                 $success = true;
             }
