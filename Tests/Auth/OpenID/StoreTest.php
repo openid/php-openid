@@ -367,7 +367,8 @@ explicitly');
 
             if (PEAR::isError($result)) {
                 $failures++;
-                sleep((mt_rand(1, 100) / 100.0) * pow($failures, 2));
+                sleep(((mt_rand(1, 100) / 100.0) * pow($failures, 2)) +
+                      mt_rand(2, 5));
             } else {
                 $success = true;
             }
@@ -423,6 +424,7 @@ explicitly');
         }
 
         $template_db->disconnect();
+        unset($template_db);
     }
 
     function test_sqlitestore()
