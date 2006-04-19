@@ -345,14 +345,16 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
 
     function test_assocReply()
     {
-        $request = new Auth_OpenID_AssociateRequest();
-        $response = new Auth_OpenID_ServerResponse($request);
-        $response->fields = array('assoc_handle' => "every-zig");
-        $webresponse = $this->encoder->encode($response);
-        $body = "assoc_handle:every-zig\n";
-        $this->assertEquals($webresponse->code, AUTH_OPENID_HTTP_OK);
-        $this->assertEquals($webresponse->headers, array());
-        $this->assertEquals($webresponse->body, $body);
+        if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            $request = new Auth_OpenID_AssociateRequest();
+            $response = new Auth_OpenID_ServerResponse($request);
+            $response->fields = array('assoc_handle' => "every-zig");
+            $webresponse = $this->encoder->encode($response);
+            $body = "assoc_handle:every-zig\n";
+            $this->assertEquals($webresponse->code, AUTH_OPENID_HTTP_OK);
+            $this->assertEquals($webresponse->headers, array());
+            $this->assertEquals($webresponse->body, $body);
+        }
     }
 
     function test_checkauthReply()
@@ -497,15 +499,17 @@ class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
 
     function test_assocReply()
     {
-        $request = new Auth_OpenID_AssociateRequest();
-        $response = new Auth_OpenID_ServerResponse($request);
-        $response->fields = array('assoc_handle' => "every-zig");
-        $webresponse = $this->encoder->encode($response);
-        $body = "assoc_handle:every-zig\n";
+        if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            $request = new Auth_OpenID_AssociateRequest();
+            $response = new Auth_OpenID_ServerResponse($request);
+            $response->fields = array('assoc_handle' => "every-zig");
+            $webresponse = $this->encoder->encode($response);
+            $body = "assoc_handle:every-zig\n";
 
-        $this->assertEquals($webresponse->code, AUTH_OPENID_HTTP_OK);
-        $this->assertEquals($webresponse->headers, array());
-        $this->assertEquals($webresponse->body, $body);
+            $this->assertEquals($webresponse->code, AUTH_OPENID_HTTP_OK);
+            $this->assertEquals($webresponse->headers, array());
+            $this->assertEquals($webresponse->body, $body);
+        }
     }
 
     function test_alreadySigned()
@@ -948,10 +952,12 @@ class Tests_Auth_OpenID_ServerTest extends PHPUnit_TestCase {
 
     function test_associate()
     {
-        $request = new Auth_OpenID_AssociateRequest();
-        $response = $this->server->openid_associate($request);
-        $this->assertTrue(array_key_exists('assoc_handle',
-                                           $response->fields));
+        if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            $request = new Auth_OpenID_AssociateRequest();
+            $response = $this->server->openid_associate($request);
+            $this->assertTrue(array_key_exists('assoc_handle',
+                                               $response->fields));
+        }
     }
 
     function test_checkAuth()
@@ -1233,7 +1239,9 @@ class Tests_Auth_OpenID_Server extends PHPUnit_TestSuite {
     {
         $this->addTestSuite('Tests_Auth_OpenID_Signatory');
         $this->addTestSuite('Tests_Auth_OpenID_ServerTest');
-        $this->addTestSuite('Tests_Auth_OpenID_Associate');
+        if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            $this->addTestSuite('Tests_Auth_OpenID_Associate');
+        }
         $this->addTestSuite('Tests_Auth_OpenID_CheckAuth');
         $this->addTestSuite('Tests_Auth_OpenID_CheckIDExtension');
         $this->addTestSuite('Tests_Auth_OpenID_CheckAuth');
