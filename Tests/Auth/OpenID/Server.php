@@ -230,17 +230,19 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
 
     function test_associateDH()
     {
-        $args = array(
-            'openid.mode' => 'associate',
-            'openid.session_type' => 'DH-SHA1',
-            'openid.dh_consumer_public' => "Rzup9265tw==");
-
-        $r = $this->decoder->decode($args);
-        $this->assertTrue(is_a($r, 'Auth_OpenID_AssociateRequest'));
-        $this->assertEquals($r->mode, "associate");
-        $this->assertEquals($r->session_type, "DH-SHA1");
-        $this->assertEquals($r->assoc_type, "HMAC-SHA1");
-        $this->assertTrue($r->pubkey);
+        if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            $args = array(
+                          'openid.mode' => 'associate',
+                          'openid.session_type' => 'DH-SHA1',
+                          'openid.dh_consumer_public' => "Rzup9265tw==");
+            
+            $r = $this->decoder->decode($args);
+            $this->assertTrue(is_a($r, 'Auth_OpenID_AssociateRequest'));
+            $this->assertEquals($r->mode, "associate");
+            $this->assertEquals($r->session_type, "DH-SHA1");
+            $this->assertEquals($r->assoc_type, "HMAC-SHA1");
+            $this->assertTrue($r->pubkey);
+        }
     }
 
     function test_associateDHMissingKey()
