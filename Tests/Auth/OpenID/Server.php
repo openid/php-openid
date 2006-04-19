@@ -836,44 +836,46 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
 
     function test_dh()
     {
-        $dh = new Auth_OpenID_DiffieHellman();
-        $ml =& Auth_OpenID_getMathLib();
+        if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            $dh = new Auth_OpenID_DiffieHellman();
+            $ml =& Auth_OpenID_getMathLib();
 
-        $this->request->session_type = 'DH-SHA1';
-        $this->request->pubkey = $dh->public;
-        $response = $this->request->answer($this->assoc);
-        $this->assertEquals(
+            $this->request->session_type = 'DH-SHA1';
+            $this->request->pubkey = $dh->public;
+            $response = $this->request->answer($this->assoc);
+            $this->assertEquals(
                       Auth_OpenID::arrayGet($response->fields, "assoc_type"),
                       "HMAC-SHA1");
 
-        $this->assertEquals(
+            $this->assertEquals(
                       Auth_OpenID::arrayGet($response->fields, "assoc_handle"),
                       $this->assoc->handle);
 
-        $this->assertFalse(
+            $this->assertFalse(
                       Auth_OpenID::arrayGet($response->fields, "mac_key"));
 
-        $this->assertEquals(
+            $this->assertEquals(
                       Auth_OpenID::arrayGet($response->fields, "session_type"),
                       "DH-SHA1");
 
-        $this->assertTrue(
+            $this->assertTrue(
                       Auth_OpenID::arrayGet($response->fields, "enc_mac_key"));
 
-        $this->assertTrue(
+            $this->assertTrue(
                       Auth_OpenID::arrayGet($response->fields,
                                             "dh_server_public"));
 
-        $enc_key = base64_decode(
+            $enc_key = base64_decode(
                       Auth_OpenID::arrayGet($response->fields, "enc_mac_key"));
 
-        $spub = $ml->base64ToLong(
+            $spub = $ml->base64ToLong(
                       Auth_OpenID::arrayGet($response->fields,
                                             "dh_server_public"));
 
-        $secret = $dh->xorSecret($spub, $enc_key);
+            $secret = $dh->xorSecret($spub, $enc_key);
 
-        $this->assertEquals($secret, $this->assoc->secret);
+            $this->assertEquals($secret, $this->assoc->secret);
+        }
     }
 
     function test_plaintext()
