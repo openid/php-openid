@@ -105,6 +105,8 @@ class Auth_OpenID_KVForm {
             return null;
         }
 
+        ksort($values);
+
         $serialized = '';
         foreach ($values as $key => $value) {
             if (is_array($value)) {

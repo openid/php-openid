@@ -89,7 +89,7 @@ class Auth_OpenID_Association {
         $issued = time();
         $lifetime = $expires_in;
         return new Auth_OpenID_Association($handle, $secret,
-                                          $issued, $lifetime, $assoc_type);
+                                           $issued, $lifetime, $assoc_type);
     }
 
     /**
@@ -210,14 +210,22 @@ class Auth_OpenID_Association {
 
         $class_vars = get_class_vars($class_name);
         $class_assoc_keys = $class_vars['assoc_keys'];
+
+        sort($keys);
+        sort($class_assoc_keys);
+
         if ($keys != $class_assoc_keys) {
             trigger_error('Unexpected key values: ' . strval($keys),
                           E_USER_WARNING);
             return null;
         }
 
-        list($version, $handle, $secret, $issued, $lifetime, $assoc_type) =
-            $values;
+        $version = $pairs['version'];
+        $handle = $pairs['handle'];
+        $secret = $pairs['secret'];
+        $issued = $pairs['issued'];
+        $lifetime = $pairs['lifetime'];
+        $assoc_type = $pairs['assoc_type'];
 
         if ($version != '2') {
             trigger_error('Unknown version: ' . $version, E_USER_WARNING);
