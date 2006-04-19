@@ -110,7 +110,7 @@ class Auth_OpenID_KVForm {
         $serialized = '';
         foreach ($values as $key => $value) {
             if (is_array($value)) {
-                list($key, $value) = $value;
+                list($key, $value) = array($value[0], $value[1]);
             }
 
             if (strpos($key, ':') !== false) {
