@@ -66,7 +66,7 @@ class Tests_Auth_OpenID_MemStore extends Auth_OpenID_OpenIDStore {
         }
     }
 
-    function storeAssociation($server_url, $association)
+    function storeAssociation($server_url, &$association)
     {
         $key = $this->getKey($server_url, $association->handle);
         $this->assocs[$key] = $association;

@@ -976,8 +976,8 @@ class Tests_Auth_OpenID_ServerTest extends PHPUnit_TestCase {
 class Tests_Auth_OpenID_Signatory extends PHPUnit_TestCase {
     function setUp()
     {
-        $this->store = new Tests_Auth_OpenID_MemStore();
-        $this->signatory = new Auth_OpenID_Signatory($this->store);
+        $this->store =& new Tests_Auth_OpenID_MemStore();
+        $this->signatory =& new Auth_OpenID_Signatory($this->store);
         $this->dumb_key = $this->signatory->dumb_key;
         $this->normal_key = $this->signatory->normal_key;
     }
