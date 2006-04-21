@@ -874,8 +874,8 @@ class Auth_OpenID_Server {
     function handleRequest($request)
     {
         if (method_exists($this, "openid_" . $request->mode)) {
-            $handler = "openid_" . $request->mode;
-            return $handler($request);
+            $handler = array($this, "openid_" . $request->mode);
+            return call_user_func($handler, $request);
         }
         return null;
     }
