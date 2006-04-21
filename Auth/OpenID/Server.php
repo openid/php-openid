@@ -867,7 +867,7 @@ class Auth_OpenID_Server {
     {
         $this->store =& $store;
         $this->signatory =& new Auth_OpenID_Signatory($this->store);
-        $this->encoder =& new Auth_OpenID_Encoder($this->signatory);
+        $this->encoder =& new Auth_OpenID_SigningEncoder($this->signatory);
         $this->decoder =& new Auth_OpenID_Decoder();
     }
 
