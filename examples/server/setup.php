@@ -36,7 +36,7 @@ if (!check_session() ||
     isset($_GET['add_openid'])) {
     render_form();
 } else {
-    print generate_config();
+    print generate_config(isset($_GET['download']));
 }
 
 /**
@@ -501,7 +501,13 @@ function init_session() {
     }
 }
 
-function generate_config() {
+function generate_config($download = false) {
+
+    if ($download) {
+        // Emit headers to force browser download.
+        header("Content-type: text/plain");
+        header("Content-disposition: attachment; filename=config.php");
+    } else {
 ?>
 <html>
 <body>
@@ -513,10 +519,17 @@ Put the following text into <strong><? print dirname(__FILE__); print DIRECTORY_
 </p>
 
 <p>
-<a href="setup.php?clear=1">Back to form</a>
+<a href="setup.php?clear=1">Back to form</a> (resets settings)
+</p>
+
+<p>
+<a href="setup.php?download=1">Download this configuration</a>
 </p>
 
 <pre style="border: 1px solid gray; background: #eee; padding: 5px;">
+<?
+}
+?>
 <? if ($_SESSION['include_path']) { ?>
 /**
  * Set any extra include paths needed to use the library
@@ -661,9 +674,13 @@ foreach ($_SESSION['trust_roots'] as $url) {
 ?>
 
 );
+<?
+    if (!$download) {
+?>
 </pre>
 </body>
 </html>
 <?
+      }
     } // end function generate_config ()
 ?>
