@@ -43,8 +43,11 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
 
             $parts = parse_url($url);
 
+            $specify_port = true;
+
             // Set a default port.
             if (!array_key_exists('port', $parts)) {
+                $specify_port = false;
                 if ($parts['scheme'] == 'http') {
                     $parts['port'] = 80;
                 } elseif ($parts['scheme'] == 'https') {
@@ -69,8 +72,10 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
             $headers = array(
                              "GET ".$parts['path']." HTTP/1.1",
                              "User-Agent: $user_agent",
-                             "Host: ".$parts['host'].":".$parts['port'],
+                             "Host: ".$parts['host'].
+                                ($specify_port ? ":".$parts['port'] : ""),
                              "Port: ".$parts['port'],
+                             "Connection: close",
                              "Cache-Control: no-cache");
 
             $errno = 0;
