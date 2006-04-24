@@ -14,8 +14,50 @@ require_once "Auth/OpenID.php";
  */
 function action_default()
 {
-    $server = getServer();
-    return handleResponse($server->getOpenIDResponse('isTrusted'));
+    $server =& getServer();
+    $method = $_SERVER['REQUEST_METHOD'];
+    $request = null;
+    if ($method == 'GET') {
+        $request = $_GET;
+    } else {
+        $request = $_POST;
+    }
+
+    $request = Auth_OpenID::fixArgs($request);
+    $request = $server->decodeRequest($request);
+
+    if (!$request) {
+        return about_render();
+    }
+
+    setRequestInfo($request);
+
+    if (in_array($request->mode,
+                 array('checkid_immediate', 'checkid_setup'))) {
+
+        if (isTrusted($request->identity, $request->trust_root)) {
+            $response =& $request->answer(true);
+        } else if ($request->immediate) {
+            $response =& $request->answer(false, getServerURL());
+        } else {
+            if (!getLoggedInUser()) {
+                return login_render();
+            }
+            return trust_render($request);
+        }
+    } else {
+        $response =& $server->handleRequest($request);
+    }
+
+    $webresponse =& $server->encodeResponse($response);
+
+    foreach ($webresponse->headers as $k => $v) {
+        header("$k: $v");
+    }
+
+    header(header_connection_close);
+    print $webresponse->body;
+    exit(0);
 }
 
 /**
@@ -72,7 +114,7 @@ function action_login()
 
         list ($errors, $openid_url) = login_checkInput($fields);
         if (count($errors) || !$openid_url) {
-            $needed = $info ? $info->getIdentityURL() : false;
+            $needed = $info ? $info->identity : false;
             return login_render($errors, @$fields['openid_url'], $needed);
         } else {
             setLoggedInUser($openid_url);
@@ -92,7 +134,7 @@ function action_trust()
     $trusted = isset($_POST['trust']);
     if ($info && isset($_POST['remember'])) {
         $sites = getSessionSites();
-        $sites[$info->getTrustRoot()] = $trusted;
+        $sites[$info->trust_root] = $trusted;
         setSessionSites($sites);
     }
     return doAuth($info, $trusted, true);

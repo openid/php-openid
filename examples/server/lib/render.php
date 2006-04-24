@@ -48,23 +48,13 @@ function link_render($url, $text=null) {
 }
 
 /**
- * Return a response to an OpenID consumer's POST
- */
-function kv_render($kv, $success=true)
-{
-    $headers = array(($success ? http_ok : http_bad_request),
-                     header_content_text,
-                     header_connection_close);
-    return array($headers, $kv);
-}
-
-/**
  * Return an HTTP redirect response
  */
 function redirect_render($redir_url)
 {
     $headers = array(http_found,
                      header_content_text,
+                     header_connection_close,
                      'Location: ' . $redir_url,
                      );
     $body = sprintf(redirect_message, $redir_url);

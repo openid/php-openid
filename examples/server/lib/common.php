@@ -16,36 +16,9 @@ function authCancel($info)
         setRequestInfo();
         $url = $info->getCancelURL();
     } else {
-        $server = getServer();
-        $url = $server->server_url;
+        $url = getServerURL();
     }
     return redirect_render($url);
-}
-
-function handleResponse($response, $do_auth=true)
-{
-    list ($status, $info) = $response;
-    switch($status) {
-    case Auth_OpenID_REMOTE_ERROR:
-        return kv_render($info, false);
-    case Auth_OpenID_REMOTE_OK:
-        return kv_render($info);
-    case Auth_OpenID_REDIRECT:
-        return redirect_render($info);
-    case Auth_OpenID_DO_AUTH:
-        if ($do_auth) {
-            return doAuth($info);
-        } else {
-            return about_render('Got unexpected DO_AUTH');
-        }
-    case Auth_OpenID_DO_ABOUT:
-        return about_render();
-    case Auth_OpenID_LOCAL_ERROR:
-        return about_render($info, false);
-    default:
-        $repr = var_export($status, true);
-        return about_render("Internal error: unknown status $repr");
-    }
 }
 
 function doAuth($info, $trusted=null, $fail_cancels=false)
@@ -55,7 +28,7 @@ function doAuth($info, $trusted=null, $fail_cancels=false)
         return authCancel(null);
     }
 
-    $req_url = $info->getIdentityURL();
+    $req_url = $info->identity;
     $user = getLoggedInUser();
     setRequestInfo($info);
 
@@ -64,14 +37,22 @@ function doAuth($info, $trusted=null, $fail_cancels=false)
     }
 
     $sites = getSessionSites();
-    $trust_root = $info->getTrustRoot();
+    $trust_root = $info->trust_root;
     $fail_cancels = $fail_cancels || isset($sites[$trust_root]);
     $trusted = isset($trusted) ? $trusted : isTrusted($req_url, $trust_root);
     if ($trusted) {
         setRequestInfo();
-        $server = getServer();
-        $response = $server->getAuthResponse(&$info, true);
-        return handleResponse($response, false);
+        $server =& getServer();
+        $response =& $info->answer(true);
+        $webresponse =& $server->encodeResponse($response);
+
+        $new_headers = array();
+
+        foreach ($webresponse->headers as $k => $v) {
+            $new_headers[] = $k.": ".$v;
+        }
+
+        return array($new_headers, $webresponse->body);
     } elseif ($fail_cancels) {
         return authCancel($info);
     } else {

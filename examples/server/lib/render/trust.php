@@ -20,7 +20,7 @@ function trust_render($info)
 {
     $current_user = getLoggedInUser();
     $lnk = link_render($current_user);
-    $trust_root = htmlspecialchars($info->getTrustRoot());
+    $trust_root = htmlspecialchars($info->trust_root);
     $trust_url = buildURL('trust', true);
     $form = sprintf(trust_form_pat, $lnk, $trust_root, $trust_url);
     return page_render($form, $current_user, 'Trust This Site');

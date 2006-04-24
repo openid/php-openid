@@ -1,6 +1,7 @@
 <?php
 
 require_once "config.php";
+require_once "lib/render.php";
 require_once "Auth/OpenID/Server.php";
 
 /**
@@ -70,6 +71,7 @@ function writeResponse($resp)
 {
     list ($headers, $body) = $resp;
     array_walk($headers, 'header');
+    header(header_connection_close);
     print $body;
 }
 
@@ -80,7 +82,7 @@ function getServer()
 {
     static $server = null;
     if (!isset($server)) {
-        $server = new Auth_OpenID_Server(getServerURL(), getOpenIDStore());
+        $server =& new Auth_OpenID_Server(getOpenIDStore());
     }
     return $server;
 }
