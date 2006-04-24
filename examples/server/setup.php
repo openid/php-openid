@@ -660,7 +660,7 @@ foreach ($_SESSION['users'] as $url => $hash) {
  * Sites in this list will not have to be approved by the user in
  * order to be used. It is OK to leave this value as-is.
  *
- * In a more robust server, this site should be a per-user setting.
+ * In a more robust server, this should be a per-user setting.
  */
 $trusted_sites = array(<?
 $i = 0;
