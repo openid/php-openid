@@ -12,6 +12,8 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
+require_once "Auth/OpenID.php";
+
 /**
  * Data.
  */
@@ -30,7 +32,8 @@ $messages = array();
 session_start();
 init_session();
 
-if (!check_session()) {
+if (!check_session() ||
+    isset($_GET['add_openid'])) {
     render_form();
 } else {
     print generate_config();
@@ -41,17 +44,7 @@ if (!check_session()) {
  */
 
 function check_url($url) {
-    $p = parse_url($url);
-
-    if ($p === false) {
-        return false;
-    }
-
-    if (!array_key_exists('host', $p)) {
-        return false;
-    }
-
-    return true;
+    return (Auth_OpenID::normalizeUrl($url) !== null);
 }
 
 function build_url() {
@@ -61,9 +54,11 @@ function build_url() {
     $scheme = strtolower($parts[0]);
 
     if ($port) {
-        return sprintf("%s://%s:%s%s/server.php", $scheme, $_SERVER['SERVER_NAME'], $port, dirname($_SERVER['PHP_SELF']));
+        return sprintf("%s://%s:%s%s/server.php", $scheme, $_SERVER['SERVER_NAME'],
+                       $port, dirname($_SERVER['PHP_SELF']));
     } else {
-        return sprintf("%s://%s%s/server.php", $scheme, $_SERVER['SERVER_NAME'], dirname($_SERVER['PHP_SELF']));
+        return sprintf("%s://%s%s/server.php", $scheme, $_SERVER['SERVER_NAME'],
+                       dirname($_SERVER['PHP_SELF']));
     }
 }
 
@@ -398,6 +393,8 @@ if ($_SESSION['users']) {
     <div>
       <label for="i_p2" class="field">Password (confirm):</label><input type="password" name="p2" id="i_p2">
     </div>
+
+    <input type="submit" name="add_openid" value="Add OpenID">
    </div>
 
   </div>
@@ -478,6 +475,7 @@ function init_session() {
     }
 
     if ($_GET &&
+        isset($_GET['add_openid']) &&
         isset($_GET['openid_url']) &&
         isset($_GET['p1']) &&
         isset($_GET['p2']) &&
@@ -485,7 +483,8 @@ function init_session() {
         $_GET['p1']) {
 
         if (check_url($_GET['openid_url'])) {
-            $_SESSION['users'][$_GET['openid_url']] = sha1($_GET['p1']);
+            $normalized = Auth_OpenID::normalizeUrl($_GET['openid_url']);
+            $_SESSION['users'][$normalized] = sha1($_GET['p1']);
         } else {
             $messages[] = "Cannot add OpenID URL; '".$_GET['openid_url']."' doesn't look like a URL.";
         }
