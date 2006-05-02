@@ -46,6 +46,16 @@ function loadTests($test_dir, $test_names)
         if (is_a($test, 'PHPUnit_TestCase')) {
             $test = new PHPUnit_TestSuite($class_name);
         }
+
+        $tc_array_name = $class_name . '_other';
+        if (array_key_exists($tc_array_name, $GLOBALS) &&
+            is_array($GLOBALS[$tc_array_name])) {
+            foreach ($GLOBALS[$tc_array_name] as $tc) {
+                print "Adding!\n";
+                $test->addTest($tc); // new PHPUnit_TestSuite($tc));
+            }
+        }
+
         $suites[] = $test;
     }
 

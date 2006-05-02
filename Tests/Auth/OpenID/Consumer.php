@@ -19,6 +19,7 @@ require_once 'Auth/OpenID/FileStore.php';
 require_once 'Auth/OpenID/KVForm.php';
 require_once 'Auth/OpenID/Consumer.php';
 require_once 'Auth/OpenID/HTTPFetcher.php';
+require_once 'Tests/Auth/OpenID/MemStore.php';
 require_once 'PHPUnit.php';
 
 class Auth_OpenID_TestConsumer extends Auth_OpenID_Consumer {
@@ -342,5 +343,36 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
         $store->destroy();
     }
 }
+
+class Tests_Auth_OpenID_Consumer_TestIdRes extends PHPUnit_TestCase {
+    function setUp()
+    {
+        $this->store = new Tests_Auth_OpenID_MemStore();
+        $this->consumer = new Auth_OpenID_GenericConsumer($this->store);
+        $this->return_to = "nonny";
+        $this->server_id = "sirod";
+        $this->server_url = "serlie";
+        $this->consumer_id = "consu";
+    }
+}
+
+class Tests_Auth_OpenID_Consumer_TestSetupNeeded extends Tests_Auth_OpenID_Consumer_TestIdRes {
+    function test_setupNeeded()
+    {
+        $setup_url = "http://unittest/setup-here";
+        $query = array(
+                       'openid.mode' => 'id_res',
+                       'openid.user_setup_url' => $setup_url);
+        $ret = $this->consumer->_doIdRes($query, $this->consumer_id,
+                                         $this->server_id, $this->server_url);
+        $this->assertEquals($ret->status, 'setup_needed');
+        $this->assertEquals($ret->setup_url, $setup_url);
+    }
+}
+
+// Add other test cases to be run.
+$Tests_Auth_OpenID_Consumer_other = array(
+                                    new Tests_Auth_OpenID_Consumer_TestSetupNeeded()
+                                    );
 
 ?>
