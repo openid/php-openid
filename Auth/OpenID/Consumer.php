@@ -274,7 +274,8 @@ class Auth_OpenID_Consumer {
         if (false) { // If yadis_available
         } else {
             $endpoint = null;
-            $result = Auth_OpenID_discover($openid_url, $this->consumer->fetcher);
+            $result = Auth_OpenID_discover($openid_url,
+                                           $this->consumer->fetcher);
             if ($result !== null) {
                 list($temp, $endpoints) = $result;
                 $endpoint = $endpoints[0];
@@ -300,7 +301,8 @@ class Auth_OpenID_Consumer {
         $token = $this->session->get($this->_token_key);
 
         if ($token === null) {
-            $response = new Auth_OpenID_FailureResponse(null, 'No session state found');
+            $response = new Auth_OpenID_FailureResponse(null,
+                                                   'No session state found');
         } else {
             $response = $this->consumer->complete($query, $token);
         }
@@ -409,7 +411,8 @@ class Auth_OpenID_GenericConsumer {
 
     function complete($query, $token)
     {
-        $mode = Auth_OpenID::arrayGet($query, 'openid.mode', '<no mode specified>');
+        $mode = Auth_OpenID::arrayGet($query, 'openid.mode',
+                                      '<no mode specified>');
 
         $pieces = $this->_splitToken($token);
         if ($pieces === null) {
@@ -425,10 +428,12 @@ class Auth_OpenID_GenericConsumer {
             return new Auth_OpenID_FailureResponse($identity_url, $error);
         } else if ($mode == 'id_res') {
             if ($identity_url === null) {
-                return new Auth_OpenID_FailureResponse($identity_url, "No session state found");
+                return new Auth_OpenID_FailureResponse($identity_url,
+                                                    "No session state found");
             }
 
-            $response = $this->_doIdRes($query, $identity_url, $delegate, $server_url);
+            $response = $this->_doIdRes($query, $identity_url, $delegate,
+                                        $server_url);
 
             if ($response === null) {
                 return new Auth_OpenID_FailureResponse($identity_url,
@@ -436,14 +441,15 @@ class Auth_OpenID_GenericConsumer {
             }
             if ($response->status == Auth_OpenID_SUCCESS) {
                 return $this->_checkNonce($response,
-                                          Auth_OpenID::arrayGet($query, 'nonce'));
+                                          Auth_OpenID::arrayGet($query,
+                                                                'nonce'));
             } else {
                 return $response;
             }
         } else {
             return new Auth_OpenID_FailureResponse($identity_url,
-                                                   sprintf("Invalid openid.mode '%s'",
-                                                           $mode));
+                                           sprintf("Invalid openid.mode '%s'",
+                                                   $mode));
         }
     }
 
@@ -474,7 +480,7 @@ class Auth_OpenID_GenericConsumer {
 
         if ($server_id != $server_id2) {
             return new Auth_OpenID_FailureResponse($consumer_id,
-                                                   "Server ID (delegate) mismatch");
+                                             "Server ID (delegate) mismatch");
         }
 
         $signed = Auth_OpenID::arrayGet($query, 'openid.signed');
@@ -489,7 +495,7 @@ class Auth_OpenID_GenericConsumer {
                                                        $signed);
             } else {
                 return new Auth_OpenID_FailureResponse($consumer_id,
-                                          "Server denied check_authentication");
+                                       "Server denied check_authentication");
             }
         }
 
@@ -504,17 +510,19 @@ class Auth_OpenID_GenericConsumer {
         if (($sig === null) ||
             ($signed === null)) {
             return new Auth_OpenID_FailureResponse($consumer_id,
-                                                   "Missing argument signature");
+                                               "Missing argument signature");
         }
 
         $signed_list = explode(",", $signed);
         $v_sig = $assoc->signDict($signed_list, $query);
 
         if ($v_sig != $sig) {
-            return new Auth_OpenID_FailureResponse($consumer_id, "Bad signature");
+            return new Auth_OpenID_FailureResponse($consumer_id,
+                                                   "Bad signature");
         }
 
-        return Auth_OpenID_SuccessResponse::fromQuery($consumer_id, $query, $signed);
+        return Auth_OpenID_SuccessResponse::fromQuery($consumer_id,
+                                                      $query, $signed);
     }
 
     function _checkAuth($query, $server_url)
@@ -621,8 +629,9 @@ class Auth_OpenID_GenericConsumer {
         foreach ($query as $k => $v) {
             if ($k == 'nonce') {
                 if ($v != $nonce) {
-                    return new Auth_OpenID_FailureResponse($response->identity_url,
-                                                           "Nonce mismatch");
+                    return new Auth_OpenID_FailureResponse(
+                                                  $response->identity_url,
+                                                  "Nonce mismatch");
                 } else {
                     $found = true;
                     break;
@@ -862,7 +871,8 @@ class Auth_OpenID_AuthRequest {
         }
 
         $redir_args = array_merge($redir_args, $this->extra_args);
-        return Auth_OpenID::appendArgs($this->endpoint->server_url, $redir_args);
+        return Auth_OpenID::appendArgs($this->endpoint->server_url,
+                                       $redir_args);
     }
 }
 
@@ -884,7 +894,8 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
         $signed_args = array();
         foreach (explode(",", $signed) as $field_name) {
             $field_name = 'openid.' . $field_name;
-            $signed_args[$field_name] = Auth_OpenID::arrayGet($query, $field_name, '');
+            $signed_args[$field_name] = Auth_OpenID::arrayGet($query,
+                                                              $field_name, '');
         }
         return new Auth_OpenID_SuccessResponse($identity_url, $signed_args);
     }

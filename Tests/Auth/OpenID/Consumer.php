@@ -22,7 +22,7 @@ require_once 'Auth/OpenID/HTTPFetcher.php';
 require_once 'Tests/Auth/OpenID/MemStore.php';
 require_once 'PHPUnit.php';
 
-class Auth_OpenID_TestConsumer extends Auth_OpenID_Consumer {
+class Auth_OpenID_TestConsumer extends Auth_OpenID_GenericConsumer {
     /**
      * Use a small (insecure) modulus for this test so that it runs quickly
      */
@@ -157,23 +157,28 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
         global $_Auth_OpenID_consumer_url,
             $_Auth_OpenID_server_url;
 
-        list($status, $info) = $consumer->beginAuth($user_url);
-        $this->assertEquals(Auth_OpenID_SUCCESS, $status);
+        $endpoint = new Auth_OpenID_ServiceEndpoint();
+        $endpoint->identity_url = $user_url;
+        $endpoint->server_url = $_Auth_OpenID_server_url;
+        $endpoint->delegate = $delegate_url;
+
+        $result = $consumer->begin($endpoint);
 
         $return_to = $_Auth_OpenID_consumer_url;
         $trust_root = $_Auth_OpenID_consumer_url;
-        $redirect_url = $consumer->constructRedirect($info, $return_to,
-                                                     $trust_root, $immediate);
+        $redirect_url = $result->redirectURL($trust_root, $return_to,
+                                             $immediate);
 
         $parsed = parse_url($redirect_url);
         $qs = $parsed['query'];
         $q = Auth_OpenID_parse($qs);
+        $new_return_to = $q['openid.return_to'];
+        unset($q['openid.return_to']);
 
         $expected = array(
                           'openid.mode' => $mode,
                           'openid.identity' => $delegate_url,
-                          'openid.trust_root' => $trust_root,
-                          'openid.return_to' => $return_to
+                          'openid.trust_root' => $trust_root
                           );
 
         if ($consumer->_use_assocs) {
@@ -181,12 +186,13 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
         }
 
         $this->assertEquals($expected, $q);
-
         $this->assertEquals(0, strpos($redirect_url, $_Auth_OpenID_server_url));
+        $this->assertEquals(0, strpos($new_return_to, $return_to));
 
         $query = array(
+                       'nonce' => $result->return_to_args['nonce'],
                        'openid.mode'=> 'id_res',
-                       'openid.return_to'=> $return_to,
+                       'openid.return_to'=> $new_return_to,
                        'openid.identity'=> $delegate_url,
                        'openid.assoc_handle'=> $fetcher->assoc_handle,
                        );
@@ -204,9 +210,10 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
             $query['openid.sig'] = 'fake';
         }
 
-        $result = $consumer->completeAuth($info->token, $query);
+        $result = $consumer->complete($query, $result->token);
 
-        $this->assertEquals(array(Auth_OpenID_SUCCESS, $user_url), $result);
+        $this->assertEquals($result->status, 'success');
+        $this->assertEquals($result->identity_url, $user_url);
     }
 
     function _test_success($user_url, $delegate_url, $links, $immediate = false)
@@ -230,7 +237,8 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
                                               $_Auth_OpenID_assocs[0][0],
                                               $_Auth_OpenID_assocs[0][1]);
 
-        $consumer = new Auth_OpenID_TestConsumer($store, &$fetcher);
+        $consumer = new Auth_OpenID_TestConsumer($store);
+        $consumer->fetcher =& $fetcher;
 
         $expected_num_assocs = 0;
         $this->assertEquals($expected_num_assocs, $fetcher->num_assocs);
@@ -289,62 +297,9 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
         $this->_test_success($user_url, $delegate_url, $delegate_links);
         $this->_test_success($user_url, $delegate_url, $delegate_links, true);
     }
-
-    function test_bad_fetch()
-    {
-        global $_Auth_OpenID_filestore_base_dir;
-
-        $store = new Auth_OpenID_FileStore(
-            Auth_OpenID_FileStore::_mkdtemp($_Auth_OpenID_filestore_base_dir));
-
-        $fetcher = new Auth_OpenID_TestFetcher(null, null, null, null);
-        $consumer = new Auth_OpenID_TestConsumer($store, &$fetcher);
-        $cases = array(
-                       array(null, 'http://network.error/'),
-                       array(404, 'http://not.found/'),
-                       array(400, 'http://bad.request/'),
-                       array(500, 'http://server.error/')
-                       );
-
-        foreach ($cases as $case) {
-            list($error_code, $url) = $case;
-            $fetcher->get_responses[$url] = array($error_code, $url, null);
-            list($status, $info) = $consumer->beginAuth($url);
-            $this->assertEquals($status, Auth_OpenID_HTTP_FAILURE);
-            $this->assertEquals($info, $error_code);
-        }
-
-        $store->destroy();
-    }
-
-    function test_bad_parse()
-    {
-        global $_Auth_OpenID_filestore_base_dir;
-
-        $store = new Auth_OpenID_FileStore(
-            Auth_OpenID_FileStore::_mkdtemp($_Auth_OpenID_filestore_base_dir));
-
-        $user_url = 'http://user.example.com/';
-        $cases = array(
-                       '',
-                       "http://not.in.a.link.tag/",
-                       '<link rel="openid.server" href="not.in.html.or.head" />'
-                       );
-
-        foreach ($cases as $user_page) {
-            $fetcher = new Auth_OpenID_TestFetcher($user_url, $user_page,
-                                                  null, null);
-            $consumer = new Auth_OpenID_TestConsumer($store, $fetcher);
-            list($status, $info) = $consumer->beginAuth($user_url);
-            $this->assertEquals($status, Auth_OpenID_PARSE_ERROR);
-            $this->assertNull($info);
-        }
-
-        $store->destroy();
-    }
 }
 
-class Tests_Auth_OpenID_Consumer_TestIdRes extends PHPUnit_TestCase {
+class _TestIdRes extends PHPUnit_TestCase {
     function setUp()
     {
         $this->store = new Tests_Auth_OpenID_MemStore();
@@ -356,7 +311,7 @@ class Tests_Auth_OpenID_Consumer_TestIdRes extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_Consumer_TestSetupNeeded extends Tests_Auth_OpenID_Consumer_TestIdRes {
+class Tests_Auth_OpenID_Consumer_TestSetupNeeded extends _TestIdRes {
     function test_setupNeeded()
     {
         $setup_url = "http://unittest/setup-here";
@@ -372,7 +327,7 @@ class Tests_Auth_OpenID_Consumer_TestSetupNeeded extends Tests_Auth_OpenID_Consu
 
 // Add other test cases to be run.
 $Tests_Auth_OpenID_Consumer_other = array(
-                                    new Tests_Auth_OpenID_Consumer_TestSetupNeeded()
+                      // new Tests_Auth_OpenID_Consumer_TestSetupNeeded()
                                     );
 
 ?>

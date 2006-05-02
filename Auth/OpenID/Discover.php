@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * The OpenID and Yadis discovery implementation for OpenID 1.2.
+ */
+
 require_once "Auth/OpenID.php";
 
 // If the Yadis library is available, use it. Otherwise, only use
@@ -197,9 +201,6 @@ function Auth_OpenID_discover($uri, $fetcher)
     list($code, $url, $body) = $http_resp;
 
     if ($code != 200) {
-        // raise DiscoveryFailure(
-        //             'HTTP Response status from identity URL host is not 200. '
-        // 'Got status %r' % (http_resp.status,), http_resp)
         return null;
     }
 
