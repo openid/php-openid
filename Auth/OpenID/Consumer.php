@@ -537,7 +537,7 @@ class Auth_OpenID_GenericConsumer {
             return false;
         }
 
-        return $this->_processCheckAuthResponse($response);
+        return $this->_processCheckAuthResponse($response, $server_url);
     }
 
     /**
@@ -567,12 +567,12 @@ class Auth_OpenID_GenericConsumer {
         return $check_args;
     }
 
-    function _processCheckAuthResponse($response)
+    function _processCheckAuthResponse($response, $server_url)
     {
         $is_valid = Auth_OpenID::arrayGet($response, 'is_valid', 'false');
 
         if ($is_valid == 'true') {
-            $invalidate_handle = Auth_OpenID::arrayGet($results,
+            $invalidate_handle = Auth_OpenID::arrayGet($response,
                                                        'invalidate_handle');
 
             if ($invalidate_handle !== null) {
