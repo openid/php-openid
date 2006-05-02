@@ -600,7 +600,7 @@ class Auth_OpenID_GenericConsumer {
 
         $resp = $this->fetcher->post($server_url, $body);
 
-        if ($res === null) {
+        if ($resp === null) {
             return null;
         }
 
