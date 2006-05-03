@@ -5,29 +5,19 @@
  */
 
 require_once "Auth/OpenID.php";
+require_once "Auth/OpenID/Parse.php"; // need Auth_OpenID_legacy_discover
 
 // If the Yadis library is available, use it. Otherwise, only use
 // old-style discovery.
-/*
-try:
-    import yadis
-except ImportError:
-    yadis_available = False
+global $_yadis_available;
 
-    oidutil.log('Consumer operating without Yadis support '
-                '(failed to import Yadis library)')
+$_yadis_available = false;
 
-    class DisccoveryFailure(RuntimeError):
-        """Stand-in in case we don't have Yadis"""
-else:
-    yadis_available = True
-    from yadis.etxrd import nsTag, XRDSError
-    from yadis.services import applyFilter as extractServices
-    from yadis.discover import discover as yadisDiscover
-    from yadis.discover import DiscoveryFailure
-*/
+$try_include = @include 'Services/Yadis/Yadis.php';
 
-require_once "Auth/OpenID/Parse.php"; // need Auth_OpenID_legacy_discover
+if ($try_include) {
+    $_yadis_available = true;
+}
 
 define('_OPENID_1_0_NS', 'http://openid.net/xmlns/1.0');
 define('_OPENID_1_2_TYPE', 'http://openid.net/signon/1.2');
@@ -124,78 +114,72 @@ class Auth_OpenID_ServiceEndpoint {
 
 function findDelegate($service_element)
 {
-    // Extract a openid:Delegate value from a Yadis Service element
-    // represented as an ElementTree Element object. If no delegate is
-    // found, returns null.
+    // Extract a openid:Delegate value from a Yadis Service element.
+    // If no delegate is found, returns null.
 
     // XXX: should this die if there is more than one delegate element?
-    $delegate_tag = nsTag(_OPENID_1_0_NS, 'Delegate');
+    $delegates = $service_element->getElements("openid:Delegate");
 
-    /*
-    // FIX THIS ONCE YADIS SUPPORT IS AVAILABLE!
-    $delegates = $service_element->findall($delegate_tag);
-    for delegate_element in delegates:
-        delegate = delegate_element.text
-        break
-    else:
-        delegate = null
-
-    return delegate
-    */
+    if ($delegates) {
+        return $delegates[0]['textParts'][0];
+    } else {
+        return null;
+    }
 }
 
-/*
-function discoverYadis(uri):
-    """Discover OpenID services for a URI. Tries Yadis and falls back
-    on old-style <link rel='...'> discovery if Yadis fails.
+function filter_MatchesAnyOpenIDType(&$service)
+{
+    $uris = $service->getTypes();
 
-    @param uri: normalized identity URL
-    @type uri: str
+    foreach ($uris as $uri) {
+        if (in_array($uri,
+                     array(_OPENID_1_0_TYPE,
+                           _OPENID_1_1_TYPE,
+                           _OPENID_1_2_TYPE))) {
+            return true;
+        }
+    }
+    return false;
+}
 
-    @return: (identity_url, services)
-    @rtype: (str, list(OpenIDServiceEndpoint))
+function Auth_OpenID_discoverWithYadis($uri)
+{
+    // Discover OpenID services for a URI. Tries Yadis and falls back
+    // on old-style <link rel='...'> discovery if Yadis fails.
 
-    @raises: DiscoveryFailure
-    """
-    # Might raise a yadis.discover.DiscoveryFailure if no document
-    # came back for that URI at all.  I don't think falling back
-    # to OpenID 1.0 discovery on the same URL will help, so don't
-    # bother to catch it.
-    response = yadisDiscover(uri)
+    // Might raise a yadis.discover.DiscoveryFailure if no document
+    // came back for that URI at all.  I don't think falling back to
+    // OpenID 1.0 discovery on the same URL will help, so don't bother
+    // to catch it.
+    $openid_services = array();
 
-    identity_url = response.normalized_uri
-    try:
-        openid_services = extractServices(
-            response.normalized_uri, response.response_text,
-            OpenIDServiceEndpoint)
-    except XRDSError:
-        # Does not parse as a Yadis XRDS file
-        openid_services = []
+    $response = Auth_OpenID_Yadis::discover($uri);
 
-    if not openid_services:
-        # Either not an XRDS or there are no OpenID services.
+    if ($response) {
+        $identity_url = $response->uri;
+        $openid_services =
+            $response->xrds->services('filter_MatchesAnyOpenIDType');
+    } else {
+        return Auth_OpenID_discover($uri, Auth_OpenID::getHTTPFetcher());
+    }
 
-        if response.isXRDS():
-            # if we got the Yadis content-type or followed the Yadis
-            # header, re-fetch the document without following the Yadis
-            # header, with no Accept header.
-            return discoverNoYadis(uri)
-        else:
-            body = response.response_text
+    if (!$openid_services) {
+        $body = $response->body;
 
-        # Try to parse the response as HTML to get OpenID 1.0/1.1
-        # <link rel="...">
-        try:
-            service = OpenIDServiceEndpoint.fromHTML(identity_url, body)
-        except ParseError:
-            pass # Parsing failed, so return an empty list
-        else:
-            openid_services = [service]
+        // Try to parse the response as HTML to get OpenID 1.0/1.1
+        // <link rel="...">
+        $service = Auth_OpenID_ServiceEndpoint::fromHTML($identity_url,
+                                                         $body);
 
-    return (identity_url, openid_services)
-*/
+        if ($service !== null) {
+            $openid_services = array($service);
+        }
+    }
 
-function Auth_OpenID_discover($uri, $fetcher)
+    return array($identity_url, $openid_services);
+}
+
+function Auth_OpenID_discoverWithoutYadis($uri, $fetcher)
 {
     $http_resp = $fetcher->get($uri);
     list($code, $url, $body) = $http_resp;
@@ -219,11 +203,14 @@ function Auth_OpenID_discover($uri, $fetcher)
     return array($identity_url, $openid_services);
 }
 
-/*
-if yadis_available:
-    discover = discoverYadis
-else:
-    discover = discoverWithoutYadis
-*/
+function Auth_OpenID_discover($uri, $fetcher)
+{
+    global $_yadis_available;
+    if ($_yadis_available) {
+        return Auth_OpenID_discoverWithYadis($uri);
+    } else {
+        return Auth_OpenID_discoverWithoutYadis($uri, $fetcher);
+    }
+}
 
 ?>
