@@ -5,4 +5,4 @@ find Auth Tests \
     \( -type f \
     -a -name \*.php \
     -a ! -name .\* \
-    \)
+    \) | grep -v Tests

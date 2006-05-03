@@ -51,7 +51,6 @@ function loadTests($test_dir, $test_names)
         if (array_key_exists($tc_array_name, $GLOBALS) &&
             is_array($GLOBALS[$tc_array_name])) {
             foreach ($GLOBALS[$tc_array_name] as $tc) {
-                print "Adding!\n";
                 $test->addTest($tc); // new PHPUnit_TestSuite($tc));
             }
         }
