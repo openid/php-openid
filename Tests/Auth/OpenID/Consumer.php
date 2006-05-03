@@ -300,15 +300,13 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
 }
 
 class _TestIdRes extends PHPUnit_TestCase {
-    function _TestIdRes()
-    {
-        parent::PHPUnit_TestCase(get_class($this));
-    }
+    var $consumer_class = 'Auth_OpenID_GenericConsumer';
 
     function setUp()
     {
         $this->store = new Tests_Auth_OpenID_MemStore();
-        $this->consumer = new Auth_OpenID_GenericConsumer($this->store);
+        $cl = $this->consumer_class;
+        $this->consumer = new $cl($this->store);
         $this->return_to = "nonny";
         $this->server_id = "sirod";
         $this->server_url = "serlie";
@@ -329,7 +327,7 @@ function __handler($code, $message)
 
 function raiseError($message)
 {
-    set_error_handler('handler');
+    set_error_handler('__handler');
     trigger_error($message, E_USER_WARNING);
     restore_error_handler();
 }
@@ -383,8 +381,8 @@ class Tests_Auth_OpenID_Consumer_NonceIdResTest extends _TestIdRes {
                                          $this->server_id,
                                          $this->server_url);
 
-        $this->failUnlessEqual($ret->status, 'failure');
-        $this->failUnlessEqual($ret->identity_url, $this->consumer_id);
+        $this->assertEquals($ret->status, 'failure');
+        $this->assertEquals($ret->identity_url, $this->consumer_id);
     }
 
     function test_badNonce()
@@ -396,13 +394,13 @@ class Tests_Auth_OpenID_Consumer_NonceIdResTest extends _TestIdRes {
                        'openid.identity' => $this->server_id,
                        'openid.assoc_handle' => 'not_found');
 
-        $ret = $this->consumer._doIdRes($query,
+        $ret = $this->consumer->_doIdRes($query,
                                         $this->consumer_id,
                                         $this->server_id,
                                         $this->server_url);
 
-        $this->failUnlessEqual($ret->status, 'failure');
-        $this->failUnlessEqual($ret->identity_url, $this->consumer_id);
+        $this->assertEquals($ret->status, 'failure');
+        $this->assertEquals($ret->identity_url, $this->consumer_id);
     }
 
     function test_twoNonce()
@@ -414,13 +412,13 @@ class Tests_Auth_OpenID_Consumer_NonceIdResTest extends _TestIdRes {
                        'openid.identity' => $this->server_id,
                        'openid.assoc_handle' => 'not_found');
 
-        $ret = $this->consumer._doIdRes($query,
+        $ret = $this->consumer->_doIdRes($query,
                                         $this->consumer_id,
                                         $this->server_id,
                                         $this->server_url);
 
-        $this->failUnlessEqual($ret->status, 'failure');
-        $this->failUnlessEqual($ret->identity_url, $this->consumer_id);
+        $this->assertEquals($ret->status, 'failure');
+        $this->assertEquals($ret->identity_url, $this->consumer_id);
     }
 }
 
@@ -481,7 +479,7 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuthTriggered extends _TestIdRes {
         $handle = 'handle';
         $assoc = new Auth_OpenID_Association(
                         $handle, 'secret', $issued, $lifetime, 'HMAC-SHA1');
-        $this->failUnless($assoc->getExpiresIn() <= 0);
+        $this->assertTrue($assoc->getExpiresIn() <= 0);
         $this->store->storeAssociation($this->server_url, $assoc);
 
         $query = array(
@@ -490,11 +488,10 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuthTriggered extends _TestIdRes {
             'openid.assoc_handle' => $handle);
 
         $info = $this->_doIdRes($query);
-        $this->failUnlessEqual('failure', $info->status);
-        $this->failUnlessEqual($this->consumer_id, $info->identity_url);
+        $this->assertEquals('failure', $info->status);
+        $this->assertEquals($this->consumer_id, $info->identity_url);
 
-        // XXX FIXME
-        $info->message->index('expired'); // raises an exception if it's not there
+        $this->assertTrue(strpos($info->message, 'expired') !== false);
     }
 
     function test_newerAssoc()
@@ -507,13 +504,13 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuthTriggered extends _TestIdRes {
         $good_handle = 'handle';
         $good_assoc = new Auth_OpenID_Association(
                 $good_handle, 'secret', $good_issued, $lifetime, 'HMAC-SHA1');
-        $this->store.storeAssociation($this->server_url, $good_assoc);
+        $this->store->storeAssociation($this->server_url, $good_assoc);
 
         $bad_issued = time() - 5;
         $bad_handle = 'handle2';
         $bad_assoc = new Auth_OpenID_Association(
                   $bad_handle, 'secret', $bad_issued, $lifetime, 'HMAC-SHA1');
-        $this->store.storeAssociation($this->server_url, $bad_assoc);
+        $this->store->storeAssociation($this->server_url, $bad_assoc);
 
         $query = array(
             'openid.return_to' => $this->return_to,
@@ -522,8 +519,8 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuthTriggered extends _TestIdRes {
 
         $good_assoc->addSignature(array('return_to', 'identity'), $query);
         $info = $this->_doIdRes($query);
-        $this->failUnlessEqual($info->status, 'success');
-        $this->failUnlessEqual($this->consumer_id, $info->identity_url);
+        $this->assertEquals($info->status, 'success');
+        $this->assertEquals($this->consumer_id, $info->identity_url);
     }
 }
 
@@ -535,13 +532,13 @@ class _MockFetcher {
         $this->fetches = array();
     }
 
-    function get($url, $body)
+    function post($url, $body)
     {
         $this->fetches[] = array($url, $body, array());
         return $this->response;
     }
 
-    function post($url)
+    function get($url)
     {
         $this->fetches[] = array($url, null, array());
         return $this->response;
@@ -549,6 +546,11 @@ class _MockFetcher {
 }
 
 class _ExceptionRaisingMockFetcher {
+    function get($url)
+    {
+        raiseError(E_MOCK_FETCHER_EXCEPTION);
+    }
+
     function post($url, $body)
     {
         raiseError(E_MOCK_FETCHER_EXCEPTION);
@@ -568,8 +570,6 @@ class _BadArgCheckingConsumer extends Auth_OpenID_GenericConsumer {
 }
 
 class Tests_Auth_OpenID_Consumer_TestCheckAuth extends _TestIdRes {
-    // consumer_class = GenericOpenIDConsumer
-
     function setUp()
     {
         $this->store = new Tests_Auth_OpenID_MemStore();
@@ -578,16 +578,15 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuth extends _TestIdRes {
         $this->consumer->fetcher =& $this->fetcher;
     }
 
-    function test_error()
+    function test_checkauth_error()
     {
         global $_Auth_OpenID_server_url;
         $this->fetcher->response = array(404, "http://some_url", "blah:blah\n");
         $query = array('openid.signed' => 'stuff, things');
-        $r = $this->consumer._checkAuth($query, $_Auth_OpenID_server_url);
-        if ($r !== null) {
-            $this->failIf("Expected _checkAuth result to be null");
+        $r = $this->consumer->_checkAuth($query, $_Auth_OpenID_server_url);
+        if ($r !== false) {
+            $this->fail("Expected _checkAuth result to be false");
         }
-        $this->assertEquals(getError(), E_MOCK_FETCHER_EXCEPTION);
     }
 
     function test_bad_args()
@@ -601,46 +600,57 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuth extends _TestIdRes {
     }
 }
 
-    /*
-class TestFetchAssoc(unittest.TestCase):
-    consumer_class = GenericOpenIDConsumer
+class Tests_Auth_OpenID_Consumer_TestFetchAssoc extends PHPUnit_TestCase {
+    function setUp()
+    {
+        $this->store = new Tests_Auth_OpenID_MemStore();
+        $this->fetcher = new _MockFetcher();
+        $this->consumer = new Auth_OpenID_GenericConsumer($this->store);
+        $this->consumer->fetcher =& $this->fetcher;
+    }
 
-    def setUp(self):
-        $this->store = _memstore.MemoryStore()
-        $this->fetcher = MockFetcher()
-        fetchers.setDefaultFetcher($this->fetcher)
-        $this->consumer = $this->consumer_class($this->store)
+    function test_kvpost_error()
+    {
+        $this->fetcher->response = array(404, 'http://some_url', "blah:blah\n");
+        $r = $this->consumer->_makeKVPost(array('openid.mode' => 'associate'),
+                                          "http://server_url");
+        if ($r !== null) {
+            $this->fail("Expected _makeKVPost result to be null");
+        }
+    }
 
-    def test_error(self):
-        $this->fetcher.response = HTTPResponse(
-            "http://some_url", 404, {'Hea': 'der'}, 'blah:blah\n')
-        r = $this->consumer._makeKVPost({'openid.mode':'associate'},
-                                      "http://server_url")
-        $this->failUnlessEqual(r, None)
-        $this->failUnless($this->messages)
+    function test_error_exception()
+    {
+        $this->consumer->fetcher = new _ExceptionRaisingMockFetcher();
 
-    def test_error_exception(self):
-        $this->fetcher = ExceptionRaisingMockFetcher()
-        fetchers.setDefaultFetcher($this->fetcher)
-        $this->failUnlessRaises(fetchers.HTTPFetchingError,
-                              $this->consumer._makeKVPost,
-                              {'openid.mode':'associate'},
-                              "http://server_url")
+        $this->consumer->_makeKVPost(array('openid.mode' => 'associate'),
+                                     "http://server_url");
 
-        # exception fetching returns no association
-        $this->failUnless($this->consumer._getAssociation('some://url') is None)
+        if (getError() !== E_MOCK_FETCHER_EXCEPTION) {
+            $this->fail("Expected ExceptionRaisingMockFetcher to " .
+                        "raise E_MOCK_FETCHER_EXCEPTION");
+        }
 
-        $this->failUnlessRaises(fetchers.HTTPFetchingError,
-                              $this->consumer._checkAuth,
-                              {'openid.signed':''},
-                              'some://url')
-    */
+        // exception fetching returns no association
+        $this->assertEquals(@$this->consumer->_getAssociation('some://url'), null);
+
+        $this->consumer->_checkAuth(array('openid.signed' => ''),
+                                    'some://url');
+
+        if (getError() !== E_MOCK_FETCHER_EXCEPTION) {
+            $this->fail("Expected ExceptionRaisingMockFetcher to " .
+                        "raise E_MOCK_FETCHER_EXCEPTION (_checkAuth)");
+        }
+    }
+}
 
 // Add other test cases to be run.
 $Tests_Auth_OpenID_Consumer_other = array(
                                           new Tests_Auth_OpenID_Consumer_TestSetupNeeded(),
                                           new Tests_Auth_OpenID_Consumer_TestCheckAuth(),
-                                          new Tests_Auth_OpenID_Consumer_TestCheckAuthTriggered()
+                                          new Tests_Auth_OpenID_Consumer_TestCheckAuthTriggered(),
+                                          new Tests_Auth_OpenID_Consumer_TestFetchAssoc(),
+                                          new Tests_Auth_OpenID_Consumer_NonceIdResTest()
                                           );
 
 ?>

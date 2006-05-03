@@ -235,7 +235,7 @@ define('Auth_OpenID_DEFAULT_NONCE_CHRS',"abcdefghijklmnopqrstuvwxyz" .
  */
 define('Auth_OpenID_DEFAULT_TOKEN_LIFETIME', 60 * 5); // five minutes
 
-class Auth_OpenID_Session {
+class Auth_OpenID_PHPSession {
     function set($name, $value)
     {
         $_SESSION[$name] = $value;
@@ -261,8 +261,12 @@ class Auth_OpenID_Consumer {
     var $session_key_prefix = "_openid_consumer_";
     var $_token_suffix = "last_token";
 
-    function Auth_OpenID_Consumer(&$session, &$store)
+    function Auth_OpenID_Consumer(&$store, $session = null)
     {
+        if ($session === null) {
+            $session = new Auth_OpenID_PHPSession();
+        }
+
         $this->session =& $session;
         $this->consumer =& new Auth_OpenID_GenericConsumer($store);
         $this->_token_key = $this->session_key_prefix . $this->_token_suffix;

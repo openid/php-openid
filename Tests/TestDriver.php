@@ -43,15 +43,19 @@ function loadTests($test_dir, $test_names)
         $class_name = basename($class_name, '.php');
         global_require_once($filename);
         $test = new $class_name($class_name);
-        if (is_a($test, 'PHPUnit_TestCase')) {
-            $test = new PHPUnit_TestSuite($class_name);
-        }
 
-        $tc_array_name = $class_name . '_other';
-        if (array_key_exists($tc_array_name, $GLOBALS) &&
-            is_array($GLOBALS[$tc_array_name])) {
-            foreach ($GLOBALS[$tc_array_name] as $tc) {
-                $test->addTest($tc); // new PHPUnit_TestSuite($tc));
+        if (is_a($test, 'PHPUnit_TestCase')) {
+            $s = new PHPUnit_TestSuite();
+            $s->setName($class_name);
+            $s->addTestSuite($class_name);
+            $test = $s;
+
+            $tc_array_name = $class_name . '_other';
+            if (array_key_exists($tc_array_name, $GLOBALS) &&
+                is_array($GLOBALS[$tc_array_name])) {
+                foreach ($GLOBALS[$tc_array_name] as $tc) {
+                    $test->addTestSuite(get_class($tc));
+                }
             }
         }
 
