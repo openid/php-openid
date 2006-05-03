@@ -157,16 +157,16 @@ function Auth_OpenID_discoverWithYadis($uri)
 
         foreach ($openid_services as $service) {
             $type_uris = $service->getTypes();
+            $uris = $service->getURIs();
 
             // If any Type URIs match and there is an endpoint URI
             // specified, then this is an OpenID endpoint
             if ($type_uris &&
-                ($service->getURIs())) {
+                $uris) {
+
+                $uri = $uris[0];
+
                 $openid_endpoint = new Auth_OpenID_ServiceEndpoint();
-
-                $uri = $service->getURIs();
-                $uri = $uri[0];
-
                 $openid_endpoint->parseService($response->xrds_uri,
                                                $uri,
                                                $type_uris,
