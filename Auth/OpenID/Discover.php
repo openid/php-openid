@@ -164,11 +164,11 @@ function Auth_OpenID_discoverWithYadis($uri)
             if ($type_uris &&
                 $uris) {
 
-                $uri = $uris[0];
+                $_uri = $uris[0];
 
                 $openid_endpoint = new Auth_OpenID_ServiceEndpoint();
-                $openid_endpoint->parseService($response->xrds_uri,
-                                               $uri,
+                $openid_endpoint->parseService($response->uri,
+                                               $_uri,
                                                $type_uris,
                                                $service);
                 $s[] = $openid_endpoint;
