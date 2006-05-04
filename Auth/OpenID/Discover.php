@@ -28,14 +28,8 @@ define('_OPENID_1_0_TYPE', 'http://openid.net/signon/1.0');
  * Object representing an OpenID service endpoint.
  */
 class Auth_OpenID_ServiceEndpoint {
-    var $openid_type_uris;
-
     function Auth_OpenID_ServiceEndpoint()
     {
-        $this->openid_type_uris = array(_OPENID_1_2_TYPE,
-                                        _OPENID_1_1_TYPE,
-                                        _OPENID_1_0_TYPE);
-
         $this->identity_url = null;
         $this->server_url = null;
         $this->type_uris = array();
@@ -94,11 +88,15 @@ function findDelegate($service)
     // Extract a openid:Delegate value from a Yadis Service element.
     // If no delegate is found, returns null.
 
+    // Try to register new namespace.
+    $service->parser->registerNamespace('openid',
+                                        'http://openid.net/xmlns/1.0');
+
     // XXX: should this die if there is more than one delegate element?
     $delegates = $service->getElements("openid:Delegate");
 
     if ($delegates) {
-        return $delegates[0]['textParts'][0];
+        return $service->parser->content($delegates[0]);
     } else {
         return null;
     }
@@ -116,6 +114,7 @@ function filter_MatchesAnyOpenIDType(&$service)
             return true;
         }
     }
+
     return false;
 }
 
@@ -135,7 +134,7 @@ function Auth_OpenID_discoverWithYadis($uri)
     if ($response) {
         $identity_url = $response->uri;
         $openid_services =
-            $response->xrds->services('filter_MatchesAnyOpenIDType');
+            $response->xrds->services(array('filter_MatchesAnyOpenIDType'));
     } else {
         return @Auth_OpenID_discoverWithoutYadis($uri,
                                                  Auth_OpenID::getHTTPFetcher());
