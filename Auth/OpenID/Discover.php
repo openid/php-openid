@@ -49,8 +49,29 @@ class Auth_OpenID_ServiceEndpoint {
         $this->type_uris = $type_uris;
         $this->identity_url = $yadis_url;
         $this->server_url = $uri;
-        $this->delegate = findDelegate($service_element);
+        $this->delegate = Auth_OpenID_ServiceEndpoint::findDelegate(
+                                                         $service_element);
         $this->used_yadis = true;
+    }
+
+    function findDelegate($service)
+    {
+        // Extract a openid:Delegate value from a Yadis Service
+        // element.  If no delegate is found, returns null.
+
+        // Try to register new namespace.
+        $service->parser->registerNamespace('openid',
+                                            'http://openid.net/xmlns/1.0');
+
+        // XXX: should this die if there is more than one delegate
+        // element?
+        $delegates = $service->getElements("openid:Delegate");
+
+        if ($delegates) {
+            return $service->parser->content($delegates[0]);
+        } else {
+            return null;
+        }
     }
 
     function getServerID()
@@ -80,25 +101,6 @@ class Auth_OpenID_ServiceEndpoint {
         $service->server_url = $server_url;
         $service->type_uris = array(_OPENID_1_0_TYPE);
         return $service;
-    }
-}
-
-function findDelegate($service)
-{
-    // Extract a openid:Delegate value from a Yadis Service element.
-    // If no delegate is found, returns null.
-
-    // Try to register new namespace.
-    $service->parser->registerNamespace('openid',
-                                        'http://openid.net/xmlns/1.0');
-
-    // XXX: should this die if there is more than one delegate element?
-    $delegates = $service->getElements("openid:Delegate");
-
-    if ($delegates) {
-        return $service->parser->content($delegates[0]);
-    } else {
-        return null;
     }
 }
 
