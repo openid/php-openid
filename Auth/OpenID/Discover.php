@@ -120,7 +120,7 @@ function filter_MatchesAnyOpenIDType(&$service)
     return false;
 }
 
-function Auth_OpenID_discoverWithYadis($uri)
+function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
 {
     // Discover OpenID services for a URI. Tries Yadis and falls back
     // on old-style <link rel='...'> discovery if Yadis fails.
@@ -131,15 +131,19 @@ function Auth_OpenID_discoverWithYadis($uri)
     // to catch it.
     $openid_services = array();
 
-    $response = @Services_Yadis_Yadis::discover($uri);
+    $http_response = null;
+    $response = @Services_Yadis_Yadis::discover($uri, $http_response,
+                                                $fetcher);
 
     if ($response) {
         $identity_url = $response->uri;
         $openid_services =
             $response->xrds->services(array('filter_MatchesAnyOpenIDType'));
-    } else {
+    }
+
+    if (!$openid_services) {
         return @Auth_OpenID_discoverWithoutYadis($uri,
-                                                 Auth_OpenID::getHTTPFetcher());
+                                                 $fetcher);
     }
 
     if (!$openid_services) {
@@ -179,38 +183,38 @@ function Auth_OpenID_discoverWithYadis($uri)
         $openid_services = $s;
     }
 
-    return array($identity_url, $openid_services);
+    return array($identity_url, $openid_services, $http_response);
 }
 
 function Auth_OpenID_discoverWithoutYadis($uri, &$fetcher)
 {
     $http_resp = @$fetcher->get($uri);
-    list($code, $url, $body) = $http_resp;
 
-    if ($code != 200) {
-        return null;
+    if ($http_resp->status != 200) {
+        return array(null, array(), $http_resp);
     }
 
-    $identity_url = $url;
+    $identity_url = $http_resp->final_url;
 
     // Try to parse the response as HTML to get OpenID 1.0/1.1 <link
     // rel="...">
     $endpoint =& new Auth_OpenID_ServiceEndpoint();
-    $service = $endpoint->fromHTML($identity_url, $body);
+    $service = $endpoint->fromHTML($identity_url, $http_resp->body);
     if ($service === null) {
         $openid_services = array();
     } else {
         $openid_services = array($service);
     }
 
-    return array($identity_url, $openid_services);
+    return array($identity_url, $openid_services, $http_resp);
 }
 
 function Auth_OpenID_discover($uri, &$fetcher)
 {
     global $_yadis_available;
+
     if ($_yadis_available) {
-        return @Auth_OpenID_discoverWithYadis($uri);
+        return @Auth_OpenID_discoverWithYadis($uri, $fetcher);
     } else {
         return @Auth_OpenID_discoverWithoutYadis($uri, $fetcher);
     }

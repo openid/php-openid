@@ -111,7 +111,8 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
             } else {
                 $redir = false;
                 curl_close($c);
-                return array($code, $url, $body);
+                return new Services_Yadis_HTTPResponse($url, $code,
+                                                       $headers, $body);
             }
 
             $off = $stop - time();
@@ -155,7 +156,8 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
         $body = $this->data;
 
         curl_close($c);
-        return array($code, $url, $body);
+        return new Auth_OpenID_HTTPResponse($url, $code,
+                                            $this->headers, $body);
     }
 }
 

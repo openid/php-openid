@@ -18,6 +18,17 @@
 require_once "Auth/OpenID/Parse.php";
 require_once "Auth/OpenID.php";
 
+class Auth_OpenID_HTTPResponse {
+    function Auth_OpenID_HTTPResponse($final_url = null, $status = null,
+                                      $headers = null, $body = null)
+    {
+        $this->final_url = $final_url;
+        $this->status = $status;
+        $this->headers = $headers;
+        $this->body = $body;
+    }
+}
+
 /**
  * This is the status code beginAuth returns when it is unable to
  * fetch the OpenID URL the user entered.

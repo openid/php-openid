@@ -118,7 +118,7 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
             $off = $stop - time();
         }
 
-        return array($code, $url, $body);
+        return new Auth_OpenID_HTTPResponse($url, $code, $headers, $body);
     }
 
     function post($url, $body)
@@ -203,7 +203,8 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
         $http_code = explode(" ", $headers[0]);
         $code = $http_code[1];
 
-        return array($code, $url, $response_body);
+        return new Auth_OpenID_HTTPResponse($url, $code,
+                                            $headers, $response_body);
     }
 }
 

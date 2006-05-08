@@ -116,6 +116,7 @@ $_test_names = array(
     'StoreTest',
     'Server',
     'TrustRoot',
+    'Discover'
     );
 
 function selectTests($names)
