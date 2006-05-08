@@ -194,6 +194,7 @@ require_once "Auth/OpenID/CryptUtil.php";
 require_once "Auth/OpenID/DiffieHellman.php";
 require_once "Auth/OpenID/KVForm.php";
 require_once "Auth/OpenID/Discover.php";
+require_once "Services/Yadis/Manager.php";
 
 /**
  * This is the status code returned when either the of the beginAuth
@@ -235,26 +236,6 @@ define('Auth_OpenID_DEFAULT_NONCE_CHRS',"abcdefghijklmnopqrstuvwxyz" .
  */
 define('Auth_OpenID_DEFAULT_TOKEN_LIFETIME', 60 * 5); // five minutes
 
-class Auth_OpenID_PHPSession {
-    function set($name, $value)
-    {
-        $_SESSION[$name] = $value;
-    }
-
-    function get($name, $default=null)
-    {
-        if (array_key_exists($name, $_SESSION)) {
-            return $_SESSION[$name];
-        } else {
-            return $default;
-        }
-    }
-
-    function del($name)
-    {
-        unset($_SESSION[$name]);
-    }
-}
 
 class Auth_OpenID_Consumer {
 
@@ -264,7 +245,7 @@ class Auth_OpenID_Consumer {
     function Auth_OpenID_Consumer(&$store, $session = null)
     {
         if ($session === null) {
-            $session = new Auth_OpenID_PHPSession();
+            $session = new Services_Yadis_PHPSession();
         }
 
         $this->session =& $session;
@@ -274,14 +255,21 @@ class Auth_OpenID_Consumer {
 
     function begin($user_url)
     {
+        global $_yadis_available;
+
         $openid_url = Auth_OpenID::normalizeUrl($user_url);
-        if (false) { // If yadis_available
+        if ($_yadis_available) {
+            $disco = new Services_Yadis_Discovery($this->session,
+                                                  $openid_url,
+                                                  $this->session_key_prefix);
+            $endpoint = $disco->getNextService('Auth_OpenID_discoverWithYadis',
+                                               $this->consumer->fetcher);
         } else {
             $endpoint = null;
             $result = Auth_OpenID_discover($openid_url,
                                            $this->consumer->fetcher);
             if ($result !== null) {
-                list($temp, $endpoints) = $result;
+                list($temp, $endpoints, $http_response) = $result;
                 $endpoint = $endpoints[0];
             }
         }
@@ -302,6 +290,8 @@ class Auth_OpenID_Consumer {
 
     function complete($query)
     {
+        global $_yadis_available;
+
         $token = $this->session->get($this->_token_key);
 
         if ($token === null) {
@@ -312,13 +302,13 @@ class Auth_OpenID_Consumer {
         }
 
         if (in_array($response->status, array('success', 'cancel'))) {
-            /*
-            if yadis_available and response.identity_url is not None:
-                disco = Discovery(self.session, response.identity_url)
-                # This is OK to do even if we did not do discovery in
-                # the first place.
-                disco.cleanup()
-             */
+            if ($_yadis_available &&
+                $response->identity_url !== null) {
+                $disco = new Services_Yadis_Discovery($this->session,
+                                                   $response->identity_url,
+                                                   $this->session_key_prefix);
+                $disco->cleanup();
+            }
         }
 
         return $response;
