@@ -18,6 +18,33 @@ require_once 'PHPUnit/GUI/HTML.php';
 
 error_reporting(E_ALL);
 
+$__test_errors = array();
+
+function __handler($code, $message)
+{
+    global $__test_errors;
+
+    if ($code == E_USER_WARNING) {
+        $__test_errors[] = $message;
+    }
+}
+
+function __raiseError($message)
+{
+    set_error_handler('__handler');
+    trigger_error($message, E_USER_WARNING);
+    restore_error_handler();
+}
+
+function __getError()
+{
+    global $__test_errors;
+    if ($__test_errors) {
+        return array_pop($__test_errors);
+    }
+    return null;
+}
+
 /**
  * Load the tests that are defined in the named modules.
  *

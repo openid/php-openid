@@ -314,33 +314,6 @@ class _TestIdRes extends PHPUnit_TestCase {
     }
 }
 
-$errors = array();
-
-function __handler($code, $message)
-{
-    global $errors;
-
-    if ($code == E_USER_WARNING) {
-        $errors[] = $message;
-    }
-}
-
-function raiseError($message)
-{
-    set_error_handler('__handler');
-    trigger_error($message, E_USER_WARNING);
-    restore_error_handler();
-}
-
-function getError()
-{
-    global $errors;
-    if ($errors) {
-        return array_pop($errors);
-    }
-    return null;
-}
-
 class Tests_Auth_OpenID_Consumer_TestSetupNeeded extends _TestIdRes {
     function test_setupNeeded()
     {
@@ -362,7 +335,7 @@ define('E_ASSERTION_ERROR', 'assertion error');
 class _CheckAuthDetectingConsumer extends Auth_OpenID_GenericConsumer {
     function _checkAuth($query, $server_url)
     {
-        raiseError(E_CHECK_AUTH_HAPPENED);
+        __raiseError(E_CHECK_AUTH_HAPPENED);
     }
 }
 
@@ -440,7 +413,7 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuthTriggered extends _TestIdRes {
                        'openid.assoc_handle' =>'not_found');
 
         $result = $this->_doIdRes($query);
-        $error = getError();
+        $error = __getError();
 
         if ($error === null) {
             $this->fail('_checkAuth did not happen.');
@@ -463,7 +436,7 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuthTriggered extends _TestIdRes {
             'openid.assoc_handle' =>'not_found');
 
         $result = $this->_doIdRes($query);
-        $error = getError();
+        $error = __getError();
 
         if ($error === null) {
             $this->fail('_checkAuth did not happen.');
@@ -548,12 +521,12 @@ class _MockFetcher {
 class _ExceptionRaisingMockFetcher {
     function get($url)
     {
-        raiseError(E_MOCK_FETCHER_EXCEPTION);
+        __raiseError(E_MOCK_FETCHER_EXCEPTION);
     }
 
     function post($url, $body)
     {
-        raiseError(E_MOCK_FETCHER_EXCEPTION);
+        __raiseError(E_MOCK_FETCHER_EXCEPTION);
     }
 }
 
@@ -563,7 +536,7 @@ class _BadArgCheckingConsumer extends Auth_OpenID_GenericConsumer {
         if ($args != array(
             'openid.mode' => 'check_authentication',
             'openid.signed' => 'foo')) {
-            raiseError(E_ASSERTION_ERROR);
+            __raiseError(E_ASSERTION_ERROR);
         }
         return null;
     }
@@ -596,7 +569,7 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuth extends _TestIdRes {
 
         $consumer = new _BadArgCheckingConsumer($this->store);
         $consumer->_checkAuth($query, 'does://not.matter');
-        $this->assertEquals(getError(), E_ASSERTION_ERROR);
+        $this->assertEquals(__getError(), E_ASSERTION_ERROR);
     }
 }
 
@@ -626,7 +599,7 @@ class Tests_Auth_OpenID_Consumer_TestFetchAssoc extends PHPUnit_TestCase {
         $this->consumer->_makeKVPost(array('openid.mode' => 'associate'),
                                      "http://server_url");
 
-        if (getError() !== E_MOCK_FETCHER_EXCEPTION) {
+        if (__getError() !== E_MOCK_FETCHER_EXCEPTION) {
             $this->fail("Expected ExceptionRaisingMockFetcher to " .
                         "raise E_MOCK_FETCHER_EXCEPTION");
         }
@@ -637,7 +610,7 @@ class Tests_Auth_OpenID_Consumer_TestFetchAssoc extends PHPUnit_TestCase {
         $this->consumer->_checkAuth(array('openid.signed' => ''),
                                     'some://url');
 
-        if (getError() !== E_MOCK_FETCHER_EXCEPTION) {
+        if (__getError() !== E_MOCK_FETCHER_EXCEPTION) {
             $this->fail("Expected ExceptionRaisingMockFetcher to " .
                         "raise E_MOCK_FETCHER_EXCEPTION (_checkAuth)");
         }
