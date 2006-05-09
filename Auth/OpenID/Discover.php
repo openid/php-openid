@@ -125,6 +125,34 @@ function filter_MatchesAnyOpenIDType(&$service)
     return false;
 }
 
+function Auth_OpenID_makeOpenIDEndpoints($uri, $endpoints)
+{
+    $s = array();
+
+    foreach ($endpoints as $service) {
+        $type_uris = $service->getTypes();
+        $uris = $service->getURIs();
+
+        // If any Type URIs match and there is an endpoint URI
+        // specified, then this is an OpenID endpoint
+        if ($type_uris &&
+            $uris) {
+
+            foreach ($uris as $service_uri) {
+                $openid_endpoint = new Auth_OpenID_ServiceEndpoint();
+                $openid_endpoint->parseService($uri,
+                                               $service_uri,
+                                               $type_uris,
+                                               $service);
+
+                $s[] = $openid_endpoint;
+            }
+        }
+    }
+
+    return $s;
+}
+
 function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
 {
     // Discover OpenID services for a URI. Tries Yadis and falls back
@@ -163,29 +191,8 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
             $openid_services = array($service);
         }
     } else {
-        $s = array();
-
-        foreach ($openid_services as $service) {
-            $type_uris = $service->getTypes();
-            $uris = $service->getURIs();
-
-            // If any Type URIs match and there is an endpoint URI
-            // specified, then this is an OpenID endpoint
-            if ($type_uris &&
-                $uris) {
-
-                $_uri = $uris[0];
-
-                $openid_endpoint = new Auth_OpenID_ServiceEndpoint();
-                $openid_endpoint->parseService($response->uri,
-                                               $_uri,
-                                               $type_uris,
-                                               $service);
-                $s[] = $openid_endpoint;
-            }
-        }
-
-        $openid_services = $s;
+        $openid_services = Auth_OpenID_makeOpenIDEndpoints($response->uri,
+                                                           $openid_services);
     }
 
     return array($identity_url, $openid_services, $http_response);
