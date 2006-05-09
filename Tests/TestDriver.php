@@ -116,7 +116,8 @@ $_test_names = array(
     'StoreTest',
     'Server',
     'TrustRoot',
-    'Discover'
+    'Discover',
+    'OpenID_Yadis'
     );
 
 function selectTests($names)
