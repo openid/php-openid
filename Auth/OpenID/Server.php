@@ -1,8 +1,82 @@
 <?php
 
 /**
- * This module contains an implementation of an OpenID server as
- * Auth_OpenID_Server.
+ * OpenID server protocol and logic.
+ * 
+ * Overview
+ *
+ * An OpenID server must perform three tasks:
+ *
+ *  1. Examine the incoming request to determine its nature and validity.
+ *  2. Make a decision about how to respond to this request.
+ *  3. Format the response according to the protocol.
+ * 
+ * The first and last of these tasks may performed by the
+ * 'decodeRequest' and 'encodeResponse' methods of the
+ * Auth_OpenID_Server object.  Who gets to do the intermediate task --
+ * deciding how to respond to the request -- will depend on what type
+ * of request it is.
+ *
+ * If it's a request to authenticate a user (a 'checkid_setup' or
+ * 'checkid_immediate' request), you need to decide if you will assert
+ * that this user may claim the identity in question.  Exactly how you
+ * do that is a matter of application policy, but it generally
+ * involves making sure the user has an account with your system and
+ * is logged in, checking to see if that identity is hers to claim,
+ * and verifying with the user that she does consent to releasing that
+ * information to the party making the request.
+ *
+ * Examine the properties of the Auth_OpenID_CheckIDRequest object,
+ * and if and when you've come to a decision, form a response by
+ * calling Auth_OpenID_CheckIDRequest::answer.
+ *
+ * Other types of requests relate to establishing associations between
+ * client and server and verifing the authenticity of previous
+ * communications.  Auth_OpenID_Server contains all the logic and data
+ * necessary to respond to such requests; just pass it to
+ * Auth_OpenID_Server::handleRequest.
+ *
+ * OpenID Extensions
+ * 
+ * Do you want to provide other information for your users in addition
+ * to authentication?  Version 1.2 of the OpenID protocol allows
+ * consumers to add extensions to their requests.  For example, with
+ * sites using the Simple Registration
+ * Extension
+ * (http://www.openidenabled.com/openid/simple-registration-extension/),
+ * a user can agree to have their nickname and e-mail address sent to
+ * a site when they sign up.
+ *
+ * Since extensions do not change the way OpenID authentication works,
+ * code to handle extension requests may be completely separate from
+ * the Auth_OpenID_Request class here.  But you'll likely want data
+ * sent back by your extension to be signed.  Auth_OpenID_Response
+ * provides methods with which you can add data to it which can be
+ * signed with the other data in the OpenID signature.
+ *
+ * For example:
+ *
+ *   //  when request is a checkid_* request
+ *   response = request.answer(True)
+ *   // this will a signed 'openid.sreg.timezone' parameter to the response
+ *   response.addField('sreg', 'timezone', 'America/Los_Angeles')
+ *
+ * Stores
+ *
+ * The OpenID server needs to maintain state between requests in order
+ * to function.  Its mechanism for doing this is called a store.  The
+ * store interface is defined in Interface.php.  Additionally, several
+ * concrete store implementations are provided, so that most sites
+ * won't need to implement a custom store.  For a store backed by flat
+ * files on disk, see Auth_OpenID_FileStore.  For stores based on
+ * MySQL, SQLite, or PostgreSQL, see the Auth_OpenID_SQLStore
+ * subclasses.
+ *
+ * Upgrading
+ *
+ * The keys by which a server looks up associations in its store have
+ * changed in version 1.2 of this library.  If your store has entries
+ * created from version 1.0 code, you should empty it.
  *
  * PHP versions 4 and 5
  *
@@ -35,24 +109,56 @@ global $_Auth_OpenID_Request_Modes,
     $_Auth_OpenID_Encode_Kvform,
     $_Auth_OpenID_Encode_Url;
 
+/**
+ * @access private
+ */
 $_Auth_OpenID_Request_Modes = array('checkid_setup',
                                     'checkid_immediate');
+
+/**
+ * @access private
+ */
 $_Auth_OpenID_OpenID_Prefix = "openid.";
+
+/**
+ * @access private
+ */
 $_Auth_OpenID_Encode_Kvform = array('kfvorm');
+
+/**
+ * @access private
+ */
 $_Auth_OpenID_Encode_Url = array('URL/redirect');
 
+/**
+ * @access private
+ */
 function _isError($obj, $cls = 'Auth_OpenID_ServerError')
 {
     return is_a($obj, $cls);
 }
 
+/**
+ * An error class which gets instantiated and returned whenever an
+ * OpenID protocol error occurs.  Be prepared to use this in place of
+ * an ordinary server response.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_ServerError {
+    /**
+     * @access private
+     */
     function Auth_OpenID_ServerError($query = null, $message = null)
     {
         $this->message = $message;
         $this->query = $query;
     }
 
+    /**
+     * Returns the return_to URL for the request which caused this
+     * error.
+     */
     function hasReturnTo()
     {
         global $_Auth_OpenID_OpenID_Prefix;
@@ -60,6 +166,11 @@ class Auth_OpenID_ServerError {
                                 $this->query);
     }
 
+    /**
+     * Encodes this error's response as a URL suitable for
+     * redirection.  If the response has no return_to, another
+     * Auth_OpenID_ServerError is returned.
+     */
     function encodeToURL()
     {
         global $_Auth_OpenID_OpenID_Prefix;
@@ -75,6 +186,12 @@ class Auth_OpenID_ServerError {
                                              'error' => $this->toString()));
     }
 
+    /**
+     * Encodes the response to key-value form.  This is a
+     * machine-readable format used to respond to messages which came
+     * directly from the consumer and not through the user-agent.  See
+     * the OpenID specification.
+     */
     function encodeToKVForm()
     {
         return Auth_OpenID_KVForm::fromArray(
@@ -82,6 +199,11 @@ class Auth_OpenID_ServerError {
                                             'error' => $this->toString()));
     }
 
+    /**
+     * Returns one of $_Auth_OpenID_Encode_Url,
+     * $_Auth_OpenID_Encode_Kvform, or null, depending on the type of
+     * encoding expected for this error's payload.
+     */
     function whichEncoding()
     {
         global $_Auth_OpenID_Encode_Url,
@@ -102,6 +224,9 @@ class Auth_OpenID_ServerError {
         return null;
     }
 
+    /**
+     * Returns this error message.
+     */
     function toString()
     {
         if ($this->message) {
@@ -112,6 +237,11 @@ class Auth_OpenID_ServerError {
     }
 }
 
+/**
+ * An error indicating that the return_to URL is malformed.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_MalformedReturnURL extends Auth_OpenID_ServerError {
     function Auth_OpenID_MalformedReturnURL($query, $return_to)
     {
@@ -120,6 +250,11 @@ class Auth_OpenID_MalformedReturnURL extends Auth_OpenID_ServerError {
     }
 }
 
+/**
+ * This error is returned when the trust_root value is malformed.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_MalformedTrustRoot extends Auth_OpenID_ServerError {
     function toString()
     {
@@ -127,10 +262,22 @@ class Auth_OpenID_MalformedTrustRoot extends Auth_OpenID_ServerError {
     }
 }
 
+/**
+ * The base class for all server request classes.
+ *
+ * @access private
+ * @package OpenID
+ */
 class Auth_OpenID_Request {
     var $mode = null;
 }
 
+/**
+ * A request to verify the validity of a previous response.
+ *
+ * @access private
+ * @package OpenID
+ */
 class Auth_OpenID_CheckAuthRequest extends Auth_OpenID_Request {
     var $mode = "check_authentication";
     var $invalidate_handle = null;
@@ -217,6 +364,12 @@ class Auth_OpenID_CheckAuthRequest extends Auth_OpenID_Request {
     }
 }
 
+/**
+ * A request to associate with the server.
+ *
+ * @access private
+ * @package OpenID
+ */
 class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
     var $mode = "associate";
     var $session_type = 'plaintext';
@@ -287,6 +440,12 @@ class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
     }
 }
 
+/**
+ * A request to confirm the identity of a user.
+ *
+ * @access private
+ * @package OpenID
+ */
 class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
     var $mode = "checkid_setup"; // or "checkid_immediate"
     var $immediate = false;
@@ -491,6 +650,12 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
     }
 }
 
+/**
+ * This class encapsulates the response to an OpenID server request.
+ *
+ * @access private
+ * @package OpenID
+ */
 class Auth_OpenID_ServerResponse {
 
     function Auth_OpenID_ServerResponse($request)
@@ -531,6 +696,12 @@ class Auth_OpenID_ServerResponse {
     }
 }
 
+/**
+ * A response to a checkid request.
+ *
+ * @access private
+ * @package OpenID
+ */
 class Auth_OpenID_CheckIDResponse extends Auth_OpenID_ServerResponse {
 
     function Auth_OpenID_CheckIDResponse(&$request, $mode = 'id_res')
@@ -577,6 +748,12 @@ class Auth_OpenID_CheckIDResponse extends Auth_OpenID_ServerResponse {
     }
 }
 
+/**
+ * A web-capable response object which you can use to generate a
+ * user-agent response.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_WebResponse {
     var $code = AUTH_OPENID_HTTP_OK;
     var $body = "";
@@ -600,6 +777,12 @@ class Auth_OpenID_WebResponse {
     }
 }
 
+/**
+ * Responsible for the signature of query data and the verification of
+ * OpenID signature values.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_Signatory {
 
     // = 14 * 24 * 60 * 60; # 14 days, in seconds
@@ -612,12 +795,19 @@ class Auth_OpenID_Signatory {
     var $normal_key = 'http://localhost/|normal';
     var $dumb_key = 'http://localhost/|dumb';
 
+    /**
+     * Create a new signatory using a given store.
+     */
     function Auth_OpenID_Signatory(&$store)
     {
         // assert store is not None
         $this->store =& $store;
     }
 
+    /**
+     * Verify, using a given association handle, a signature with
+     * signed key-value pairs from an HTTP request.
+     */
     function verify($assoc_handle, $sig, $signed_pairs)
     {
         $assoc = $this->getAssociation($assoc_handle, true);
@@ -632,6 +822,10 @@ class Auth_OpenID_Signatory {
         return $sig == $expected_sig;
     }
 
+    /**
+     * Given a response, sign the fields in the response's 'signed'
+     * list, and insert the signature into the response.
+     */
     function sign($response)
     {
         $signed_response = $response;
@@ -656,6 +850,9 @@ class Auth_OpenID_Signatory {
         return $signed_response;
     }
 
+    /**
+     * Make a new association.
+     */
     function createAssociation($dumb = true, $assoc_type = 'HMAC-SHA1')
     {
         $secret = Auth_OpenID_CryptUtil::getBytes(20);
@@ -675,6 +872,10 @@ class Auth_OpenID_Signatory {
         return $assoc;
     }
 
+    /**
+     * Given an association handle, get the association from the
+     * store, or return a ServerError or null if something goes wrong.
+     */
     function getAssociation($assoc_handle, $dumb)
     {
         if ($assoc_handle === null) {
@@ -698,6 +899,9 @@ class Auth_OpenID_Signatory {
         return $assoc;
     }
 
+    /**
+     * Invalidate a given association handle.
+     */
     function invalidate($assoc_handle, $dumb)
     {
         if ($dumb) {
@@ -709,10 +913,19 @@ class Auth_OpenID_Signatory {
     }
 }
 
+/**
+ * Encode an Auth_OpenID_Response to an Auth_OpenID_WebResponse.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_Encoder {
 
     var $responseFactory = 'Auth_OpenID_WebResponse';
 
+    /**
+     * Encode an Auth_OpenID_Response and return an
+     * Auth_OpenID_WebResponse.
+     */
     function encode(&$response)
     {
         global $_Auth_OpenID_Encode_Kvform,
@@ -737,6 +950,11 @@ class Auth_OpenID_Encoder {
     }
 }
 
+/**
+ * Returns true if the given response needs a signature.
+ *
+ * @access private
+ */
 function needsSigning($response)
 {
     return (in_array($response->request->mode, array('checkid_setup',
@@ -744,6 +962,11 @@ function needsSigning($response)
             $response->signed);
 }
 
+/**
+ * An encoder which also takes care of signing fields when required.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_SigningEncoder extends Auth_OpenID_Encoder {
 
     function Auth_OpenID_SigningEncoder(&$signatory)
@@ -751,6 +974,10 @@ class Auth_OpenID_SigningEncoder extends Auth_OpenID_Encoder {
         $this->signatory =& $signatory;
     }
 
+    /**
+     * Sign an Auth_OpenID_Response and return an
+     * Auth_OpenID_WebResponse.
+     */
     function encode(&$response)
     {
         // the isinstance is a bit of a kludge... it means there isn't
@@ -771,6 +998,12 @@ class Auth_OpenID_SigningEncoder extends Auth_OpenID_Encoder {
     }
 }
 
+/**
+ * Decode an incoming Auth_OpenID_WebResponse into an
+ * Auth_OpenID_Request.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_Decoder {
 
     function Auth_OpenID_Decoder()
@@ -786,6 +1019,10 @@ class Auth_OpenID_Decoder {
             );
     }
 
+    /**
+     * Given an HTTP query in an array (key-value pairs), decode it
+     * into an Auth_OpenID_Request object.
+     */
     function decode($query)
     {
         if (!$query) {
@@ -829,6 +1066,11 @@ class Auth_OpenID_Decoder {
     }
 }
 
+/**
+ * An error that indicates an encoding problem occurred.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_EncodingError {
     function Auth_OpenID_EncodingError(&$response)
     {
@@ -836,10 +1078,21 @@ class Auth_OpenID_EncodingError {
     }
 }
 
+/**
+ * An error that indicates that a response was already signed.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_AlreadySigned extends Auth_OpenID_EncodingError {
     // This response is already signed.
 }
 
+/**
+ * An error that indicates that the given return_to is not under the
+ * given trust_root.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_UntrustedReturnURL extends Auth_OpenID_ServerError {
     function Auth_OpenID_UntrustedReturnURL($return_to, $trust_root)
     {
@@ -871,6 +1124,17 @@ class Auth_OpenID_Server {
         $this->decoder =& new Auth_OpenID_Decoder();
     }
 
+    /**
+     * Handle a request.  Given an Auth_OpenID_Request object, call
+     * the appropriate Auth_OpenID_Server method to process the
+     * request and generate a response.
+     *
+     * @param Auth_OpenID_Request $request An Auth_OpenID_Request
+     * returned by Auth_OpenID_Server::decodeRequest.
+     *
+     * @return Auth_OpenID_Response $response A response object
+     * capable of generating a user-agent reply.
+     */
     function handleRequest($request)
     {
         if (method_exists($this, "openid_" . $request->mode)) {
@@ -880,22 +1144,40 @@ class Auth_OpenID_Server {
         return null;
     }
 
+    /**
+     * The callback for 'check_authentication' messages.
+     *
+     * @access private
+     */
     function openid_check_authentication(&$request)
     {
         return $request->answer($this->signatory);
     }
 
+    /**
+     * The callback for 'associate' messages.
+     *
+     * @access private
+     */
     function openid_associate(&$request)
     {
         $assoc = $this->signatory->createAssociation(false);
         return $request->answer($assoc);
     }
 
+    /**
+     * Encodes as response in the appropriate format suitable for
+     * sending to the user agent.
+     */
     function encodeResponse(&$response)
     {
         return $this->encoder->encode($response);
     }
 
+    /**
+     * Decodes a query args array into the appropriate
+     * Auth_OpenID_Request object.
+     */
     function decodeRequest(&$query)
     {
         return $this->decoder->decode($query);
