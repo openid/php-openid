@@ -15,14 +15,11 @@
  *
  *   1. The user enters their OpenID into a field on the consumer's
  *      site, and hits a login button.
- *
  *   2. The consumer site discovers the user's OpenID server using the
  *      YADIS protocol.
- *
  *   3. The consumer site sends the browser a redirect to the identity
  *      server.  This is the authentication request as described in
  *      the OpenID specification.
- *
  *   4. The identity server's site sends the browser a redirect back
  *      to the consumer site.  This redirect contains the server's
  *      response to the authentication request.

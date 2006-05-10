@@ -26,6 +26,16 @@
  </para>
 
  <refsect1 id="{@id users}">
+   <title>Dependencies</title>
+
+   <para>
+    This package depends on the JanRain, Inc. PHP Yadis library,
+    version 1.0.  You can download the PHP Yadis library
+    {@link http://www.openidenabled.com/yadis/libraries/php here}.
+   </para>
+ </refsect1>
+
+ <refsect1 id="{@id users}">
    <title>For Package Users</title>
 
    <para>
@@ -68,6 +78,10 @@
 
     <listitem>
      {@link http://lists.openidenabled.com/mailman/listinfo/dev OpenID Development Discussion List}
+    </listitem>
+
+    <listitem>
+     {@link http://www.openidenabled.com/yadis/libraries/php PHP Yadis Library}
     </listitem>
    </itemizedlist>
   </para>
