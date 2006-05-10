@@ -170,7 +170,6 @@
 require_once "Auth/OpenID.php";
 require_once "Auth/OpenID/HMACSHA1.php";
 require_once "Auth/OpenID/Association.php";
-require_once "Auth/OpenID/AuthenticationRequest.php";
 require_once "Auth/OpenID/CryptUtil.php";
 require_once "Auth/OpenID/DiffieHellman.php";
 require_once "Auth/OpenID/KVForm.php";
