@@ -18,6 +18,11 @@
 require_once "Auth/OpenID/Parse.php";
 require_once "Auth/OpenID.php";
 
+/**
+ * An HTTP response descriptor returned by all fetcher methods.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_HTTPResponse {
     function Auth_OpenID_HTTPResponse($final_url = null, $status = null,
                                       $headers = null, $body = null)
