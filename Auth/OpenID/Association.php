@@ -269,7 +269,7 @@ class Auth_OpenID_Association {
     {
         $pairs = array();
         foreach ($fields as $field) {
-            $pairs[$field] = $data[$prefix . $field];
+            $pairs[] = array($field, $data[$prefix . $field]);
         }
 
         return base64_encode($this->sign($pairs));

@@ -198,6 +198,14 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
     return array($identity_url, $openid_services, $http_response);
 }
 
+function _Auth_OpenID_discoverServiceList($uri, &$fetcher)
+{
+    list($url, $services, $resp) = Auth_OpenID_discoverWithYadis($uri,
+                                                                 $fetcher);
+
+    return $services;
+}
+
 function Auth_OpenID_discoverWithoutYadis($uri, &$fetcher)
 {
     $http_resp = @$fetcher->get($uri);

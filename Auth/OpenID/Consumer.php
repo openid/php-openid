@@ -174,10 +174,15 @@ require_once "Auth/OpenID/Discover.php";
 require_once "Services/Yadis/Manager.php";
 
 /**
- * This is the status code returned when either the of the beginAuth
- * or completeAuth methods return successfully.
+ * This is the status code returned when the complete method returns
+ * successfully.
  */
 define('Auth_OpenID_SUCCESS', 'success');
+
+/**
+ * Status to indicate cancellation of OpenID authentication.
+ */
+define('Auth_OpenID_CANCEL', 'cancel');
 
 /**
  * This is the status code completeAuth returns when the value it
@@ -297,8 +302,10 @@ class Auth_OpenID_Consumer {
             $disco = new Services_Yadis_Discovery($this->session,
                                                   $openid_url,
                                                   $this->session_key_prefix);
-            $endpoint = $disco->getNextService('Auth_OpenID_discoverWithYadis',
-                                               $this->consumer->fetcher);
+
+            $endpoint = $disco->getNextService(
+                                        '_Auth_OpenID_discoverServiceList',
+                                        $this->consumer->fetcher);
         } else {
             $endpoint = null;
             $result = Auth_OpenID_discover($openid_url,
@@ -353,6 +360,8 @@ class Auth_OpenID_Consumer {
     {
         global $_yadis_available;
 
+        $query = Auth_OpenID::fixArgs($query);
+
         $token = $this->session->get($this->_token_key);
 
         if ($token === null) {
@@ -362,7 +371,8 @@ class Auth_OpenID_Consumer {
             $response = $this->consumer->complete($query, $token);
         }
 
-        if (in_array($response->status, array('success', 'cancel'))) {
+        if (in_array($response->status, array(Auth_OpenID_SUCCESS,
+                                              Auth_OpenID_CANCEL))) {
             if ($_yadis_available &&
                 $response->identity_url !== null) {
                 $disco = new Services_Yadis_Discovery($this->session,
@@ -472,12 +482,12 @@ class Auth_OpenID_GenericConsumer {
 
         $pieces = $this->_splitToken($token);
         if ($pieces === null) {
-            $pieces = array(null, null, null);
+            $pieces = array(null, null, null, null);
         }
 
         list($nonce, $identity_url, $delegate, $server_url) = $pieces;
 
-        if ($mode == 'cancel') {
+        if ($mode == Auth_OpenID_CANCEL) {
             return new Auth_OpenID_CancelResponse($identity_url);
         } else if ($mode == 'error') {
             $error = Auth_OpenID::arrayGet($query, 'openid.error');
@@ -562,7 +572,6 @@ class Auth_OpenID_GenericConsumer {
 
         // Check the signature
         $sig = Auth_OpenID::arrayGet($query, 'openid.sig', null);
-        $signed = Auth_OpenID::arrayGet($query, 'openid.signed', null);
         if (($sig === null) ||
             ($signed === null)) {
             return new Auth_OpenID_FailureResponse($consumer_id,
@@ -669,13 +678,11 @@ class Auth_OpenID_GenericConsumer {
             return null;
         }
 
-        list($code, $url, $resp_body) = $resp;
+        $response = Auth_OpenID_KVForm::toArray($resp->body);
 
-        $response = Auth_OpenID_KVForm::toArray($resp_body);
-
-        if ($code == 400) {
+        if ($resp->status == 400) {
             return null;
-        } else if ($code != 200) {
+        } else if ($resp->status != 200) {
             return null;
         }
 
@@ -825,29 +832,29 @@ class Auth_OpenID_GenericConsumer {
     function _fetchAssociation($dh, $server_url, $body)
     {
         $ret = @$this->fetcher->post($server_url, $body);
+
         if ($ret === null) {
             $fmt = 'Getting association: failed to fetch URL: %s';
             trigger_error(sprintf($fmt, $server_url), E_USER_NOTICE);
             return null;
         }
 
-        list($http_code, $url, $data) = $ret;
-        $results = Auth_OpenID_KVForm::toArray($data);
-        if ($http_code == 400) {
+        $results = Auth_OpenID_KVForm::toArray($ret->body);
+        if ($ret->status == 400) {
             $error = Auth_OpenID::arrayGet($results, 'error',
                                            '<no message from server>');
 
             $fmt = 'Getting association: error returned from server %s: %s';
             trigger_error(sprintf($fmt, $server_url, $error), E_USER_NOTICE);
             return null;
-        } else if ($http_code != 200) {
+        } else if ($ret->status != 200) {
             $fmt = 'Getting association: bad status code from server %s: %s';
-            $msg = sprintf($fmt, $server_url, $http_code);
+            $msg = sprintf($fmt, $server_url, $ret->status);
             trigger_error($msg, E_USER_NOTICE);
             return null;
         }
 
-        $results = Auth_OpenID_KVForm::toArray($data);
+        $results = Auth_OpenID_KVForm::toArray($ret->body);
 
         return $this->_parseAssociation($results, $dh, $server_url);
     }
@@ -1019,7 +1026,7 @@ class Auth_OpenID_ConsumerResponse {
  * @package OpenID
  */
 class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
-    var $status = 'success';
+    var $status = Auth_OpenID_SUCCESS;
 
     /**
      * @access private
@@ -1097,7 +1104,7 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
  * @package OpenID
  */
 class Auth_OpenID_FailureResponse extends Auth_OpenID_ConsumerResponse {
-    var $status = 'failure';
+    var $status = Auth_OpenID_FAILURE;
 
     function Auth_OpenID_FailureResponse($identity_url = null, $message = null)
     {
@@ -1119,7 +1126,7 @@ class Auth_OpenID_FailureResponse extends Auth_OpenID_ConsumerResponse {
  * @package OpenID
  */
 class Auth_OpenID_CancelResponse extends Auth_OpenID_ConsumerResponse {
-    var $status = 'cancelled';
+    var $status = Auth_OpenID_CANCEL;
 
     function Auth_OpenID_CancelResponse($identity_url = null)
     {
@@ -1145,7 +1152,7 @@ class Auth_OpenID_CancelResponse extends Auth_OpenID_ConsumerResponse {
  * @package OpenID
  */
 class Auth_OpenID_SetupNeededResponse extends Auth_OpenID_ConsumerResponse {
-    var $status = 'setup_needed';
+    var $status = Auth_OpenID_SETUP_NEEDED;
 
     function Auth_OpenID_SetupNeededResponse($identity_url = null,
                                              $setup_url = null)
