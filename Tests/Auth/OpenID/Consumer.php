@@ -14,6 +14,7 @@
  */
 
 require_once 'Auth/OpenID/CryptUtil.php';
+require_once 'Auth/OpenID/HTTPFetcher.php';
 require_once 'Auth/OpenID/DiffieHellman.php';
 require_once 'Auth/OpenID/FileStore.php';
 require_once 'Auth/OpenID/KVForm.php';
@@ -78,9 +79,11 @@ class Auth_OpenID_TestFetcher extends Auth_OpenID_HTTPFetcher {
     function Auth_OpenID_TestFetcher($user_url, $user_page,
                                     $assoc_secret, $assoc_handle)
     {
-        $this->get_responses = array($user_url => array(200,
-                                                        $user_url,
-                                                        $user_page));
+        $this->get_responses = array($user_url =>
+                                     new Auth_OpenID_HTTPResponse($user_url,
+                                                                  200,
+                                                                  array(),
+                                                                  $user_page));
         $this->assoc_secret = $assoc_secret;
         $this->assoc_handle = $assoc_handle;
         $this->num_assocs = 0;
@@ -89,9 +92,9 @@ class Auth_OpenID_TestFetcher extends Auth_OpenID_HTTPFetcher {
     function response($url, $body)
     {
         if ($body === null) {
-            return array(404, $url, 'Not found');
+            return new Auth_OpenID_HTTPResponse($url, 404, array(), 'Not found');
         } else {
-            return array(200, $url, $body);
+            return new Auth_OpenID_HTTPResponse($url, 200, array(), $body);
         }
     }
 
@@ -115,9 +118,10 @@ class Auth_OpenID_TestFetcher extends Auth_OpenID_HTTPFetcher {
                           );
 
         if ($query_data == $expected) {
-            return array(200, $url, "is_valid:true\n");
+            return new Auth_OpenID_HTTPResponse($url, 200, array(), "is_valid:true\n");
         } else {
-            return array(400, $url, "error:bad check_authentication query\n");
+            return new Auth_OpenID_HTTPResponse($url, 400, array(),
+                                                "error:bad check_authentication query\n");
         }
     }
 
@@ -323,7 +327,7 @@ class Tests_Auth_OpenID_Consumer_TestSetupNeeded extends _TestIdRes {
                        'openid.user_setup_url' => $setup_url);
         $ret = $this->consumer->_doIdRes($query, $this->consumer_id,
                                          $this->server_id, $this->server_url);
-        $this->assertEquals($ret->status, 'setup_needed');
+        $this->assertEquals($ret->status, Auth_OpenID_SETUP_NEEDED);
         $this->assertEquals($ret->setup_url, $setup_url);
     }
 }
@@ -554,7 +558,10 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuth extends _TestIdRes {
     function test_checkauth_error()
     {
         global $_Auth_OpenID_server_url;
-        $this->fetcher->response = array(404, "http://some_url", "blah:blah\n");
+        $this->fetcher->response = new Auth_OpenID_HTTPResponse("http://some_url",
+                                                                404,
+                                                                array(),
+                                                                "blah:blah\n");
         $query = array('openid.signed' => 'stuff, things');
         $r = $this->consumer->_checkAuth($query, $_Auth_OpenID_server_url);
         if ($r !== false) {
@@ -584,7 +591,10 @@ class Tests_Auth_OpenID_Consumer_TestFetchAssoc extends PHPUnit_TestCase {
 
     function test_kvpost_error()
     {
-        $this->fetcher->response = array(404, 'http://some_url', "blah:blah\n");
+        $this->fetcher->response = new Auth_OpenID_HTTPResponse("http://some_url",
+                                                                404,
+                                                                array(),
+                                                                "blah:blah\n");
         $r = $this->consumer->_makeKVPost(array('openid.mode' => 'associate'),
                                           "http://server_url");
         if ($r !== null) {
