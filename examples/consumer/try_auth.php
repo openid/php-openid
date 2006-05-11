@@ -21,10 +21,10 @@ $trust_root = sprintf("http://%s%s",
                       dirname($_SERVER['PHP_SELF']));
 
 // Begin the OpenID authentication process.
-list($status, $info) = @$consumer->beginAuth($openid);
+$auth_request = $consumer->begin($openid);
 
 // Handle failure status return values.
-if ($status != Auth_OpenID_SUCCESS) {
+if (!$auth_request) {
     $error = "Authentication error.";
     include 'index.php';
     exit(0);
@@ -32,9 +32,9 @@ if ($status != Auth_OpenID_SUCCESS) {
 
 // Redirect the user to the OpenID server for authentication.  Store
 // the token for this authentication so we can verify the response.
-$_SESSION['openid_token'] = $info->token;
-$redirect_url = @$consumer->constructRedirect($info, $process_url,
-                                              $trust_root);
+
+$redirect_url = $auth_request->redirectURL($trust_root,
+                                           $process_url);
 
 header("Location: ".$redirect_url);
 
