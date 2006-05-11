@@ -642,15 +642,15 @@ class Auth_OpenID_GenericConsumer {
     {
         $is_valid = Auth_OpenID::arrayGet($response, 'is_valid', 'false');
 
+        $invalidate_handle = Auth_OpenID::arrayGet($response,
+                                                   'invalidate_handle');
+
+        if ($invalidate_handle !== null) {
+            $this->store->removeAssociation($server_url,
+                                            $invalidate_handle);
+        }
+
         if ($is_valid == 'true') {
-            $invalidate_handle = Auth_OpenID::arrayGet($response,
-                                                       'invalidate_handle');
-
-            if ($invalidate_handle !== null) {
-                $this->store->removeAssociation($server_url,
-                                                $invalidate_handle);
-            }
-
             return true;
         }
 
