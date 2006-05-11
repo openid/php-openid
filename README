@@ -19,8 +19,14 @@ Follow these steps:
 
 1. Install dependencies.
 
+   - Install the JanRain, Inc. PHP Yadis Library, version 1.0.  The
+     library can be obtained from http://www.openidenabled.com.  This
+     is required.  This library can also be installed using the PEAR
+     installer; see the PHP Yadis page on http://www.openidenabled.com.
+
    - Enable either the GMP extension or Bcmath extension. (GMP is
-     STRONGLY recommended because it's MUCH faster!)
+     STRONGLY recommended because it's MUCH faster!)  This is
+     required.
 
    - Enable the CURL extension.  This is not required, but it is
      recommended.
