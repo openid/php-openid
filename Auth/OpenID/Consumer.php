@@ -465,8 +465,7 @@ class Auth_OpenID_GenericConsumer {
     function begin($service_endpoint)
     {
         $nonce = $this->_createNonce();
-        $token = $this->_genToken($nonce,
-                                  $service_endpoint->identity_url,
+        $token = $this->_genToken($service_endpoint->identity_url,
                                   $service_endpoint->getServerID(),
                                   $service_endpoint->server_url);
         $assoc = $this->_getAssociation($service_endpoint->server_url);
@@ -482,10 +481,10 @@ class Auth_OpenID_GenericConsumer {
 
         $pieces = $this->_splitToken($token);
         if ($pieces === null) {
-            $pieces = array(null, null, null, null);
+            $pieces = array(null, null, null);
         }
 
-        list($nonce, $identity_url, $delegate, $server_url) = $pieces;
+        list($identity_url, $delegate, $server_url) = $pieces;
 
         if ($mode == Auth_OpenID_CANCEL) {
             return new Auth_OpenID_CancelResponse($identity_url);
@@ -779,11 +778,10 @@ class Auth_OpenID_GenericConsumer {
     /**
      * @access private
      */
-    function _genToken($nonce, $consumer_id, $server_id, $server_url)
+    function _genToken($consumer_id, $server_id, $server_url)
     {
         $timestamp = strval(time());
-        $elements = array($timestamp, $nonce,
-                          $consumer_id, $server_id, $server_url);
+        $elements = array($timestamp, $consumer_id, $server_id, $server_url);
 
         $joined = implode("\x00", $elements);
         $sig = Auth_OpenID_HMACSHA1($this->store->getAuthKey(),
@@ -810,7 +808,7 @@ class Auth_OpenID_GenericConsumer {
         }
 
         $split = explode("\x00", $joined);
-        if (count($split) != 5) {
+        if (count($split) != 4) {
             return null;
         }
 
