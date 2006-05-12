@@ -315,6 +315,9 @@ class _TestIdRes extends PHPUnit_TestCase {
         $this->server_id = "sirod";
         $this->server_url = "serlie";
         $this->consumer_id = "consu";
+        $this->token = $this->consumer->_genToken($this->consumer_id,
+                                                  $this->server_id,
+                                                  $this->server_url);
     }
 }
 
@@ -525,6 +528,181 @@ class _MockFetcher {
     }
 }
 
+class Tests_Auth_OpenID_Complete extends _TestIdRes {
+    function test_badTokenLength()
+    {
+        $query = array('openid.mode' => 'id_res');
+        $r = $this->consumer->complete($query, 'badtoken');
+        $this->assertEquals($r->status, Auth_OpenID_FAILURE);
+        $this->assertTrue($r->identity_url === null);
+    }
+
+    function test_badTokenSig()
+    {
+        $query = array('openid.mode' => 'id_res');
+        $r = $this->consumer->complete($query, 'badtoken' . $this->token);
+        $this->assertEquals($r->status, Auth_OpenID_FAILURE);
+        $this->assertTrue($r->identity_url === null);
+    }
+
+    function test_expiredToken()
+    {
+        $this->consumer->token_lifetime = -1; // in the past
+        $query = array('openid.mode' => 'id_res');
+        $r = $this->consumer->complete($query, $this->token);
+        $this->assertEquals($r->status, Auth_OpenID_FAILURE, "Status comparison");
+        $this->assertTrue($r->identity_url === null, "Identity URL comparison");
+    }
+
+    function test_cancel()
+    {
+        $query = array('openid.mode' => 'cancel');
+        $r = $this->consumer->complete($query, 'badtoken');
+        $this->assertEquals($r->status, Auth_OpenID_CANCEL);
+        $this->assertTrue($r->identity_url === null);
+    }
+
+    function test_error()
+    {
+        $msg = 'an error message';
+        $query = array('openid.mode' =>'error',
+                       'openid.error' => $msg);
+        $r = $this->consumer->complete($query, 'badtoken');
+        $this->assertEquals($r->status, Auth_OpenID_FAILURE);
+        $this->assertTrue($r->identity_url === null);
+        $this->assertEquals($r->message, $msg);
+    }
+
+    function test_noMode()
+    {
+        $query = array();
+        $r = $this->consumer->complete($query, 'badtoken');
+        $this->assertEquals($r->status, Auth_OpenID_FAILURE);
+        $this->assertTrue($r->identity_url === null);
+    }
+
+    function test_idResMissingField()
+    {
+        $query = array('openid.mode' => 'id_res');
+        $r = $this->consumer->complete($query, $this->token);
+        $this->assertEquals($r->status, Auth_OpenID_FAILURE);
+        $this->assertEquals($r->identity_url, $this->consumer_id);
+    }
+
+    function test_idResURLMismatch()
+    {
+        $query = array('openid.mode' => 'id_res',
+                       'openid.return_to' => 'return_to (just anything)',
+                       'openid.identity' => 'something wrong (not this->consumer_id)',
+                       'openid.assoc_handle' => 'does not matter');
+        $r = $this->consumer->complete($query, $this->token);
+        $this->assertEquals($r->status, Auth_OpenID_FAILURE);
+        $this->assertEquals($r->identity_url, $this->consumer_id);
+        $this->assertTrue(strpos($r->message, 'delegate') !== false);
+    }
+}
+
+class Tests_Auth_OpenID_CheckAuthResponse extends _TestIdRes {
+    function _createAssoc()
+    {
+        $issued = time();
+        $lifetime = 1000;
+        $assoc = new Auth_OpenID_Association(
+                        'handle', 'secret', $issued, $lifetime, 'HMAC-SHA1');
+        $store =& $this->consumer->store;
+        $store->storeAssociation($this->server_url, $assoc);
+        $assoc2 = $store->getAssociation($this->server_url);
+        $this->assertEquals($assoc, $assoc2);
+    }
+
+    function test_goodResponse()
+    {
+        // successful response to check_authentication
+        $response = array('is_valid' => 'true');
+        $r = $this->consumer->_processCheckAuthResponse($response, $this->server_url);
+        $this->assertTrue($r);
+    }
+
+    function test_missingAnswer()
+    {
+        // check_authentication returns false when the server sends no
+        // answer
+        $response = array();
+        $r = $this->consumer->_processCheckAuthResponse($response, $this->server_url);
+        $this->assertFalse($r);
+    }
+
+    function test_badResponse()
+    {
+        // check_authentication returns false when is_valid is false
+        $response = array('is_valid' => 'false');
+        $r = $this->consumer->_processCheckAuthResponse($response, $this->server_url);
+        $this->assertFalse($r);
+    }
+
+    function test_badResponseInvalidate()
+    {
+        // Make sure that the handle is invalidated when is_valid is
+        // false
+        $this->_createAssoc();
+        $response = array('is_valid' => 'false',
+                          'invalidate_handle' => 'handle');
+
+        $r = $this->consumer->_processCheckAuthResponse($response,
+                                                        $this->server_url);
+        $this->assertFalse($r);
+        $this->assertTrue(
+                $this->consumer->store->getAssociation($this->server_url) === null);
+    }
+
+    function test_invalidateMissing()
+    {
+        // invalidate_handle with a handle that is not present
+        $response = array('is_valid' => 'true',
+                          'invalidate_handle' => 'missing');
+
+        $r = $this->consumer->_processCheckAuthResponse($response, $this->server_url);
+        $this->assertTrue($r);
+    }
+
+    function test_invalidatePresent()
+    {
+        // invalidate_handle with a handle that exists"""
+        $this->_createAssoc();
+        $response = array('is_valid' => 'true',
+                          'invalidate_handle' => 'handle');
+
+        $r = $this->consumer->_processCheckAuthResponse($response, $this->server_url);
+        $this->assertTrue($r);
+        $this->assertTrue(
+                  $this->consumer->store->getAssociation($this->server_url) === null);
+    }
+}
+
+class _IdResFetchFailingConsumer extends Auth_OpenID_GenericConsumer {
+    var $message = 'fetch failed';
+
+    function _doIdRes($query, $consumer_id, $server_id,
+                      $server_url)
+    {
+        return new Auth_OpenID_FailureResponse($consumer_id,
+                                               $this->message);
+    }
+}
+
+class Tests_Auth_OpenID_FetchErrorInIdRes extends _TestIdRes {
+    var $consumer_class = '_IdResFetchFailingConsumer';
+
+    function test_idResFailure()
+    {
+        $query = array('openid.mode' => 'id_res');
+        $r = $this->consumer->complete($query, $this->token);
+        $this->assertEquals($r->status, Auth_OpenID_FAILURE);
+        $this->assertEquals($r->identity_url, $this->consumer_id);
+        $this->assertEquals($this->consumer->message, $r->message);
+    }
+}
+
 class _ExceptionRaisingMockFetcher {
     function get($url)
     {
@@ -636,7 +814,10 @@ $Tests_Auth_OpenID_Consumer_other = array(
                                           new Tests_Auth_OpenID_Consumer_TestCheckAuth(),
                                           new Tests_Auth_OpenID_Consumer_TestCheckAuthTriggered(),
                                           new Tests_Auth_OpenID_Consumer_TestFetchAssoc(),
-                                          new Tests_Auth_OpenID_Consumer_CheckNonceTest()
+                                          new Tests_Auth_OpenID_Consumer_CheckNonceTest(),
+                                          new Tests_Auth_OpenID_Complete(),
+                                          new Tests_Auth_OpenID_CheckAuthResponse(),
+                                          new Tests_Auth_OpenID_FetchErrorInIdRes()
                                           );
 
 ?>
