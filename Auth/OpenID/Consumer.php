@@ -1062,7 +1062,7 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
         $prefix_len = strlen($prefix);
         foreach ($this->signed_args as $k => $v) {
             if (strpos($k, $prefix) === 0) {
-                $response_key = substring($k, $prefix_len);
+                $response_key = substr($k, $prefix_len);
                 $response[$response_key] = $v;
             }
         }
