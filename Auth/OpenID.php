@@ -137,16 +137,18 @@ class Auth_OpenID {
         global $_Auth_OpenID_namespaces;
         foreach (array_keys($args) as $key) {
             $fixed = $key;
-            foreach ($_Auth_OpenID_namespaces as $ns) {
-                if (preg_match('/'.$ns.'_/', $key)) {
-                    $fixed = preg_replace('/'.$ns.'_/', $ns.'.', $fixed);
+            if (preg_match('/^openid/', $key)) {
+                foreach ($_Auth_OpenID_namespaces as $ns) {
+                    if (preg_match('/'.$ns.'_/', $key)) {
+                        $fixed = preg_replace('/'.$ns.'_/', $ns.'.', $fixed);
+                    }
                 }
-            }
 
-            if ($fixed != $key) {
-                $val = $args[$key];
-                unset($args[$key]);
-                $args[$fixed] = $val;
+                if ($fixed != $key) {
+                    $val = $args[$key];
+                    unset($args[$key]);
+                    $args[$fixed] = $val;
+                }
             }
         }
 
