@@ -61,9 +61,11 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
      * established database connection be given to it, and it allows
      * overriding the default table names.
      *
-     * @param connection $conn This must be an established connection
-     * to a database of the correct type for the SQLStore subclass
-     * you're using.
+     * @param connection $connection This must be an established
+     * connection to a database of the correct type for the SQLStore
+     * subclass you're using.  This must either be an PEAR DB
+     * connection handle or an instance of a subclass of
+     * Auth_OpenID_DatabaseConnection.
      *
      * @param string $settings_table This is an optional parameter to
      * specify the name of the table used for this store's settings.
