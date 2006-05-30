@@ -445,8 +445,9 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
      */
     function _get_assocs($server_url)
     {
-        return $this->connection->getAll($this->sql['get_assocs'],
-                                         array($server_url));
+        return $this->isError(
+                     $this->connection->getAll($this->sql['get_assocs'],
+                                               array($server_url)));
     }
 
     function removeAssociation($server_url, $handle)
