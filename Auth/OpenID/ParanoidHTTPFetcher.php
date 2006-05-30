@@ -67,7 +67,7 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
         return strlen($data);
     }
 
-    function get($url)
+    function get($url, $extra_headers = null)
     {
         $stop = time() + $this->timeout;
         $off = $this->timeout;
@@ -91,6 +91,10 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
             curl_setopt($c, CURLOPT_HEADERFUNCTION,
                         array(&$this, "_writeHeader"));
 
+            if ($extra_headers) {
+                curl_setopt($c, CURLOPT_HTTPHEADER, $extra_headers);
+            }
+
             curl_setopt($c, CURLOPT_TIMEOUT, $off);
             curl_setopt($c, CURLOPT_URL, $url);
 
@@ -111,8 +115,18 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
             } else {
                 $redir = false;
                 curl_close($c);
+
+                $new_headers = array();
+
+                foreach ($headers as $header) {
+                    if (preg_match("/:/", $header)) {
+                        list($name, $value) = explode(": ", $header, 2);
+                        $new_headers[$name] = $value;
+                    }
+                }
+
                 return new Services_Yadis_HTTPResponse($url, $code,
-                                                       $headers, $body);
+                                                       $new_headers, $body);
             }
 
             $off = $stop - time();
@@ -156,8 +170,19 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
         $body = $this->data;
 
         curl_close($c);
+
+        $new_headers = array();
+
+        foreach ($this->headers as $header) {
+            if (preg_match("/:/", $header)) {
+                list($name, $value) = explode(": ", $header, 2);
+                $new_headers[$name] = $value;
+            }
+
+        }
+
         return new Auth_OpenID_HTTPResponse($url, $code,
-                                            $this->headers, $body);
+                                            $new_headers, $body);
     }
 }
 

@@ -26,7 +26,7 @@ require_once "Auth/OpenID/HTTPFetcher.php";
  * @package OpenID
  */
 class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
-    function get($url)
+    function get($url, $extra_headers = null)
     {
         if (!$this->allowedURL($url)) {
             trigger_error("Bad URL scheme in url: " . $url,
@@ -84,6 +84,12 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
             $errno = 0;
             $errstr = '';
 
+            if ($extra_headers) {
+                foreach ($extra_headers as $h) {
+                    $headers[] = $h;
+                }
+            }
+
             $sock = fsockopen($host, $parts['port'], $errno, $errstr,
                               $this->timeout);
             if ($sock === false) {
@@ -118,7 +124,17 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
             $off = $stop - time();
         }
 
-        return new Auth_OpenID_HTTPResponse($url, $code, $headers, $body);
+        $new_headers = array();
+
+        foreach ($headers as $header) {
+            if (preg_match("/:/", $header)) {
+                list($name, $value) = explode(": ", $header, 2);
+                $new_headers[$name] = $value;
+            }
+
+        }
+
+        return new Auth_OpenID_HTTPResponse($url, $code, $new_headers, $body);
     }
 
     function post($url, $body)
@@ -202,6 +218,16 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
         // the second token, which should be the return code.
         $http_code = explode(" ", $headers[0]);
         $code = $http_code[1];
+
+        $new_headers = array();
+
+        foreach ($headers as $header) {
+            if (preg_match("/:/", $header)) {
+                list($name, $value) = explode(": ", $header, 2);
+                $new_headers[$name] = $value;
+            }
+
+        }
 
         return new Auth_OpenID_HTTPResponse($url, $code,
                                             $headers, $response_body);
