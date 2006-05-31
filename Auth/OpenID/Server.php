@@ -162,8 +162,12 @@ class Auth_OpenID_ServerError {
     function hasReturnTo()
     {
         global $_Auth_OpenID_OpenID_Prefix;
-        return array_key_exists($_Auth_OpenID_OpenID_Prefix . 'return_to',
-                                $this->query);
+        if ($this->query) {
+            return array_key_exists($_Auth_OpenID_OpenID_Prefix .
+                                    'return_to', $this->query);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -458,9 +462,16 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
             return new Auth_OpenID_MalformedReturnURL($query, $return_to);
         }
 
-        return new Auth_OpenID_CheckIDRequest($identity, $return_to,
-                                              $trust_root, $immediate,
-                                              $assoc_handle);
+        $r = new Auth_OpenID_CheckIDRequest($identity, $return_to,
+                                            $trust_root, $immediate,
+                                            $assoc_handle);
+
+        if (!$r->trustRootValid()) {
+            return new Auth_OpenID_UntrustedReturnURL($return_to,
+                                                      $trust_root);
+        } else {
+            return $r;
+        }
     }
 
     function Auth_OpenID_CheckIDRequest($identity, $return_to,
@@ -538,6 +549,10 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
                                    Auth_OpenID::arrayGet($values,
                                                          'trust_root', null),
                                    $immediate);
+
+        if (is_a($obj, 'Auth_OpenID_ServerError')) {
+            return $obj;
+        }
 
         if (Auth_OpenID::arrayGet($values, 'assoc_handle')) {
             $obj->assoc_handle = $values['assoc_handle'];
@@ -1096,14 +1111,24 @@ class Auth_OpenID_AlreadySigned extends Auth_OpenID_EncodingError {
 class Auth_OpenID_UntrustedReturnURL extends Auth_OpenID_ServerError {
     function Auth_OpenID_UntrustedReturnURL($return_to, $trust_root)
     {
-        $this->return_to = $return_to;
-        $this->trust_root = $trust_root;
+        global $_Auth_OpenID_OpenID_Prefix;
+
+        $query = array(
+               $_Auth_OpenID_OpenID_Prefix . 'return_to' => $return_to,
+               $_Auth_OpenID_OpenID_Prefix . 'trust_root' => $trust_root);
+
+        parent::Auth_OpenID_ServerError($query);
     }
 
     function toString()
     {
-        return sprintf("return_to %s not under trust_root %s", $this->return_to,
-                       $this->trust_root);
+        global $_Auth_OpenID_OpenID_Prefix;
+
+        $return_to = $this->query[$_Auth_OpenID_OpenID_Prefix . 'return_to'];
+        $trust_root = $this->query[$_Auth_OpenID_OpenID_Prefix . 'trust_root'];
+
+        return sprintf("return_to %s not under trust_root %s",
+                       $return_to, $trust_root);
     }
 }
 
