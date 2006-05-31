@@ -46,7 +46,7 @@ class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_TestCase {
         $this->assertTrue($e->hasReturnTo());
         $expected_args = array(
             'openid.mode' => 'error',
-            'error' => 'plucky');
+            'openid.error' => 'plucky');
 
         $encoded = $e->encodeToURL();
         if (_isError($encoded)) {

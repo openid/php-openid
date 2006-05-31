@@ -182,8 +182,8 @@ class Auth_OpenID_ServerError {
         }
 
         return Auth_OpenID::appendArgs($return_to,
-                                       array('openid.mode' => 'error',
-                                             'error' => $this->toString()));
+                            array('openid.mode' => 'error',
+                                  'openid.error' => $this->toString()));
     }
 
     /**
