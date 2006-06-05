@@ -125,8 +125,8 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
                     }
                 }
 
-                return new Services_Yadis_HTTPResponse($url, $code,
-                                                       $new_headers, $body);
+                return new Auth_OpenID_HTTPResponse($url, $code,
+                                                    $new_headers, $body);
             }
 
             $off = $stop - time();
