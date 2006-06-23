@@ -4,6 +4,7 @@ require_once 'PHPUnit.php';
 
 require_once 'Auth/OpenID.php';
 require_once 'Auth/OpenID/Discover.php';
+require_once 'Services/Yadis/Manager.php';
 
 /**
  * Tests for the core of the PHP Yadis library discovery logic.
@@ -187,6 +188,29 @@ $__yadis_2entries = '<?xml version="1.0" encoding="UTF-8"?>
 </xrds:XRDS>
 ';
 
+$__yadis_2entries_flipped_priority = '<?xml version="1.0" encoding="UTF-8"?>
+<xrds:XRDS xmlns:xrds="xri://$xrds"
+           xmlns="xri://$xrd*($v*2.0)"
+           xmlns:openid="http://openid.net/xmlns/1.0"
+           >
+  <XRD>
+
+    <Service priority="20">
+      <Type>http://openid.net/signon/1.0</Type>
+      <URI>http://www.myopenid.com/server</URI>
+      <openid:Delegate>http://smoker.myopenid.com/</openid:Delegate>
+    </Service>
+
+    <Service priority="10">
+      <Type>http://openid.net/signon/1.0</Type>
+      <URI>http://www.livejournal.com/openid/server.bml</URI>
+      <openid:Delegate>http://frank.livejournal.com/</openid:Delegate>
+    </Service>
+
+  </XRD>
+</xrds:XRDS>
+';
+
 $__yadis_another = '<?xml version="1.0" encoding="UTF-8"?>
 <xrds:XRDS xmlns:xrds="xri://$xrds"
            xmlns="xri://$xrd*($v*2.0)"
@@ -260,6 +284,32 @@ $__openid_and_yadis_html = '
   </head><body><p>foo</p></body></html>
 ';
 
+class Tests_Auth_OpenID_DiscoverSession {
+    function Tests_Auth_OpenID_DiscoverSession()
+    {
+        $this->data = array();
+    }
+
+    function set($name, $value)
+    {
+        $this->data[$name] = $value;
+    }
+
+    function get($name, $default=null)
+    {
+        if (array_key_exists($name, $this->data)) {
+            return $this->data[$name];
+        } else {
+            return $default;
+        }
+    }
+
+    function del($name)
+    {
+        unset($this->data[$name]);
+    }
+}
+
 class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
     function _usedYadis($service)
     {
@@ -307,6 +357,31 @@ class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
 
         $this->assertEquals($services[0]->identity_url, $this->id_url);
         $this->_notUsedYadis($services[0]);
+    }
+
+    function test_managerServices()
+    {
+        global $__yadis_2entries_flipped_priority;
+
+        $url = "http://bogus.xxx/";
+        $sess = new Tests_Auth_OpenID_DiscoverSession();
+        $m = new Services_Yadis_Discovery($sess, $url);
+
+        $documents = array(
+                           $url => array("application/xrds+xml",
+                                         $__yadis_2entries_flipped_priority)
+                           );
+
+        $fetcher = new _DiscoveryMockFetcher($documents);
+
+        $expected = array("http://frank.livejournal.com/",
+                          "http://smoker.myopenid.com/");
+
+        foreach ($expected as $openid) {
+            $s = $m->getNextService('_Auth_OpenID_discoverServiceList',
+                                    $fetcher);
+            $this->assertEquals($s->delegate, $openid);
+        }
     }
 
     function test_noOpenID()
