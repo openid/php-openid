@@ -369,6 +369,7 @@ class Auth_OpenID_Consumer {
                                                    'No session state found');
         } else {
             $response = $this->consumer->complete($query, $token);
+            $this->session->del($this->_token_key);
         }
 
         if (in_array($response->status, array(Auth_OpenID_SUCCESS,
