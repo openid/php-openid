@@ -30,6 +30,8 @@ if (!$auth_request) {
     exit(0);
 }
 
+$auth_request->addExtensionArg('sreg', 'optional', 'email');
+
 // Redirect the user to the OpenID server for authentication.  Store
 // the token for this authentication so we can verify the response.
 

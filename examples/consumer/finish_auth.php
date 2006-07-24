@@ -18,6 +18,11 @@ if ($response->status == Auth_OpenID_CANCEL) {
     $success = sprintf('You have successfully verified ' .
                        '<a href="%s">%s</a> as your identity.',
                        $esc_identity, $esc_identity);
+    $sreg = $response->extensionResponse('sreg');
+
+    if (@$sreg['email']) {
+        $success .= "  You also returned '".$sreg['email']."' as your email.";
+    }
 }
 
 include 'index.php';
