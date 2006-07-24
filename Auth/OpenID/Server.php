@@ -335,7 +335,7 @@ class Auth_OpenID_CheckAuthRequest extends Auth_OpenID_Request {
                 } else {
                     return new Auth_OpenID_ServerError($query,
                           sprintf("Couldn't find signed field %r in query %s",
-                                  $field));
+                                  $field, var_export($query)));
                 }
             }
             $signed_pairs[] = array($field, $value);
