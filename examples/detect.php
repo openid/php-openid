@@ -7,6 +7,8 @@ ini_set('include_path', $path);
 
 define('IS_WINDOWS', strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
 
+$yadis_available = @include_once 'Services/Yadis/XML.php';
+
 class PlainText {
     function start($title)
     {
@@ -167,6 +169,22 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
     $r = new PlainText();
 }
 
+function detect_yadis($r, &$out)
+{
+    global $yadis_available;
+
+    $out .= $r->h2('Yadis Support');
+    if (!$yadis_available) {
+        $out .= $r->p('Yadis support is not present.  Please install ' .
+                      'the PHP Yadis library from ' .
+                      $r->link('http://www.openidenabled.com/'));
+        return false;
+    } else {
+        $out .= $r->p('Yadis support is present.');
+        return true;
+    }
+}
+
 function detect_math($r, &$out)
 {
     global $_Auth_OpenID_math_extensions;
@@ -317,7 +335,7 @@ function detect_stores($r, &$out)
             $text .= $found[0];
         } else {
             $last = array_pop($found);
-            $text .= implode(', ', $found) . ' and ' . $last;
+            $text .= implode(', ', $found) . ' and ' . $last . '.';
         }
     }
     $text .= ' The library supports the MySQL, PostgreSQL, and SQLite ' .
@@ -356,6 +374,35 @@ function detect_stores($r, &$out)
     return false;
 }
 
+function detect_xml($r, &$out)
+{
+    global $yadis_available, $__Services_Yadis_xml_extensions;
+
+    $out .= $r->h2('XML Support');
+
+    if (!$yadis_available) {
+        $out .= $r->p('Yadis support absent; please install the PHP Yadis ' .
+                      'library (see above).');
+        return false;
+    }
+
+    // Try to get an XML extension.
+    $ext = Services_Yadis_getXMLParser();
+
+    if ($ext !== null) {
+        $out .= $r->p('XML parsing support is present using the '.
+                      $r->b(get_class($ext)).' interface.');
+        return true;
+    } else {
+        $out .= $r->p('XML parsing support is absent; please install one '.
+                      'of the following PHP extensions:');
+        foreach ($__Services_Yadis_xml_extensions as $name => $cls) {
+            $out .= "<li>" . $r->b($name) . "</li>";
+        }
+        return false;
+    }
+}
+
 function detect_fetcher($r, &$out)
 {
     $out .= $r->h2('HTTP Fetching');
@@ -378,13 +425,15 @@ function detect_fetcher($r, &$out)
     $result = $fetcher->get($fetch_url);
     if (isset($result)) {
         $parts = array('An HTTP request was completed.');
-        list ($code, $url, $data) = $result;
-        if ($code != '200') {
+        // list ($code, $url, $data) = $result;
+        if ($result->status != '200') {
             $ok = false;
             $parts[] = $r->b(
                 sprintf('Got %s instead of the expected HTTP status code ' .
-                        '(200).', $code));
+                        '(200).', $result->status));
         }
+
+        $url = $result->final_url;
         if ($url != $expected_url) {
             $ok = false;
             if ($url == $fetch_url) {
@@ -394,6 +443,8 @@ function detect_fetcher($r, &$out)
             }
             $parts[] = $r->b($msg);
         }
+
+        $data = $result->body;
         if ($data != 'Hello World!') {
             $ok = false;
             $parts[] = $r->b('Unexpected data was returned.');
@@ -407,8 +458,6 @@ function detect_fetcher($r, &$out)
 }
 
 header('Content-Type: ' . $r->contentType() . '; charset=us-ascii');
-
-$status = array();
 
 $title = 'OpenID Library Support Report';
 $out = $r->start($title) .
@@ -428,10 +477,29 @@ if (!($_file1 && $_file2)) {
         'path. Your PHP include path is currently:');
     $body .= $r->pre($path);
 } else {
-    $status['math'] = detect_math($r, $body);
-    $status['random'] = detect_random($r, $body);
-    $status['stores'] = detect_stores($r, $body);
-    $status['fetcher'] = detect_fetcher($r, $body);
+    $status = array();
+
+    $status[] = detect_yadis($r, $body);
+    $status[] = detect_math($r, $body);
+    $status[] = detect_random($r, $body);
+    $status[] = detect_stores($r, $body);
+    $status[] = detect_fetcher($r, $body);
+    $status[] = detect_xml($r, $body);
+
+    $result = true;
+
+    foreach ($status as $v) {
+        if (!$v) {
+            $result = false;
+            break;
+        }
+    }
+
+    if ($result) {
+        $out .= $r->h2('<font color="green">Setup Complete!</font>');
+    } else {
+        $out .= $r->h2('<font color="red">Setup Incomplete.</font>');
+    }
 }
 
 $out .= $body . $r->end();
