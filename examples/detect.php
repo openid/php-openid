@@ -371,7 +371,7 @@ function detect_stores($r, &$out)
     $out .= $r->p('If you are using the filesystem store, your ' .
                   'data directory must be readable and writable by ' .
                   $web_user . ' and not availabe over the Web.');
-    return false;
+    return true;
 }
 
 function detect_xml($r, &$out)
