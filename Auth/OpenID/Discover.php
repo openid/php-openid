@@ -165,7 +165,7 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
     $openid_services = array();
 
     $http_response = null;
-    $response = @Services_Yadis_Yadis::discover($uri, $http_response,
+    $response = Services_Yadis_Yadis::discover($uri, $http_response,
                                                 $fetcher);
 
     if ($response) {
