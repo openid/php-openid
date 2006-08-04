@@ -303,9 +303,29 @@ class Auth_OpenID_Consumer {
                                                   $openid_url,
                                                   $this->session_key_prefix);
 
+            // Set the 'stale' attribute of the manager.  If discovery
+            // fails in a fatal way, the stale flag will cause the
+            // manager to be cleaned up next time discovery is
+            // attempted.
+            $m = $disco->getManager();
+            if ($m) {
+                $m->stale = true;
+                $disco->session->set($disco->session_key,
+                                     serialize($m));
+            }
+
             $endpoint = $disco->getNextService(
                                         '_Auth_OpenID_discoverServiceList',
                                         $this->consumer->fetcher);
+
+            // Reset the 'stale' attribute of the manager.
+            $m =& $disco->getManager();
+            if ($m) {
+                $m->stale = false;
+                $disco->session->set($disco->session_key,
+                                     serialize($m));
+            }
+
         } else {
             $endpoint = null;
             $result = Auth_OpenID_discover($openid_url,
