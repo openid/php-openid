@@ -295,7 +295,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
 
     /**
      * Retrieve an association. If no handle is specified, return the
-     * association with the latest expiration.
+     * association with the most recent issue time.
      *
      * @return mixed $association
      */
