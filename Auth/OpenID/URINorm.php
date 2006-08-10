@@ -160,8 +160,6 @@ function Auth_OpenID_urinorm($uri)
         }
     }
 
-    print_r($uri_matches);
-
     $scheme = $uri_matches[2];
     if ($scheme) {
         $scheme = strtolower($scheme);
