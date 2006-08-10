@@ -117,7 +117,8 @@ $_test_names = array(
     'Server',
     'TrustRoot',
     'Discover',
-    'OpenID_Yadis'
+    'OpenID_Yadis',
+    'URINorm'
     );
 
 function selectTests($names)
