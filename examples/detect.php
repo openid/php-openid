@@ -7,8 +7,6 @@ ini_set('include_path', $path);
 
 define('IS_WINDOWS', strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
 
-$yadis_available = @include_once 'Services/Yadis/XML.php';
-
 class PlainText {
     function start($title)
     {
@@ -167,22 +165,6 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
     $r = new HTML();
 } else {
     $r = new PlainText();
-}
-
-function detect_yadis($r, &$out)
-{
-    global $yadis_available;
-
-    $out .= $r->h2('Yadis Support');
-    if (!$yadis_available) {
-        $out .= $r->p('Yadis support is not present.  Please install ' .
-                      'the PHP Yadis library from ' .
-                      $r->link('http://www.openidenabled.com/'));
-        return false;
-    } else {
-        $out .= $r->p('Yadis support is present.');
-        return true;
-    }
 }
 
 function detect_math($r, &$out)
@@ -376,15 +358,9 @@ function detect_stores($r, &$out)
 
 function detect_xml($r, &$out)
 {
-    global $yadis_available, $__Services_Yadis_xml_extensions;
+    global $__Services_Yadis_xml_extensions;
 
     $out .= $r->h2('XML Support');
-
-    if (!$yadis_available) {
-        $out .= $r->p('Yadis support absent; please install the PHP Yadis ' .
-                      'library (see above).');
-        return false;
-    }
 
     // Try to get an XML extension.
     $ext = Services_Yadis_getXMLParser();
@@ -479,7 +455,6 @@ if (!($_file1 && $_file2)) {
 } else {
     $status = array();
 
-    $status[] = detect_yadis($r, $body);
     $status[] = detect_math($r, $body);
     $status[] = detect_random($r, $body);
     $status[] = detect_stores($r, $body);
