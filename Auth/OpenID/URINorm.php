@@ -70,7 +70,7 @@ foreach (array_merge($__UCSCHAR, $__IPRIVATE) as $pair) {
 
 $_escapeme_re = sprintf('[%s]', implode('', $parts));
 
-function startswith($s, $stuff)
+function _startswith($s, $stuff)
 {
     return strpos($s, $stuff) === 0;
 }
@@ -109,15 +109,15 @@ function remove_dot_segments($path)
     $result_segments = array();
     
     while ($path) {
-        if (startswith($path, '../')) {
+        if (_startswith($path, '../')) {
             $path = substr($path, 3);
-        } else if (startswith($path, './')) {
+        } else if (_startswith($path, './')) {
             $path = substr($path, 2);
-        } else if (startswith($path, '/./')) {
+        } else if (_startswith($path, '/./')) {
             $path = substr($path, 2);
         } else if ($path == '/.') {
             $path = '/';
-        } else if (startswith($path, '/../')) {
+        } else if (_startswith($path, '/../')) {
             $path = substr($path, 3);
             if ($result_segments) {
                 array_pop($result_segments);
