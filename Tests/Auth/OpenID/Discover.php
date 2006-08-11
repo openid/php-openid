@@ -148,8 +148,8 @@ class _DiscoveryMockFetcher {
             $body = '';
         }
 
-        return new Auth_OpenID_HTTPResponse($final_url, $status,
-                                            array('content-type' => $ctype), $body);
+        return new Services_Yadis_HTTPResponse($final_url, $status,
+                                               array('content-type' => $ctype), $body);
     }
 }
 

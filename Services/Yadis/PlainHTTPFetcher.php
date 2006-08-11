@@ -8,7 +8,7 @@
  *
  * LICENSE: See the COPYING file included in this distribution.
  *
- * @package OpenID
+ * @package Yadis
  * @author JanRain, Inc. <openid@janrain.com>
  * @copyright 2005 Janrain, Inc.
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
@@ -17,15 +17,15 @@
 /**
  * Interface import
  */
-require_once "Auth/OpenID/HTTPFetcher.php";
+require_once "Services/Yadis/HTTPFetcher.php";
 
 /**
  * This class implements a plain, hand-built socket-based fetcher
  * which will be used in the event that CURL is unavailable.
  *
- * @package OpenID
+ * @package Yadis
  */
-class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
+class Services_Yadis_PlainHTTPFetcher extends Services_Yadis_HTTPFetcher {
     function get($url, $extra_headers = null)
     {
         if (!$this->allowedURL($url)) {
@@ -67,7 +67,7 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
                 $host = 'ssl://' . $host;
             }
 
-            $user_agent = "PHP OpenID Library Fetcher";
+            $user_agent = "PHP Yadis Library Fetcher";
 
             $headers = array(
                              "GET ".$parts['path'].
@@ -134,7 +134,7 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
 
         }
 
-        return new Auth_OpenID_HTTPResponse($url, $code, $new_headers, $body);
+        return new Services_Yadis_HTTPResponse($url, $code, $new_headers, $body);
     }
 
     function post($url, $body)
@@ -229,8 +229,8 @@ class Auth_OpenID_PlainHTTPFetcher extends Auth_OpenID_HTTPFetcher {
 
         }
 
-        return new Auth_OpenID_HTTPResponse($url, $code,
-                                            $headers, $response_body);
+        return new Services_Yadis_HTTPResponse($url, $code,
+                                               $headers, $response_body);
     }
 }
 

@@ -7,7 +7,7 @@
  *
  * LICENSE: See the COPYING file included in this distribution.
  *
- * @package OpenID
+ * @package Yadis
  * @author JanRain, Inc. <openid@janrain.com>
  * @copyright 2005 Janrain, Inc.
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
@@ -16,23 +16,23 @@
 /**
  * Interface import
  */
-require_once "Auth/OpenID/HTTPFetcher.php";
+require_once "Services/Yadis/HTTPFetcher.php";
 
 /**
  * Define this based on whether the CURL extension is available.
  */
-define('Auth_OpenID_CURL_PRESENT', function_exists('curl_init'));
+define('Services_Yadis_CURL_PRESENT', function_exists('curl_init'));
 
 /**
- * A paranoid {@link Auth_OpenID_HTTPFetcher} class which uses CURL
+ * A paranoid {@link Services_Yadis_HTTPFetcher} class which uses CURL
  * for fetching.
  *
- * @package OpenID
+ * @package Yadis
  */
-class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
-    function Auth_OpenID_ParanoidHTTPFetcher()
+class Services_Yadis_ParanoidHTTPFetcher extends Services_Yadis_HTTPFetcher {
+    function Services_Yadis_ParanoidHTTPFetcher()
     {
-        if (!Auth_OpenID_CURL_PRESENT) {
+        if (!Services_Yadis_CURL_PRESENT) {
             trigger_error("Cannot use this class; CURL extension not found",
                           E_USER_ERROR);
         }
@@ -125,7 +125,7 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
                     }
                 }
 
-                return new Auth_OpenID_HTTPResponse($url, $code,
+                return new Services_Yadis_HTTPResponse($url, $code,
                                                     $new_headers, $body);
             }
 
@@ -181,8 +181,8 @@ class Auth_OpenID_ParanoidHTTPFetcher extends Auth_OpenID_HTTPFetcher {
 
         }
 
-        return new Auth_OpenID_HTTPResponse($url, $code,
-                                            $new_headers, $body);
+        return new Services_Yadis_HTTPResponse($url, $code,
+                                               $new_headers, $body);
     }
 }
 

@@ -68,7 +68,9 @@ function loadTests($test_dir, $test_names)
         $filename = $test_dir . $filename . '.php';
         $class_name = str_replace(DIRECTORY_SEPARATOR, '_', $filename);
         $class_name = basename($class_name, '.php');
-        global_require_once($filename);
+        if (!global_require_once($filename)) {
+            continue;
+        }
         $test = new $class_name($class_name);
 
         if (is_a($test, 'PHPUnit_TestCase')) {
@@ -94,52 +96,73 @@ function loadTests($test_dir, $test_names)
 
 function global_require_once($name)
 {
-    require_once $name;
+    $f = @include_once $name;
+    if (!$f) {
+        return false;
+    }
     foreach (get_defined_vars() as $k => $v) {
         if (!in_array($k, array('name', 'GLOBALS'))) {
             $GLOBALS[$k] = $v;
         }
     }
+    return true;
 }
 
-$_test_dir = 'Tests/Auth/OpenID/';
-$_test_names = array(
-    'Association',
-    'BigMath',
-    'Consumer',
-    'CryptUtil',
-    'DiffieHellman',
-    'HMACSHA1',
-    'KVForm',
-    'Util',
-    'Parse',
-    'StoreTest',
-    'Server',
-    'TrustRoot',
-    'Discover',
-    'OpenID_Yadis',
-    'URINorm'
-    );
+$_tests = array(
+                array(
+                      'dir' => 'Tests/Auth/OpenID/',
+                      'files' => array(
+                                       'Association',
+                                       'BigMath',
+                                       'Consumer',
+                                       'CryptUtil',
+                                       'DiffieHellman',
+                                       'HMACSHA1',
+                                       'KVForm',
+                                       'Util',
+                                       'Parse',
+                                       'StoreTest',
+                                       'Server',
+                                       'TrustRoot',
+                                       'Discover',
+                                       'OpenID_Yadis',
+                                       'URINorm'),
+                      ),
+                array(
+                      'dir' => 'Tests/Services/Yadis/',
+                      'files' => array(
+                                       'ParseHTML',
+                                       'XRDS',
+                                       'Yadis',
+                                       'Discover'
+                                       )
+                      )
+                );
 
 function selectTests($names)
 {
-    global $_test_names;
+    global $_tests;
     $lnames = array_map('strtolower', $names);
     $include = array();
     $exclude = array();
-    foreach ($_test_names as $t) {
-        $l = strtolower($t);
-        if (in_array($l, $lnames)) {
-            $include[] = $t;
-        }
+    foreach ($_tests as $package) {
+        foreach ($package['files'] as $t) {
+            $l = strtolower($t);
+            if (in_array($l, $lnames)) {
+                $include[] = $t;
+            }
 
-        if (in_array("/$l", $lnames)) {
-            $exclude[] = $t;
+            if (in_array("/$l", $lnames)) {
+                $exclude[] = $t;
+            }
         }
     }
 
     if (!count($include)) {
-        $include = $_test_names;
+        $include = array();
+        foreach ($_tests as $package) {
+            $include = array_merge($include, $package['files']);
+        }
     }
 
     return array_diff($include, $exclude);
@@ -148,12 +171,18 @@ function selectTests($names)
 // Load OpenID library tests
 function loadSuite($names=null)
 {
-    global $_test_names;
-    global $_test_dir;
+    global $_tests;
     if ($names === null) {
-        $names = $_test_names;
+        $names = array();
+        foreach ($_tests as $package) {
+            $names = array_merge($names, $package['files']);
+        }
     }
     $selected = selectTests($names);
-    return loadTests($_test_dir, $selected);
+    $result = array();
+    foreach ($_tests as $package) {
+        $result = array_merge($result, loadTests($package['dir'], $selected));
+    }
+    return $result;
 }
 ?>

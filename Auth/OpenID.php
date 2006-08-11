@@ -20,8 +20,8 @@
 /**
  * Require the fetcher code.
  */
-require_once "Auth/OpenID/PlainHTTPFetcher.php";
-require_once "Auth/OpenID/ParanoidHTTPFetcher.php";
+require_once "Services/Yadis/PlainHTTPFetcher.php";
+require_once "Services/Yadis/ParanoidHTTPFetcher.php";
 
 /**
  * Status code returned by the server when the only option is to show
@@ -117,11 +117,11 @@ class Auth_OpenID {
      */
     function getHTTPFetcher()
     {
-        if (defined('Auth_OpenID_CURL_PRESENT') &&
-            Auth_OpenID_CURL_PRESENT) {
-            $fetcher = new Auth_OpenID_ParanoidHTTPFetcher();
+        if (defined('Services_Yadis_CURL_PRESENT') &&
+            Services_Yadis_CURL_PRESENT) {
+            $fetcher = new Services_Yadis_ParanoidHTTPFetcher();
         } else {
-            $fetcher = new Auth_OpenID_PlainHTTPFetcher();
+            $fetcher = new Services_Yadis_PlainHTTPFetcher();
         }
         return $fetcher;
     }

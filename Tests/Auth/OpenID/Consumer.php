@@ -14,12 +14,11 @@
  */
 
 require_once 'Auth/OpenID/CryptUtil.php';
-require_once 'Auth/OpenID/HTTPFetcher.php';
+require_once 'Services/Yadis/HTTPFetcher.php';
 require_once 'Auth/OpenID/DiffieHellman.php';
 require_once 'Auth/OpenID/FileStore.php';
 require_once 'Auth/OpenID/KVForm.php';
 require_once 'Auth/OpenID/Consumer.php';
-require_once 'Auth/OpenID/HTTPFetcher.php';
 require_once 'Tests/Auth/OpenID/MemStore.php';
 require_once 'PHPUnit.php';
 
@@ -75,15 +74,15 @@ function Auth_OpenID_associate($qs, $assoc_secret, $assoc_handle)
     return Auth_OpenID_KVForm::fromArray($reply_dict);
 }
 
-class Auth_OpenID_TestFetcher extends Auth_OpenID_HTTPFetcher {
+class Auth_OpenID_TestFetcher extends Services_Yadis_HTTPFetcher {
     function Auth_OpenID_TestFetcher($user_url, $user_page,
                                     $assoc_secret, $assoc_handle)
     {
         $this->get_responses = array($user_url =>
-                                     new Auth_OpenID_HTTPResponse($user_url,
-                                                                  200,
-                                                                  array(),
-                                                                  $user_page));
+                                     new Services_Yadis_HTTPResponse($user_url,
+                                                                     200,
+                                                                     array(),
+                                                                     $user_page));
         $this->assoc_secret = $assoc_secret;
         $this->assoc_handle = $assoc_handle;
         $this->num_assocs = 0;
@@ -92,9 +91,9 @@ class Auth_OpenID_TestFetcher extends Auth_OpenID_HTTPFetcher {
     function response($url, $body)
     {
         if ($body === null) {
-            return new Auth_OpenID_HTTPResponse($url, 404, array(), 'Not found');
+            return new Services_Yadis_HTTPResponse($url, 404, array(), 'Not found');
         } else {
-            return new Auth_OpenID_HTTPResponse($url, 200, array(), $body);
+            return new Services_Yadis_HTTPResponse($url, 200, array(), $body);
         }
     }
 
@@ -118,9 +117,9 @@ class Auth_OpenID_TestFetcher extends Auth_OpenID_HTTPFetcher {
                           );
 
         if ($query_data == $expected) {
-            return new Auth_OpenID_HTTPResponse($url, 200, array(), "is_valid:true\n");
+            return new Services_Yadis_HTTPResponse($url, 200, array(), "is_valid:true\n");
         } else {
-            return new Auth_OpenID_HTTPResponse($url, 400, array(),
+            return new Services_Yadis_HTTPResponse($url, 400, array(),
                                                 "error:bad check_authentication query\n");
         }
     }
@@ -739,7 +738,7 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuth extends _TestIdRes {
     function test_checkauth_error()
     {
         global $_Auth_OpenID_server_url;
-        $this->fetcher->response = new Auth_OpenID_HTTPResponse("http://some_url",
+        $this->fetcher->response = new Services_Yadis_HTTPResponse("http://some_url",
                                                                 404,
                                                                 array(),
                                                                 "blah:blah\n");
@@ -772,10 +771,10 @@ class Tests_Auth_OpenID_Consumer_TestFetchAssoc extends PHPUnit_TestCase {
 
     function test_kvpost_error()
     {
-        $this->fetcher->response = new Auth_OpenID_HTTPResponse("http://some_url",
-                                                                404,
-                                                                array(),
-                                                                "blah:blah\n");
+        $this->fetcher->response = new Services_Yadis_HTTPResponse("http://some_url",
+                                                                   404,
+                                                                   array(),
+                                                                   "blah:blah\n");
         $r = $this->consumer->_makeKVPost(array('openid.mode' => 'associate'),
                                           "http://server_url");
         if ($r !== null) {
