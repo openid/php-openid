@@ -9,20 +9,8 @@ require_once "Auth/OpenID/Parse.php";
 
 // If the Yadis library is available, use it. Otherwise, only use
 // old-style discovery.
-global $_yadis_available;
 
-$_yadis_available = false;
-
-$try_include = @include 'Services/Yadis/Yadis.php';
-
-if ($try_include) {
-    $_yadis_available = true;
-} else {
-    trigger_error("Yadis support not found; please install the ".
-                  "JanRain, Inc. PHP Yadis library, available at ".
-                  "http://www.openidenabled.com.",
-                  E_USER_ERROR);
-}
+require_once 'Services/Yadis/Yadis.php';
 
 define('_OPENID_1_0_NS', 'http://openid.net/xmlns/1.0');
 define('_OPENID_1_2_TYPE', 'http://openid.net/signon/1.2');
@@ -231,13 +219,7 @@ function Auth_OpenID_discoverWithoutYadis($uri, &$fetcher)
 
 function Auth_OpenID_discover($uri, &$fetcher)
 {
-    global $_yadis_available;
-
-    if ($_yadis_available) {
-        return @Auth_OpenID_discoverWithYadis($uri, $fetcher);
-    } else {
-        return @Auth_OpenID_discoverWithoutYadis($uri, $fetcher);
-    }
+    return @Auth_OpenID_discoverWithYadis($uri, $fetcher);
 }
 
 ?>

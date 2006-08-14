@@ -295,45 +295,31 @@ class Auth_OpenID_Consumer {
      */
     function begin($user_url)
     {
-        global $_yadis_available;
-
         $openid_url = Auth_OpenID::normalizeUrl($user_url);
-        if ($_yadis_available) {
-            $disco = new Services_Yadis_Discovery($this->session,
-                                                  $openid_url,
-                                                  $this->session_key_prefix);
+        $disco = new Services_Yadis_Discovery($this->session,
+                                              $openid_url,
+                                              $this->session_key_prefix);
 
-            // Set the 'stale' attribute of the manager.  If discovery
-            // fails in a fatal way, the stale flag will cause the
-            // manager to be cleaned up next time discovery is
-            // attempted.
-            $m = $disco->getManager();
-            if ($m) {
-                $m->stale = true;
-                $disco->session->set($disco->session_key,
-                                     serialize($m));
-            }
+        // Set the 'stale' attribute of the manager.  If discovery
+        // fails in a fatal way, the stale flag will cause the manager
+        // to be cleaned up next time discovery is attempted.
+        $m = $disco->getManager();
+        if ($m) {
+            $m->stale = true;
+            $disco->session->set($disco->session_key,
+                                 serialize($m));
+        }
 
-            $endpoint = $disco->getNextService(
-                                        '_Auth_OpenID_discoverServiceList',
-                                        $this->consumer->fetcher);
-
-            // Reset the 'stale' attribute of the manager.
-            $m =& $disco->getManager();
-            if ($m) {
-                $m->stale = false;
-                $disco->session->set($disco->session_key,
-                                     serialize($m));
-            }
-
-        } else {
-            $endpoint = null;
-            $result = Auth_OpenID_discover($openid_url,
+        $endpoint = $disco->getNextService(
+                                           '_Auth_OpenID_discoverServiceList',
                                            $this->consumer->fetcher);
-            if ($result !== null) {
-                list($temp, $endpoints, $http_response) = $result;
-                $endpoint = $endpoints[0];
-            }
+
+        // Reset the 'stale' attribute of the manager.
+        $m =& $disco->getManager();
+        if ($m) {
+            $m->stale = false;
+            $disco->session->set($disco->session_key,
+                                 serialize($m));
         }
 
         if ($endpoint === null) {
@@ -378,8 +364,6 @@ class Auth_OpenID_Consumer {
      */
     function complete($query)
     {
-        global $_yadis_available;
-
         $query = Auth_OpenID::fixArgs($query);
 
         $token = $this->session->get($this->_token_key);
@@ -394,11 +378,10 @@ class Auth_OpenID_Consumer {
 
         if (in_array($response->status, array(Auth_OpenID_SUCCESS,
                                               Auth_OpenID_CANCEL))) {
-            if ($_yadis_available &&
-                $response->identity_url !== null) {
+            if ($response->identity_url !== null) {
                 $disco = new Services_Yadis_Discovery($this->session,
-                                                   $response->identity_url,
-                                                   $this->session_key_prefix);
+                                                  $response->identity_url,
+                                                  $this->session_key_prefix);
                 $disco->cleanup();
             }
         }
