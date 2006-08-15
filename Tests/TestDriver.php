@@ -134,7 +134,8 @@ $_tests = array(
                                        'ParseHTML',
                                        'XRDS',
                                        'Yadis',
-                                       'Discover'
+                                       'Discover',
+                                       'XRI'
                                        )
                       )
                 );
