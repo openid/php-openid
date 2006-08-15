@@ -1,0 +1,30 @@
+# This file contains test cases for doing YADIS identity URL and
+# service discovery. For each case, there are three URLs. The first
+# URL is the user input. The second is the identity URL and the third
+# is the URL from which the XRDS document should be read.
+#
+# The file format is as follows:
+# User URL <tab> Identity URL <tab> XRDS URL <newline>
+#
+# blank lines and lines starting with # should be ignored.
+#
+# To use this test:
+#
+# 1. Run your discovery routine on the User URL.
+#
+# 2. Compare the identity URL returned by the discovery routine to the
+#    identity URL on that line of the file. It must be an EXACT match.
+#
+# 3. Do a regular HTTP GET on the XRDS URL. Compare the content that
+#    was returned by your discovery routine with the content returned
+#    from that URL. It should also be an exact match.
+
+http://www.openidenabled.com/resources/yadis-test/discover/equiv	http://www.openidenabled.com/resources/yadis-test/discover/equiv	http://www.openidenabled.com/resources/yadis-test/discover/xrds
+http://www.openidenabled.com/resources/yadis-test/discover/header	http://www.openidenabled.com/resources/yadis-test/discover/header	http://www.openidenabled.com/resources/yadis-test/discover/xrds
+http://www.openidenabled.com/resources/yadis-test/discover/xrds	http://www.openidenabled.com/resources/yadis-test/discover/xrds	http://www.openidenabled.com/resources/yadis-test/discover/xrds
+http://www.openidenabled.com/resources/yadis-test/discover/xrds_html	http://www.openidenabled.com/resources/yadis-test/discover/xrds_html	
+http://www.openidenabled.com/resources/yadis-test/discover/redir_equiv	http://www.openidenabled.com/resources/yadis-test/discover/equiv	http://www.openidenabled.com/resources/yadis-test/discover/xrds
+http://www.openidenabled.com/resources/yadis-test/discover/redir_header	http://www.openidenabled.com/resources/yadis-test/discover/header	http://www.openidenabled.com/resources/yadis-test/discover/xrds
+http://www.openidenabled.com/resources/yadis-test/discover/redir_xrds	http://www.openidenabled.com/resources/yadis-test/discover/xrds	http://www.openidenabled.com/resources/yadis-test/discover/xrds
+http://www.openidenabled.com/resources/yadis-test/discover/redir_xrds_html	http://www.openidenabled.com/resources/yadis-test/discover/xrds_html	
+http://www.openidenabled.com/resources/yadis-test/discover/redir_redir_equiv	http://www.openidenabled.com/resources/yadis-test/discover/equiv	http://www.openidenabled.com/resources/yadis-test/discover/xrds
