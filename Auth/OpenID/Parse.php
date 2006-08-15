@@ -294,13 +294,13 @@ function Auth_OpenID_legacy_discover($html_text)
     $link_attrs = $p->parseLinkAttrs($html_text);
 
     $server_url = $p->findFirstHref($link_attrs,
-                                                   'openid.server');
+                                    'openid.server');
 
     if ($server_url === null) {
         return false;
     } else {
         $delegate_url = $p->findFirstHref($link_attrs,
-                                                         'openid.delegate');
+                                          'openid.delegate');
         return array($delegate_url, $server_url);
     }
 }
