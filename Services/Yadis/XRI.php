@@ -12,6 +12,7 @@
 require_once 'Services/Yadis/Misc.php';
 require_once 'Services/Yadis/Yadis.php';
 require_once 'Services/Yadis/XRDS.php';
+require_once 'Auth/OpenID.php';
 
 $DEFAULT_PROXY = 'http://proxy.xri.net/';
 $XRI_AUTHORITIES = array('!', '=', '@', '+', '$', '(');
@@ -39,7 +40,7 @@ function Services_Yadis_identifierScheme($identifier)
 
 function Services_Yadis_toIRINormal($xri)
 {
-    if (!_startswith($xr, 'xri://')) {
+    if (!_startswith($xri, 'xri://')) {
         $xri = 'xri://' . $xri;
     }
 
@@ -60,7 +61,7 @@ function Services_Yadis_escapeForIRI($xri)
     global $_xref_re, $_escapeme_re;
 
     $xri = str_replace('%', '%25', $xri);
-    $xri = preg_replace($_xref_re, $_escape_xref, $xri);
+    $xri = preg_replace_callback($_xref_re, '_escape_xref', $xri);
     return $xri;
 }
 
