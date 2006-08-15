@@ -172,6 +172,7 @@ require_once "Auth/OpenID/DiffieHellman.php";
 require_once "Auth/OpenID/KVForm.php";
 require_once "Auth/OpenID/Discover.php";
 require_once "Services/Yadis/Manager.php";
+require_once "Services/Yadis/XRI.php";
 
 /**
  * This is the status code returned when the complete method returns
@@ -295,7 +296,15 @@ class Auth_OpenID_Consumer {
      */
     function begin($user_url)
     {
-        $openid_url = Auth_OpenID::normalizeUrl($user_url);
+        $discoverMethod = '_Auth_OpenID_discoverServiceList';
+        $openid_url = $user_url;
+
+        if (Services_Yadis_identifierScheme($user_url) == 'XRI') {
+            $discoverMethod = '_Auth_OpenID_discoverXRIServiceList';
+        } else {
+            $openid_url = Auth_OpenID::normalizeUrl($user_url);
+        }
+
         $disco = new Services_Yadis_Discovery($this->session,
                                               $openid_url,
                                               $this->session_key_prefix);
@@ -310,8 +319,7 @@ class Auth_OpenID_Consumer {
                                  serialize($m));
         }
 
-        $endpoint = $disco->getNextService(
-                                           '_Auth_OpenID_discoverServiceList',
+        $endpoint = $disco->getNextService($discoverMethod,
                                            $this->consumer->fetcher);
 
         // Reset the 'stale' attribute of the manager.
@@ -998,6 +1006,7 @@ class Auth_OpenID_AuthRequest {
         }
 
         $redir_args = array_merge($redir_args, $this->extra_args);
+
         return Auth_OpenID::appendArgs($this->endpoint->server_url,
                                        $redir_args);
     }

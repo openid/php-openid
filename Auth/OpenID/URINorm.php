@@ -9,36 +9,12 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
+require_once 'Services/Yadis/Misc.php';
+
 // from appendix B of rfc 3986 (http://www.ietf.org/rfc/rfc3986.txt)
 $__uri_pattern = '&^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?&';
 $__authority_pattern = '/^([^@]*@)?([^:]*)(:.*)?/';
 $__pct_encoded_pattern = '/%([0-9A-Fa-f]{2})/';
-
-$__UCSCHAR = array(
-                   array(0xA0, 0xD7FF),
-                   array(0xF900, 0xFDCF),
-                   array(0xFDF0, 0xFFEF),
-                   array(0x10000, 0x1FFFD),
-                   array(0x20000, 0x2FFFD),
-                   array(0x30000, 0x3FFFD),
-                   array(0x40000, 0x4FFFD),
-                   array(0x50000, 0x5FFFD),
-                   array(0x60000, 0x6FFFD),
-                   array(0x70000, 0x7FFFD),
-                   array(0x80000, 0x8FFFD),
-                   array(0x90000, 0x9FFFD),
-                   array(0xA0000, 0xAFFFD),
-                   array(0xB0000, 0xBFFFD),
-                   array(0xC0000, 0xCFFFD),
-                   array(0xD0000, 0xDFFFD),
-                   array(0xE1000, 0xEFFFD)
-                   );
-
-$__IPRIVATE = array(
-                    array(0xE000, 0xF8FF),
-                    array(0xF0000, 0xFFFFD),
-                    array(0x100000, 0x10FFFD)
-                    );
 
 $_unreserved = array();
 for ($i = 0; $i < 256; $i++) {
@@ -65,25 +41,10 @@ $_unreserved[ord('~')] = true;
 $parts = array();
 foreach (array_merge($__UCSCHAR, $__IPRIVATE) as $pair) {
     list($m, $n) = $pair;
-    $parts[] = sprintf("%s-%s", $m, $n);
+    $parts[] = sprintf("%s-%s", chr($m), chr($n));
 }
 
 $_escapeme_re = sprintf('[%s]', implode('', $parts));
-
-function _startswith($s, $stuff)
-{
-    return strpos($s, $stuff) === 0;
-}
-
-function _pct_escape_unicode($char_match)
-{
-    $c = $char_match[0];
-    $result = "";
-    for ($i = 0; $i < strlen($c); $i++) {
-        $result .= "%".sprintf("%X", ord($c[$i]));
-    }
-    return $result;
-}
 
 function _pct_encoded_replace_unreserved($mo)
 {

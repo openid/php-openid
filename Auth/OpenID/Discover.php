@@ -88,6 +88,7 @@ class Auth_OpenID_ServiceEndpoint {
         }
 
         list($delegate_url, $server_url) = $urls;
+
         $service = new Auth_OpenID_ServiceEndpoint();
         $service->identity_url = $uri;
         $service->delegate = $delegate_url;
@@ -194,6 +195,13 @@ function _Auth_OpenID_discoverServiceList($uri, &$fetcher)
     return $services;
 }
 
+function _Auth_OpenID_discoverXRIServiceList($uri, &$fetcher)
+{
+    list($url, $services, $resp) = _Auth_OpenID_discoverXRI($uri,
+                                                            $fetcher);
+    return $services;
+}
+
 function Auth_OpenID_discoverWithoutYadis($uri, &$fetcher)
 {
     $http_resp = @$fetcher->get($uri);
@@ -215,6 +223,18 @@ function Auth_OpenID_discoverWithoutYadis($uri, &$fetcher)
     }
 
     return array($identity_url, $openid_services, $http_resp);
+}
+
+function _Auth_OpenID_discoverXRI($iname, &$fetcher)
+{
+    $services = new Services_Yadis_ProxyResolver($fetcher);
+    $service_list = $services->query($iname, array(_OPENID_1_0_TYPE,
+                                                   _OPENID_1_1_TYPE,
+                                                   _OPENID_1_2_TYPE),
+                                     array('filter_MatchesAnyOpenIDType'));
+    $endpoints = Auth_OpenID_makeOpenIDEndpoints($iname, $service_list);
+    // FIXME: returned xri should probably be in some normal form
+    return array($iname, $endpoints, null);
 }
 
 function Auth_OpenID_discover($uri, &$fetcher)
