@@ -463,7 +463,7 @@ class Auth_OpenID_GenericConsumer {
             !(defined('Auth_OpenID_NO_MATH_SUPPORT') ||
               $this->store->isDumb());
 
-        $this->fetcher = Auth_OpenID::getHTTPFetcher();
+        $this->fetcher = Services_Yadis_Yadis::getHTTPFetcher();
     }
 
     function begin($service_endpoint)

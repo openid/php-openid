@@ -121,13 +121,17 @@ class Services_Yadis_Yadis {
      */
     function getHTTPFetcher($timeout = 20)
     {
-        if (defined('Services_Yadis_CURL_PRESENT') &&
-            Services_Yadis_CURL_PRESENT) {
+        if (Services_Yadis_Yadis::curlPresent()) {
             $fetcher = new Services_Yadis_ParanoidHTTPFetcher($timeout);
         } else {
             $fetcher = new Services_Yadis_PlainHTTPFetcher($timeout);
         }
         return $fetcher;
+    }
+
+    function curlPresent()
+    {
+        return function_exists('curl_init');
     }
 
     /**

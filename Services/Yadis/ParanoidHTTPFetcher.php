@@ -19,11 +19,6 @@
 require_once "Services/Yadis/HTTPFetcher.php";
 
 /**
- * Define this based on whether the CURL extension is available.
- */
-define('Services_Yadis_CURL_PRESENT', function_exists('curl_init'));
-
-/**
  * A paranoid {@link Services_Yadis_HTTPFetcher} class which uses CURL
  * for fetching.
  *
@@ -32,11 +27,6 @@ define('Services_Yadis_CURL_PRESENT', function_exists('curl_init'));
 class Services_Yadis_ParanoidHTTPFetcher extends Services_Yadis_HTTPFetcher {
     function Services_Yadis_ParanoidHTTPFetcher()
     {
-        if (!Services_Yadis_CURL_PRESENT) {
-            trigger_error("Cannot use this class; CURL extension not found",
-                          E_USER_ERROR);
-        }
-
         $this->headers = array();
         $this->data = "";
 

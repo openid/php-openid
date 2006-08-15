@@ -382,7 +382,7 @@ function detect_xml($r, &$out)
 function detect_fetcher($r, &$out)
 {
     $out .= $r->h2('HTTP Fetching');
-    if (Auth_OpenID_CURL_PRESENT) {
+    if (Services_Yadis_Yadis::curlPresent()) {
         // XXX: actually fetch a URL.
         $out .= $r->p('This PHP installation has support for libcurl. Good.');
     } else {
@@ -395,7 +395,7 @@ function detect_fetcher($r, &$out)
                       'for PHP.');
     }
     $ok = true;
-    $fetcher = Auth_OpenID::getHTTPFetcher();
+    $fetcher = Services_Yadis_Yadis::getHTTPFetcher();
     $fetch_url = 'http://www.openidenabled.com/resources/php-fetch-test';
     $expected_url = $fetch_url . '.txt';
     $result = $fetcher->get($fetch_url);

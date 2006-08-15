@@ -112,21 +112,6 @@ $_Auth_OpenID_namespaces = array('openid',
 class Auth_OpenID {
 
     /**
-     * Factory function that will return an instance of the
-     * appropriate HTTP fetcher
-     */
-    function getHTTPFetcher()
-    {
-        if (defined('Services_Yadis_CURL_PRESENT') &&
-            Services_Yadis_CURL_PRESENT) {
-            $fetcher = new Services_Yadis_ParanoidHTTPFetcher();
-        } else {
-            $fetcher = new Services_Yadis_PlainHTTPFetcher();
-        }
-        return $fetcher;
-    }
-
-    /**
      * Rename query arguments back to 'openid.' from 'openid_'
      *
      * @access private
