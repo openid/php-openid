@@ -73,7 +73,7 @@ class Services_Yadis_PlainHTTPFetcher extends Services_Yadis_HTTPFetcher {
                              "GET ".$parts['path'].
                              (array_key_exists('query', $parts) ?
                               "?".$parts['query'] : "").
-                                 " HTTP/1.1",
+                                 " HTTP/1.0",
                              "User-Agent: $user_agent",
                              "Host: ".$parts['host'].
                                 ($specify_port ? ":".$parts['port'] : ""),
@@ -149,7 +149,7 @@ class Services_Yadis_PlainHTTPFetcher extends Services_Yadis_HTTPFetcher {
 
         $headers = array();
 
-        $headers[] = "POST ".$parts['path']." HTTP/1.1";
+        $headers[] = "POST ".$parts['path']." HTTP/1.0";
         $headers[] = "Host: " . $parts['host'];
         $headers[] = "Content-type: application/x-www-form-urlencoded";
         $headers[] = "Content-length: " . strval(strlen($body));
