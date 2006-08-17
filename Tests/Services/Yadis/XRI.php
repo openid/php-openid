@@ -10,7 +10,9 @@
  */
 
 require_once "PHPUnit.php";
+require_once "Services/Yadis/XRIRes.php";
 require_once "Services/Yadis/XRI.php";
+require_once "Services/Yadis/Yadis.php";
 
 class Tests_Services_Yadis_XriDiscoveryTestCase extends PHPUnit_TestCase {
     function runTest()
@@ -90,6 +92,37 @@ class Tests_Services_Yadis_ProxyQueryTestCase extends PHPUnit_TestCase {
     }
 }
 
+class Tests_Services_Yadis_TestGetRootAuthority extends PHPUnit_TestCase {
+    function runTest()
+    {
+        $xris = array(
+                      array("@foo", "@"),
+                      array("@foo*bar", "@"),
+                      array("@*foo*bar", "@"),
+                      array("@foo/bar", "@"),
+                      array("!!990!991", "!"),
+                      array("!1001!02", "!"),
+                      array("=foo*bar", "="),
+                      array("(example.com)/foo", "(example.com)"),
+                      array("(example.com)*bar/foo", "(example.com)"),
+                      array("baz.example.com/foo", "baz.example.com"),
+                      array("baz.example.com:8080/foo", "baz.example.com:8080")
+                      // Looking at the ABNF in XRI Syntax 2.0, I don't think you can
+                      // have example.com*bar.  You can do (example.com)*bar, but that
+                      // would mean something else.
+                      // ("example.com*bar/(=baz)", "example.com*bar"),
+                      // ("baz.example.com!01/foo", "baz.example.com!01"),
+                      );
+
+        foreach ($xris as $tupl) {
+            list($thexri, $expected_root) = $tupl;
+            $this->assertEquals($expected_root,
+                                Services_Yadis_rootAuthority($thexri),
+                                'rootAuthority test ('.$thexri.')');
+        }
+    }
+}
+
 class Tests_Services_Yadis_XRI extends PHPUnit_TestSuite {
     function getName()
     {
@@ -101,6 +134,7 @@ class Tests_Services_Yadis_XRI extends PHPUnit_TestSuite {
         $this->addTest(new Tests_Services_Yadis_ProxyQueryTestCase());
         $this->addTest(new Tests_Services_Yadis_XriEscapingTestCase());
         $this->addTest(new Tests_Services_Yadis_XriDiscoveryTestCase());
+        $this->addTest(new Tests_Services_Yadis_TestGetRootAuthority());
     }
 }
 

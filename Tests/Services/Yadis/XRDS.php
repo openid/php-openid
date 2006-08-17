@@ -6,6 +6,8 @@
 
 require_once 'PHPUnit.php';
 require_once 'Services/Yadis/XRDS.php';
+require_once 'Services/Yadis/XRIRes.php';
+require_once 'Services/Yadis/XRI.php';
 require_once 'Tests/Services/Yadis/TestUtil.php';
 
 class Tests_Services_Yadis_XRDS extends PHPUnit_TestCase {
@@ -73,6 +75,46 @@ class Tests_Services_Yadis_XRDS extends PHPUnit_TestCase {
         $this->assertTrue(Services_Yadis_XRDS::parseXRDS('<html></html>') ===
                           null);
         $this->assertTrue(Services_Yadis_XRDS::parseXRDS("\x00") === null);
+    }
+
+    function test_getCanonicalID()
+    {
+        $canonicalIDtests = array(
+               array("@ootao*test1", "delegated-20060809.xrds",
+                     "@!5BAD.2AA.3C72.AF46!0000.0000.3B9A.CA01"),
+               array("@ootao*test1", "delegated-20060809-r1.xrds",
+                     "@!5BAD.2AA.3C72.AF46!0000.0000.3B9A.CA01"),
+               array("@ootao*test1", "delegated-20060809-r2.xrds",
+                     "@!5BAD.2AA.3C72.AF46!0000.0000.3B9A.CA01"),
+               array("=keturn*isDrummond", "spoof1.xrds", null),
+               array("=keturn*isDrummond", "spoof2.xrds", null),
+               array("@keturn*is*drummond", "spoof3.xrds", null),
+               // Don't let IRI authorities be canonical for the GCS.
+               array("phreak.example.com", "delegated-20060809-r2.xrds", null)
+               // TODO: Refs
+               // ("@ootao*test.ref", "ref.xrds", "@!BAE.A650.823B.2475")
+               );
+
+        foreach ($canonicalIDtests as $tupl) {
+            list($iname, $filename, $expectedID) = $tupl;
+            
+            $xml = Tests_Services_Yadis_readdata($filename);
+            $xrds = Services_Yadis_XRDS::parseXRDS($xml);
+            $this->_getCanonicalID($iname, $xrds, $expectedID);
+        }
+    }
+
+    function _getCanonicalID($iname, $xrds, $expectedID)
+    {
+        if ($expectedID === null) {
+            $result =Services_Yadis_getCanonicalID($iname, $xrds);
+            if ($result !== false) {
+                $this->fail($iname.' (got '.$result.')');
+            }
+        } else {
+            $cid = Services_Yadis_getCanonicalID($iname, $xrds);
+            $this->assertEquals($expectedID, $cid);
+        }
     }
 
     function test_services_filters()

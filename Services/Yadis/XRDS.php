@@ -196,10 +196,11 @@ class Services_Yadis_XRDS {
      * Instantiate a Services_Yadis_XRDS object.  Requires an XPath
      * instance which has been used to parse a valid XRDS document.
      */
-    function Services_Yadis_XRDS(&$xmlParser, &$xrdNode)
+    function Services_Yadis_XRDS(&$xmlParser, &$xrdNodes)
     {
         $this->parser =& $xmlParser;
-        $this->xrdNode = $xrdNode;
+        $this->xrdNode = $xrdNodes[count($xrdNodes) - 1];
+        $this->allXrdNodes =& $xrdNodes;
         $this->serviceList = array();
         $this->_parse();
     }
@@ -255,13 +256,13 @@ class Services_Yadis_XRDS {
         }
 
         // Get the last XRD node.
-        $xrd_nodes = $parser->evalXPath('/xrds:XRDS[1]/xrd:XRD[last()]');
+        $xrd_nodes = $parser->evalXPath('/xrds:XRDS[1]/xrd:XRD');
 
         if (!$xrd_nodes) {
             return null;
         }
 
-        $xrds = new Services_Yadis_XRDS($parser, $xrd_nodes[0]);
+        $xrds = new Services_Yadis_XRDS($parser, $xrd_nodes);
         return $xrds;
     }
 

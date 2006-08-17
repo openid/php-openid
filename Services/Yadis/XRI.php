@@ -11,7 +11,6 @@
 
 require_once 'Services/Yadis/Misc.php';
 require_once 'Services/Yadis/Yadis.php';
-require_once 'Services/Yadis/XRDS.php';
 require_once 'Auth/OpenID.php';
 
 $DEFAULT_PROXY = 'http://proxy.xri.net/';
@@ -82,54 +81,6 @@ function Services_Yadis_iriToURI($iri)
     }
 }
 
-class Services_Yadis_ProxyResolver {
-    function Services_Yadis_ProxyResolver(&$fetcher, $proxy_url = null)
-    {
-        global $DEFAULT_PROXY;
-
-        $this->fetcher =& $fetcher;
-        $this->proxy_url = $proxy_url;
-        if (!$this->proxy_url) {
-            $this->proxy_url = $DEFAULT_PROXY;
-        }
-    }
-
-    function queryURL($xri, $service_type)
-    {
-        // trim off the xri:// prefix
-        $qxri = substr(Services_Yadis_toURINormal($xri), 6);
-        $hxri = $this->proxy_url . $qxri;
-        $args = array(
-                      '_xrd_r' => 'application/xrds+xml',
-                      '_xrd_t' => $service_type
-                      );
-        $query = Services_Yadis_XRIAppendArgs($hxri, $args);
-        return $query;
-    }
-
-    function query($xri, $service_types, $filters = array())
-    {
-        $services = array();
-        foreach ($service_types as $service_type) {
-            $url = $this->queryURL($xri, $service_type);
-            $response = $this->fetcher->get($url);
-            if ($response->status != 200) {
-                continue;
-            }
-            $xrds = Services_Yadis_XRDS::parseXRDS($response->body);
-            if (!$xrds) {
-                continue;
-            }
-            $some_services = $xrds->services($filters);
-            $services = array_merge($services, $some_services);
-            // TODO:
-            //  * If we do get hits for multiple service_types, we're
-            //    almost certainly going to have duplicated service
-            //    entries and broken priority ordering.
-        }
-        return $services;
-    }
-}
 
 function Services_Yadis_XRIAppendArgs($url, $args)
 {
@@ -169,6 +120,89 @@ function Services_Yadis_XRIAppendArgs($url, $args)
     }
 
     return $url . $sep . Auth_OpenID::httpBuildQuery($args);
+}
+
+function Services_Yadis_providerIsAuthoritative($providerID, $canonicalID)
+{
+    $lastbang = strrpos($canonicalID, '!');
+    $p = substr($canonicalID, 0, $lastbang);
+    return $p == $providerID;
+}
+
+function Services_Yadis_rootAuthority($xri)
+{
+    global $XRI_AUTHORITIES;
+
+    // Return the root authority for an XRI.
+
+    $authority = explode('/', $xri, 2);
+    $authority = $authority[0];
+    if ($authority[0] == '(') {
+        // Cross-reference.
+        // XXX: This is incorrect if someone nests cross-references so
+        //   there is another close-paren in there.  Hopefully nobody
+        //   does that before we have a real xriparse function.
+        //   Hopefully nobody does that *ever*.
+        return substr($authority, 0, strpos($authority, ')') + 1);
+    } else if (in_array($authority[0], $XRI_AUTHORITIES)) {
+        // Other XRI reference.
+        return $authority[0];
+    } else {
+        // IRI reference.
+        $_segments = explode("!", $authority);
+        $segments = array();
+        foreach ($_segments as $s) {
+            $segments = array_merge($segments, explode("*", $s));
+        }
+        return $segments[0];
+    }
+}
+
+function Services_Yadis_getCanonicalID($iname, $xrds)
+{
+    // Returns FALSE or a canonical ID value.
+
+    // Now nodes are in reverse order.
+    $xrd_list = array_reverse($xrds->allXrdNodes);
+    $parser =& $xrds->parser;
+    $node = $xrd_list[0];
+
+    $canonicalID_nodes = $parser->evalXPath('xrd:CanonicalID', $node);
+
+    if (!$canonicalID_nodes) {
+        return false;
+    }
+
+    $canonicalID = $canonicalID_nodes[count($canonicalID_nodes) - 1];
+    $canonicalID = $parser->content($canonicalID);
+
+    $childID = $canonicalID;
+
+    for ($i = 1; $i < count($xrd_list); $i++) {
+        $xrd = $xrd_list[$i];
+
+        $parent_sought = substr($childID, 0, strrpos($childID, '!'));
+        $parent_list = array();
+
+        foreach ($parser->evalXPath('xrd:CanonicalID', $xrd) as $c) {
+            $parent_list[] = $parser->content($c);
+        }
+
+        if (!in_array($parent_sought, $parent_list)) {
+            // raise XRDSFraud.
+            return false;
+        }
+
+        $childID = $parent_sought;
+    }
+
+    $root = Services_Yadis_rootAuthority($iname);
+    if (!Services_Yadis_providerIsAuthoritative($root, $childID)) {
+        // raise XRDSFraud.
+        return false;
+    }
+
+    return $canonicalID;
 }
 
 ?>
