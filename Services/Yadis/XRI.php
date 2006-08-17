@@ -58,7 +58,7 @@ function _escape_xref($xref_match)
 
 function Services_Yadis_escapeForIRI($xri)
 {
-    global $_xref_re, $_escapeme_re;
+    global $_xref_re;
 
     $xri = str_replace('%', '%25', $xri);
     $xri = preg_replace_callback($_xref_re, '_escape_xref', $xri);
