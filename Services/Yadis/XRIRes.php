@@ -50,7 +50,7 @@ class Services_Yadis_ProxyResolver {
                 continue;
             }
             $canonicalID = Services_Yadis_getCanonicalID($xri,
-                                                         $xrds->allXrdNodes);
+                                                         $xrds);
             $some_services = $xrds->services($filters);
             $services = array_merge($services, $some_services);
             // TODO:

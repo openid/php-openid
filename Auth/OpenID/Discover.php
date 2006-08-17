@@ -6,6 +6,7 @@
 
 require_once "Auth/OpenID.php";
 require_once "Auth/OpenID/Parse.php";
+require_once "Services/Yadis/XRIRes.php";
 
 // If the Yadis library is available, use it. Otherwise, only use
 // old-style discovery.
