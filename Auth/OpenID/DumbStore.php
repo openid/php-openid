@@ -23,9 +23,8 @@ require_once 'Auth/OpenID/HMACSHA1.php';
 /**
  * This is a store for use in the worst case, when you have no way of
  * saving state on the consumer site. Using this store makes the
- * consumer vulnerable to replay attacks (though only within the
- * lifespan of the tokens), as it's unable to use nonces. Avoid using
- * this store if it is at all possible.
+ * consumer vulnerable to replay attacks, as it's unable to use
+ * nonces. Avoid using this store if it is at all possible.
  *
  * Most of the methods of this class are implementation details.
  * Users of this class need to worry only about the constructor.
@@ -89,7 +88,7 @@ class Auth_OpenID_DumbStore extends Auth_OpenID_OpenIDStore {
     /**
      * In a system truly limited to dumb mode, nonces must all be
      * accepted. This therefore always returns true, which makes
-     * replay attacks feasible during the lifespan of the token.
+     * replay attacks feasible.
      */
     function useNonce($nonce)
     {
