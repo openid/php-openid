@@ -51,6 +51,11 @@ class Services_Yadis_ProxyResolver {
             }
             $canonicalID = Services_Yadis_getCanonicalID($xri,
                                                          $xrds);
+
+            if ($canonicalID === false) {
+                return null;
+            }
+
             $some_services = $xrds->services($filters);
             $services = array_merge($services, $some_services);
             // TODO:

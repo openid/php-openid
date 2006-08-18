@@ -28,6 +28,7 @@ class Auth_OpenID_ServiceEndpoint {
         $this->server_url = null;
         $this->type_uris = array();
         $this->delegate = null;
+        $this->canonicalID = null;
         $this->used_yadis = false; // whether this came from an XRDS
     }
 
@@ -118,6 +119,10 @@ function filter_MatchesAnyOpenIDType(&$service)
 function Auth_OpenID_makeOpenIDEndpoints($uri, $endpoints)
 {
     $s = array();
+
+    if (!$endpoints) {
+        return $s;
+    }
 
     foreach ($endpoints as $service) {
         $type_uris = $service->getTypes();
@@ -229,11 +234,18 @@ function Auth_OpenID_discoverWithoutYadis($uri, &$fetcher)
 function _Auth_OpenID_discoverXRI($iname, &$fetcher)
 {
     $services = new Services_Yadis_ProxyResolver($fetcher);
-    $service_list = $services->query($iname, array(_OPENID_1_0_TYPE,
-                                                   _OPENID_1_1_TYPE,
-                                                   _OPENID_1_2_TYPE),
+    list($canonicalID, $service_list) = $services->query($iname,
+                                                  array(_OPENID_1_0_TYPE,
+                                                        _OPENID_1_1_TYPE,
+                                                        _OPENID_1_2_TYPE),
                                      array('filter_MatchesAnyOpenIDType'));
+
     $endpoints = Auth_OpenID_makeOpenIDEndpoints($iname, $service_list);
+
+    for ($i = 0; $i < count($endpoints); $i++) {
+        $endpoints[$i]->canonicalID = $canonicalID;
+    }
+
     // FIXME: returned xri should probably be in some normal form
     return array($iname, $endpoints, null);
 }

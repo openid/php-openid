@@ -5,6 +5,7 @@ require_once 'PHPUnit.php';
 require_once 'Auth/OpenID.php';
 require_once 'Auth/OpenID/Discover.php';
 require_once 'Services/Yadis/Manager.php';
+require_once 'Services/Yadis/Misc.php';
 
 /**
  * Tests for the core of the PHP Yadis library discovery logic.
@@ -171,6 +172,7 @@ $__yadis_2entries = '<?xml version="1.0" encoding="UTF-8"?>
            xmlns:openid="http://openid.net/xmlns/1.0"
            >
   <XRD>
+    <CanonicalID>=!1000</CanonicalID>
 
     <Service priority="10">
       <Type>http://openid.net/signon/1.0</Type>
@@ -283,6 +285,56 @@ $__openid_and_yadis_html = '
 <link rel="openid.delegate" href="http://smoker.myopenid.com/" />
   </head><body><p>foo</p></body></html>
 ';
+
+class _MockFetcherForXRIProxy {
+
+    function _MockFetcherForXRIProxy($documents)
+    {
+        $this->documents = $documents;
+        $this->fetchlog = array();
+    }
+
+    function get($url, $headers=null)
+    {
+        return $this->fetch($url, $headers);
+    }
+
+    function post($url, $body)
+    {
+        return $this->fetch($url, $body);
+    }
+
+    function fetch($url, $body=null, $headers=null)
+    {
+        $this->fetchlog[] = array($url, $body, $headers);
+
+        $u = parse_url($url);
+        $proxy_host = $u['host'];
+        $xri = $u['path'];
+        $query = $u['query'];
+
+        if ((!$headers) && (!$query)) {
+            trigger_error('Error in mock XRI fetcher: no headers or query');
+        }
+
+        if (_startswith($xri, '/')) {
+            $xri = substr($xri, 1);
+        }
+
+        if (array_key_exists($xri, $this->documents)) {
+            list($ctype, $body) = $this->documents[$xri];
+            $status = 200;
+        } else {
+            $status = 404;
+            $ctype = 'text/plain';
+            $body = '';
+        }
+
+        return new Services_Yadis_HTTPResponse($url, $status,
+                                               array('content-type' => $ctype),
+                                               $body);
+    }
+}
 
 class Tests_Auth_OpenID_DiscoverSession {
     function Tests_Auth_OpenID_DiscoverSession()
@@ -541,6 +593,28 @@ class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
                             'Delegate should be null');
 
         $this->_notUsedYadis($services[0]);
+    }
+
+    function test_xriDiscovery()
+    {
+        global $__yadis_2entries;
+
+        $documents = array(
+                           '=smoker' => array('application/xrds+xml',
+                                              $__yadis_2entries)
+                           );
+
+        $fetcher = new _MockFetcherForXRIProxy($documents);
+
+        list($user_xri, $services) = _Auth_OpenID_discoverXRI('=smoker',
+                                                              $fetcher);
+        $this->assertTrue($services);
+
+        $this->assertEquals($services[0]->server_url,
+                            "http://www.myopenid.com/server");
+        $this->assertEquals($services[1]->server_url,
+                            "http://www.livejournal.com/openid/server.bml");
+        $this->assertEquals($services[0]->canonicalID, "=!1000");
     }
 }
 
