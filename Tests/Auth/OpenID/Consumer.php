@@ -213,7 +213,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
             $query['openid.sig'] = 'fake';
         }
 
-        $result = $consumer->complete($query, $result->token);
+        $result = $consumer->complete($query, $result->endpoint);
 
         $this->assertEquals($result->status, 'success');
         $this->assertEquals($result->identity_url, $user_url);
@@ -311,12 +311,15 @@ class _TestIdRes extends PHPUnit_TestCase {
         $cl = $this->consumer_class;
         $this->consumer = new $cl($this->store);
         $this->return_to = "nonny";
+        $this->endpoint = new Auth_OpenID_ServiceEndpoint();
+
         $this->server_id = "sirod";
         $this->server_url = "serlie";
         $this->consumer_id = "consu";
-        $this->token = $this->consumer->_genToken($this->consumer_id,
-                                                  $this->server_id,
-                                                  $this->server_url);
+
+        $this->endpoint->identity_url = $this->consumer_id;
+        $this->endpoint->server_url = $this->server_url;
+        $this->endpoint->delegate = $this->server_id;
     }
 }
 
@@ -327,8 +330,7 @@ class Tests_Auth_OpenID_Consumer_TestSetupNeeded extends _TestIdRes {
         $query = array(
                        'openid.mode' => 'id_res',
                        'openid.user_setup_url' => $setup_url);
-        $ret = $this->consumer->_doIdRes($query, $this->consumer_id,
-                                         $this->server_id, $this->server_url);
+        $ret = $this->consumer->_doIdRes($query, $this->endpoint);
         $this->assertEquals($ret->status, Auth_OpenID_SETUP_NEEDED);
         $this->assertEquals($ret->setup_url, $setup_url);
     }
@@ -357,7 +359,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
     {
         $this->return_to = sprintf('http://rt.unittest/?nonce=%s',
                                    $this->nonce);
-        $this->response = new Auth_OpenID_SuccessResponse($this->consumer_id,
+        $this->response = new Auth_OpenID_SuccessResponse($this->endpoint,
                                    array('openid.return_to' => $this->return_to));
 
         $ret = $this->consumer->_checkNonce($this->response, $this->nonce);
@@ -371,7 +373,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
         $this->store->useNonce($this->nonce);
         $this->return_to = sprintf('http://rt.unittest/?nonce=%s',
                                    $this->nonce);
-        $this->response = new Auth_OpenID_SuccessResponse($this->consumer_id,
+        $this->response = new Auth_OpenID_SuccessResponse($this->endpoint,
                                  array('openid.return_to' => $this->return_to));
         $ret = $this->consumer->_checkNonce($this->response, $this->nonce);
         $this->assertEquals($ret->status, Auth_OpenID_FAILURE);
@@ -383,7 +385,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
     {
         $this->return_to = sprintf('http://rt.unittest/?nonce=HACKED-%s',
                                    $this->nonce);
-        $this->response = new Auth_OpenID_SuccessResponse($this->consumer_id,
+        $this->response = new Auth_OpenID_SuccessResponse($this->endpoint,
                                   array('openid.return_to' => $this->return_to));
         $ret = $this->consumer->_checkNonce($this->response, $this->nonce);
         $this->assertEquals($ret->status, Auth_OpenID_FAILURE);
@@ -394,7 +396,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
     function test_missingNonce()
     {
         // no nonce parameter on the return_to
-        $this->response = new Auth_OpenID_SuccessResponse($this->consumer_id,
+        $this->response = new Auth_OpenID_SuccessResponse($this->endpoint,
                                      array('openid.return_to' => $this->return_to));
         $ret = $this->consumer->_checkNonce($this->response, $this->nonce);
         $this->assertEquals($ret->status, Auth_OpenID_FAILURE);
@@ -409,10 +411,7 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuthTriggered extends _TestIdRes {
 
     function _doIdRes($query)
     {
-        return $this->consumer->_doIdRes($query,
-                                         $this->consumer_id,
-                                         $this->server_id,
-                                         $this->server_url);
+        return $this->consumer->_doIdRes($query, $this->endpoint);
     }
 
     function test_checkAuthTriggered()
@@ -528,37 +527,12 @@ class _MockFetcher {
 }
 
 class Tests_Auth_OpenID_Complete extends _TestIdRes {
-    function test_badTokenLength()
-    {
-        $query = array('openid.mode' => 'id_res');
-        $r = $this->consumer->complete($query, 'badtoken');
-        $this->assertEquals($r->status, Auth_OpenID_FAILURE);
-        $this->assertTrue($r->identity_url === null);
-    }
-
-    function test_badTokenSig()
-    {
-        $query = array('openid.mode' => 'id_res');
-        $r = $this->consumer->complete($query, 'badtoken' . $this->token);
-        $this->assertEquals($r->status, Auth_OpenID_FAILURE);
-        $this->assertTrue($r->identity_url === null);
-    }
-
-    function test_expiredToken()
-    {
-        $this->consumer->token_lifetime = -1; // in the past
-        $query = array('openid.mode' => 'id_res');
-        $r = $this->consumer->complete($query, $this->token);
-        $this->assertEquals($r->status, Auth_OpenID_FAILURE, "Status comparison");
-        $this->assertTrue($r->identity_url === null, "Identity URL comparison");
-    }
-
     function test_cancel()
     {
         $query = array('openid.mode' => 'cancel');
-        $r = $this->consumer->complete($query, 'badtoken');
+        $r = $this->consumer->complete($query, $this->endpoint);
         $this->assertEquals($r->status, Auth_OpenID_CANCEL);
-        $this->assertTrue($r->identity_url === null);
+        $this->assertTrue($r->identity_url == $this->endpoint->identity_url);
     }
 
     function test_error()
@@ -566,24 +540,24 @@ class Tests_Auth_OpenID_Complete extends _TestIdRes {
         $msg = 'an error message';
         $query = array('openid.mode' =>'error',
                        'openid.error' => $msg);
-        $r = $this->consumer->complete($query, 'badtoken');
+        $r = $this->consumer->complete($query, $this->endpoint);
         $this->assertEquals($r->status, Auth_OpenID_FAILURE);
-        $this->assertTrue($r->identity_url === null);
+        $this->assertTrue($r->identity_url == $this->endpoint->identity_url);
         $this->assertEquals($r->message, $msg);
     }
 
     function test_noMode()
     {
         $query = array();
-        $r = $this->consumer->complete($query, 'badtoken');
+        $r = $this->consumer->complete($query, $this->endpoint);
         $this->assertEquals($r->status, Auth_OpenID_FAILURE);
-        $this->assertTrue($r->identity_url === null);
+        $this->assertTrue($r->identity_url == $this->endpoint->identity_url);
     }
 
     function test_idResMissingField()
     {
         $query = array('openid.mode' => 'id_res');
-        $r = $this->consumer->complete($query, $this->token);
+        $r = $this->consumer->complete($query, $this->endpoint);
         $this->assertEquals($r->status, Auth_OpenID_FAILURE);
         $this->assertEquals($r->identity_url, $this->consumer_id);
     }
@@ -594,7 +568,7 @@ class Tests_Auth_OpenID_Complete extends _TestIdRes {
                        'openid.return_to' => 'return_to (just anything)',
                        'openid.identity' => 'something wrong (not this->consumer_id)',
                        'openid.assoc_handle' => 'does not matter');
-        $r = $this->consumer->complete($query, $this->token);
+        $r = $this->consumer->complete($query, $this->endpoint);
         $this->assertEquals($r->status, Auth_OpenID_FAILURE);
         $this->assertEquals($r->identity_url, $this->consumer_id);
         $this->assertTrue(strpos($r->message, 'delegate') !== false);
@@ -681,10 +655,9 @@ class Tests_Auth_OpenID_CheckAuthResponse extends _TestIdRes {
 class _IdResFetchFailingConsumer extends Auth_OpenID_GenericConsumer {
     var $message = 'fetch failed';
 
-    function _doIdRes($query, $consumer_id, $server_id,
-                      $server_url)
+    function _doIdRes($query, $endpoint)
     {
-        return new Auth_OpenID_FailureResponse($consumer_id,
+        return new Auth_OpenID_FailureResponse($endpoint,
                                                $this->message);
     }
 }
@@ -695,7 +668,7 @@ class Tests_Auth_OpenID_FetchErrorInIdRes extends _TestIdRes {
     function test_idResFailure()
     {
         $query = array('openid.mode' => 'id_res');
-        $r = $this->consumer->complete($query, $this->token);
+        $r = $this->consumer->complete($query, $this->endpoint);
         $this->assertEquals($r->status, Auth_OpenID_FAILURE);
         $this->assertEquals($r->identity_url, $this->consumer_id);
         $this->assertEquals($this->consumer->message, $r->message);
