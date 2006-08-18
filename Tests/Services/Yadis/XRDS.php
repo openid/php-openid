@@ -107,13 +107,13 @@ class Tests_Services_Yadis_XRDS extends PHPUnit_TestCase {
     function _getCanonicalID($iname, $xrds, $expectedID)
     {
         if ($expectedID === null) {
-            $result =Services_Yadis_getCanonicalID($iname, $xrds);
+            $result = Services_Yadis_getCanonicalID($iname, $xrds);
             if ($result !== false) {
                 $this->fail($iname.' (got '.$result.')');
             }
         } else {
             $cid = Services_Yadis_getCanonicalID($iname, $xrds);
-            $this->assertEquals($expectedID, $cid);
+            $this->assertEquals(Services_Yadis_XRI($expectedID), $cid);
         }
     }
 

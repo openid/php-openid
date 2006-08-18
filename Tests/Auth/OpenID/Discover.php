@@ -6,6 +6,7 @@ require_once 'Auth/OpenID.php';
 require_once 'Auth/OpenID/Discover.php';
 require_once 'Services/Yadis/Manager.php';
 require_once 'Services/Yadis/Misc.php';
+require_once 'Services/Yadis/XRI.php';
 
 /**
  * Tests for the core of the PHP Yadis library discovery logic.
@@ -614,7 +615,7 @@ class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
                             "http://www.myopenid.com/server");
         $this->assertEquals($services[1]->server_url,
                             "http://www.livejournal.com/openid/server.bml");
-        $this->assertEquals($services[0]->canonicalID, "=!1000");
+        $this->assertEquals($services[0]->canonicalID, Services_Yadis_XRI("=!1000"));
     }
 }
 

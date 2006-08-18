@@ -116,7 +116,7 @@ class Tests_Services_Yadis_TestGetRootAuthority extends PHPUnit_TestCase {
 
         foreach ($xris as $tupl) {
             list($thexri, $expected_root) = $tupl;
-            $this->assertEquals($expected_root,
+            $this->assertEquals(Services_Yadis_XRI($expected_root),
                                 Services_Yadis_rootAuthority($thexri),
                                 'rootAuthority test ('.$thexri.')');
         }

@@ -135,6 +135,7 @@ function Services_Yadis_rootAuthority($xri)
 
     // Return the root authority for an XRI.
 
+    $root = null;
     $authority = explode('/', $xri, 2);
     $authority = $authority[0];
     if ($authority[0] == '(') {
@@ -143,10 +144,10 @@ function Services_Yadis_rootAuthority($xri)
         //   there is another close-paren in there.  Hopefully nobody
         //   does that before we have a real xriparse function.
         //   Hopefully nobody does that *ever*.
-        return substr($authority, 0, strpos($authority, ')') + 1);
+        $root = substr($authority, 0, strpos($authority, ')') + 1);
     } else if (in_array($authority[0], $XRI_AUTHORITIES)) {
         // Other XRI reference.
-        return $authority[0];
+        $root = $authority[0];
     } else {
         // IRI reference.
         $_segments = explode("!", $authority);
@@ -154,8 +155,18 @@ function Services_Yadis_rootAuthority($xri)
         foreach ($_segments as $s) {
             $segments = array_merge($segments, explode("*", $s));
         }
-        return $segments[0];
+        $root = $segments[0];
     }
+
+    return Services_Yadis_XRI($root);
+}
+
+function Services_Yadis_XRI($xri)
+{
+    if (!_startswith($xri, 'xri://')) {
+        $xri = 'xri://' . $xri;
+    }
+    return $xri;
 }
 
 function Services_Yadis_getCanonicalID($iname, $xrds)
@@ -174,7 +185,7 @@ function Services_Yadis_getCanonicalID($iname, $xrds)
     }
 
     $canonicalID = $canonicalID_nodes[count($canonicalID_nodes) - 1];
-    $canonicalID = $parser->content($canonicalID);
+    $canonicalID = Services_Yadis_XRI($parser->content($canonicalID));
 
     $childID = $canonicalID;
 
@@ -185,7 +196,7 @@ function Services_Yadis_getCanonicalID($iname, $xrds)
         $parent_list = array();
 
         foreach ($parser->evalXPath('xrd:CanonicalID', $xrd) as $c) {
-            $parent_list[] = $parser->content($c);
+            $parent_list[] = Services_Yadis_XRI($parser->content($c));
         }
 
         if (!in_array($parent_sought, $parent_list)) {
