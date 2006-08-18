@@ -27,8 +27,7 @@ Follow these steps:
      STRONGLY recommended because it's MUCH faster!)  This is
      required.
 
-   - Enable the CURL extension.  This is not required, but it is
-     recommended.
+   - Enable the CURL extension.
 
    - If you plan to use SQLite, PostgreSQL, or MySQL to store OpenID
      data, you'll need PEAR DB.  You can install this by running this
@@ -41,6 +40,8 @@ Follow these steps:
      the filesystem instead of using a relational database.  Nothing
      special is required for using the filesystem method.
 
+   - Install either the DOM or domxml PHP XML processing extension.
+
 2. Use the PEAR installer to install the package.  To use the PEAR
    installer, run this command from the package directory:
 
@@ -50,15 +51,15 @@ Follow these steps:
 
    # pear install package2.xml
 
-   If the PEAR installer isn't available, you can copy the Auth/
-   directory into your PHP include path.
+   If the PEAR installer isn't available, you can copy the Auth/ and
+   Services/ directories into your PHP include path.
 
 TESTING YOUR SETUP
 ==================
 
-We recommend that you use our example code to test your setup.  To run
-the example consumer or server, follow the instructions in the
-examples/README file.
+You can use the example code to test your setup.  To run the example
+consumer or server, follow the instructions in the examples/README
+file.
 
 USING THE API
 =============
