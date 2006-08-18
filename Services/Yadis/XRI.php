@@ -136,6 +136,11 @@ function Services_Yadis_rootAuthority($xri)
     // Return the root authority for an XRI.
 
     $root = null;
+
+    if (_startswith($xri, 'xri://')) {
+        $xri = substr($xri, 6);
+    }
+
     $authority = explode('/', $xri, 2);
     $authority = $authority[0];
     if ($authority[0] == '(') {
