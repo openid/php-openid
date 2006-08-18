@@ -12,8 +12,7 @@ INSTALLATION
 ============
 
 You will need PHP 4.3.0 or greater to use this library.  We have
-tested the library on PHP 4.3.0, 4.4.1, and 5.1.1.  We expect it to
-work on 4.2.0, but it is untested.
+tested the library on PHP 4.3.0, 4.4.1, and 5.1.1.
 
 At any time, visit the 'detect.php' script in the examples/ directory
 to see a web page detailing the state of your PHP installation.  This
