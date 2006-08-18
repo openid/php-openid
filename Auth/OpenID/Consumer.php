@@ -522,7 +522,7 @@ class Auth_OpenID_GenericConsumer {
                                                    "Missing required field");
         }
 
-        if ($endpoint->delegate != $server_id2) {
+        if ($endpoint->getServerID() != $server_id2) {
             return new Auth_OpenID_FailureResponse($endpoint,
                                              "Server ID (delegate) mismatch");
         }
