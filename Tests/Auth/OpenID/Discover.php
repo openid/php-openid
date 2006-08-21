@@ -617,6 +617,17 @@ class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
                             "http://www.livejournal.com/openid/server.bml");
         $this->assertEquals($services[0]->canonicalID, Services_Yadis_XRI("=!1000"));
     }
+
+    function test_useCanonicalID()
+    {
+      // When there is no delegate, the CanonicalID should be used
+      // with XRI.
+
+      $endpoint = new Auth_OpenID_ServiceEndpoint();
+      $endpoint->identity_url = "=example";
+      $endpoint->canonicalID = Services_Yadis_XRI("=!1000");
+      $this->assertEquals($endpoint->getServerID(), Services_Yadis_XRI("=!1000"));
+    }
 }
 
 ?>

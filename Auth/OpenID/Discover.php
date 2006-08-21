@@ -74,7 +74,11 @@ class Auth_OpenID_ServiceEndpoint {
         // Return the identifier that should be sent as the
         // openid.identity_url parameter to the server.
         if ($this->delegate === null) {
-            return $this->identity_url;
+            if ($this->canonicalID) {
+                return $this->canonicalID;
+            } else {
+                return $this->identity_url;
+            }
         } else {
             return $this->delegate;
         }
