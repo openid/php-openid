@@ -494,7 +494,7 @@ class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
 
         if ($session === null) {
             return new Auth_OpenID_ServerError($query,
-                                               "Error parsing $session_type session");
+                                     "Error parsing $session_type session");
         }
 
         return new Auth_OpenID_AssociateRequest($session);
