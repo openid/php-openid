@@ -90,8 +90,8 @@ class Services_Yadis_PlainHTTPFetcher extends Services_Yadis_HTTPFetcher {
                 }
             }
 
-            $sock = fsockopen($host, $parts['port'], $errno, $errstr,
-                              $this->timeout);
+            @$sock = fsockopen($host, $parts['port'], $errno, $errstr,
+                               $this->timeout);
             if ($sock === false) {
                 return false;
             }
