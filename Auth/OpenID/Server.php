@@ -308,7 +308,7 @@ class Auth_OpenID_CheckAuthRequest extends Auth_OpenID_Request {
                                   $query)) {
                 return new Auth_OpenID_ServerError($query,
                     sprintf("%s request missing required parameter %s from \
-                            query", $this->mode, $k));
+                            query", "check_authentication", $k));
             }
         }
 
@@ -368,6 +368,90 @@ class Auth_OpenID_CheckAuthRequest extends Auth_OpenID_Request {
     }
 }
 
+class Auth_OpenID_PlainTextServerSession {
+    /**
+     * An object that knows how to handle association requests with no
+     * session type.
+     */
+    var $session_type = 'plaintext';
+
+    function fromQuery($unused_request)
+    {
+        return new Auth_OpenID_PlainTextServerSession();
+    }
+
+    function answer($secret)
+    {
+        return array('mac_key' => base64_encode($secret));
+    }
+}
+
+class Auth_OpenID_DiffieHellmanServerSession {
+    /**
+     * An object that knows how to handle association requests with
+     * the Diffie-Hellman session type.
+     */
+
+    var $session_type = 'DH-SHA1';
+
+    function Auth_OpenID_DiffieHellmanServerSession($dh, $consumer_pubkey)
+    {
+        $this->dh = $dh;
+        $this->consumer_pubkey = $consumer_pubkey;
+    }
+
+    function fromQuery($query)
+    {
+        $dh_modulus = Auth_OpenID::arrayGet($query, 'openid.dh_modulus');
+        $dh_gen = Auth_OpenID::arrayGet($query, 'openid.dh_gen');
+        if ((($dh_modulus === null) && ($dh_gen !== null)) ||
+            (($dh_gen === null) && ($dh_modulus !== null))) {
+
+            if ($dh_modulus === null) {
+                $missing = 'modulus';
+            } else {
+                $missing = 'generator';
+            }
+
+            // raise ProtocolError('If non-default modulus or generator is '
+            //                     'supplied, both must be supplied. Missing %s'
+            //                     % (missing,))
+            return null;
+        }
+
+        $lib =& Auth_OpenID_getMathLib();
+
+        if ($dh_modulus || $dh_gen) {
+            $dh_modulus = $lib->base64ToLong($dh_modulus);
+            $dh_gen = $lib->base64ToLong($dh_gen);
+            $dh = new Auth_OpenID_DiffieHellman($dh_modulus, $dh_gen);
+        } else {
+            $dh = new Auth_OpenID_DiffieHellman();
+        }
+
+        $consumer_pubkey = Auth_OpenID::arrayGet($query,
+                                                 'openid.dh_consumer_public');
+        if ($consumer_pubkey === null) {
+            return null;
+        }
+
+        $consumer_pubkey =
+            $lib->base64ToLong($consumer_pubkey);
+
+        return new Auth_OpenID_DiffieHellmanServerSession($dh, $consumer_pubkey);
+    }
+
+    function answer($secret)
+    {
+        $lib =& Auth_OpenID_getMathLib();
+        $mac_key = $this->dh->xorSecret($this->consumer_pubkey, $secret);
+        return array(
+           'dh_server_public' =>
+                $lib->longToBase64($this->dh->public),
+           'enc_mac_key' => base64_encode($mac_key));
+    }
+}
+
 /**
  * A request to associate with the server.
  *
@@ -376,15 +460,20 @@ class Auth_OpenID_CheckAuthRequest extends Auth_OpenID_Request {
  */
 class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
     var $mode = "associate";
-    var $session_type = 'plaintext';
     var $assoc_type = 'HMAC-SHA1';
+
+    function Auth_OpenID_AssociateRequest(&$session)
+    {
+        $this->session =& $session;
+    }
 
     function fromQuery($query)
     {
         global $_Auth_OpenID_OpenID_Prefix;
 
-        // FIXME: Missing dh_modulus and dh_gen options.
-        $obj = new Auth_OpenID_AssociateRequest();
+        $session_classes = array(
+                 'DH-SHA1' => 'Auth_OpenID_DiffieHellmanServerSession',
+                 null => 'Auth_OpenID_PlainTextServerSession');
 
         $session_type = null;
 
@@ -394,27 +483,21 @@ class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
                                    'session_type'];
         }
 
-        if ($session_type) {
-            $obj->session_type = $session_type;
-
-            if ($session_type == 'DH-SHA1') {
-                if (array_key_exists($_Auth_OpenID_OpenID_Prefix .
-                                     'dh_consumer_public', $query)) {
-
-                    # Auth_OpenID_getMathLib()
-                    $lib =& Auth_OpenID_getMathLib();
-
-                    $obj->pubkey = $lib->base64ToLong(
-                                      $query[$_Auth_OpenID_OpenID_Prefix .
-                                             'dh_consumer_public']);
-                } else {
-                    return new Auth_OpenID_ServerError($query,
-                           "Public key for DH-SHA1 session not found in query");
-                }
-            }
+        if (!array_key_exists($session_type, $session_classes)) {
+            return new Auth_OpenID_ServerError($query,
+                                    "Unknown session type $session_type");
         }
 
-        return $obj;
+        $session_cls = $session_classes[$session_type];
+        $session = call_user_func_array(array($session_cls, 'fromQuery'),
+                                        array($query));
+
+        if ($session === null) {
+            return new Auth_OpenID_ServerError($query,
+                                               "Error parsing $session_type session");
+        }
+
+        return new Auth_OpenID_AssociateRequest($session);
     }
 
     function answer($assoc)
@@ -426,18 +509,13 @@ class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
                                   'assoc_type' => 'HMAC-SHA1',
                                   'assoc_handle' => $assoc->handle);
 
-        if ($this->session_type == 'DH-SHA1') {
-            // XXX - get dh_modulus and dh_gen
-            $dh = new Auth_OpenID_DiffieHellman();
-            $mac_key = $dh->xorSecret($this->pubkey, $assoc->secret);
-            $response->fields['session_type'] = $this->session_type;
-            $response->fields['dh_server_public'] =
-                $ml->longToBase64($dh->public);
-            $response->fields['enc_mac_key'] = base64_encode($mac_key);
-        } else if ($this->session_type == 'plaintext') {
-            $response->fields['mac_key'] = base64_encode($assoc->secret);
-        } else {
-            // XXX - kablooie
+        $r = $this->session->answer($assoc->secret);
+        foreach ($r as $k => $v) {
+            $response->fields[$k] = $v;
+        }
+
+        if ($this->session->session_type != 'plaintext') {
+            $response->fields['session_type'] = $this->session->session_type;
         }
 
         return $response;

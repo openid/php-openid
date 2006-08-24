@@ -10,6 +10,23 @@ require_once "Auth/OpenID.php";
 require_once "Auth/OpenID/DiffieHellman.php";
 require_once "Auth/OpenID/Server.php";
 
+function altModulus()
+{
+    $lib =& Auth_OpenID_getMathLib();
+    static $num = null;
+
+    if (!$num) {
+        $num = $lib->init('0xCAADDDEC1667FC68B5FA15D53C4E1532DD24561A1A2D47A12C01ABEA1E00731F6'.
+       '921AAC40742311FDF9E634BB7131BEE1AF240261554389A910425E044E88C8359B010F5AD2B80E'.
+       '29CB1A5B027B19D9E01A6F63A6F45E5D7ED2FF6A2A0085050A7D0CF307C3DB51D2490355907B44'.
+       '27C23A98DF1EB8ABEF2BA209BB7AFFE86A7');
+    }
+
+    return $num;
+}
+
+$ALT_GEN = 5;
+
 function arrayToString($arr)
 {
     $s = "Array(";
@@ -222,10 +239,51 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
             array('foo', 'signedval1'),
             array('bar', 'signedval2'),
             array('mode', 'id_res')));
+    }
 
-        // XXX: and invalidate_handle, which is optional
-        // XXX: test error cases (missing required fields,
-        // missing fields that are in the signed list).
+    function test_checkAuthMissingSignedField()
+    {
+        $args = array(
+            'openid.mode' => 'check_authentication',
+            'openid.assoc_handle' => '{dumb}{handle}',
+            'openid.sig' => 'sigblob',
+            'openid.signed' => 'foo,bar,mode',
+            'openid.foo' => 'signedval1',
+            'openid.baz' => 'unsigned');
+
+        $r = $this->decoder->decode($args);
+        $this->assertTrue(is_a($r, 'Auth_OpenID_ServerError'));
+    }
+
+    function test_checkAuthMissingSignature()
+    {
+        $args = array(
+            'openid.mode' => 'check_authentication',
+            'openid.assoc_handle' => '{dumb}{handle}',
+            'openid.signed' => 'foo,bar,mode',
+            'openid.foo' => 'signedval1',
+            'openid.bar' => 'signedval2',
+            'openid.baz' => 'unsigned');
+
+        $r = $this->decoder->decode($args);
+        $this->assertTrue(is_a($r, 'Auth_OpenID_ServerError'));
+    }
+
+    function test_checkAuthAndInvalidate()
+    {
+        $args = array(
+            'openid.mode' => 'check_authentication',
+            'openid.assoc_handle' => '{dumb}{handle}',
+            'openid.invalidate_handle' => '[[SMART_handle]]',
+            'openid.sig' => 'sigblob',
+            'openid.signed' => 'foo,bar,mode',
+            'openid.foo' => 'signedval1',
+            'openid.bar' => 'signedval2',
+            'openid.baz' => 'unsigned');
+
+        $r = $this->decoder->decode($args);
+        $this->assertTrue(is_a($r, 'Auth_OpenID_CheckAuthRequest'));
+        $this->assertEquals($r->invalidate_handle, '[[SMART_handle]]');
     }
 
     function test_associateDH()
@@ -239,9 +297,9 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
             $r = $this->decoder->decode($args);
             $this->assertTrue(is_a($r, 'Auth_OpenID_AssociateRequest'));
             $this->assertEquals($r->mode, "associate");
-            $this->assertEquals($r->session_type, "DH-SHA1");
+            $this->assertEquals($r->session->session_type, "DH-SHA1");
             $this->assertEquals($r->assoc_type, "HMAC-SHA1");
-            $this->assertTrue($r->pubkey);
+            $this->assertTrue($r->session->consumer_pubkey);
         }
     }
 
@@ -254,9 +312,85 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
         // Using DH-SHA1 without supplying dh_consumer_public is an error.
         $result = $this->decoder->decode($args);
         if (!_isError($result)) {
-            $this->fail(sprintf("Expected Auth_OpenID_Error, got %s",
+            $this->fail(sprintf("Expected Auth_OpenID_ServerError, got %s",
                                 gettype($result)));
         }
+    }
+
+    function test_associateDHpubKeyNotB64()
+    {
+        $args = array(
+            'openid.mode' => 'associate',
+            'openid.session_type' => 'DH-SHA1',
+            'openid.dh_consumer_public' => "donkeydonkeydonkey");
+
+        $r = $this->decoder->decode($args);
+        $this->assertTrue(is_a($r, 'Auth_OpenID_ServerError'));
+    }
+
+    function test_associateDHModGen()
+    {
+        global $ALT_GEN;
+
+        // test dh with non-default but valid values for dh_modulus
+        // and dh_gen
+        $lib =& Auth_OpenID_getMathLib();
+
+        $args = array(
+            'openid.mode' => 'associate',
+            'openid.session_type' => 'DH-SHA1',
+            'openid.dh_consumer_public' => "Rzup9265tw==",
+            'openid.dh_modulus' => $lib->longToBase64(altModulus()),
+            'openid.dh_gen' => $lib->longToBase64($ALT_GEN));
+
+        $r = $this->decoder->decode($args);
+        $this->assertTrue(is_a($r, 'Auth_OpenID_AssociateRequest'));
+        $this->assertEquals($r->mode, "associate");
+        $this->assertEquals($r->session->session_type, "DH-SHA1");
+        $this->assertEquals($r->assoc_type, "HMAC-SHA1");
+        $this->assertTrue($lib->cmp($r->session->dh->mod, altModulus()));
+        $this->assertTrue($lib->cmp($r->session->dh->gen, $ALT_GEN) === 0);
+        $this->assertTrue($r->session->consumer_pubkey);
+    }
+
+    function test_associateDHCorruptModGen()
+    {
+        // test dh with non-default but valid values for dh_modulus
+        // and dh_gen
+        $args = array(
+            'openid.mode' => 'associate',
+            'openid.session_type' => 'DH-SHA1',
+            'openid.dh_consumer_public' => "Rzup9265tw==",
+            'openid.dh_modulus' => 'pizza',
+            'openid.dh_gen' => 'gnocchi');
+
+        $r = $this->decoder->decode($args);
+        $this->assertTrue(is_a($r, 'Auth_OpenID_ServerError'));
+    }
+
+    function test_associateDHMissingModGen()
+    {
+        // test dh with non-default but valid values for dh_modulus
+        // and dh_gen
+        $args = array(
+            'openid.mode' => 'associate',
+            'openid.session_type' => 'DH-SHA1',
+            'openid.dh_consumer_public' => "Rzup9265tw==",
+            'openid.dh_modulus' => 'pizza');
+
+        $r = $this->decoder->decode($args);
+        $this->assertTrue(is_a($r, 'Auth_OpenID_ServerError'));
+    }
+
+    function test_associateWeirdSession()
+    {
+        $args = array(
+            'openid.mode' => 'associate',
+            'openid.session_type' => 'FLCL6',
+            'openid.dh_consumer_public' => "YQ==\n");
+
+        $r = $this->decoder->decode($args);
+        $this->assertTrue(is_a($r, 'Auth_OpenID_ServerError'));
     }
 
     function test_associatePlain()
@@ -266,7 +400,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
         $r = $this->decoder->decode($args);
         $this->assertTrue(is_a($r, 'Auth_OpenID_AssociateRequest'));
         $this->assertEquals($r->mode, "associate");
-        $this->assertEquals($r->session_type, "plaintext");
+        $this->assertEquals($r->session->session_type, "plaintext");
         $this->assertEquals($r->assoc_type, "HMAC-SHA1");
     }
 
@@ -348,7 +482,7 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
     function test_assocReply()
     {
         if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            $request = new Auth_OpenID_AssociateRequest();
+            $request = Auth_OpenID_AssociateRequest::fromQuery(array());
             $response = new Auth_OpenID_ServerResponse($request);
             $response->fields = array('assoc_handle' => "every-zig");
             $webresponse = $this->encoder->encode($response);
@@ -502,7 +636,7 @@ class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
     function test_assocReply()
     {
         if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            $request = new Auth_OpenID_AssociateRequest();
+            $request = Auth_OpenID_AssociateRequest::fromQuery(array());
             $response = new Auth_OpenID_ServerResponse($request);
             $response->fields = array('assoc_handle' => "every-zig");
             $webresponse = $this->encoder->encode($response);
@@ -834,7 +968,7 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
 
     function setUp()
     {
-        $this->request = new Auth_OpenID_AssociateRequest();
+        $this->request = Auth_OpenID_AssociateRequest::fromQuery(array());
         $this->store = new Tests_Auth_OpenID_MemStore();
         $this->signatory = new Auth_OpenID_Signatory($this->store);
         $this->assoc = $this->signatory->createAssociation(false);
@@ -846,9 +980,14 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
             $dh = new Auth_OpenID_DiffieHellman();
             $ml =& Auth_OpenID_getMathLib();
 
-            $this->request->session_type = 'DH-SHA1';
-            $this->request->pubkey = $dh->public;
+            $cpub = $dh->public;
+            $session = new Auth_OpenID_DiffieHellmanServerSession(
+                                           new Auth_OpenID_DiffieHellman(),
+                                           $cpub);
+
+            $this->request = new Auth_OpenID_AssociateRequest($session);
             $response = $this->request->answer($this->assoc);
+
             $this->assertEquals(
                       Auth_OpenID::arrayGet($response->fields, "assoc_type"),
                       "HMAC-SHA1");
@@ -934,28 +1073,10 @@ class Tests_Auth_OpenID_ServerTest extends PHPUnit_TestCase {
         $this->server = new Auth_OpenID_Server($this->store);
     }
 
-    /*
-     * Leaving this test out because PHP doesn't really support this
-     * kind of runtime modification.
-     *
-    function test_dispatch()
-    {
-        $monkeycalled =& new Counter();
-        function monkeyDo(request):
-            monkeycalled.inc();
-            r = server.OpenIDResponse(request);
-            return r;
-        $this->server.openid_monkeymode = monkeyDo;
-        request = server.OpenIDRequest();
-        request.mode = "monkeymode";
-        webresult = $this->server.handleRequest(request);
-        $this->assertEquals(monkeycalled.count, 1);
-    */
-
     function test_associate()
     {
         if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            $request = new Auth_OpenID_AssociateRequest();
+            $request = Auth_OpenID_AssociateRequest::fromQuery(array());
             $response = $this->server->openid_associate($request);
             $this->assertTrue(array_key_exists('assoc_handle',
                                                $response->fields));
