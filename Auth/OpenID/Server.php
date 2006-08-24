@@ -341,8 +341,11 @@ class Auth_OpenID_CheckAuthRequest extends Auth_OpenID_Request {
             $signed_pairs[] = array($field, $value);
         }
 
-        return new Auth_OpenID_CheckAuthRequest($assoc_handle, $sig,
-                                                $signed_pairs);
+        $result = new Auth_OpenID_CheckAuthRequest($assoc_handle, $sig,
+                                                   $signed_pairs);
+        $result->invalidate_handle = Auth_OpenID::arrayGet($query,
+                    $_Auth_OpenID_OpenID_Prefix . 'invalidate_handle');
+        return $result;
     }
 
     function answer(&$signatory)
