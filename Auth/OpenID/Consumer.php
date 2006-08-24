@@ -295,18 +295,24 @@ class Auth_OpenID_Consumer {
             $openid_url = Auth_OpenID::normalizeUrl($user_url);
         }
 
-        $disco = new Services_Yadis_Discovery($this->session,
-                                              $openid_url,
-                                              $this->session_key_prefix);
+        $disco =& new Services_Yadis_Discovery(&$this->session,
+                                               $openid_url,
+                                               $this->session_key_prefix);
 
         // Set the 'stale' attribute of the manager.  If discovery
         // fails in a fatal way, the stale flag will cause the manager
         // to be cleaned up next time discovery is attempted.
+
         $m = $disco->getManager();
+
         if ($m) {
-            $m->stale = true;
-            $disco->session->set($disco->session_key,
-                                 serialize($m));
+            if ($m->stale) {
+                $disco->destroyManager();
+            } else {
+                $m->stale = true;
+                $disco->session->set($disco->session_key,
+                                     serialize($m));
+            }
         }
 
         $endpoint = $disco->getNextService($discoverMethod,
@@ -388,6 +394,73 @@ class Auth_OpenID_Consumer {
     }
 }
 
+class Auth_OpenID_DiffieHellmanConsumerSession {
+    var $session_type = 'DH-SHA1';
+
+    function Auth_OpenID_DiffieHellmanConsumerSession($dh = null)
+    {
+        if ($dh === null) {
+            $dh = new Auth_OpenID_DiffieHellman();
+        }
+
+        $this->dh = $dh;
+    }
+
+    function getRequest()
+    {
+        $math =& Auth_OpenID_getMathLib();
+
+        $cpub = $math->longToBase64($this->dh->public);
+
+        $args = array('openid.dh_consumer_public' => $cpub);
+
+        if (!$this->dh->usingDefaultValues()) {
+            $args = array_merge($args, array(
+                'openid.dh_modulus' =>
+                     $math->longToBase64($this->dh->mod),
+                'openid.dh_gen' =>
+                $math->longToBase64($this->dh->gen)));
+        }
+
+        return $args;
+    }
+
+    function extractSecret($response)
+    {
+        if (!array_key_exists('dh_server_public', $response)) {
+            return null;
+        }
+
+        if (!array_key_exists('enc_mac_key', $response)) {
+            return null;
+        }
+
+        $math =& Auth_OpenID_getMathLib();
+	$spub = $math->base64ToLong($response['dh_server_public']);
+        $enc_mac_key = base64_decode($response['enc_mac_key']);
+
+        return $this->dh->xorSecret($spub, $enc_mac_key);
+    }
+}
+
+class Auth_OpenID_PlainTextConsumerSession {
+    var $session_type = null;
+
+    function getRequest()
+    {
+        return array();
+    }
+
+    function extractSecret($response)
+    {
+        if (!array_key_exists('mac_key', $response)) {
+            return null;
+        }
+
+        return base64_decode($response['mac_key']);
+    }
+}
+
 /**
  * This class is the interface to the OpenID consumer logic.
  * Instances of it maintain no per-request state, so they can be
@@ -438,16 +511,10 @@ class Auth_OpenID_GenericConsumer {
      */
     function Auth_OpenID_GenericConsumer(&$store)
     {
-        if ($store === null) {
-            trigger_error("Must supply non-null store to create consumer",
-                          E_USER_ERROR);
-            return null;
-        }
-
         $this->store =& $store;
         $this->_use_assocs =
             !(defined('Auth_OpenID_NO_MATH_SUPPORT') ||
-              $this->store->isDumb());
+              ($this->store && $this->store->isDumb()));
 
         $this->fetcher = Services_Yadis_Yadis::getHTTPFetcher();
     }
@@ -737,7 +804,7 @@ class Auth_OpenID_GenericConsumer {
     /**
      * @access private
      */
-    function _getAssociation($server_url, $replace = false)
+    function _getAssociation($server_url)
     {
         if (!$this->_use_assocs) {
             return null;
@@ -746,105 +813,108 @@ class Auth_OpenID_GenericConsumer {
         $assoc = $this->store->getAssociation($server_url);
 
         if (($assoc === null) ||
-            ($replace && ($assoc->getExpiresIn() <= 0))) {
+            ($assoc->getExpiresIn() <= 0)) {
 
-            $args = array(
-                          'openid.mode' =>  'associate',
-                          'openid.assoc_type' => 'HMAC-SHA1',
-                          );
+            $parts = $this->_createAssociateRequest($server_url);
 
-            $dh = $this->_createDiffieHellman();
-            $args = array_merge($args, $dh->getAssocArgs());
-            $body = Auth_OpenID::httpBuildQuery($args);
+            if ($parts === null) {
+                return null;
+            }
 
-            $assoc = $this->_fetchAssociation($dh, $server_url, $body);
+            list($assoc_session, $args) = $parts;
+
+            $response = $this->_makeKVPost($args, $server_url);
+
+            if ($response === null) {
+                $assoc = null;
+            } else {
+                $assoc = $this->_parseAssociation($response, $assoc_session,
+                                                  $server_url);
+            }
         }
 
         return $assoc;
     }
 
-    /**
-     * @access private
-     */
-    function _fetchAssociation($dh, $server_url, $body)
+    function _createAssociateRequest($server_url)
     {
-        $ret = @$this->fetcher->post($server_url, $body);
+        $parts = parse_url($server_url);
 
-        if ($ret === null) {
-            $fmt = 'Getting association: failed to fetch URL: %s';
-            trigger_error(sprintf($fmt, $server_url), E_USER_NOTICE);
+        if ($parts === false) {
             return null;
         }
 
-        $results = Auth_OpenID_KVForm::toArray($ret->body);
-        if ($ret->status == 400) {
-            $error = Auth_OpenID::arrayGet($results, 'error',
-                                           '<no message from server>');
-
-            $fmt = 'Getting association: error returned from server %s: %s';
-            trigger_error(sprintf($fmt, $server_url, $error), E_USER_NOTICE);
-            return null;
-        } else if ($ret->status != 200) {
-            $fmt = 'Getting association: bad status code from server %s: %s';
-            $msg = sprintf($fmt, $server_url, $ret->status);
-            trigger_error($msg, E_USER_NOTICE);
-            return null;
+        if (array_key_exists('scheme', $parts)) {
+            $proto = $parts['scheme'];
+        } else {
+            $proto = 'http';
         }
 
-        $results = Auth_OpenID_KVForm::toArray($ret->body);
+        if ($proto == 'https') {
+            $assoc_session = new Auth_OpenID_PlainTextConsumerSession();
+        } else {
+            $assoc_session = new Auth_OpenID_DiffieHellmanConsumerSession();
+        }
 
-        return $this->_parseAssociation($results, $dh, $server_url);
+        $args = array(
+            'openid.mode' => 'associate',
+            'openid.assoc_type' => 'HMAC-SHA1');
+
+        if ($assoc_session->session_type !== null) {
+            $args['openid.session_type'] = $assoc_session->session_type;
+        }
+
+        $args = array_merge($args, $assoc_session->getRequest());
+        return array($assoc_session, $args);
     }
 
     /**
      * @access private
      */
-    function _parseAssociation($results, $dh, $server_url)
+    function _parseAssociation($results, $assoc_session, $server_url)
     {
         $required_keys = array('assoc_type', 'assoc_handle',
-                               'dh_server_public', 'enc_mac_key');
+                               'expires_in');
 
         foreach ($required_keys as $key) {
             if (!array_key_exists($key, $results)) {
-                $fmt = "associate: missing key in response from %s: %s";
-                $msg = sprintf($fmt, $server_url, $key);
-                trigger_error($msg, E_USER_NOTICE);
                 return null;
             }
         }
 
         $assoc_type = $results['assoc_type'];
+        $assoc_handle = $results['assoc_handle'];
+        $expires_in_str = $results['expires_in'];
+
         if ($assoc_type != 'HMAC-SHA1') {
-            $fmt = 'Unsupported assoc_type returned from server %s: %s';
-            $msg = sprintf($fmt, $server_url, $assoc_type);
-            trigger_error($msg, E_USER_NOTICE);
             return null;
         }
 
-        $assoc_handle = $results['assoc_handle'];
-        $expires_in = intval(Auth_OpenID::arrayGet($results, 'expires_in',
-                             '0'));
+        $expires_in = intval($expires_in_str);
 
-        $session_type = Auth_OpenID::arrayGet($results, 'session_type', null);
-        if ($session_type === null) {
-            $secret = base64_decode($results['mac_key']);
-        } else {
-            $fmt = 'Unsupported session_type returned from server %s: %s';
-            if ($session_type != 'DH-SHA1') {
-                $msg = sprintf($fmt, $server_url, $session_type);
-                trigger_error($msg, E_USER_NOTICE);
-                return null;
-            }
-
-            $secret = $dh->consumerFinish($results);
+        if ($expires_in <= 0) {
+            return null;
         }
 
-        $assoc = Auth_OpenID_Association::fromExpiresIn($expires_in,
-                                                       $assoc_handle,
-                                                       $secret,
-                                                       $assoc_type);
+        $session_type = Auth_OpenID::arrayGet($results, 'session_type');
+        if ($session_type != $assoc_session->session_type) {
+            if ($session_type === null) {
+                $assoc_session = new Auth_OpenID_PlainTextConsumerSession();
+            } else {
+                return null;
+            }
+        }
 
+        $secret = $assoc_session->extractSecret($results);
+
+        if (!$secret) {
+            return null;
+        }
+
+        $assoc = Auth_OpenID_Association::fromExpiresIn(
+                         $expires_in, $assoc_handle, $secret, $assoc_type);
         $this->store->storeAssociation($server_url, $assoc);
+
         return $assoc;
     }
 }

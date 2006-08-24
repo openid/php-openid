@@ -106,6 +106,14 @@ class Auth_OpenID_DiffieHellman {
         return $args;
     }
 
+    function usingDefaultValues()
+    {
+        global $_Auth_OpenID_DEFAULT_GEN, $_Auth_OpenID_DEFAULT_MOD;
+
+        return ($this->mod == $_Auth_OpenID_DEFAULT_MOD &&
+                $this->gen == $_Auth_OpenID_DEFAULT_GEN);
+    }
+
     /**
      * Perform the server side of the OpenID Diffie-Hellman association
      */
