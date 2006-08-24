@@ -198,8 +198,7 @@ class Services_Yadis_Discovery {
     function getNextService($discover_cb, &$fetcher)
     {
         $manager = $this->getManager();
-        if ((!$manager) ||
-            $manager->stale) {
+        if (!$manager) {
             $this->destroyManager();
             $http_response = array();
 
@@ -249,7 +248,7 @@ class Services_Yadis_Discovery {
     /**
      * @access private
      */
-    function getManager()
+    function &getManager()
     {
         // Extract the YadisServiceManager for this object's URL and
         // suffix from the session.
@@ -264,7 +263,8 @@ class Services_Yadis_Discovery {
         if ($manager && $manager->forURL($this->url)) {
             return $manager;
         } else {
-            return null;
+            $unused = null;
+            return $unused;
         }
     }
 
@@ -278,14 +278,16 @@ class Services_Yadis_Discovery {
             return $this->getManager();
         }
 
-        if (!$services) {
-            return null;
-        }
-
-        $manager = new Services_Yadis_Manager($this->url, $yadis_url,
+        if ($services) {
+            $manager = new Services_Yadis_Manager($this->url, $yadis_url,
                                               $services, $key);
-        $this->session->set($this->session_key, serialize($manager));
-        return $manager;
+            $this->session->set($this->session_key, serialize($manager));
+            return $manager;
+        } else {
+            // Oh, PHP.
+            $unused = null;
+            return $unused;
+        }
     }
 
     /**
