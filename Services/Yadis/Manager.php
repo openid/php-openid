@@ -53,6 +53,14 @@ class Services_Yadis_PHPSession {
     {
         unset($_SESSION[$name]);
     }
+
+    /**
+     * Return the contents of the session in array form.
+     */
+    function contents()
+    {
+        return $_SESSION;
+    }
 }
 
 /**
