@@ -18,6 +18,7 @@
  */
 require_once 'Auth/OpenID/Association.php';
 require_once 'Auth/OpenID/CryptUtil.php';
+require_once 'Auth/OpenID.php';
 require_once 'PHPUnit.php';
 
 /**
