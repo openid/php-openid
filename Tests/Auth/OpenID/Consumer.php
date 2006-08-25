@@ -949,7 +949,6 @@ class Tests_Auth_OpenID_ParseAssociation extends _TestIdRes {
         $server_resp['enc_mac_key'] = "\x00\x00\x00";
         $ret = $this->consumer->_parseAssociation($server_resp, $sess,
                                                   'server_url');
-        print_r($ret);
         $this->assertTrue($ret === null);
     }
 }

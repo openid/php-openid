@@ -335,7 +335,7 @@ class Auth_OpenID_CheckAuthRequest extends Auth_OpenID_Request {
                 } else {
                     return new Auth_OpenID_ServerError($query,
                           sprintf("Couldn't find signed field %r in query %s",
-                                  $field, var_export($query)));
+                                  $field, var_export($query, true)));
                 }
             }
             $signed_pairs[] = array($field, $value);
@@ -407,6 +407,7 @@ class Auth_OpenID_DiffieHellmanServerSession {
     {
         $dh_modulus = Auth_OpenID::arrayGet($query, 'openid.dh_modulus');
         $dh_gen = Auth_OpenID::arrayGet($query, 'openid.dh_gen');
+
         if ((($dh_modulus === null) && ($dh_gen !== null)) ||
             (($dh_gen === null) && ($dh_modulus !== null))) {
 
@@ -416,10 +417,10 @@ class Auth_OpenID_DiffieHellmanServerSession {
                 $missing = 'generator';
             }
 
-            // raise ProtocolError('If non-default modulus or generator is '
-            //                     'supplied, both must be supplied. Missing %s'
-            //                     % (missing,))
-            return null;
+            return new Auth_OpenID_ServerError(
+                                'If non-default modulus or generator is '.
+                                'supplied, both must be supplied.  Missing '.
+                                $missing);
         }
 
         $lib =& Auth_OpenID_getMathLib();
@@ -435,13 +436,21 @@ class Auth_OpenID_DiffieHellmanServerSession {
         $consumer_pubkey = Auth_OpenID::arrayGet($query,
                                                  'openid.dh_consumer_public');
         if ($consumer_pubkey === null) {
-            return null;
+            return new Auth_OpenID_ServerError(
+                                  'Public key for DH-SHA1 session '.
+                                  'not found in query');
         }
 
         $consumer_pubkey =
             $lib->base64ToLong($consumer_pubkey);
 
-        return new Auth_OpenID_DiffieHellmanServerSession($dh, $consumer_pubkey);
+        if ($consumer_pubkey === false) {
+            return new Auth_OpenID_ServerError($query,
+                                       "dh_consumer_public is not base64");
+        }
+
+        return new Auth_OpenID_DiffieHellmanServerSession($dh,
+                                                          $consumer_pubkey);
     }
 
     function answer($secret)
@@ -495,7 +504,7 @@ class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
         $session = call_user_func_array(array($session_cls, 'fromQuery'),
                                         array($query));
 
-        if ($session === null) {
+        if (($session === null) || (_isError($session))) {
             return new Auth_OpenID_ServerError($query,
                                      "Error parsing $session_type session");
         }
@@ -1140,7 +1149,7 @@ class Auth_OpenID_Decoder {
         $mode = Auth_OpenID::arrayGet($myquery, $this->prefix . 'mode');
         if (!$mode) {
             return new Auth_OpenID_ServerError($query,
-                           sprintf("No %smode found in query", $this->prefix));
+                           sprintf("No %s mode found in query", $this->prefix));
         }
 
         $handlerCls = Auth_OpenID::arrayGet($this->handlers, $mode,

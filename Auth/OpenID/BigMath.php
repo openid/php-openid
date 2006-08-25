@@ -106,7 +106,13 @@ class Auth_OpenID_MathLibrary {
 
     function base64ToLong($str)
     {
-        return $this->binaryToLong(base64_decode($str));
+        $b64 = base64_decode($str);
+
+        if ($b64 === false) {
+            return false;
+        }
+
+        return $this->binaryToLong($b64);
     }
 
     function longToBase64($str)

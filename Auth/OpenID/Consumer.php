@@ -436,7 +436,7 @@ class Auth_OpenID_DiffieHellmanConsumerSession {
         }
 
         $math =& Auth_OpenID_getMathLib();
-	$spub = $math->base64ToLong($response['dh_server_public']);
+        $spub = $math->base64ToLong($response['dh_server_public']);
         $enc_mac_key = base64_decode($response['enc_mac_key']);
 
         return $this->dh->xorSecret($spub, $enc_mac_key);
