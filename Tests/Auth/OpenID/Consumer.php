@@ -22,6 +22,7 @@ require_once 'Auth/OpenID/FileStore.php';
 require_once 'Auth/OpenID/KVForm.php';
 require_once 'Auth/OpenID/Consumer.php';
 require_once 'Auth/OpenID/Server.php';
+require_once 'Auth/OpenID/Nonce.php';
 require_once 'Tests/Auth/OpenID/MemStore.php';
 require_once 'PHPUnit.php';
 
@@ -349,18 +350,25 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
     function setUp()
     {
         parent::setUp();
-        $this->nonce = "t3stn0nc3";
-        $this->store->storeNonce($this->nonce);
     }
 
-    function test_goodNonce()
+    function test_consumerNonce()
     {
         $this->return_to = sprintf('http://rt.unittest/?nonce=%s',
-                                   $this->nonce);
+                                   Auth_OpenID_mkNonce());
         $this->response = new Auth_OpenID_SuccessResponse($this->endpoint,
                                    array('openid.return_to' => $this->return_to));
 
-        $ret = $this->consumer->_checkNonce($this->response, $this->nonce);
+        $ret = $this->consumer->_checkNonce(null, $this->response);
+        $this->assertEquals($ret->status, Auth_OpenID_SUCCESS);
+        $this->assertEquals($ret->identity_url, $this->consumer_id);
+    }
+
+    function test_serverNonce()
+    {
+        $this->response = new Auth_OpenID_SuccessResponse($this->endpoint,
+                                 array('openid.nonce' => Auth_OpenID_mkNonce()));
+        $ret = $this->consumer->_checkNonce($this->server_url, $this->response);
         $this->assertEquals($ret->status, Auth_OpenID_SUCCESS);
         $this->assertEquals($ret->identity_url, $this->consumer_id);
     }
@@ -368,12 +376,13 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
     function test_badNonce()
     {
         // remove the nonce from the store
-        $this->store->useNonce($this->nonce);
-        $this->return_to = sprintf('http://rt.unittest/?nonce=%s',
-                                   $this->nonce);
+        $nonce = Auth_OpenID_mkNonce();
+        list($timestamp, $salt) = Auth_OpenID_splitNonce($nonce);
+
+        $this->store->useNonce($this->server_url, $timestamp, $salt);
         $this->response = new Auth_OpenID_SuccessResponse($this->endpoint,
-                                 array('openid.return_to' => $this->return_to));
-        $ret = $this->consumer->_checkNonce($this->response, $this->nonce);
+                                 array('openid.nonce' => $nonce));
+        $ret = $this->consumer->_checkNonce($this->server_url, $this->response);
         $this->assertEquals($ret->status, Auth_OpenID_FAILURE);
         $this->assertEquals($ret->identity_url, $this->consumer_id);
         $this->assertTrue(strpos($ret->message, 'Nonce missing from store') === 0);
@@ -381,14 +390,12 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
 
     function test_tamperedNonce()
     {
-        $this->return_to = sprintf('http://rt.unittest/?nonce=HACKED-%s',
-                                   $this->nonce);
         $this->response = new Auth_OpenID_SuccessResponse($this->endpoint,
-                                  array('openid.return_to' => $this->return_to));
-        $ret = $this->consumer->_checkNonce($this->response, $this->nonce);
+                                  array('openid.nonce' => 'malformed'));
+        $ret = $this->consumer->_checkNonce($this->server_url, $this->response);
         $this->assertEquals($ret->status, Auth_OpenID_FAILURE);
         $this->assertEquals($ret->identity_url, $this->consumer_id);
-        $this->assertTrue(strpos($ret->message, 'Nonce mismatch') === 0);
+        $this->assertTrue(strpos($ret->message, 'Malformed nonce') === 0);
     }
 
     function test_missingNonce()
@@ -396,7 +403,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
         // no nonce parameter on the return_to
         $this->response = new Auth_OpenID_SuccessResponse($this->endpoint,
                                      array('openid.return_to' => $this->return_to));
-        $ret = $this->consumer->_checkNonce($this->response, $this->nonce);
+        $ret = $this->consumer->_checkNonce($this->server_url, $this->response);
         $this->assertEquals($ret->status, Auth_OpenID_FAILURE);
         $this->assertEquals($ret->identity_url, $this->consumer_id);
         $this->assertTrue(strpos($ret->message,

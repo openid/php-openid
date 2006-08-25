@@ -207,12 +207,6 @@ define('Auth_OpenID_SETUP_NEEDED', 'setup needed');
 define('Auth_OpenID_PARSE_ERROR', 'parse error');
 
 /**
- * This is the characters that the nonces are made from.
- */
-define('Auth_OpenID_DEFAULT_NONCE_CHRS',"abcdefghijklmnopqrstuvwxyz" .
-       "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
-
-/**
  * An OpenID consumer implementation that performs discovery and does
  * session management.  See the Consumer.php file documentation for
  * more information.
@@ -487,17 +481,6 @@ class Auth_OpenID_GenericConsumer {
     var $_use_assocs;
 
     /**
-     * This is the number of characters in the generated nonce for
-     * each transaction.
-     */
-    var $nonce_len = 8;
-
-    /**
-     * What characters are allowed in nonces
-     */
-    var $nonce_chrs = Auth_OpenID_DEFAULT_NONCE_CHRS;
-
-    /**
      * This method initializes a new {@link Auth_OpenID_Consumer}
      * instance to access the library.
      *
@@ -527,7 +510,7 @@ class Auth_OpenID_GenericConsumer {
 
     function begin($service_endpoint)
     {
-        $nonce = $this->_createNonce();
+        $nonce = Auth_OpenID_mkNonce();
         $assoc = $this->_getAssociation($service_endpoint->server_url);
         $r = new Auth_OpenID_AuthRequest($assoc, $service_endpoint);
         $r->return_to_args['nonce'] = $nonce;
@@ -546,7 +529,7 @@ class Auth_OpenID_GenericConsumer {
             return new Auth_OpenID_FailureResponse($endpoint, $error);
         } else if ($mode == 'id_res') {
             if ($endpoint->identity_url === null) {
-                return new Auth_OpenID_FailureResponse($identity_url,
+                return new Auth_OpenID_FailureResponse($endpoint,
                                                "No session state found");
             }
 
@@ -557,9 +540,8 @@ class Auth_OpenID_GenericConsumer {
                                                        "HTTP request failed");
             }
             if ($response->status == Auth_OpenID_SUCCESS) {
-                return $this->_checkNonce($response,
-                                          Auth_OpenID::arrayGet($query,
-                                                                'nonce'));
+                return $this->_checkNonce($endpoint->server_url,
+                                          $response);
             } else {
                 return $response;
             }
@@ -753,8 +735,9 @@ class Auth_OpenID_GenericConsumer {
     /**
      * @access private
      */
-    function _checkNonce($response, $nonce)
+    function _checkNonce($server_url, $response)
     {
+        $nonce = $response->getNonce();
         $parsed_url = parse_url($response->getReturnTo());
         $query_str = @$parsed_url['query'];
         $query = array();
@@ -780,23 +763,21 @@ class Auth_OpenID_GenericConsumer {
                                          $response->getReturnTo()));
         }
 
-        if (!$this->store->useNonce($nonce)) {
+        list($timestamp, $salt) = Auth_OpenID_splitNonce($nonce);
+
+        if (!($timestamp &&
+              $salt)) {
+            return new Auth_OpenID_FailureResponse($response,
+                                                   'Malformed nonce');
+        }
+
+        if (!$this->store->useNonce($endpoint->server_url,
+                                    $timestamp, $salt)) {
             return new Auth_OpenID_FailureResponse($response,
                                                    "Nonce missing from store");
         }
 
         return $response;
-    }
-
-    /**
-     * @access private
-     */
-    function _createNonce()
-    {
-        $nonce = Auth_OpenID_CryptUtil::randomString($this->nonce_len,
-                                                     $this->nonce_chrs);
-        $this->store->storeNonce($nonce);
-        return $nonce;
     }
 
     /**
@@ -1099,6 +1080,11 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
     function getReturnTo()
     {
         return Auth_OpenID::arrayGet($this->signed_args, 'openid.return_to');
+    }
+
+    function getNonce()
+    {
+        return Auth_OpenID::arrayGet($this->signed_args, 'openid.nonce');
     }
 }
 

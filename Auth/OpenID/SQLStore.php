@@ -236,9 +236,6 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
                                    'get_assoc',
                                    'get_assocs',
                                    'remove_assoc',
-                                   'add_nonce',
-                                   'get_nonce',
-                                   'remove_nonce'
                                    );
 
         foreach ($required_sql_keys as $key) {
@@ -261,9 +258,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
                               array(
                                     'value' => $this->nonces_table_name,
                                     'keys' => array('nonce_table',
-                                                    'add_nonce',
-                                                    'get_nonce',
-                                                    'remove_nonce')
+                                                    'add_nonce')
                                     ),
                               array(
                                     'value' => $this->associations_table_name,
@@ -529,72 +524,18 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
     /**
      * @access private
      */
-    function _add_nonce($nonce, $expires)
+    function _add_nonce($server_url, $timestamp, $salt)
     {
         $sql = $this->sql['add_nonce'];
-        $result = $this->connection->query($sql, array($nonce, $expires));
+        $result = $this->connection->query($sql, array($server_url,
+                                                       $timestamp,
+                                                       $salt));
         return $this->resultToBool($result);
     }
 
-    /**
-     * @access private
-     */
-    function storeNonce($nonce)
+    function useNonce($server_url, $timestamp, $salt)
     {
-        if ($this->_add_nonce($nonce, time())) {
-            $this->connection->commit();
-        } else {
-            $this->connection->rollback();
-        }
-    }
-
-    /**
-     * @access private
-     */
-    function _get_nonce($nonce)
-    {
-        $result = $this->connection->getRow($this->sql['get_nonce'],
-                                            array($nonce));
-
-        if ($this->isError($result)) {
-            return null;
-        } else {
-            return $result;
-        }
-    }
-
-    /**
-     * @access private
-     */
-    function _remove_nonce($nonce)
-    {
-        $this->connection->query($this->sql['remove_nonce'],
-                                 array($nonce));
-    }
-
-    function useNonce($nonce)
-    {
-        $row = $this->_get_nonce($nonce);
-
-        if ($row !== null) {
-            $nonce = $row['nonce'];
-            $timestamp = $row['expires'];
-            $nonce_age = time() - $timestamp;
-
-            if ($nonce_age > $this->max_nonce_age) {
-                $present = 0;
-            } else {
-                $present = 1;
-            }
-
-            $this->_remove_nonce($nonce);
-        } else {
-            $present = 0;
-        }
-
-        $this->connection->commit();
-
-        return $present;
+        return $this->_add_nonce($server_url, $timestamp, $salt);
     }
 
     /**

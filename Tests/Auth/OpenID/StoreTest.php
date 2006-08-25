@@ -18,6 +18,7 @@
  */
 require_once 'Auth/OpenID/Association.php';
 require_once 'Auth/OpenID/CryptUtil.php';
+require_once 'Auth/OpenID/Nonce.php';
 require_once 'Auth/OpenID.php';
 require_once 'PHPUnit.php';
 
@@ -78,14 +79,6 @@ class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
         $this->punct = Auth_OpenID_punct;
         $this->allowed_nonce = $this->letters . $this->digits;
         $this->allowed_handle = $this->letters . $this->digits . $this->punct;
-    }
-
-    /**
-     * Generates a nonce value.
-     */
-    function generateNonce()
-    {
-        return Auth_OpenID_CryptUtil::randomString(8, $this->allowed_nonce);
     }
 
     /**
@@ -298,7 +291,8 @@ explicitly');
 
     function _checkUseNonce(&$store, $nonce, $expected, $msg=null)
     {
-        $actual = $store->useNonce($nonce);
+        list($stamp, $salt) = Auth_OpenID_splitNonce($nonce);
+        $actual = $store->useNonce($server_url, $stamp, $salt);
         $expected = $store->isDumb() || $expected;
         $val = ($actual && $expected) || (!$actual && !$expected);
         $this->assertTrue($val, "_checkUseNonce failed: $msg");
@@ -309,24 +303,17 @@ explicitly');
         // Nonce functions
 
         // Random nonce (not in store)
-        $nonce1 = $this->generateNonce();
+        $nonce1 = Auth_OpenID_mkNonce();
 
-        // A nonce is not present by default
-        $this->_checkUseNonce($store, $nonce1, false, 1);
+        // A nonce is not allowed by default
+        $this->_checkUseNonce($store, $nonce1, true, 1);
 
         // Storing once causes useNonce to return true the first, and
         // only the first, time it is called after the $store->
-        $store->storeNonce($nonce1);
-        $this->_checkUseNonce($store, $nonce1, true, 2);
         $this->_checkUseNonce($store, $nonce1, false, 3);
-        $this->_checkUseNonce($store, $nonce1, false, 4);
 
         // Storing twice has the same effect as storing once.
-        $store->storeNonce($nonce1);
-        $store->storeNonce($nonce1);
-        $this->_checkUseNonce($store, $nonce1, true, 5);
         $this->_checkUseNonce($store, $nonce1, false, 6);
-        $this->_checkUseNonce($store, $nonce1, false, 7);
 
         // Auth key functions
 

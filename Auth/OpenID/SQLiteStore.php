@@ -20,8 +20,8 @@ class Auth_OpenID_SQLiteStore extends Auth_OpenID_SQLStore {
     function setSQL()
     {
         $this->sql['nonce_table'] =
-            "CREATE TABLE %s (nonce CHAR(8) UNIQUE PRIMARY KEY, ".
-            "expires INTEGER)";
+            "CREATE TABLE %s (server_url VARCHAR(2047), timestamp INTEGER, ".
+            "salt CHAR(40), UNIQUE (server_url, timestamp, salt)";
 
         $this->sql['assoc_table'] =
             "CREATE TABLE %s (server_url VARCHAR(2047), handle VARCHAR(255), ".
@@ -57,9 +57,6 @@ class Auth_OpenID_SQLiteStore extends Auth_OpenID_SQLStore {
 
         $this->sql['get_nonce'] =
             "SELECT * FROM %s WHERE nonce = ?";
-
-        $this->sql['remove_nonce'] =
-            "DELETE FROM %s WHERE nonce = ?";
     }
 }
 

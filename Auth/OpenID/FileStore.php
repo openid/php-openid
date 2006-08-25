@@ -427,56 +427,36 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
     }
 
     /**
-     * Mark this nonce as present.
-     */
-    function storeNonce($nonce)
-    {
-        if (!$this->active) {
-            trigger_error("FileStore no longer active", E_USER_ERROR);
-            return null;
-        }
-
-        $filename = $this->nonce_dir . DIRECTORY_SEPARATOR . $nonce;
-        $nonce_file = fopen($filename, 'w');
-        if ($nonce_file === false) {
-            return false;
-        }
-        fclose($nonce_file);
-        return true;
-    }
-
-    /**
      * Return whether this nonce is present. As a side effect, mark it
      * as no longer present.
      *
      * @return bool $present
      */
-    function useNonce($nonce)
+    function useNonce($server_url, $timestamp, $salt)
     {
         if (!$this->active) {
             trigger_error("FileStore no longer active", E_USER_ERROR);
             return null;
         }
 
-        $filename = $this->nonce_dir . DIRECTORY_SEPARATOR . $nonce;
-        $st = @stat($filename);
+        list($proto, $rest) = explode('://', $server_url, 2);
+        $parts = explode('/', $rest, 2);
+        $domain = $this->_filenameEscape($parts[0]);
+        $url_hash = $this->_safe64($server_url);
+        $salt_hash = $this->_safe64($salt);
 
-        if ($st === false) {
+        $filename = sprintf('%08x-%s-%s-%s-%s', $timestamp, $proto,
+                            $domain, $url_hash, $salt_hash);
+        $filename = $this->nonce_dir . DIRECTORY_SEPARATOR . $filename;
+
+        $result = @fopen($filename, 'x');
+
+        if ($result === false) {
             return false;
+        } else {
+            close($result);
+            return true;
         }
-
-        // Either it is too old or we are using it. Either way, we
-        // must remove the file.
-        if (!unlink($filename)) {
-            return false;
-        }
-
-        $now = time();
-        $nonce_age = $now - $st[9];
-
-        // We can us it if the age of the file is less than the
-        // expiration time.
-        return $nonce_age <= $this->max_nonce_age;
     }
 
     /**
@@ -495,15 +475,9 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
 
         // Check all nonces for expiry
         foreach ($nonces as $nonce) {
-            $filename = $this->nonce_dir . DIRECTORY_SEPARATOR . $nonce;
-            $st = @stat($filename);
-
-            if ($st !== false) {
-                // Remove the nonce if it has expired
-                $nonce_age = $now - $st[9];
-                if ($nonce_age > $this->max_nonce_age) {
-                    Auth_OpenID_FileStore::_removeIfPresent($filename);
-                }
+            if (!Auth_OpenID_checkTimestamp($nonce, $now)) {
+                $filename = $this->nonce_dir . DIRECTORY_SEPARATOR . $nonce;
+                Auth_OpenID_FileStore::_removeIfPresent($filename);
             }
         }
 

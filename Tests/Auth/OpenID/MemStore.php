@@ -80,21 +80,15 @@ class Tests_Auth_OpenID_MemStore extends Auth_OpenID_OpenIDStore {
         return $present;
     }
 
-    function storeNonce($nonce)
+    function useNonce($server_url, $timestamp, $salt)
     {
-        if (!in_array($nonce, $this->nonces)) {
+        $nonce =  sprintf("%s%s%s", $server_url, $timestamp, $salt);
+        if (in_array($nonce, $this->nonces)) {
+            return false;
+        } else {
             $this->nonces[] = $nonce;
+            return true;
         }
-    }
-
-    function useNonce($nonce)
-    {
-        $index = array_search($nonce, $this->nonces);
-        $present = $index !== false;
-        if ($present) {
-            unset($this->nonces[$index]);
-        }
-        return $present;
     }
 
     function reset()
