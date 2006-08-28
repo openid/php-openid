@@ -27,9 +27,6 @@ require_once "Services/Yadis/HTTPFetcher.php";
 class Services_Yadis_ParanoidHTTPFetcher extends Services_Yadis_HTTPFetcher {
     function Services_Yadis_ParanoidHTTPFetcher()
     {
-        $this->headers = array();
-        $this->data = "";
-
         $this->reset();
     }
 
