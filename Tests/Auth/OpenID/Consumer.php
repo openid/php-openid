@@ -217,7 +217,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
 
         $result = $consumer->complete($query, $result->endpoint);
 
-        $this->assertEquals($result->status, 'success');
+        $this->assertEquals($result->status, Auth_OpenID_SUCCESS);
         $this->assertEquals($result->identity_url, $user_url);
     }
 
@@ -347,11 +347,6 @@ class _CheckAuthDetectingConsumer extends Auth_OpenID_GenericConsumer {
 }
 
 class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
-    function setUp()
-    {
-        parent::setUp();
-    }
-
     function test_consumerNonce()
     {
         $this->return_to = sprintf('http://rt.unittest/?nonce=%s',
@@ -390,12 +385,13 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
 
     function test_tamperedNonce()
     {
+        // Malformed nonce
         $this->response = new Auth_OpenID_SuccessResponse($this->endpoint,
                                   array('openid.nonce' => 'malformed'));
         $ret = $this->consumer->_checkNonce($this->server_url, $this->response);
         $this->assertEquals($ret->status, Auth_OpenID_FAILURE);
         $this->assertEquals($ret->identity_url, $this->consumer_id);
-        $this->assertTrue(strpos($ret->message, 'Malformed nonce') === 0);
+        $this->assertTrue(strpos($ret->message, 'Nonce mismatch') === 0);
     }
 
     function test_missingNonce()
