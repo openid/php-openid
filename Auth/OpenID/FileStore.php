@@ -439,7 +439,13 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
             return null;
         }
 
-        list($proto, $rest) = explode('://', $server_url, 2);
+        if ($server_url) {
+            list($proto, $rest) = explode('://', $server_url, 2);
+        } else {
+            $proto = '';
+            $rest = '';
+        }
+
         $parts = explode('/', $rest, 2);
         $domain = $this->_filenameEscape($parts[0]);
         $url_hash = $this->_safe64($server_url);
