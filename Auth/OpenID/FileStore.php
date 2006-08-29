@@ -460,7 +460,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
         if ($result === false) {
             return false;
         } else {
-            close($result);
+            fclose($result);
             return true;
         }
     }
