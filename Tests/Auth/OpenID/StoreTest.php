@@ -289,7 +289,7 @@ explicitly');
                               $assoc2, "(29)");
     }
 
-    function _checkUseNonce(&$store, $nonce, $expected, $msg=null)
+    function _checkUseNonce(&$store, $nonce, $expected, $server_url, $msg=null)
     {
         list($stamp, $salt) = Auth_OpenID_splitNonce($nonce);
         $actual = $store->useNonce($server_url, $stamp, $salt);
@@ -302,18 +302,23 @@ explicitly');
     {
         // Nonce functions
 
-        // Random nonce (not in store)
-        $nonce1 = Auth_OpenID_mkNonce();
+        $server_url = 'http://www.myopenid.com/openid';
 
-        // A nonce is not allowed by default
-        $this->_checkUseNonce($store, $nonce1, true, 1);
+        foreach (array($server_url, '') as $url) {
+            // Random nonce (not in store)
+            $nonce1 = Auth_OpenID_mkNonce();
 
-        // Storing once causes useNonce to return true the first, and
-        // only the first, time it is called after the $store->
-        $this->_checkUseNonce($store, $nonce1, false, 3);
+            // A nonce is not allowed by default
+            $this->_checkUseNonce($store, $nonce1, true, $url, 1);
 
-        // Storing twice has the same effect as storing once.
-        $this->_checkUseNonce($store, $nonce1, false, 6);
+            // Storing once causes useNonce to return true the first,
+            // and only the first, time it is called after the
+            // $store->
+            $this->_checkUseNonce($store, $nonce1, false, $url, 2);
+
+            // Storing twice has the same effect as storing once.
+            $this->_checkUseNonce($store, $nonce1, false, $url, 3);
+        }
 
         // Auth key functions
 
