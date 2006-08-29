@@ -21,7 +21,7 @@ class Auth_OpenID_SQLiteStore extends Auth_OpenID_SQLStore {
     {
         $this->sql['nonce_table'] =
             "CREATE TABLE %s (server_url VARCHAR(2047), timestamp INTEGER, ".
-            "salt CHAR(40), UNIQUE (server_url, timestamp, salt)";
+            "salt CHAR(40), UNIQUE (server_url, timestamp, salt))";
 
         $this->sql['assoc_table'] =
             "CREATE TABLE %s (server_url VARCHAR(2047), handle VARCHAR(255), ".
@@ -53,7 +53,7 @@ class Auth_OpenID_SQLiteStore extends Auth_OpenID_SQLStore {
             "DELETE FROM %s WHERE server_url = ? AND handle = ?";
 
         $this->sql['add_nonce'] =
-            "INSERT OR REPLACE INTO %s (nonce, expires) VALUES (?, ?)";
+            "INSERT INTO %s (server_url, timestamp, salt) VALUES (?, ?, ?)";
 
         $this->sql['get_nonce'] =
             "SELECT * FROM %s WHERE nonce = ?";
