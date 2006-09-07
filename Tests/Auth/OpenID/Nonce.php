@@ -25,6 +25,7 @@ class Tests_Auth_OpenID_Nonce extends PHPUnit_TestSuite {
         $this->addTestSuite('Tests_Auth_OpenID_NonceTests');
         $this->makeSplitTests();
         $this->makeCheckTimestampTests();
+        $this->setName('Tests_Auth_OpenID_Nonce');
     }
 
     function makeSplitTests()
