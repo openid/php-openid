@@ -7,7 +7,7 @@
 // import urllib
 
 require_once 'Auth/OpenID.php';
-require_once 'Auth/KVForm.php';
+require_once 'Auth/OpenID/KVForm.php';
 require_once 'Services/Yadis/XML.php';
 
 // This doesn't REALLY belong here, but where is better?
