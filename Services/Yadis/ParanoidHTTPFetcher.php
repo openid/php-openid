@@ -65,7 +65,9 @@ class Services_Yadis_ParanoidHTTPFetcher extends Services_Yadis_HTTPFetcher {
             $this->reset();
 
             $c = curl_init();
-            curl_setopt($c, CURLOPT_NOSIGNAL, true);
+            if (defined('CURLOPT_NOSIGNAL')) {
+                curl_setopt($c, CURLOPT_NOSIGNAL, true);
+            }
 
             if (!$this->allowedURL($url)) {
                 trigger_error(sprintf("Fetching URL not allowed: %s", $url),
