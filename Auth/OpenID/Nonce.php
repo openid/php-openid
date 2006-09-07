@@ -9,7 +9,7 @@ require_once 'Auth/OpenID/CryptUtil.php';
 /**
  * This is the characters that the nonces are made from.
  */
-define('Auth_OpenID_DEFAULT_NONCE_CHRS',"abcdefghijklmnopqrstuvwxyz" .
+define('Auth_OpenID_Nonce_CHRS',"abcdefghijklmnopqrstuvwxyz" .
        "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
 // Keep nonces for five hours (allow five hours for the combination of
@@ -17,23 +17,37 @@ define('Auth_OpenID_DEFAULT_NONCE_CHRS',"abcdefghijklmnopqrstuvwxyz" .
 // necessary, but there is not much overhead in storing nonces.
 $Auth_OpenID_SKEW = 60 * 60 * 5;
 
-$Auth_OpenID_time_fmt = '%Y-%m-%dT%H:%M:%SZ';
-$Auth_OpenID_time_str_len = strlen('0000-00-00T00:00:00Z');
+define('Auth_OpenID_Nonce_REGEX',
+       '/(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d):(\d\d)Z(.*)/');
+
+define('Auth_OpenID_Nonce_TIME_FMT',
+       '%Y-%m-%dT%H:%M:%SZ');
 
 function Auth_OpenID_splitNonce($nonce_string)
 {
     // Extract a timestamp from the given nonce string
-    global $Auth_OpenID_time_fmt,
-        $Auth_OpenID_time_str_len;
+    $result = preg_match(Auth_OpenID_Nonce_REGEX, $nonce_string, $matches);
+    if ($result != 1 || count($matches) != 8) {
+        return null;
+    }
 
-    $timestamp_str = substr($nonce_string, 0, $Auth_OpenID_time_str_len);
-    $parts = strptime($timestamp_str, $Auth_OpenID_time_fmt);
+    list($unused,
+         $tm_year,
+         $tm_mon,
+         $tm_mday,
+         $tm_hour,
+         $tm_min,
+         $tm_sec,
+         $uniquifier) = $matches;
 
-    $timestamp = gmmktime($parts['tm_hour'], $parts['tm_min'],
-                          $parts['tm_sec'], $parts['tm_mon'] + 1,
-                          $parts['tm_mday'], $parts['tm_year'] + 1900);
+    $timestamp =
+        gmmktime($tm_hour, $tm_min, $tm_sec, $tm_mon, $tm_mday, $tm_year);
 
-    return array($timestamp, substr($nonce_string, $Auth_OpenID_time_str_len));
+    if ($timestamp === false || $timestamp < 0) {
+        return null;
+    }
+
+    return array($timestamp, $uniquifier);
 }
 
 function Auth_OpenID_checkTimestamp($nonce_string,
@@ -48,38 +62,37 @@ function Auth_OpenID_checkTimestamp($nonce_string,
         $allowed_skew = $Auth_OpenID_SKEW;
     }
 
-    $parts = explode($nonce_string, 2);
-    if (count($parts) != 2) {
+    $parts = Auth_OpenID_splitNonce($nonce_string);
+    if ($parts == null) {
         return false;
-    } else {
-        if ($now === null) {
-            $now = time();
-        }
-
-        // Time after which we should not use the nonce
-        $past = $now - $allowed_skew;
-
-        // Time that is too far in the future for us to allow
-        $future = $now + $allowed_skew;
-
-        // the stamp is not too far in the future and is not too far
-        // in the past
-        return (($past < $stamp) && ($stamp < $future));
     }
+
+    if ($now === null) {
+        $now = time();
+    }
+
+    $stamp = $parts[0];
+
+    // Time after which we should not use the nonce
+    $past = $now - $allowed_skew;
+
+    // Time that is too far in the future for us to allow
+    $future = $now + $allowed_skew;
+
+    // the stamp is not too far in the future and is not too far
+    // in the past
+    return (($past <= $stamp) && ($stamp <= $future));
 }
 
 function Auth_OpenID_mkNonce($when = null)
 {
-    global $Auth_OpenID_time_fmt;
-
     // Generate a nonce with the current timestamp
-    $salt = Auth_OpenID_CryptUtil::randomString(6,
-                                Auth_OpenID_DEFAULT_NONCE_CHRS);
+    $salt = Auth_OpenID_CryptUtil::randomString(
+        6, Auth_OpenID_Nonce_CHRS);
     if ($when === null) {
         $when = gmmktime();
     }
-
-    $time_str = gmstrftime($Auth_OpenID_time_fmt, $when);
+    $time_str = gmstrftime(Auth_OpenID_Nonce_TIME_FMT, $when);
     return $time_str . $salt;
 }
 
