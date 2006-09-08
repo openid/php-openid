@@ -413,7 +413,8 @@ function &Auth_OpenID_getMathLib()
     }
 
     if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-        return null;
+        $null = null;
+        return $null;
     }
 
     // If this method has not been called before, look at
