@@ -217,7 +217,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
 
         $result = $consumer->complete($query, $result->endpoint);
 
-        $this->assertEquals($result->status, Auth_OpenID_SUCCESS);
+        $this->assertEquals(Auth_OpenID_SUCCESS, $result->status);
         $this->assertEquals($result->identity_url, $user_url);
     }
 
@@ -391,7 +391,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
         $ret = $this->consumer->_checkNonce($this->server_url, $this->response);
         $this->assertEquals($ret->status, Auth_OpenID_FAILURE);
         $this->assertEquals($ret->identity_url, $this->consumer_id);
-        $this->assertTrue(strpos($ret->message, 'Nonce mismatch') === 0);
+        $this->assertTrue(strpos($ret->message, 'Malformed nonce') === 0, $ret->message);
     }
 
     function test_missingNonce()

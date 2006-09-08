@@ -738,40 +738,39 @@ class Auth_OpenID_GenericConsumer {
     function _checkNonce($server_url, $response)
     {
         $nonce = $response->getNonce();
-        $parsed_url = parse_url($response->getReturnTo());
-        $query_str = @$parsed_url['query'];
-        $query = array();
-        parse_str($query_str, $query);
+        if ($nonce === null) {
+            $parsed_url = parse_url($response->getReturnTo());
+            $query_str = @$parsed_url['query'];
+            $query = array();
+            parse_str($query_str, $query);
 
-        $found = false;
+            $found = false;
 
-        foreach ($query as $k => $v) {
-            if ($k == 'nonce') {
-                if ($v != $nonce) {
-                    return new Auth_OpenID_FailureResponse($response,
-                                                           "Nonce mismatch");
-                } else {
+            foreach ($query as $k => $v) {
+                if ($k == 'nonce') {
+                    $server_url = '';
+                    $nonce = $v;
                     $found = true;
                     break;
                 }
             }
-        }
 
-        if (!$found) {
-            return new Auth_OpenID_FailureResponse($response,
-                                 sprintf("Nonce missing from return_to: %s",
-                                         $response->getReturnTo()));
+
+            if (!$found) {
+                return new Auth_OpenID_FailureResponse($response,
+                    sprintf("Nonce missing from return_to: %s",
+                            $response->getReturnTo()));
+            }
         }
 
         list($timestamp, $salt) = Auth_OpenID_splitNonce($nonce);
 
-        if (!($timestamp &&
-              $salt)) {
+        if (!($timestamp && $salt)) {
             return new Auth_OpenID_FailureResponse($response,
                                                    'Malformed nonce');
         }
 
-        if (!$this->store->useNonce($endpoint->server_url,
+        if (!$this->store->useNonce($server_url,
                                     $timestamp, $salt)) {
             return new Auth_OpenID_FailureResponse($response,
                                                    "Nonce missing from store");
