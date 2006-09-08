@@ -428,6 +428,11 @@ class Auth_OpenID_DiffieHellmanServerSession {
         if ($dh_modulus || $dh_gen) {
             $dh_modulus = $lib->base64ToLong($dh_modulus);
             $dh_gen = $lib->base64ToLong($dh_gen);
+            if ($lib->cmp($dh_modulus, 0) == 0 ||
+                $lib->cmp($dh_gen, 0) == 0) {
+                return new Auth_OpenID_ServerError(
+                  $query, "Failed to parse dh_mod or dh_gen");
+            }
             $dh = new Auth_OpenID_DiffieHellman($dh_modulus, $dh_gen);
         } else {
             $dh = new Auth_OpenID_DiffieHellman();
