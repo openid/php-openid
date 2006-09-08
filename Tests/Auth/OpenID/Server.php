@@ -294,7 +294,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
     function test_associateDH()
     {
         if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            print "Warning: not testing associateDH\n";
+            print "Skipping test associateDH (no math support)\n";
             return;
         }
         $args = array(
@@ -313,7 +313,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
     function test_associateDHMissingKey()
     {
         if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            print "Warning: not testing associateDHMissingKey\n";
+            print "Skipping test associateDHMissingKey (no math support)\n";
             return;
         }
         $args = array(
