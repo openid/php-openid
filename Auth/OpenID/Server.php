@@ -377,6 +377,7 @@ class Auth_OpenID_PlainTextServerSession {
      * session type.
      */
     var $session_type = 'plaintext';
+    var $needs_math = false;
 
     function fromQuery($unused_request)
     {
@@ -396,6 +397,7 @@ class Auth_OpenID_DiffieHellmanServerSession {
      */
 
     var $session_type = 'DH-SHA1';
+    var $needs_math = true;
 
     function Auth_OpenID_DiffieHellmanServerSession($dh, $consumer_pubkey)
     {
@@ -506,8 +508,17 @@ class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
         }
 
         $session_cls = $session_classes[$session_type];
+
+        // Fall back to null session if there is no math support
+        if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            $vars = get_class_vars($session_cls);
+            if ($vars['needs_math']) {
+                $session_cls = $session_classes[null];
+            }
+        }
         $session = call_user_func_array(array($session_cls, 'fromQuery'),
                                         array($query));
+
 
         if (($session === null) || (_isError($session))) {
             return new Auth_OpenID_ServerError($query,
@@ -519,7 +530,6 @@ class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
 
     function answer($assoc)
     {
-        $ml =& Auth_OpenID_getMathLib();
         $response = new Auth_OpenID_ServerResponse($this);
 
         $response->fields = array('expires_in' => $assoc->getExpiresIn(),

@@ -501,9 +501,7 @@ class Auth_OpenID_GenericConsumer {
     function Auth_OpenID_GenericConsumer(&$store)
     {
         $this->store =& $store;
-        $this->_use_assocs =
-            !(defined('Auth_OpenID_NO_MATH_SUPPORT') ||
-              ($this->store && $this->store->isDumb()));
+        $this->_use_assocs = !($this->store && $this->store->isDumb());
 
         $this->fetcher = Services_Yadis_Yadis::getHTTPFetcher();
     }
@@ -836,7 +834,7 @@ class Auth_OpenID_GenericConsumer {
             $proto = 'http';
         }
 
-        if ($proto == 'https') {
+        if ($proto == 'https' || defined('Auth_OpenID_NO_MATH_SUPPORT')) {
             $assoc_session = new Auth_OpenID_PlainTextConsumerSession();
         } else {
             $assoc_session = new Auth_OpenID_DiffieHellmanConsumerSession();

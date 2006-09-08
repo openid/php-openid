@@ -308,15 +308,13 @@ explicitly');
             // Random nonce (not in store)
             $nonce1 = Auth_OpenID_mkNonce();
 
-            // A nonce is not allowed by default
+            // A nonce is not by default
             $this->_checkUseNonce($store, $nonce1, true, $url, 1);
 
-            // Storing once causes useNonce to return true the first,
-            // and only the first, time it is called after the
-            // $store->
+            // Once stored, cannot be stored again
             $this->_checkUseNonce($store, $nonce1, false, $url, 2);
 
-            // Storing twice has the same effect as storing once.
+            // And using again has the same effect
             $this->_checkUseNonce($store, $nonce1, false, $url, 3);
         }
 
@@ -366,6 +364,7 @@ explicitly');
         // because we can't run the test.
         if (!(extension_loaded('pgsql') ||
               @dl('pgsql.' . PHP_SHLIB_SUFFIX))) {
+            print "Warning: not testing PostGreSQL store";
             $this->pass();
             return;
         }
@@ -475,6 +474,7 @@ explicitly');
         // because we can't run the test.
         if (!(extension_loaded('sqlite') ||
               @dl('sqlite.' . PHP_SHLIB_SUFFIX))) {
+            print "Warning: not testing SQLite store";
             $this->pass();
             return;
         }
@@ -517,6 +517,7 @@ explicitly');
         // because we can't run the test.
         if (!(extension_loaded('mysql') ||
               @dl('mysql.' . PHP_SHLIB_SUFFIX))) {
+            print "Warning: not testing MySQL store";
             $this->pass();
             return;
         }

@@ -293,23 +293,29 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
 
     function test_associateDH()
     {
-        if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            $args = array(
-                          'openid.mode' => 'associate',
-                          'openid.session_type' => 'DH-SHA1',
-                          'openid.dh_consumer_public' => "Rzup9265tw==");
-            
-            $r = $this->decoder->decode($args);
-            $this->assertTrue(is_a($r, 'Auth_OpenID_AssociateRequest'));
-            $this->assertEquals($r->mode, "associate");
-            $this->assertEquals($r->session->session_type, "DH-SHA1");
-            $this->assertEquals($r->assoc_type, "HMAC-SHA1");
-            $this->assertTrue($r->session->consumer_pubkey);
+        if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            print "Warning: not testing associateDH\n";
+            return;
         }
+        $args = array(
+                      'openid.mode' => 'associate',
+                      'openid.session_type' => 'DH-SHA1',
+                      'openid.dh_consumer_public' => "Rzup9265tw==");
+            
+        $r = $this->decoder->decode($args);
+        $this->assertTrue(is_a($r, 'Auth_OpenID_AssociateRequest'));
+        $this->assertEquals($r->mode, "associate");
+        $this->assertEquals($r->session->session_type, "DH-SHA1");
+        $this->assertEquals($r->assoc_type, "HMAC-SHA1");
+        $this->assertTrue($r->session->consumer_pubkey);
     }
 
     function test_associateDHMissingKey()
     {
+        if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            print "Warning: not testing associateDHMissingKey\n";
+            return;
+        }
         $args = array(
             'openid.mode' => 'associate',
             'openid.session_type' => 'DH-SHA1');
@@ -338,6 +344,11 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
 
     function test_associateDHModGen()
     {
+        if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            print "No math support: not running test_associateDHModGen\n";
+            return;
+        }
+
         global $ALT_GEN;
 
         // test dh with non-default but valid values for dh_modulus
@@ -385,6 +396,11 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
 
     function test_associateDHMissingModGen()
     {
+        if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            print "No math support: not running test_associateDHModGen\n";
+            return;
+        }
+
         // test dh with non-default but valid values for dh_modulus
         // and dh_gen
         $args = array(

@@ -371,6 +371,10 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
             $auth_key_s = $this->blobEncode($auth_key);
             $this->_create_auth($auth_key_s);
+        } elseif ($this->isError($value)) {
+            trigger_error("Database error: " . $value->userinfo,
+                          E_USER_WARNING);
+            return null;
         } else {
             $auth_key_s = $value;
             $auth_key = $this->blobDecode($auth_key_s);
@@ -530,6 +534,11 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         $result = $this->connection->query($sql, array($server_url,
                                                        $timestamp,
                                                        $salt));
+        if ($this->isError($result)) {
+            $this->connection->rollback();
+        } else {
+            $this->connection->commit();
+        }
         return $this->resultToBool($result);
     }
 
