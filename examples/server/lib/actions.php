@@ -37,6 +37,13 @@ function action_default()
 
         if (isTrusted($request->identity, $request->trust_root)) {
             $response =& $request->answer(true);
+            $sreg = getSreg($request->identity);
+            if (is_array($sreg)) {
+                foreach ($sreg as $k => $v) {
+                    $response->addField('sreg', $k, 
+                                        $v);
+                }
+            }
         } else if ($request->immediate) {
             $response =& $request->answer(false, getServerURL());
         } else {

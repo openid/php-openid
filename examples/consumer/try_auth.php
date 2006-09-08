@@ -12,12 +12,12 @@ if (empty($_GET['openid_url'])) {
 }
 
 $openid = $_GET['openid_url'];
-$process_url = sprintf("http://%s%s/finish_auth.php",
-                       $_SERVER['SERVER_NAME'],
+$process_url = sprintf("http://%s:%s%s/finish_auth.php",
+                       $_SERVER['SERVER_NAME'], $_SERVER['SERVER_PORT'],
                        dirname($_SERVER['PHP_SELF']));
 
-$trust_root = sprintf("http://%s%s",
-                      $_SERVER['SERVER_NAME'],
+$trust_root = sprintf("http://%s:%s%s",
+                      $_SERVER['SERVER_NAME'], $_SERVER['SERVER_PORT'],
                       dirname($_SERVER['PHP_SELF']));
 
 // Begin the OpenID authentication process.

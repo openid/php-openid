@@ -188,4 +188,18 @@ function setRequestInfo($info=null)
     }
 }
 
+
+function getSreg($identity)
+{
+    // from config.php
+    global $openid_sreg;
+
+    if (!is_array($openid_sreg)) {
+        return null;
+    }
+
+    return $openid_sreg[$identity];
+
+}
+
 ?>

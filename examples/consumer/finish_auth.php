@@ -28,6 +28,9 @@ if ($response->status == Auth_OpenID_CANCEL) {
     if (@$sreg['email']) {
         $success .= "  You also returned '".$sreg['email']."' as your email.";
     }
+    if (@$sreg['postcode']) {
+        $success .= "  Your postal code is '".$sreg['postcode']."'";
+    }
 }
 
 include 'index.php';
