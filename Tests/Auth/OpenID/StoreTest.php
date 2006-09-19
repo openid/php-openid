@@ -256,8 +256,8 @@ explicitly');
     {
         $actual = $store->useNonce($nonce);
         $expected = $store->isDumb() || $expected;
-        $this->assertTrue(($actual && $expected) || (!$actual && !$expected),
-                          "_checkUseNonce failed: $msg");
+        $val = ($actual && $expected) || (!$actual && !$expected);
+        $this->assertTrue($val, "_checkUseNonce failed: $msg");
     }
 
     function _testNonce(&$store)
