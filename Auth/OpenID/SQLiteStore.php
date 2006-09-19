@@ -54,9 +54,16 @@ class Auth_OpenID_SQLiteStore extends Auth_OpenID_SQLStore {
 
         $this->sql['add_nonce'] =
             "INSERT INTO %s (server_url, timestamp, salt) VALUES (?, ?, ?)";
+    }
 
-        $this->sql['get_nonce'] =
-            "SELECT * FROM %s WHERE nonce = ?";
+    function _add_nonce($server_url, $timestamp, $salt)
+    {
+        // PECL SQLite extensions 1.0.3 and older (1.0.3 is the
+        // current release at the time of this writing) have a broken
+        // sqlite_escape_string function that breaks when passed the
+        // empty string. Prefixing all strings with one character
+        // keeps them unique and avoids this bug.
+        return parent::_add_nonce('x' . $server_url, $timestamp, $salt);
     }
 }
 
