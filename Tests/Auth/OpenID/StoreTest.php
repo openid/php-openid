@@ -456,13 +456,14 @@ explicitly');
         if (PEAR::isError($db)) {
             $this->fail("SQLite database connection failed: " .
                         $db->getMessage());
-            return;
+        } else {
+            $store =& new Auth_OpenID_SQLiteStore($db);
+            $this->assertTrue($store->createTables(), "Table creation failed");
+            $this->_testStore($store);
+            $this->_testNonce($store);
         }
-
-        $store =& new Auth_OpenID_SQLiteStore($db);
-        $this->assertTrue($store->createTables(), "Table creation failed");
-        $this->_testStore($store);
-        $this->_testNonce($store);
+        unlink($temp_dir . '/file.db');
+        rmdir($temp_dir);
     }
 
     function test_mysqlstore()
