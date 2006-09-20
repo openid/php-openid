@@ -43,6 +43,40 @@ function microtime_float()
 // Drop $argv[0] (command name)
 array_shift($argv);
 
+// ******** Math library selection ***********
+
+$t = array_search('--no-math', $argv);
+if ($t !== false && $t !== null) {
+    define('Auth_OpenID_NO_MATH_SUPPORT', true);
+} else {
+    $math_libs = array();
+    foreach ($argv as $arg) {
+        $ret = preg_match('/^--math-lib=(.*)$/', $arg, $matches);
+        if ($ret) {
+            $math_libs[] = $matches[1];
+        }
+    }
+
+    if ($math_libs) {
+        require_once('Auth/OpenID/BigMath.php');
+        $new_extensions = array();
+        foreach ($math_libs as $lib) {
+            foreach ($_Auth_OpenID_math_extensions as $ext) {
+                if ($ext['extension'] == $lib) {
+                    $new_extensions[] = $ext;
+                }
+            }
+        }
+        if ($new_extensions) {
+            $_Auth_OpenID_math_extensions = $new_extensions;
+        } else {
+            trigger_error(var_export($math_libs, true), E_USER_ERROR);
+        }
+    }
+}
+
+// ******** End math library selection **********
+
 $t = array_search('--thorough', $argv);
 if ($t !== false && $t !== null) {
     define('Tests_Auth_OpenID_thorough', true);
