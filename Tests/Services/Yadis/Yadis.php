@@ -27,10 +27,9 @@ class Tests_Services_Yadis_DiscoveryTest extends PHPUnit_TestCase {
     function runTest()
     {
         $http_response = null;
-
-        $y = Services_Yadis_Yadis::discover($this->input_url,
-                                            $http_response,
-                                            Services_Yadis_Yadis::getHTTPFetcher());
+        $fetcher = Services_Yadis_Yadis::getHTTPFetcher();
+        $y = Services_Yadis_Yadis::discover(
+             $this->input_url, $http_response, $fetcher);
         $this->assertTrue($y !== null);
 
         // Compare parts of returned Yadis object to expected URLs.
