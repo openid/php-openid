@@ -373,11 +373,10 @@ explicitly');
 
             $sleep_time *= ((mt_rand(1, 100) / 100.0) + 1.5);
             print "Failed to create database $temp_db_name.\n".
-                "Error: " . $result->getMessage() .
                 "Waiting $sleep_time before trying again\n";
 
             $int_sleep = floor($sleep_time);
-            $frac_sleep = $sleep_time - $ipart;
+            $frac_sleep = $sleep_time - $int_sleep;
             sleep($int_sleep);
             usleep($frac_sleep * 1000000.0);
         }
