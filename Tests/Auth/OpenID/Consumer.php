@@ -1003,14 +1003,18 @@ class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_TestCase {
         $this->assertTrue(strtolower(get_class($result)) ==
                           'auth_openid_authrequest');
 
+        $loader = new Auth_OpenID_ServiceEndpointLoader();
+
         // Side-effect of calling beginWithoutDiscovery is setting the
         // session value to the endpoint attribute of the result
-        $this->assertTrue($this->session->get($this->consumer->_token_key) ===
-                          $result->endpoint);
+        $this->assertTrue(
+                $loader->fromSession(
+                       $this->session->get($this->consumer->_token_key)) ==
+                $result->endpoint);
 
         // The endpoint that we passed in is the endpoint on the
         // auth_request
-        $this->assertTrue($result->endpoint === $this->endpoint);
+        $this->assertTrue($result->endpoint == $this->endpoint);
     }
 
     function test_completeEmptySession()

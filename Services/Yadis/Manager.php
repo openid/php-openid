@@ -64,6 +64,184 @@ class Services_Yadis_PHPSession {
 }
 
 /**
+ * A session helper class designed to translate between arrays and
+ * objects.  Note that the class used must have a constructor that
+ * takes no parameters.  This is not a general solution, but it works
+ * for dumb objects that just need to have attributes set.  The idea
+ * is that you'll subclass this and override $this->check($data) ->
+ * bool to implement your own session data validation.
+ */
+class Services_Yadis_SessionLoader {
+    /**
+     * Override this.
+     */
+    function check($data)
+    {
+        return true;
+    }
+
+    /**
+     * Given a session data value (an array), this creates an object
+     * (returned by $this->newObject()) whose attributes and values
+     * are those in $data.  Returns null if $data lacks keys found in
+     * $this->requiredKeys().  Returns null if $this->check($data)
+     * evaluates to false.  Returns null if $this->newObject()
+     * evaluates to false.
+     */
+    function fromSession($data)
+    {
+        if (!$data) {
+            return null;
+        }
+
+        $required = $this->requiredKeys();
+
+        foreach ($required as $k) {
+            if (!array_key_exists($k, $data)) {
+                return null;
+            }
+        }
+
+        if (!$this->check($data)) {
+            return null;
+        }
+
+        $data = array_merge($data, $this->prepareForLoad($data));
+        $obj = $this->newObject($data);
+
+        if (!$obj) {
+            return null;
+        }
+
+        foreach ($required as $k) {
+            $obj->$k = $data[$k];
+        }
+
+        return $obj;
+    }
+
+    /**
+     * Prepares the data array by making any necessary changes.
+     * Returns an array whose keys and values will be used to update
+     * the original data array before calling $this->newObject($data).
+     */
+    function prepareForLoad($data)
+    {
+        return array();
+    }
+
+    /**
+     * Returns a new instance of this loader's class, using the
+     * session data to construct it if necessary.  The object need
+     * only be created; $this->fromSession() will take care of setting
+     * the object's attributes.
+     */
+    function newObject($data)
+    {
+        return null;
+    }
+
+    /**
+     * Returns an array of keys and values built from the attributes
+     * of $obj.  If $this->prepareForSave($obj) returns an array, its keys
+     * and values are used to update the $data array of attributes
+     * from $obj.
+     */
+    function toSession($obj)
+    {
+        $data = array();
+        foreach ($obj as $k => $v) {
+            $data[$k] = $v;
+        }
+
+        $extra = $this->prepareForSave($obj);
+
+        if ($extra && is_array($extra)) {
+            foreach ($extra as $k => $v) {
+                $data[$k] = $v;
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Override this.
+     */
+    function prepareForSave($obj)
+    {
+        return array();
+    }
+}
+
+class Auth_OpenID_ServiceEndpointLoader extends Services_Yadis_SessionLoader {
+    function newObject($data)
+    {
+        return new Auth_OpenID_ServiceEndpoint();
+    }
+
+    function requiredKeys()
+    {
+        $obj = new Auth_OpenID_ServiceEndpoint();
+        $data = array();
+        foreach ($obj as $k => $v) {
+            $data[] = $k;
+        }
+        return $data;
+    }
+
+    function check($data)
+    {
+        return is_array($data['type_uris']);
+    }
+}
+
+class Services_Yadis_ManagerLoader extends Services_Yadis_SessionLoader {
+    function requiredKeys()
+    {
+        return array('starting_url',
+                     'yadis_url',
+                     'services',
+                     'session_key',
+                     '_current',
+                     'stale');
+    }
+
+    function newObject($data)
+    {
+        return new Services_Yadis_Manager($data['starting_url'],
+                                          $data['yadis_url'],
+                                          $data['services'],
+                                          $data['session_key']);
+    }
+
+    function check($data)
+    {
+        return is_array($data['services']);
+    }
+
+    function prepareForLoad($data)
+    {
+        $loader = new Auth_OpenID_ServiceEndpointLoader();
+        $services = array();
+        foreach ($data['services'] as $s) {
+            $services[] = $loader->fromSession($s);
+        }
+        return array('services' => $services);
+    }
+
+    function prepareForSave($obj)
+    {
+        $loader = new Auth_OpenID_ServiceEndpointLoader();
+        $services = array();
+        foreach ($obj->services as $s) {
+            $services[] = $loader->toSession($s);
+        }
+        return array('services' => $services);
+    }
+}
+
+/**
  * The Yadis service manager which stores state in a session and
  * iterates over <Service> elements in a Yadis XRDS document and lets
  * a caller attempt to use each one.  This is used by the Yadis
@@ -217,8 +395,10 @@ class Services_Yadis_Discovery {
         }
 
         if ($manager) {
+            $loader = new Services_Yadis_ManagerLoader();
             $service = $manager->nextService();
-            $this->session->set($this->session_key, serialize($manager));
+            $this->session->set($this->session_key,
+                                serialize($loader->toSession($manager)));
         } else {
             $service = null;
         }
@@ -265,7 +445,8 @@ class Services_Yadis_Discovery {
         $manager = null;
 
         if ($manager_str !== null) {
-            $manager = unserialize($manager_str);
+            $loader = new Services_Yadis_ManagerLoader();
+            $manager = $loader->fromSession(unserialize($manager_str));
         }
 
         if ($manager && $manager->forURL($this->url)) {
@@ -287,9 +468,11 @@ class Services_Yadis_Discovery {
         }
 
         if ($services) {
+            $loader = new Services_Yadis_ManagerLoader();
             $manager = new Services_Yadis_Manager($this->url, $yadis_url,
                                               $services, $key);
-            $this->session->set($this->session_key, serialize($manager));
+            $this->session->set($this->session_key,
+                                serialize($loader->toSession($manager)));
             return $manager;
         } else {
             // Oh, PHP.

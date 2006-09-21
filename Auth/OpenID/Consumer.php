@@ -304,6 +304,7 @@ class Auth_OpenID_Consumer {
         // to be cleaned up next time discovery is attempted.
 
         $m = $disco->getManager();
+        $loader = new Services_Yadis_ManagerLoader();
 
         if ($m) {
             if ($m->stale) {
@@ -311,7 +312,7 @@ class Auth_OpenID_Consumer {
             } else {
                 $m->stale = true;
                 $disco->session->set($disco->session_key,
-                                     serialize($m));
+                                     serialize($loader->toSession($m)));
             }
         }
 
@@ -323,7 +324,7 @@ class Auth_OpenID_Consumer {
         if ($m) {
             $m->stale = false;
             $disco->session->set($disco->session_key,
-                                 serialize($m));
+                                 serialize($loader->toSession($m)));
         }
 
         if ($endpoint === null) {
@@ -348,8 +349,10 @@ class Auth_OpenID_Consumer {
      */
     function &beginWithoutDiscovery($endpoint)
     {
+        $loader = new Auth_OpenID_ServiceEndpointLoader();
         $auth_req = $this->consumer->begin($endpoint);
-        $this->session->set($this->_token_key, $auth_req->endpoint);
+        $this->session->set($this->_token_key,
+              $loader->toSession($auth_req->endpoint));
         return $auth_req;
     }
 
@@ -370,7 +373,10 @@ class Auth_OpenID_Consumer {
     {
         $query = Auth_OpenID::fixArgs($query);
 
-        $endpoint = $this->session->get($this->_token_key);
+        $loader = new Auth_OpenID_ServiceEndpointLoader();
+        $endpoint_data = $this->session->get($this->_token_key);
+        $endpoint =
+            $loader->fromSession($endpoint_data);
 
         if ($endpoint === null) {
             $response = new Auth_OpenID_FailureResponse(null,

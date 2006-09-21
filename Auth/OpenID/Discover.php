@@ -7,11 +7,7 @@
 require_once "Auth/OpenID.php";
 require_once "Auth/OpenID/Parse.php";
 require_once "Services/Yadis/XRIRes.php";
-
-// If the Yadis library is available, use it. Otherwise, only use
-// old-style discovery.
-
-require_once 'Services/Yadis/Yadis.php';
+require_once "Services/Yadis/Yadis.php";
 
 define('_OPENID_1_0_NS', 'http://openid.net/xmlns/1.0');
 define('_OPENID_1_2_TYPE', 'http://openid.net/signon/1.2');
