@@ -581,10 +581,9 @@ class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
     function test_idres()
     {
         $assoc_handle = '{bicycle}{shed}';
-        $this->store->storeAssociation(
-            $this->normal_key,
-            Auth_OpenID_Association::fromExpiresIn(60, $assoc_handle,
-                                                   'sekrit', 'HMAC-SHA1'));
+        $assoc = Auth_OpenID_Association::fromExpiresIn(60, $assoc_handle,
+                                                        'sekrit', 'HMAC-SHA1');
+        $this->store->storeAssociation($this->normal_key, $assoc);
         $this->request->assoc_handle = $assoc_handle;
         $webresponse = $this->encoder->encode($this->response);
         $this->assertEquals($webresponse->code, AUTH_OPENID_HTTP_REDIRECT);
@@ -1122,10 +1121,9 @@ class Tests_Auth_OpenID_Signatory extends PHPUnit_TestCase {
     {
         $request = new Auth_OpenID_ServerRequest();
         $assoc_handle = '{assoc}{lookatme}';
-        $this->store->storeAssociation(
-            $this->normal_key,
-            Auth_OpenID_Association::fromExpiresIn(60, $assoc_handle,
-                                                   'sekrit', 'HMAC-SHA1'));
+        $assoc = Auth_OpenID_Association::fromExpiresIn(60, $assoc_handle,
+                                                        'sekrit', 'HMAC-SHA1');
+        $this->store->storeAssociation($this->normal_key, $assoc);
         $request->assoc_handle = $assoc_handle;
         $response = new Auth_OpenID_CheckIDResponse($request);
         $response->fields = array(
@@ -1175,10 +1173,9 @@ class Tests_Auth_OpenID_Signatory extends PHPUnit_TestCase {
     {
         $request = new Auth_OpenID_ServerRequest();
         $assoc_handle = '{assoc}{lookatme}';
-        $this->store->storeAssociation(
-            $this->normal_key,
-            Auth_OpenID_Association::fromExpiresIn(-10, $assoc_handle,
-                                                   'sekrit', 'HMAC-SHA1'));
+        $assoc = Auth_OpenID_Association::fromExpiresIn(-10, $assoc_handle,
+                                                        'sekrit', 'HMAC-SHA1');
+        $this->store->storeAssociation($this->normal_key, $assoc);
         $this->assertTrue($this->store->getAssociation($this->normal_key,
                                                        $assoc_handle));
 
