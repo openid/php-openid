@@ -62,7 +62,9 @@ class Auth_OpenID_SQLiteStore extends Auth_OpenID_SQLStore {
         // current release at the time of this writing) have a broken
         // sqlite_escape_string function that breaks when passed the
         // empty string. Prefixing all strings with one character
-        // keeps them unique and avoids this bug.
+        // keeps them unique and avoids this bug. The nonce table is
+        // write-only, so we don't have to worry about updating other
+        // functions with this same bad hack.
         return parent::_add_nonce('x' . $server_url, $timestamp, $salt);
     }
 }
