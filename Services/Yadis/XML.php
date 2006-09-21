@@ -250,9 +250,9 @@ class Services_Yadis_dom extends Services_Yadis_XMLParser {
     function &evalXPath($xpath, $node = null)
     {
         if ($node) {
-            $result = @$this->xpath->evaluate($xpath, $node);
+            $result = @$this->xpath->query($xpath, $node);
         } else {
-            $result = @$this->xpath->evaluate($xpath);
+            $result = @$this->xpath->query($xpath);
         }
 
         $n = array();
