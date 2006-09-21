@@ -349,27 +349,26 @@ explicitly');
                      'database' => 'template1'
                      );
 
-        $template_db =& DB::connect($dsn);
-
-        if (PEAR::isError($template_db)) {
-            $this->fail("PostgreSQL template1 database connection failed: " .
-                        $template_db->getMessage());
-            return;
-        }
-
         $allowed_failures = 5;
-        $success = false;
         $result = null;
         $sleep_time = 1.0;
+        $sql = sprintf("CREATE DATABASE %s", $temp_db_name);
 
         for ($failures = 0; $failures < $allowed_failures; $failures++) {
-            // Try to create the test database.
-            $result = $template_db->query(sprintf("CREATE DATABASE %s",
-                                                  $temp_db_name));
+            $template_db =& DB::connect($dsn);
 
-            if (!PEAR::isError($result)) {
-                $success = true;
-                break;
+            if (PEAR::isError($template_db)) {
+                $result &= $template_db;
+            } else {
+                // Try to create the test database.
+                $result = $template_db->query($sql);
+
+                $template_db->disconnect();
+                unset($template_db);
+
+                if (!PEAR::isError($result)) {
+                    break;
+                }
             }
 
             $sleep_time *= ((mt_rand(1, 100) / 100.0) + 1.5);
@@ -383,14 +382,11 @@ explicitly');
             usleep($frac_sleep * 1000000.0);
         }
 
-        if (!$success) {
+        if ($failures == $allowed_failures) {
             $this->fail("Temporary database creation failed after $failures ".
                         " tries ('$temp_db_name'): " . $result->getMessage());
             return;
         }
-
-        $template_db->disconnect();
-        unset($template_db);
 
         // Disconnect from template1 and reconnect to the temporary
         // testing database.
