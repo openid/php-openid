@@ -360,6 +360,7 @@ explicitly');
         $allowed_failures = 5;
         $success = false;
         $result = null;
+        $sleep_time = 1.0;
 
         for ($failures = 0; $failures < $allowed_failures; $failures++) {
             // Try to create the test database.
@@ -371,11 +372,15 @@ explicitly');
                 break;
             }
 
-            $sleep_time = ((mt_rand(1, 100) / 100.0) * pow($failures, 2)) + 2;
+            $sleep_time *= ((mt_rand(1, 100) / 100.0) + 1.5);
             print "Failed to create database $temp_db_name.\n".
                 "Error: " . $result->getMessage() .
                 "Waiting $sleep_time before trying again\n";
-            sleep($sleep_time);
+
+            $int_sleep = floor($sleep_time);
+            $frac_sleep = $sleep_time - $ipart;
+            sleep($int_sleep);
+            usleep($frac_sleep * 1000000.0);
         }
 
         if (!$success) {
