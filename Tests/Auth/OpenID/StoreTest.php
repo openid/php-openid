@@ -358,21 +358,24 @@ explicitly');
         }
 
         $allowed_failures = 5;
-        $failures = 0;
         $success = false;
+        $result = null;
 
-        while (($failures < $allowed_failures) && !$success) {
+        for ($failures = 0; $failures < $allowed_failures; $failures++) {
             // Try to create the test database.
             $result = $template_db->query(sprintf("CREATE DATABASE %s",
                                                   $temp_db_name));
 
-            if (PEAR::isError($result)) {
-                $failures++;
-                sleep(((mt_rand(1, 100) / 100.0) * pow($failures, 2)) +
-                      mt_rand(2, 5));
-            } else {
+            if (!PEAR::isError($result)) {
                 $success = true;
+                break;
             }
+
+            $sleep_time = ((mt_rand(1, 100) / 100.0) * pow($failures, 2)) + 2;
+            print "Failed to create database $temp_db_name.\n".
+                "Error: " . $result->getMessage() .
+                "Waiting $sleep_time before trying again\n";
+            sleep($sleep_time);
         }
 
         if (!$success) {
