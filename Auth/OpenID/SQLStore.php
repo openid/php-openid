@@ -21,7 +21,7 @@
  * its own storage.
  */
 global $__Auth_OpenID_PEAR_AVAILABLE;
-$__Auth_OpenID_PEAR_AVAILABLE = include_once 'DB.php';
+$__Auth_OpenID_PEAR_AVAILABLE = @include_once 'DB.php';
 
 /**
  * @access private
