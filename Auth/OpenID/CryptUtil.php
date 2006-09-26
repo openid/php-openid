@@ -43,8 +43,6 @@ class Auth_OpenID_CryptUtil {
         $bytes = '';
         if ($f === null) {
             if (Auth_OpenID_RAND_SOURCE === null) {
-                trigger_error("Using insecure randomness source",
-                              E_USER_NOTICE);
                 $f = false;
             } else {
                 $f = @fopen(Auth_OpenID_RAND_SOURCE, "r");
