@@ -31,7 +31,11 @@ test_docblocks () {
 }
 
 test_php () {
-    /usr/bin/env php "$HERE/texttest.php"
+    if uname -a | grep -i cygwin >/dev/null 2>/dev/null ; then
+        /usr/bin/env php "$(dirname "$0")/texttest.php" --insecure-rand
+    else
+        /usr/bin/env php "$HERE/texttest.php"
+    fi
 }
 
 tests="tabs longlines nobadbraces nobadcase opentag docblocks php import"

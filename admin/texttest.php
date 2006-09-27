@@ -43,6 +43,12 @@ function microtime_float()
 // Drop $argv[0] (command name)
 array_shift($argv);
 
+// Randomness source selection
+$t = array_search('--insecure-rand', $argv);
+if ($t !== false && $t !== null) {
+    define('Auth_OpenID_RAND_SOURCE', null);
+}
+
 // ******** Math library selection ***********
 
 $t = array_search('--no-math', $argv);
