@@ -363,7 +363,8 @@ explicitly');
         // If the postgres extension isn't loaded or loadable, succeed
         // because we can't run the test.
         if (!(extension_loaded('pgsql') ||
-              @dl('pgsql.' . PHP_SHLIB_SUFFIX))) {
+              @dl('pgsql.so') ||
+              @dl('php_pgsql.dll'))) {
             print "Warning: not testing PostGreSQL store";
             $this->pass();
             return;
@@ -473,7 +474,8 @@ explicitly');
         // If the postgres extension isn't loaded or loadable, succeed
         // because we can't run the test.
         if (!(extension_loaded('sqlite') ||
-              @dl('sqlite.' . PHP_SHLIB_SUFFIX))) {
+              @dl('sqlite.so') ||
+              @dl('php_sqlite.dll'))) {
             print "Warning: not testing SQLite store";
             $this->pass();
             return;
