@@ -592,8 +592,22 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
     /**
      * @access private
      */
-    function _mkdtemp($dir)
+    function _mkdtemp($dir=null)
     {
+        if (!isset($dir)) {
+            if (strpos(PHP_OS, 'WIN') == 0) {
+                $dir = $_ENV['TMP'];
+                if (!isset($dir)) {
+                    $dir = 'C:\Windows\Temp';
+                }
+            } else {
+                $dir = $_ENV['TMPDIR'];
+                if (!isset($dir)) {
+                    $dir = '/tmp';
+                }
+            }
+        }
+
         foreach (range(0, 4) as $i) {
             $name = $dir . strval(DIRECTORY_SEPARATOR) . strval(getmypid()) .
                 "-" . strval(rand(1, time()));
