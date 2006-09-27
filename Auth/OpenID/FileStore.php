@@ -162,6 +162,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
 
         fwrite($file_obj, $auth_key);
         fflush($file_obj);
+        fclose($file_obj);
 
         if (!link($tmp, $this->auth_key_name)) {
             // The link failed, either because we lack the permission,
