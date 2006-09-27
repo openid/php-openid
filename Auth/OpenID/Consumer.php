@@ -170,6 +170,7 @@ require_once "Auth/OpenID/Association.php";
 require_once "Auth/OpenID/CryptUtil.php";
 require_once "Auth/OpenID/DiffieHellman.php";
 require_once "Auth/OpenID/KVForm.php";
+require_once "Auth/OpenID/Nonce.php";
 require_once "Auth/OpenID/Discover.php";
 require_once "Services/Yadis/Manager.php";
 require_once "Services/Yadis/XRI.php";
