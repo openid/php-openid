@@ -465,6 +465,10 @@ explicitly');
             $this->_testStore($store);
             $this->_testNonce($store);
         }
+
+        $db->disconnect();
+        unset($db);
+        unset($store);
         unlink($temp_dir . '/file.db');
         rmdir($temp_dir);
     }
