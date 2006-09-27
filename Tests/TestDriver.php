@@ -66,7 +66,7 @@ function loadTests($test_dir, $test_names)
 
     foreach ($test_names as $filename) {
         $filename = $test_dir . $filename . '.php';
-        $class_name = str_replace(DIRECTORY_SEPARATOR, '_', $filename);
+        $class_name = str_replace('/', '_', $filename);
         $class_name = basename($class_name, '.php');
         if (!global_require_once($filename)) {
             continue;
