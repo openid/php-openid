@@ -41,7 +41,7 @@ function Auth_OpenID_splitNonce($nonce_string)
          $uniquifier) = $matches;
 
     $timestamp =
-        gmmktime($tm_hour, $tm_min, $tm_sec, $tm_mon, $tm_mday, $tm_year);
+        @gmmktime($tm_hour, $tm_min, $tm_sec, $tm_mon, $tm_mday, $tm_year);
 
     if ($timestamp === false || $timestamp < 0) {
         return null;
