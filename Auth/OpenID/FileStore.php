@@ -595,13 +595,13 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
     function _mkdtemp($dir=null)
     {
         if (!isset($dir)) {
-            if (strpos(PHP_OS, 'WIN') == 0) {
+            if (strpos(PHP_OS, 'WIN') === 0) {
                 $dir = $_ENV['TMP'];
                 if (!isset($dir)) {
                     $dir = 'C:\Windows\Temp';
                 }
             } else {
-                $dir = $_ENV['TMPDIR'];
+                $dir = @$_ENV['TMPDIR'];
                 if (!isset($dir)) {
                     $dir = '/tmp';
                 }
