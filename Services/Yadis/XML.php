@@ -307,8 +307,10 @@ function Services_Yadis_setDefaultParser(&$parser)
 }
 
 $__Services_Yadis_xml_extensions = array(
-    'dom' => 'Services_Yadis_dom',
-    'domxml' => 'Services_Yadis_domxml'
+    'dom' => array('classname' => 'Services_Yadis_dom',
+                   'libname' => array('dom.so', 'dom.dll')),
+    'domxml' => array('classname' => 'Services_Yadis_domxml',
+                      'libname' => array('domxml.so', 'php_domxml.dll')),
     );
 
 /**
@@ -327,20 +329,26 @@ function &Services_Yadis_getXMLParser()
     }
 
     $p = null;
+    $classname = null;
 
     // Return a wrapper for the resident implementation, if any.
-    foreach ($__Services_Yadis_xml_extensions as $name => $cls) {
-        if (extension_loaded($name) ||
-            @dl($name . '.so')) {
-            // First create a dummy variable because PHP doesn't let
-            // you return things by reference unless they're
-            // variables.  Feh.
-            $p = new $cls();
+    foreach ($__Services_Yadis_xml_extensions as $name => $params) {
+        if (!extension_loaded($name)) {
+            foreach ($params['libname'] as $libname) {
+                if (@dl($libname)) {
+                    $classname = $params['classname'];
+                }
+            }
+        } else {
+            $classname = $params['classname'];
+        }
+        if (isset($classname)) {
+            $p = new $classname();
             return $p;
         }
     }
 
-    return null;
+    return $p;
 }
 
 ?>
