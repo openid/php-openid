@@ -227,8 +227,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
             $_Auth_OpenID_user_page_pat,
             $_Auth_OpenID_assocs;
 
-        $store = new Auth_OpenID_FileStore(
-           $temp_dir = Auth_OpenID_FileStore::_mkdtemp());
+        $store = new Tests_Auth_OpenID_MemStore();
 
         if ($immediate) {
             $mode = 'checkid_immediate';
@@ -279,8 +278,6 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
                     $fetcher, $store, $immediate);
 
         $this->assertEquals($expected_num_assocs, $fetcher->num_assocs);
-
-        $store->destroy();
     }
 
     function test_success()

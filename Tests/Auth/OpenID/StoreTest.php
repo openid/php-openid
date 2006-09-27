@@ -21,6 +21,24 @@ require_once 'Auth/OpenID/CryptUtil.php';
 require_once 'Auth/OpenID.php';
 require_once 'PHPUnit.php';
 
+function _Auth_OpenID_mkdtemp()
+{
+    if (strpos(PHP_OS, 'WIN') === 0) {
+        $dir = $_ENV['TMP'];
+        if (!isset($dir)) {
+            $dir = 'C:\Windows\Temp';
+        }
+    } else {
+        $dir = @$_ENV['TMPDIR'];
+        if (!isset($dir)) {
+            $dir = '/tmp';
+        }
+    }
+
+    return Auth_OpenID_FileStore::_mkdtemp($dir);
+}
+
+
 /**
  * This is the host where the SQL stores' databases should be created
  * and destroyed.
@@ -309,7 +327,7 @@ explicitly');
     {
         require_once 'Auth/OpenID/FileStore.php';
 
-        $temp_dir = Auth_OpenID_FileStore::_mkdtemp();
+        $temp_dir = _Auth_OpenID_mkdtemp();
 
         if (!$temp_dir) {
             trigger_error('Could not create temporary directory ' .
@@ -444,7 +462,7 @@ explicitly');
         require_once 'Auth/OpenID/SQLiteStore.php';
         require_once 'DB.php';
 
-        $temp_dir = Auth_OpenID_FileStore::_mkdtemp();
+        $temp_dir = _Auth_OpenID_mkdtemp();
 
         if (!$temp_dir) {
             trigger_error('Could not create temporary directory ' .
