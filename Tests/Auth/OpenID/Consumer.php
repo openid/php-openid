@@ -40,8 +40,6 @@ $_Auth_OpenID_assocs = array(
                             array(str_repeat("\x00", 20), 'Zeros'),
                             );
 
-$_Auth_OpenID_filestore_base_dir = "/tmp";
-
 function Auth_OpenID_parse($qs)
 {
     $result = array();
@@ -230,7 +228,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
             $_Auth_OpenID_assocs;
 
         $store = new Auth_OpenID_FileStore(
-           Auth_OpenID_FileStore::_mkdtemp($_Auth_OpenID_filestore_base_dir));
+           $temp_dir = Auth_OpenID_FileStore::_mkdtemp());
 
         if ($immediate) {
             $mode = 'checkid_immediate';
