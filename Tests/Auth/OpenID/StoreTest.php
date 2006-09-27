@@ -309,7 +309,7 @@ explicitly');
     {
         require_once 'Auth/OpenID/FileStore.php';
 
-        $temp_dir = Auth_OpenID_FileStore::_mkdtemp('/tmp');
+        $temp_dir = Auth_OpenID_FileStore::_mkdtemp();
 
         if (!$temp_dir) {
             trigger_error('Could not create temporary directory ' .
@@ -444,7 +444,7 @@ explicitly');
         require_once 'Auth/OpenID/SQLiteStore.php';
         require_once 'DB.php';
 
-        $temp_dir = Auth_OpenID_FileStore::_mkdtemp('/tmp');
+        $temp_dir = Auth_OpenID_FileStore::_mkdtemp();
 
         if (!$temp_dir) {
             trigger_error('Could not create temporary directory ' .
