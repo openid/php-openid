@@ -2,6 +2,7 @@
 
 require_once 'Tests/TestDriver.php';
 require_once 'PHPUnit/TestResult.php';
+require_once 'Console/Getopt.php';
 
 class TextTestResult extends PHPUnit_TestResult {
     function addError(&$test, &$t)
@@ -40,53 +41,74 @@ function microtime_float()
    return ((float)$usec + (float)$sec);
 }
 
-// Drop $argv[0] (command name)
-array_shift($argv);
+$longopts = array('no-math',
+                  'math-lib=',
+                  'insecure_rand',
+                  'thorough');
 
-// Randomness source selection
-$t = array_search('--insecure-rand', $argv);
-if ($t !== false && $t !== null) {
-    define('Auth_OpenID_RAND_SOURCE', null);
+$con  = new Console_Getopt;
+$args = $con->readPHPArgv();
+array_shift($args);
+$options = $con->getopt2($args, "", $longopts);
+
+if (PEAR::isError($options)) {
+    print $options->message . "\n";
+    exit(1);
+}
+
+list($flags, $tests_to_run) = $options;
+
+$math_type = array();
+$thorough = false;
+foreach ($flags as $flag) {
+    list($option, $value) = $flag;
+    switch ($option) {
+    case '--insecure-rand':
+        define('Auth_OpenID_RAND_SOURCE', null);
+        break;
+    case '--no-math':
+        define('Auth_OpenID_NO_MATH_SUPPORT', true);
+        break;
+    case '--math-lib':
+        $math_type[] = $value;
+        break;
+    case '--thorough':
+        define('Tests_Auth_OpenID_thorough', true);
+        break;
+    default:
+        print "Unrecognized option: $option\n";
+        exit(1);
+    }
 }
 
 // ******** Math library selection ***********
 
-$t = array_search('--no-math', $argv);
-if ($t !== false && $t !== null) {
-    define('Auth_OpenID_NO_MATH_SUPPORT', true);
-} else {
-    $math_libs = array();
-    foreach ($argv as $arg) {
-        $ret = preg_match('/^--math-lib=(.*)$/', $arg, $matches);
-        if ($ret) {
-            $math_libs[] = $matches[1];
-        }
+if ($math_type) {
+    if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+        print "--no-math and --math-lib are mutually exclusive\n";
+        exit(1);
     }
-
-    if ($math_libs) {
-        require_once('Auth/OpenID/BigMath.php');
-        $new_extensions = array();
-        foreach ($math_libs as $lib) {
-            foreach ($_Auth_OpenID_math_extensions as $ext) {
-                if ($ext['extension'] == $lib) {
-                    $new_extensions[] = $ext;
-                }
+    require_once('Auth/OpenID/BigMath.php');
+    $new_extensions = array();
+    foreach ($math_type as $lib) {
+        $found = false;
+        foreach ($_Auth_OpenID_math_extensions as $ext) {
+            if ($ext['extension'] == $lib) {
+                $new_extensions[] = $ext;
+                $found = true;
+                break;
             }
         }
-        if ($new_extensions) {
-            $_Auth_OpenID_math_extensions = $new_extensions;
-        } else {
-            trigger_error(var_export($math_libs, true), E_USER_ERROR);
+
+        if (!$found) {
+            print "Unknown math library specified: $lib\n";
+            exit(1);
         }
     }
+    $_Auth_OpenID_math_extensions = $new_extensions;
 }
 
 // ******** End math library selection **********
-
-$t = array_search('--thorough', $argv);
-if ($t !== false && $t !== null) {
-    define('Tests_Auth_OpenID_thorough', true);
-}
 
 $suites = loadSuite($argv);
 
