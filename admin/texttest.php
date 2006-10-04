@@ -43,7 +43,7 @@ function microtime_float()
 
 $longopts = array('no-math',
                   'math-lib=',
-                  'insecure_rand',
+                  'insecure-rand',
                   'thorough');
 
 $con  = new Console_Getopt;
