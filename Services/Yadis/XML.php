@@ -324,7 +324,7 @@ function &Services_Yadis_getXMLParser()
     global $__Services_Yadis_defaultParser,
         $__Services_Yadis_xml_extensions;
 
-    if ($__Services_Yadis_defaultParser) {
+    if (isset($__Services_Yadis_defaultParser)) {
         return $__Services_Yadis_defaultParser;
     }
 
@@ -344,8 +344,13 @@ function &Services_Yadis_getXMLParser()
         }
         if (isset($classname)) {
             $p = new $classname();
-            return $p;
         }
+    }
+
+    if (!isset($p)) {
+        trigger_error('No XML parser was found', E_USER_ERROR);
+    } else {
+        Services_Yadis_setDefaultParser($p);
     }
 
     return $p;
