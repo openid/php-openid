@@ -77,9 +77,7 @@ class Services_Yadis_PlainHTTPFetcher extends Services_Yadis_HTTPFetcher {
                              "User-Agent: $user_agent",
                              "Host: ".$parts['host'].
                                 ($specify_port ? ":".$parts['port'] : ""),
-                             "Port: ".$parts['port'],
-                             "Connection: close",
-                             "Cache-Control: no-cache");
+                             "Port: ".$parts['port']);
 
             $errno = 0;
             $errstr = '';
