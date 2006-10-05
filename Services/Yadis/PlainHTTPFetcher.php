@@ -135,7 +135,7 @@ class Services_Yadis_PlainHTTPFetcher extends Services_Yadis_HTTPFetcher {
         return new Services_Yadis_HTTPResponse($url, $code, $new_headers, $body);
     }
 
-    function post($url, $body)
+    function post($url, $body, $extra_headers = null)
     {
         if (!$this->allowedURL($url)) {
             trigger_error("Bad URL scheme in url: " . $url,
@@ -151,6 +151,11 @@ class Services_Yadis_PlainHTTPFetcher extends Services_Yadis_HTTPFetcher {
         $headers[] = "Host: " . $parts['host'];
         $headers[] = "Content-type: application/x-www-form-urlencoded";
         $headers[] = "Content-length: " . strval(strlen($body));
+
+        if ($extra_headers &&
+            is_array($extra_headers)) {
+            $headers = array_merge($headers, $extra_headers);
+        }
 
         // Join all headers together.
         $all_headers = implode("\r\n", $headers);
