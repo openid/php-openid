@@ -14,16 +14,23 @@ class Tests_Services_Yadis_XRDS extends PHPUnit_TestCase {
 
     function test_good()
     {
-        $xml = Tests_Services_Yadis_readdata("brian.xrds");
-        $xrds = Services_Yadis_XRDS::parseXRDS($xml);
+        $files = array(
+                       'brian.xrds' => 1,
+                       'pip.xrds' => 2
+                       );
 
-        $this->assertTrue($xrds !== null);
+        foreach ($files as $filename => $service_count) {
+            $xml = Tests_Services_Yadis_readdata($filename);
+            $xrds = Services_Yadis_XRDS::parseXRDS($xml);
 
-        if ($xrds) {
-            $this->assertEquals(count($xrds->services()), 1);
-        } else {
-            $this->fail("Could not test XRDS service list because the ".
-                        "XRDS object is null");
+            $this->assertTrue($xrds !== null);
+
+            if ($xrds) {
+                $this->assertEquals(count($xrds->services()), $service_count);
+            } else {
+                $this->fail("Could not test XRDS service list because the ".
+                            "XRDS object is null");
+            }
         }
     }
 
