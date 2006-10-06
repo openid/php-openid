@@ -359,12 +359,14 @@ explicitly');
 
         $temp_db_name = _Auth_OpenID_getTmpDbName();
 
+        $connect_db_name = 'test_master';
+
         $dsn = array(
                      'phptype'  => 'pgsql',
                      'username' => 'openid_test',
                      'password' => '',
                      'hostspec' => $_Auth_OpenID_db_test_host,
-                     'database' => 'template1'
+                     'database' => $connect_db_name
                      );
 
         $allowed_failures = 5;
@@ -426,7 +428,7 @@ explicitly');
 
         // Connect to template1 again so we can drop the temporary
         // database.
-        $dsn['database'] = 'template1';
+        $dsn['database'] = $connect_db_name;
         $template_db =& DB::connect($dsn);
 
         if (PEAR::isError($template_db)) {
