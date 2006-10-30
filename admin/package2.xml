@@ -24,7 +24,9 @@ http://pear.php.net/dtd/package-2.0.xsd">
  </stability>
  <license uri="%(license_uri)s">%(license_name)s</license>
  <notes>
+ <![CDATA[
  %(release_notes)s
+ ]]>
  </notes>
  <contents>
  %(contents)s
