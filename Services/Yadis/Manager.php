@@ -384,7 +384,7 @@ class Services_Yadis_Discovery {
     function getNextService($discover_cb, &$fetcher)
     {
         $manager = $this->getManager();
-        if (!$manager) {
+        if (!$manager || (!$manager->services)) {
             $this->destroyManager();
             $http_response = array();
 

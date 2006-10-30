@@ -363,6 +363,15 @@ class Tests_Auth_OpenID_DiscoverSession {
     }
 }
 
+$__Tests_BOGUS_SERVICE = new Auth_OpenID_ServiceEndpoint();
+$__Tests_BOGUS_SERVICE->identity_url = "=really.bogus.endpoint";
+
+function __serviceCheck_discover_cb($url, $fetcher)
+{
+    global $__Tests_BOGUS_SERVICE;
+    return array($__Tests_BOGUS_SERVICE);
+}
+
 class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
     function _usedYadis($service)
     {
@@ -435,6 +444,34 @@ class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
                                     $fetcher);
             $this->assertEquals($s->delegate, $openid);
         }
+    }
+
+    function test_serviceCheck()
+    {
+        global $__Tests_BOGUS_SERVICE;
+
+        $url = "http://bogus.xxx/";
+        $sess =& new Tests_Auth_OpenID_DiscoverSession();
+        $disco =& new Services_Yadis_Discovery($sess, $url);
+
+        # Set an empty manager to be sure it gets blown away
+        $manager =& new Services_Yadis_Manager($url, null, array(),
+                                               $disco->getSessionKey());
+
+        $loader =& new Services_Yadis_ManagerLoader();
+        $disco->session->set($disco->session_key,
+                             serialize($loader->toSession($manager)));
+
+        $docs = array();
+        $fetcher =& new _DiscoveryMockFetcher($docs);
+
+        $result = $disco->getNextService('__serviceCheck_discover_cb', $fetcher);
+
+        $newMan = $disco->getManager();
+
+        $currentService = $newMan->_current;
+        $this->assertEquals($currentService->identity_url,
+                            $__Tests_BOGUS_SERVICE->identity_url);
     }
 
     function test_noOpenID()
