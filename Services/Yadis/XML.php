@@ -344,6 +344,7 @@ function &Services_Yadis_getXMLParser()
         }
         if (isset($classname)) {
             $p = new $classname();
+            return $p;
         }
     }
 
