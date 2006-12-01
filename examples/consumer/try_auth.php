@@ -11,12 +11,17 @@ if (empty($_GET['openid_url'])) {
     exit(0);
 }
 
+$scheme = 'http';
+if (isset($_SERVER['HTTPS']) and $_SERVER['HTTPS'] == 'on') {
+    $scheme .= 's';
+}
+
 $openid = $_GET['openid_url'];
-$process_url = sprintf("http://%s:%s%s/finish_auth.php",
+$process_url = sprintf("$scheme://%s:%s%s/finish_auth.php",
                        $_SERVER['SERVER_NAME'], $_SERVER['SERVER_PORT'],
                        dirname($_SERVER['PHP_SELF']));
 
-$trust_root = sprintf("http://%s:%s%s",
+$trust_root = sprintf("$scheme://%s:%s%s",
                       $_SERVER['SERVER_NAME'], $_SERVER['SERVER_PORT'],
                       dirname($_SERVER['PHP_SELF']));
 
