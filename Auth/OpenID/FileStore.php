@@ -328,7 +328,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
             // strip off the path to do the comparison
             $name = basename($filename);
             foreach ($association_files as $association_file) {
-                if (strpos($association_file, $name) == 0) {
+                if (strpos($association_file, $name) === 0) {
                     $matching_files[] = $association_file;
                 }
             }

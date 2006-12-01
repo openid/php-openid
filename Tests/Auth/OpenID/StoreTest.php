@@ -268,6 +268,32 @@ explicitly');
 
         $this->_checkRemove($store, $server_url, $assoc3->handle,
                             false, "(25)");
+
+        // Put associations into store, for two different server URLs
+        $assoc1 = $this->genAssoc($now);
+        $assoc2 = $this->genAssoc($now + 2);
+        $server_url1 = "http://one.example.com/one";
+        $server_url2 = "http://two.localhost.localdomain/two";
+
+        $store->storeAssociation($server_url1, $assoc1);
+        $store->storeAssociation($server_url2, $assoc2);
+
+        // Ask for each one, make sure we get it
+        $this->_checkRetrieve($store, $server_url1, $assoc1->handle,
+                              $assoc1, "(26)");
+
+        $this->_checkRetrieve($store, $server_url2, $assoc2->handle,
+                              $assoc2, "(27)");
+
+        $store->storeAssociation($server_url1, $assoc1);
+        $store->storeAssociation($server_url2, $assoc2);
+
+        // Ask for each one, make sure we get it
+        $this->_checkRetrieve($store, $server_url1, null,
+                              $assoc1, "(28)");
+
+        $this->_checkRetrieve($store, $server_url2, null,
+                              $assoc2, "(29)");
     }
 
     function _checkUseNonce(&$store, $nonce, $expected, $msg=null)
