@@ -52,4 +52,4 @@ package_base_uri = 'http://www.openidenabled.com/resources/downloads/php-openid/
 
 # The release stability.  Maybe this should be a commandline parameter
 # since it might differ from release to release.
-release_stability = 'pre-release'
+release_stability = 'stable'
