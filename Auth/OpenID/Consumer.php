@@ -295,7 +295,7 @@ class Auth_OpenID_Consumer {
             $openid_url = Auth_OpenID::normalizeUrl($user_url);
         }
 
-        $disco =& new Services_Yadis_Discovery(&$this->session,
+        $disco =& new Services_Yadis_Discovery($this->session,
                                                $openid_url,
                                                $this->session_key_prefix);
 

@@ -816,7 +816,7 @@ class Auth_OpenID_CheckIDResponse extends Auth_OpenID_ServerResponse {
 
     function Auth_OpenID_CheckIDResponse(&$request, $mode = 'id_res')
     {
-        parent::Auth_OpenID_ServerResponse(&$request);
+        parent::Auth_OpenID_ServerResponse($request);
         $this->fields['mode'] = $mode;
         $this->signed = array();
 
@@ -1054,7 +1054,7 @@ class Auth_OpenID_Encoder {
             $wr = new $cls(AUTH_OPENID_HTTP_REDIRECT,
                            array('location' => $location));
         } else {
-            return new Auth_OpenID_EncodingError(&$response);
+            return new Auth_OpenID_EncodingError($response);
         }
         return $wr;
     }
