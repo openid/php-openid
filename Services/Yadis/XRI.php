@@ -26,7 +26,8 @@ function Services_Yadis_getXRIAuthorities()
 function Services_Yadis_getEscapeRE()
 {
     $parts = array();
-    foreach (array_merge($__UCSCHAR, $__IPRIVATE) as $pair) {
+    foreach (array_merge(Services_Yadis_getUCSChars(),
+                         Services_Yadis_getIPrivateChars()) as $pair) {
         list($m, $n) = $pair;
         $parts[] = sprintf("%s-%s", chr($m), chr($n));
     }
