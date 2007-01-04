@@ -30,6 +30,10 @@ define('SERVICES_YADIS_MATCH_ALL', 101);
  */
 define('SERVICES_YADIS_MATCH_ANY', 102);
 
+/**
+ * The priority value used for service elements with no priority
+ * specified.
+ */
 define('SERVICES_YADIS_MAX_PRIORITY', pow(2, 30));
 
 function Services_Yadis_getNSMap()
