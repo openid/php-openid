@@ -42,7 +42,7 @@ function Services_Yadis_getXrefRE()
 
 function Services_Yadis_identifierScheme($identifier)
 {
-    if (_startswith($identifier, 'xri://') ||
+    if (Services_Yadis_startswith($identifier, 'xri://') ||
         (in_array($identifier[0], Services_Yadis_getXRIAuthorities()))) {
         return "XRI";
     } else {
@@ -52,7 +52,7 @@ function Services_Yadis_identifierScheme($identifier)
 
 function Services_Yadis_toIRINormal($xri)
 {
-    if (!_startswith($xri, 'xri://')) {
+    if (!Services_Yadis_startswith($xri, 'xri://')) {
         $xri = 'xri://' . $xri;
     }
 
@@ -88,7 +88,7 @@ function Services_Yadis_iriToURI($iri)
     } else {
         // According to RFC 3987, section 3.1, "Mapping of IRIs to URIs"
         return preg_replace_callback(Services_Yadis_getEscapeRE(),
-                                     '_pct_escape_unicode', $iri);
+                                     'Services_Yadis_pct_escape_unicode', $iri);
     }
 }
 
@@ -146,7 +146,7 @@ function Services_Yadis_rootAuthority($xri)
 
     $root = null;
 
-    if (_startswith($xri, 'xri://')) {
+    if (Services_Yadis_startswith($xri, 'xri://')) {
         $xri = substr($xri, 6);
     }
 
@@ -177,7 +177,7 @@ function Services_Yadis_rootAuthority($xri)
 
 function Services_Yadis_XRI($xri)
 {
-    if (!_startswith($xri, 'xri://')) {
+    if (!Services_Yadis_startswith($xri, 'xri://')) {
         $xri = 'xri://' . $xri;
     }
     return $xri;

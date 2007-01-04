@@ -318,7 +318,7 @@ class _MockFetcherForXRIProxy {
             trigger_error('Error in mock XRI fetcher: no headers or query');
         }
 
-        if (_startswith($xri, '/')) {
+        if (Services_Yadis_startswith($xri, '/')) {
             $xri = substr($xri, 1);
         }
 

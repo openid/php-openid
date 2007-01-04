@@ -41,7 +41,7 @@ function Services_Yadis_getIPrivateChars()
                  );
 }
 
-function _pct_escape_unicode($char_match)
+function Services_Yadis_pct_escape_unicode($char_match)
 {
     $c = $char_match[0];
     $result = "";
@@ -51,7 +51,7 @@ function _pct_escape_unicode($char_match)
     return $result;
 }
 
-function _startswith($s, $stuff)
+function Services_Yadis_startswith($s, $stuff)
 {
     return strpos($s, $stuff) === 0;
 }
