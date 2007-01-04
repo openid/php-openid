@@ -30,11 +30,13 @@ define('SERVICES_YADIS_MATCH_ALL', 101);
  */
 define('SERVICES_YADIS_MATCH_ANY', 102);
 
-global $_Services_Yadis_ns_map;
-$_Services_Yadis_ns_map = array('xrds' => 'xri://$xrds',
-                                'xrd' => 'xri://$xrd*($v*2.0)');
-
 define('SERVICES_YADIS_MAX_PRIORITY', pow(2, 30));
+
+function Services_Yadis_getNSMap()
+{
+    return array('xrds' => 'xri://$xrds',
+                 'xrd' => 'xri://$xrd*($v*2.0)');
+}
 
 /**
  * @access private
@@ -216,15 +218,13 @@ class Services_Yadis_XRDS {
      */
     function parseXRDS($xml_string, $extra_ns_map = null)
     {
-        global $_Services_Yadis_ns_map;
-
         if (!$xml_string) {
             return null;
         }
 
         $parser = Services_Yadis_getXMLParser();
 
-        $ns_map = $_Services_Yadis_ns_map;
+        $ns_map = Services_Yadis_getNSMap();
 
         if ($extra_ns_map && is_array($extra_ns_map)) {
             $ns_map = array_merge($ns_map, $extra_ns_map);
