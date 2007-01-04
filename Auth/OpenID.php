@@ -96,20 +96,22 @@ define('Auth_OpenID_punct',
        "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~");
 
 /**
- * These namespaces are automatically fixed in query arguments by
- * Auth_OpenID::fixArgs.
- */
-global $_Auth_OpenID_namespaces;
-$_Auth_OpenID_namespaces = array('openid',
-                                 'sreg');
-
-/**
  * The OpenID utility function class.
  *
  * @package OpenID
  * @access private
  */
 class Auth_OpenID {
+
+    /**
+     * These namespaces are automatically fixed in query arguments by
+     * Auth_OpenID::fixArgs.
+     */
+    function getOpenIDNamespaces()
+    {
+        return array('openid',
+                     'sreg');
+    }
 
     /**
      * Rename query arguments back to 'openid.' from 'openid_'
@@ -119,11 +121,10 @@ class Auth_OpenID {
      */
     function fixArgs($args)
     {
-        global $_Auth_OpenID_namespaces;
         foreach (array_keys($args) as $key) {
             $fixed = $key;
             if (preg_match('/^openid/', $key)) {
-                foreach ($_Auth_OpenID_namespaces as $ns) {
+                foreach (Auth_OpenID::getOpenIDNamespaces() as $ns) {
                     if (preg_match('/'.$ns.'_/', $key)) {
                         $fixed = preg_replace('/'.$ns.'_/', $ns.'.', $fixed);
                     }
