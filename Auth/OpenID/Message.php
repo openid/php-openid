@@ -34,7 +34,16 @@ $Auth_OpenID_OPENID_NS = 'OpenID namespace';
 // with "openid."
 $Auth_OpenID_BARE_NS = 'Bare namespace';
 
+/**
+ * An Auth_OpenID_Mapping maintains a mapping from arbitrary keys to
+ * arbitrary values.  (This is unlike an ordinary PHP array, whose
+ * keys may be only simple scalars.)
+ */
 class Auth_OpenID_Mapping {
+    /**
+     * Initialize a mapping.  If $classic_array is specified, its keys
+     * and values are used to populate the mapping.
+     */
     function Auth_OpenID_Mapping($classic_array = null)
     {
         $this->keys = array();
@@ -47,22 +56,35 @@ class Auth_OpenID_Mapping {
         }
     }
 
+    /**
+     * Returns true if $thing is an Auth_OpenID_Mapping object; false
+     * if not.
+     */
     function isA($thing)
     {
         return (is_object($thing) &&
                 strtolower(get_class($thing)) == 'auth_openid_mapping');
     }
 
+    /**
+     * Returns an array of the keys in the mapping.
+     */
     function keys()
     {
         return $this->keys;
     }
 
+    /**
+     * Returns an array of values in the mapping.
+     */
     function values()
     {
         return $this->values;
     }
 
+    /**
+     * Returns an array of (key, value) pairs in the mapping.
+     */
     function items()
     {
         $temp = array();
@@ -72,11 +94,18 @@ class Auth_OpenID_Mapping {
         }
     }
 
+    /**
+     * Returns the "length" of the mapping, or the number of keys.
+     */
     function len()
     {
         return count($this->keys);
     }
 
+    /**
+     * Sets a key-value pair in the mapping.  If the key already
+     * exists, its value is replaced with the new value.
+     */
     function set($key, $value)
     {
         $index = array_search($key, $this->keys);
@@ -89,6 +118,11 @@ class Auth_OpenID_Mapping {
         }
     }
 
+    /**
+     * Gets a specified value from the mapping, associated with the
+     * specified key.  If the key does not exist in the mapping,
+     * $default is returned instead.
+     */
     function get($key, $default = null)
     {
         $index = array_search($key, $this->keys);
@@ -100,6 +134,10 @@ class Auth_OpenID_Mapping {
         }
     }
 
+    /**
+     * Deletes a key-value pair from the mapping with the specified
+     * key.
+     */
     function del($key)
     {
         $index = array_search($key, $this->keys);
@@ -110,6 +148,10 @@ class Auth_OpenID_Mapping {
         }
     }
 
+    /**
+     * Returns true if the specified value has a key in the mapping;
+     * false if not.
+     */
     function contains($value)
     {
         return (array_search($value, $this->values) !== false);
