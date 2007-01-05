@@ -513,13 +513,6 @@ class Auth_OpenID_Message {
     function toFormMarkup($action_url, $form_tag_attrs = null,
                           $submit_text = "Continue")
     {
-        $xml =& Services_Yadis_getXMLParser();
-
-        if ($xml === null) {
-            // raise RuntimeError('This function requires ElementTree.')
-            return null;
-        }
-
         $form = "<form accept-charset=\"UTF-8\" ".
             "enctype=\"application/x-www-form-urlencoded\"";
 
