@@ -21,8 +21,7 @@ $Auth_OpenID_SREG_URI = 'http://openid.net/sreg/1.0';
 $Auth_OpenID_OPENID1_NS = 'http://openid.net/sso/1.0';
 
 // The OpenID 2.0 namespace URI
-// XXX: not official (yet)
-$Auth_OpenID_OPENID2_NS = 'http://openid.net/specs/2.0/base';
+$Auth_OpenID_OPENID2_NS = 'http://openid.net/signon/2.0';
 
 // The namespace consisting of pairs with keys that are prefixed with
 // "openid."  but not in another namespace.
