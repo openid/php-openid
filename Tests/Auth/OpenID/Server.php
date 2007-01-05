@@ -71,7 +71,7 @@ class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_TestCase {
             'openid.error' => 'plucky');
 
         $encoded = $e->encodeToURL();
-        if (_isError($encoded)) {
+        if (Auth_OpenID_isError($encoded)) {
             $this->fail($encoded->toString());
             return;
         }
@@ -135,7 +135,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
         // Be sure that decoding the args returns an error.
         $result = $this->decoder->decode($args);
 
-        $this->assertTrue(_isError($result));
+        $this->assertTrue(Auth_OpenID_isError($result));
     }
 
     function test_checkidImmediate()
@@ -186,7 +186,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
             'openid.trust_root' => $this->tr_url);
 
         $result = $this->decoder->decode($args);
-        if (_isError($result)) {
+        if (Auth_OpenID_isError($result)) {
             $this->assertTrue($result->query);
         } else {
             $this->fail(sprintf("Expected Auth_OpenID_Error, instead " .
@@ -203,7 +203,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
             'openid.trust_root' => $this->tr_url);
 
         $result = $this->decoder->decode($args);
-        if (!_isError($result)) {
+        if (!Auth_OpenID_isError($result)) {
             $this->fail("Expected Auth_OpenID_Error");
         }
     }
@@ -217,7 +217,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
             'openid.return_to' => 'not a url');
 
         $result = $this->decoder->decode($args);;
-        if (_isError($result)) {
+        if (Auth_OpenID_isError($result)) {
             $this->assertTrue($result->query);
         } else {
             $this->fail(sprintf("Expected ProtocolError, instead " .
@@ -322,7 +322,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
 
         // Using DH-SHA1 without supplying dh_consumer_public is an error.
         $result = $this->decoder->decode($args);
-        if (!_isError($result)) {
+        if (!Auth_OpenID_isError($result)) {
             $this->fail(sprintf("Expected Auth_OpenID_ServerError, got %s",
                                 gettype($result)));
         }
@@ -442,7 +442,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
             'openid.dh_consumer_public' => "my public keeey");
 
         $result = $this->decoder->decode($args);
-        if (!_isError($result)) {
+        if (!Auth_OpenID_isError($result)) {
             $this->fail(sprintf("Expected Auth_OpenID_Error",
                                 gettype($result)));
         }
@@ -548,7 +548,7 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
         $e = new Auth_OpenID_ServerError($args, "wet paint");
 
         $result = $this->encoder->encode($e);
-        if (!_isError($result, 'Auth_OpenID_EncodingError')) {
+        if (!Auth_OpenID_isError($result, 'Auth_OpenID_EncodingError')) {
             $this->fail(sprintf("Expected Auth_OpenID_ServerError, got %s",
                                 gettype($result)));
         }
@@ -729,7 +729,7 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
     {
         $answer = $this->request->answer(true);
 
-        if (_isError($answer)) {
+        if (Auth_OpenID_isError($answer)) {
             $this->fail($answer->toString());
             return;
         }

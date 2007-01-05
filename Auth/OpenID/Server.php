@@ -133,7 +133,7 @@ $_Auth_OpenID_Encode_Url = array('URL/redirect');
 /**
  * @access private
  */
-function _isError($obj, $cls = 'Auth_OpenID_ServerError')
+function Auth_OpenID_isError($obj, $cls = 'Auth_OpenID_ServerError')
 {
     return is_a($obj, $cls);
 }
@@ -520,7 +520,7 @@ class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
                                         array($query));
 
 
-        if (($session === null) || (_isError($session))) {
+        if (($session === null) || (Auth_OpenID_isError($session))) {
             return new Auth_OpenID_ServerError($query,
                                      "Error parsing $session_type session");
         }
