@@ -170,6 +170,11 @@ class Services_Yadis_domxml extends Services_Yadis_XMLParser {
             $result = @$this->xpath->xpath_eval($xpath);
         }
 
+        if (!$result) {
+            $n = array();
+            return $n;
+        }
+
         if (!$result->nodeset) {
             $n = array();
             return $n;
@@ -256,6 +261,10 @@ class Services_Yadis_dom extends Services_Yadis_XMLParser {
         }
 
         $n = array();
+
+        if (!$result) {
+            return $n;
+        }
 
         for ($i = 0; $i < $result->length; $i++) {
             $n[] = $result->item($i);

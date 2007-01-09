@@ -886,6 +886,158 @@ class Tests_Auth_OpenID_OpenID2Message extends MessageTest {
     }
 }
 
+class Tests_Auth_OpenID_GeneralMessageTest extends PHPUnit_TestCase {
+    function setUp()
+    {
+        $this->postargs = array(
+            'openid.ns' => Auth_OpenID_OPENID2_NS,
+            'openid.mode' => 'checkid_setup',
+            'openid.identity' => 'http://bogus.example.invalid:port/',
+            'openid.assoc_handle' => 'FLUB',
+            'openid.return_to' => 'Neverland');
+
+        $this->action_url = 'scheme://host:port/path?query';
+
+        $this->form_tag_attrs = array(
+            'company' => 'janrain',
+            'class' => 'fancyCSS');
+
+        $this->submit_text = 'GO!';
+
+        // Expected data regardless of input
+
+        $this->required_form_attrs = array(
+            'accept-charset' => 'UTF-8',
+            'enctype' => 'application/x-www-form-urlencoded',
+            'method' => 'post');
+    }
+
+    function _checkForm($html, $message_, $action_url,
+                        $form_tag_attrs, $submit_text)
+    {
+        $parser =& Services_Yadis_getXMLParser();
+
+        // Parse HTML source
+        $this->assertTrue($parser->init($html, array()));
+
+        // Get root element
+        $form = $parser->evalXPath('/form[1]');
+        $this->assertTrue(count($form) == 1);
+        $form = $form[0];
+
+        // Check required form attributes
+        $form_attrs = $parser->attributes($form);
+        foreach ($this->required_form_attrs as $k => $v) {
+            $this->assertTrue($form_attrs[$k] == $v);
+        }
+
+        // Check extra form attributes
+        foreach ($form_tag_attrs as $k => $v) {
+            // Skip attributes that already passed the required
+            // attribute check, since they should be ignored by the
+            // form generation code.
+            if (in_array($k, array_keys($this->required_form_attrs))) {
+                continue;
+            }
+
+            $this->assertTrue($form_attrs[$k] == $v,
+                              "Form attr $k is ".$form_attrs[$k]." (expected $v)");
+        }
+
+        // Check hidden fields against post args
+        $hiddens = array();
+        $input_elements = $parser->evalXPath('input', $form);
+        foreach ($input_elements as $e) {
+            $attrs = $parser->attributes($e);
+            if (strtoupper($attrs['type']) == 'HIDDEN') {
+                $hiddens[] = $e;
+            }
+        }
+
+        // For each post arg, make sure there is a hidden with that
+        // value.  Make sure there are no other hiddens.
+        $postargs = $message_->toPostArgs();
+        foreach ($postargs as $name => $value) {
+            $found = false;
+
+            foreach ($hiddens as $e) {
+                $attrs = $parser->attributes($e);
+                if ($attrs['name'] == $name) {
+                    $this->assertTrue($attrs['value'] == $value);
+                    $found = true;
+                    break;
+                }
+            }
+
+            if (!$found) {
+                $this->fail("Post arg $name not found in form");
+            }
+        }
+
+        $keys = array_keys($postargs);
+        foreach ($hiddens as $e) {
+            $attrs = $parser->attributes($e);
+            $this->assertTrue(in_array($attrs['name'], $keys));
+        }
+
+        // Check action URL
+        $this->assertTrue($form_attrs['action'] == $action_url);
+
+        // Check submit text
+        $submits = array();
+        foreach ($input_elements as $e) {
+            $attrs = $parser->attributes($e);
+            if (strtoupper($attrs['type']) == 'SUBMIT') {
+                $submits[] = $e;
+            }
+        }
+
+        $this->assertTrue(count($submits) == 1);
+
+        $attrs = $parser->attributes($submits[0]);
+        $this->assertTrue($attrs['value'] == $submit_text);
+    }
+
+    function test_toFormMarkup()
+    {
+        $m = Auth_OpenID_Message::fromPostArgs($this->postargs);
+        $html = $m->toFormMarkup($this->action_url, $this->form_tag_attrs,
+                                 $this->submit_text);
+        $this->_checkForm($html, $m, $this->action_url,
+                          $this->form_tag_attrs, $this->submit_text);
+    }
+
+    function test_overrideMethod()
+    {
+        // Be sure that caller cannot change form method to GET.
+        $m = Auth_OpenID_Message::fromPostArgs($this->postargs);
+
+        $tag_attrs = $this->form_tag_attrs;
+        $tag_attrs['method'] = 'GET';
+
+        $html = $m->toFormMarkup($this->action_url, $this->form_tag_attrs,
+                                 $this->submit_text);
+        $this->_checkForm($html, $m, $this->action_url,
+                          $this->form_tag_attrs, $this->submit_text);
+    }
+
+    function test_overrideRequired()
+    {
+        // Be sure that caller CANNOT change the form charset for
+        // encoding type.
+        $m = Auth_OpenID_Message::fromPostArgs($this->postargs);
+
+        $tag_attrs = $this->form_tag_attrs;
+        $tag_attrs['accept-charset'] = 'UCS4';
+        $tag_attrs['enctype'] = 'invalid/x-broken';
+
+        $html = $m->toFormMarkup($this->action_url, $tag_attrs,
+                                 $this->submit_text);
+        $this->_checkForm($html, $m, $this->action_url,
+                          $tag_attrs, $this->submit_text);
+    }
+}
+
 class Tests_Auth_OpenID_NamespaceMap extends PHPUnit_TestCase {
     function test_onealias()
     {
@@ -931,7 +1083,8 @@ $Tests_Auth_OpenID_Message_other = array(
                                          new Tests_Auth_OpenID_OpenID1Message(),
                                          new Tests_Auth_OpenID_OpenID2Message(),
                                          new Tests_Auth_OpenID_NamespaceMap(),
-                                         new Tests_Auth_OpenID_OpenID1ExplicitMessage()
+                                         new Tests_Auth_OpenID_OpenID1ExplicitMessage(),
+                                         new Tests_Auth_OpenID_GeneralMessageTest()
                                          );
 
 ?>

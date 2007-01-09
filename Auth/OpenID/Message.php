@@ -571,6 +571,9 @@ class Auth_OpenID_Message {
         $form_tag_attrs['action'] = $action_url;
         $form_tag_attrs['method'] = 'post';
 
+        unset($form_tag_attrs['enctype']);
+        unset($form_tag_attrs['accept-charset']);
+
         if ($form_tag_attrs) {
             foreach ($form_tag_attrs as $name => $attr) {
                 $form .= sprintf(" %s=\"%s\"", $name, $attr);
@@ -585,7 +588,7 @@ class Auth_OpenID_Message {
                         $name, $value);
         }
 
-        $form .= sprintf("<input type=\"submit\" value=\"\" />\n",
+        $form .= sprintf("<input type=\"submit\" value=\"%s\" />\n",
                          $submit_text);
 
         $form .= "</form>\n";
