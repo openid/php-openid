@@ -175,8 +175,10 @@ class Auth_OpenID {
                 return $fallback;
             }
         } else {
-            trigger_error("Auth_OpenID::arrayGet expected " .
-                          "array as first parameter", E_USER_WARNING);
+            trigger_error("Auth_OpenID::arrayGet (key = ".$key.") expected " .
+                          "array as first parameter, got " .
+                          gettype($arr), E_USER_WARNING);
+
             return false;
         }
     }
