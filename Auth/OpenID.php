@@ -182,6 +182,28 @@ class Auth_OpenID {
     }
 
     /**
+     * Replacement for PHP's broken parse_str.
+     */
+    function parse_str($query)
+    {
+        $parts = explode('&', $query);
+
+        $new_parts = array();
+        for ($i = 0; $i < count($parts); $i++) {
+            $pair = explode('=', $parts[$i]);
+
+            if (count($pair) != 2) {
+                return null;
+            }
+
+            list($key, $value) = $pair;
+            $new_parts[$key] = urldecode($value);
+        }
+
+        return $new_parts;
+    }
+
+    /**
      * Implements the PHP 5 'http_build_query' functionality.
      *
      * @access private

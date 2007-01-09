@@ -1,0 +1,937 @@
+<?php
+
+/**
+ * Unit tests for the Auth_OpenID_Message implementation.
+ */
+
+require_once "Auth/OpenID/Message.php";
+require_once "Auth/OpenID.php";
+require_once "PHPUnit.php";
+
+class MessageTest extends PHPUnit_TestCase {
+    function _argTest($ns, $key, $expected = null)
+    {
+        $a_default = 'a bogus default value';
+
+        $this->assertEquals($this->msg->getArg($ns, $key), $expected);
+        if ($expected === null) {
+            $this->assertEquals(
+                $this->msg->getArg($ns, $key, $a_default), $a_default);
+            $this->assertEquals(
+                $this->msg->getArg($ns, $key, Auth_OpenID_NO_DEFAULT),
+                null);
+        } else {
+            $this->assertEquals(
+                $this->msg->getArg($ns, $key, $a_default), $expected);
+            $this->assertEquals(
+                $this->msg->getArg($ns, $key, Auth_OpenID_NO_DEFAULT),
+                $expected);
+        }
+    }
+}
+
+class Tests_Auth_OpenID_EmptyMessage extends MessageTest {
+    function setUp()
+    {
+        $this->msg = new Auth_OpenID_Message();
+    }
+
+    function test_toPostArgs()
+    {
+        $this->assertEquals($this->msg->toPostArgs(), array());
+    }
+
+    function test_toArgs()
+    {
+        $this->assertEquals($this->msg->toArgs(), array());
+    }
+
+    function test_toKVForm()
+    {
+        $this->assertEquals($this->msg->toKVForm(), '');
+    }
+
+    function test_toURLEncoded()
+    {
+        $this->assertEquals($this->msg->toURLEncoded(), '');
+    }
+
+    function test_toURL()
+    {
+        $base_url = 'http://base.url/';
+        $this->assertEquals($this->msg->toURL($base_url), $base_url);
+    }
+
+    function test_getOpenID()
+    {
+        $this->assertEquals($this->msg->getOpenIDNamespace(), null);
+    }
+
+    function test_getKeyOpenID()
+    {
+        $this->assertEquals($this->msg->getKey(Auth_OpenID_OPENID_NS, 'foo'), null);
+    }
+
+    function test_getKeyBARE()
+    {
+        $this->assertEquals($this->msg->getKey(Auth_OpenID_BARE_NS, 'foo'), 'foo');
+    }
+
+    function test_getKeyNS1()
+    {
+        $this->assertEquals($this->msg->getKey(Auth_OpenID_OPENID1_NS, 'foo'), null);
+    }
+
+    function test_getKeyNS2()
+    {
+        $this->assertEquals($this->msg->getKey(Auth_OpenID_OPENID2_NS, 'foo'), null);
+    }
+
+    function test_getKeyNS3()
+    {
+        $this->assertEquals($this->msg->getKey('urn:nothing-significant', 'foo'),
+                               null);
+    }
+
+    function test_hasKey()
+    {
+        $this->assertEquals($this->msg->hasKey(Auth_OpenID_OPENID_NS, 'foo'), false);
+    }
+
+    function test_hasKeyBARE()
+    {
+        $this->assertEquals($this->msg->hasKey(Auth_OpenID_BARE_NS, 'foo'), false);
+    }
+
+    function test_hasKeyNS1()
+    {
+        $this->assertEquals($this->msg->hasKey(Auth_OpenID_OPENID1_NS, 'foo'), false);
+    }
+
+    function test_hasKeyNS2()
+    {
+        $this->assertEquals($this->msg->hasKey(Auth_OpenID_OPENID2_NS, 'foo'), false);
+    }
+
+    function test_hasKeyNS3()
+    {
+        $this->assertEquals($this->msg->hasKey('urn:nothing-significant', 'foo'),
+                               false);
+    }
+
+    function test_getArg()
+    {
+        $this->assertEquals($this->msg->getArg(Auth_OpenID_OPENID_NS, 'foo'), null);
+    }
+
+    function test_getArgs()
+    {
+        $this->assertEquals($this->msg->getArgs(Auth_OpenID_OPENID_NS), null);
+    }
+
+    function test_getArgsBARE()
+    {
+        $this->assertEquals($this->msg->getArgs(Auth_OpenID_BARE_NS), array());
+    }
+
+    function test_getArgsNS1()
+    {
+        $this->assertEquals($this->msg->getArgs(Auth_OpenID_OPENID1_NS), array());
+    }
+
+    function test_getArgsNS2()
+    {
+        $this->assertEquals($this->msg->getArgs(Auth_OpenID_OPENID2_NS), array());
+    }
+
+    function test_getArgsNS3()
+    {
+        $this->assertEquals($this->msg->getArgs('urn:nothing-significant'), array());
+    }
+
+    function test_updateArgs()
+    {
+        $this->assertEquals($this->msg->updateArgs(Auth_OpenID_OPENID_NS,
+                                                      array('does not' => 'matter')), false);
+    }
+
+    function _test_updateArgsNS($ns)
+    {
+        $update_args = array(
+            'Camper van Beethoven' => 'David Lowery',
+            'Magnolia Electric Co.' => 'Jason Molina');
+
+        $this->assertEquals($this->msg->getArgs($ns), array());
+        $this->msg->updateArgs($ns, $update_args);
+        $this->assertEquals($this->msg->getArgs($ns), $update_args);
+    }
+
+    function test_updateArgsBARE()
+    {
+        $this->_test_updateArgsNS(Auth_OpenID_BARE_NS);
+    }
+
+    function test_updateArgsNS1()
+    {
+        $this->_test_updateArgsNS(Auth_OpenID_OPENID1_NS);
+    }
+
+    function test_updateArgsNS2()
+    {
+        $this->_test_updateArgsNS(Auth_OpenID_OPENID2_NS);
+    }
+
+    function test_updateArgsNS3()
+    {
+        $this->_test_updateArgsNS('urn:nothing-significant');
+    }
+
+    function test_setArg()
+    {
+        $this->assertEquals($this->msg->setArg(Auth_OpenID_OPENID_NS,
+                                                  'does not', 'matter'), false);
+    }
+
+    function _test_setArgNS($ns)
+    {
+        $key = 'Camper van Beethoven';
+        $value = 'David Lowery';
+        $this->assertEquals($this->msg->getArg($ns, $key), null);
+        $this->msg->setArg($ns, $key, $value);
+        $this->assertEquals($this->msg->getArg($ns, $key), $value);
+    }
+
+    function test_setArgBARE()
+    {
+        $this->_test_setArgNS(Auth_OpenID_BARE_NS);
+    }
+
+    function test_setArgNS1()
+    {
+        $this->_test_setArgNS(Auth_OpenID_OPENID1_NS);
+    }
+
+    function test_setArgNS2()
+    {
+        $this->_test_setArgNS(Auth_OpenID_OPENID2_NS);
+    }
+
+    function test_setArgNS3()
+    {
+        $this->_test_setArgNS('urn:nothing-significant');
+    }
+
+    function test_delArg()
+    {
+        $this->assertEquals($this->msg->delArg(Auth_OpenID_OPENID_NS,
+                                               'does not'), false);
+    }
+
+    function _test_delArgNS($ns)
+    {
+        $key = 'Camper van Beethoven';
+        $this->assertEquals($this->msg->delArg($ns, $key), false);
+    }
+
+    function test_delArgBARE()
+    {
+        $this->_test_delArgNS(Auth_OpenID_BARE_NS);
+    }
+
+    function test_delArgNS1()
+    {
+        $this->_test_delArgNS(Auth_OpenID_OPENID1_NS);
+    }
+
+    function test_delArgNS2()
+    {
+        $this->_test_delArgNS(Auth_OpenID_OPENID2_NS);
+    }
+
+    function test_delArgNS3()
+    {
+        $this->_test_delArgNS('urn:nothing-significant');
+    }
+
+    function test_isOpenID1()
+    {
+        $this->assertFalse($this->msg->isOpenID1());
+    }
+
+    function test_isOpenID2()
+    {
+        $this->assertFalse($this->msg->isOpenID2());
+    }
+
+    function test_args()
+    {
+        $this->_argTest(Auth_OpenID_BARE_NS, 'foo');
+        $this->_argTest(Auth_OpenID_OPENID1_NS, 'foo');
+        $this->_argTest(Auth_OpenID_OPENID2_NS, 'foo');
+        $this->_argTest('urn:nothing-significant', 'foo');
+    }
+}
+
+class Tests_Auth_OpenID_OpenID1Message extends MessageTest {
+    function setUp()
+    {
+        $this->msg = Auth_OpenID_Message::fromPostArgs(array('openid.mode' => 'error',
+                                                             'openid.error' => 'unit test'));
+    }
+
+    function test_toPostArgs()
+    {
+        $this->assertEquals($this->msg->toPostArgs(),
+                               array('openid.mode' => 'error',
+                                     'openid.error' => 'unit test'));
+    }
+
+    function test_toArgs()
+    {
+        $this->assertEquals($this->msg->toArgs(),
+                               array('mode' => 'error',
+                                     'error' => 'unit test'));
+    }
+
+    function test_toKVForm()
+    {
+        $this->assertEquals($this->msg->toKVForm(),
+                            "error:unit test\nmode:error\n");
+    }
+
+    function test_toURLEncoded()
+    {
+        $this->assertEquals($this->msg->toURLEncoded(),
+                               'openid.error=unit+test&openid.mode=error');
+    }
+
+    function test_toURL()
+    {
+        $base_url = 'http://base.url/';
+        $actual = $this->msg->toURL($base_url);
+        $actual_base = substr($actual, 0, strlen($base_url));
+        $this->assertEquals($actual_base, $base_url);
+        $this->assertEquals($actual[strlen($base_url)], '?');
+        $query = substr($actual, strlen($base_url) + 1);
+
+        $parsed = Auth_OpenID::parse_str($query);
+
+        $this->assertEquals($parsed, array('openid.mode' => 'error',
+                                           'openid.error' => 'unit test'));
+    }
+
+    function test_getOpenID()
+    {
+        $this->assertEquals($this->msg->getOpenIDNamespace(),
+                               Auth_OpenID_OPENID1_NS);
+    }
+
+    function test_getKeyOpenID()
+    {
+        $this->assertEquals($this->msg->getKey(Auth_OpenID_OPENID_NS, 'mode'),
+                               'openid.mode');
+    }
+
+    function test_getKeyBARE()
+    {
+        $this->assertEquals($this->msg->getKey(Auth_OpenID_BARE_NS, 'mode'), 'mode');
+    }
+
+    function test_getKeyNS1()
+    {
+        $this->assertEquals(
+                               $this->msg->getKey(Auth_OpenID_OPENID1_NS, 'mode'), 'openid.mode');
+    }
+
+    function test_getKeyNS2()
+    {
+        $this->assertEquals($this->msg->getKey(Auth_OpenID_OPENID2_NS, 'mode'), null);
+    }
+
+    function test_getKeyNS3()
+    {
+        $this->assertEquals(
+                               $this->msg->getKey('urn:nothing-significant', 'mode'), null);
+    }
+
+    function test_hasKey()
+    {
+        $this->assertEquals($this->msg->hasKey(Auth_OpenID_OPENID_NS, 'mode'), true);
+    }
+
+    function test_hasKeyBARE()
+    {
+        $this->assertEquals($this->msg->hasKey(Auth_OpenID_BARE_NS, 'mode'), false);
+    }
+
+    function test_hasKeyNS1()
+    {
+        $this->assertEquals($this->msg->hasKey(Auth_OpenID_OPENID1_NS, 'mode'), true);
+    }
+
+    function test_hasKeyNS2()
+    {
+        $this->assertEquals(
+                               $this->msg->hasKey(Auth_OpenID_OPENID2_NS, 'mode'), false);
+    }
+
+    function test_hasKeyNS3()
+    {
+        $this->assertEquals(
+                               $this->msg->hasKey('urn:nothing-significant', 'mode'), false);
+    }
+
+    function test_getArgs()
+    {
+        $this->assertEquals($this->msg->getArgs(Auth_OpenID_OPENID_NS),
+                               array('mode' => 'error',
+                                     'error' => 'unit test'));
+    }
+
+    function test_getArgsBARE()
+    {
+        $this->assertEquals($this->msg->getArgs(Auth_OpenID_BARE_NS), array());
+    }
+
+    function test_getArgsNS1()
+    {
+        $this->assertEquals($this->msg->getArgs(Auth_OpenID_OPENID1_NS),
+                               array('mode' => 'error',
+                                     'error' => 'unit test'));
+    }
+
+    function test_getArgsNS2()
+    {
+        $this->assertEquals($this->msg->getArgs(Auth_OpenID_OPENID2_NS), array());
+    }
+
+    function test_getArgsNS3()
+    {
+        $this->assertEquals($this->msg->getArgs('urn:nothing-significant'), array());
+    }
+
+    function _test_updateArgsNS($ns, $before=null)
+    {
+        if ($before === null) {
+            $before = array();
+        }
+
+        $update_args = array(
+                             'Camper van Beethoven' => 'David Lowery',
+                             'Magnolia Electric Co.' => 'Jason Molina');
+
+        $this->assertEquals($this->msg->getArgs($ns), $before);
+        $this->msg->updateArgs($ns, $update_args);
+        $after = $before;
+        $after = array_merge($after, $update_args);
+        $this->assertEquals($this->msg->getArgs($ns), $after);
+    }
+
+    function test_updateArgs()
+    {
+        $this->_test_updateArgsNS(Auth_OpenID_OPENID_NS,
+                                  array('mode' => 'error', 'error' => 'unit test'));
+    }
+
+    function test_updateArgsBARE()
+    {
+        $this->_test_updateArgsNS(Auth_OpenID_BARE_NS);
+    }
+
+    function test_updateArgsNS1()
+    {
+        $this->_test_updateArgsNS(Auth_OpenID_OPENID1_NS,
+                                  array('mode' => 'error', 'error' => 'unit test'));
+    }
+
+    function test_updateArgsNS2()
+    {
+        $this->_test_updateArgsNS(Auth_OpenID_OPENID2_NS);
+    }
+
+    function test_updateArgsNS3()
+    {
+        $this->_test_updateArgsNS('urn:nothing-significant');
+    }
+
+    function _test_setArgNS($ns)
+    {
+        $key = 'Camper van Beethoven';
+        $value = 'David Lowery';
+        $this->assertEquals($this->msg->getArg($ns, $key), null);
+        $this->msg->setArg($ns, $key, $value);
+        $this->assertEquals($this->msg->getArg($ns, $key), $value);
+    }
+
+    function test_setArg()
+    {
+        $this->_test_setArgNS(Auth_OpenID_OPENID_NS);
+    }
+
+    function test_setArgBARE()
+    {
+        $this->_test_setArgNS(Auth_OpenID_BARE_NS);
+    }
+
+    function test_setArgNS1()
+    {
+        $this->_test_setArgNS(Auth_OpenID_OPENID1_NS);
+    }
+
+    function test_setArgNS2()
+    {
+        $this->_test_setArgNS(Auth_OpenID_OPENID2_NS);
+    }
+
+    function test_setArgNS3()
+    {
+        $this->_test_setArgNS('urn:nothing-significant');
+    }
+
+    function _test_delArgNS($ns)
+    {
+        $key = 'Camper van Beethoven';
+        $value = 'David Lowery';
+
+        $this->assertEquals($this->msg->delArg($ns, $key), false);
+        $this->msg->setArg($ns, $key, $value);
+        $this->assertEquals($this->msg->getArg($ns, $key), $value);
+        $this->msg->delArg($ns, $key);
+        $this->assertEquals($this->msg->getArg($ns, $key), null);
+    }
+
+    function test_delArg()
+    {
+        $this->_test_delArgNS(Auth_OpenID_OPENID_NS);
+    }
+
+    function test_delArgBARE()
+    {
+        $this->_test_delArgNS(Auth_OpenID_BARE_NS);
+    }
+
+    function test_delArgNS1()
+    {
+        $this->_test_delArgNS(Auth_OpenID_OPENID1_NS);
+    }
+
+    function test_delArgNS2()
+    {
+        $this->_test_delArgNS(Auth_OpenID_OPENID2_NS);
+    }
+
+    function test_delArgNS3()
+    {
+        $this->_test_delArgNS('urn:nothing-significant');
+    }
+
+    function test_isOpenID1()
+    {
+        $this->assertTrue($this->msg->isOpenID1());
+    }
+
+    function test_isOpenID2()
+    {
+        $this->assertFalse($this->msg->isOpenID2());
+    }
+
+    function test_args()
+    {
+        $this->_argTest(Auth_OpenID_BARE_NS, 'mode');
+        $this->_argTest(Auth_OpenID_OPENID_NS, 'mode', 'error');
+        $this->_argTest(Auth_OpenID_OPENID1_NS, 'mode', 'error');
+        $this->_argTest(Auth_OpenID_OPENID2_NS, 'mode');
+        $this->_argTest('urn:nothing-significant', 'mode');
+    }
+}
+
+class Tests_Auth_OpenID_OpenID1ExplicitMessage extends Tests_Auth_OpenID_OpenID1Message {
+    function setUp()
+    {
+        $this->msg = Auth_OpenID_Message::fromPostArgs(array('openid.mode' => 'error',
+                                                             'openid.error' => 'unit test',
+                                                             'openid.ns' => Auth_OpenID_OPENID1_NS));
+    }
+}
+
+class Tests_Auth_OpenID_OpenID2Message extends MessageTest {
+    function setUp()
+    {
+        $this->msg = Auth_OpenID_Message::fromPostArgs(array('openid.mode' => 'error',
+                                                             'openid.error' => 'unit test',
+                                                             'openid.ns' => Auth_OpenID_OPENID2_NS));
+        $this->msg->setArg(Auth_OpenID_BARE_NS, "xey", "value");
+    }
+
+    function test_toPostArgs()
+    {
+        $this->assertEquals($this->msg->toPostArgs(),
+                            array('openid.mode' => 'error',
+                                  'openid.error' => 'unit test',
+                                  'openid.ns' => Auth_OpenID_OPENID2_NS,
+                                  'xey' => 'value'));
+    }
+
+    function test_toArgs()
+    {
+        // This method can't tolerate BARE_NS.
+        $this->msg->delArg(Auth_OpenID_BARE_NS, "xey");
+        $this->assertEquals($this->msg->toArgs(),
+                               array('mode' => 'error',
+                                     'error' => 'unit test',
+                                     'ns' => Auth_OpenID_OPENID2_NS));
+    }
+
+    function test_toKVForm()
+    {
+        // Can't tolerate BARE_NS in kvform
+        $this->msg->delArg(Auth_OpenID_BARE_NS, "xey");
+        $this->assertEquals($this->msg->toKVForm(),
+                               sprintf("error:unit test\nmode:error\nns:%s\n",
+                                       Auth_OpenID_OPENID2_NS));
+    }
+
+    function _test_urlencoded($s)
+    {
+        $expected = 'openid.error=unit+test&openid.mode=error&' .
+            'openid.ns=%s&xey=value';
+
+        $expected = sprintf($expected, urlencode(Auth_OpenID_OPENID2_NS));
+        $this->assertEquals($s, $expected);
+    }
+
+    function test_toURLEncoded()
+    {
+        $this->_test_urlencoded($this->msg->toURLEncoded());
+    }
+
+    function test_toURL()
+    {
+        $base_url = 'http://base.url/';
+        $actual = $this->msg->toURL($base_url);
+        $actual_base = substr($actual, 0, strlen($base_url));
+
+        $this->assertEquals($actual_base, $base_url);
+        $this->assertEquals($actual[strlen($base_url)], '?');
+        $query = substr($actual, strlen($base_url) + 1);
+        $this->_test_urlencoded($query);
+    }
+
+    function test_getOpenID()
+    {
+        $this->assertEquals($this->msg->getOpenIDNamespace(),
+                               Auth_OpenID_OPENID2_NS);
+    }
+
+    function test_getKeyOpenID()
+    {
+        $this->assertEquals($this->msg->getKey(Auth_OpenID_OPENID_NS, 'mode'),
+                               'openid.mode');
+    }
+
+    function test_getKeyBARE()
+    {
+        $this->assertEquals($this->msg->getKey(Auth_OpenID_BARE_NS, 'mode'), 'mode');
+    }
+
+    function test_getKeyNS1()
+    {
+        $this->assertEquals(
+                               $this->msg->getKey(Auth_OpenID_OPENID1_NS, 'mode'), null);
+    }
+
+    function test_getKeyNS2()
+    {
+        $this->assertEquals(
+                               $this->msg->getKey(Auth_OpenID_OPENID2_NS, 'mode'), 'openid.mode');
+    }
+
+    function test_getKeyNS3()
+    {
+        $this->assertEquals(
+                               $this->msg->getKey('urn:nothing-significant', 'mode'), null);
+    }
+
+    function test_hasKeyOpenID()
+    {
+        $this->assertEquals($this->msg->hasKey(Auth_OpenID_OPENID_NS, 'mode'), true);
+    }
+
+    function test_hasKeyBARE()
+    {
+        $this->assertEquals($this->msg->hasKey(Auth_OpenID_BARE_NS, 'mode'), false);
+    }
+
+    function test_hasKeyNS1()
+    {
+        $this->assertEquals(
+                               $this->msg->hasKey(Auth_OpenID_OPENID1_NS, 'mode'), false);
+    }
+
+    function test_hasKeyNS2()
+    {
+        $this->assertEquals(
+                               $this->msg->hasKey(Auth_OpenID_OPENID2_NS, 'mode'), true);
+    }
+
+    function test_hasKeyNS3()
+    {
+        $this->assertEquals(
+                               $this->msg->hasKey('urn:nothing-significant', 'mode'), false);
+    }
+
+    function test_getArgsOpenID()
+    {
+        $this->assertEquals($this->msg->getArgs(Auth_OpenID_OPENID_NS),
+                               array('mode' => 'error',
+                                     'error' => 'unit test'));
+    }
+
+    function test_getArgsBARE()
+    {
+        $this->assertEquals($this->msg->getArgs(Auth_OpenID_BARE_NS),
+                               array('xey' =>  'value'));
+    }
+
+    function test_getArgsNS1()
+    {
+        $this->assertEquals($this->msg->getArgs(Auth_OpenID_OPENID1_NS), array());
+    }
+
+    function test_getArgsNS2()
+    {
+        $this->assertEquals($this->msg->getArgs(Auth_OpenID_OPENID2_NS),
+                               array('mode' => 'error',
+                                     'error' => 'unit test'));
+    }
+
+    function test_getArgsNS3()
+    {
+        $this->assertEquals($this->msg->getArgs('urn:nothing-significant'), array());
+    }
+
+    function _test_updateArgsNS($ns, $before=null)
+    {
+        if ($before === null) {
+            $before = array();
+        }
+
+        $update_args = array(
+            'Camper van Beethoven' => 'David Lowery',
+            'Magnolia Electric Co.' => 'Jason Molina');
+
+        $this->assertEquals($this->msg->getArgs($ns), $before);
+        $this->msg->updateArgs($ns, $update_args);
+        $after = $before;
+        $after = array_merge($after, $update_args);
+        $this->assertEquals($this->msg->getArgs($ns), $after);
+    }
+
+    function test_updateArgsOpenID()
+    {
+        $this->_test_updateArgsNS(Auth_OpenID_OPENID_NS,
+                                  array('mode' => 'error', 'error' => 'unit test'));
+    }
+
+    function test_updateArgsBARE()
+    {
+        $this->_test_updateArgsNS(Auth_OpenID_BARE_NS,
+                                  array('xey' => 'value'));
+    }
+
+    function test_updateArgsNS1()
+    {
+        $this->_test_updateArgsNS(Auth_OpenID_OPENID1_NS);
+    }
+
+    function test_updateArgsNS2()
+    {
+        $this->_test_updateArgsNS(Auth_OpenID_OPENID2_NS,
+                                  array('mode' => 'error', 'error' => 'unit test'));
+    }
+
+    function test_updateArgsNS3()
+    {
+        $this->_test_updateArgsNS('urn:nothing-significant');
+    }
+
+    function _test_setArgNS($ns)
+    {
+        $key = 'Camper van Beethoven';
+        $value = 'David Lowery';
+        $this->assertEquals($this->msg->getArg($ns, $key), null);
+        $this->msg->setArg($ns, $key, $value);
+        $this->assertEquals($this->msg->getArg($ns, $key), $value);
+    }
+
+    function test_setArgOpenID()
+    {
+        $this->_test_setArgNS(Auth_OpenID_OPENID_NS);
+    }
+
+    function test_setArgBARE()
+    {
+        $this->_test_setArgNS(Auth_OpenID_BARE_NS);
+    }
+
+    function test_setArgNS1()
+    {
+        $this->_test_setArgNS(Auth_OpenID_OPENID1_NS);
+    }
+
+    function test_setArgNS2()
+    {
+        $this->_test_setArgNS(Auth_OpenID_OPENID2_NS);
+    }
+
+    function test_setArgNS3()
+    {
+        $this->_test_setArgNS('urn:nothing-significant');
+    }
+
+    function test_badAlias()
+    {
+        // Make sure dotted aliases and OpenID protocol fields are not
+        // allowed as namespace aliases.
+
+        global $Auth_OpenID_OPENID_PROTOCOL_FIELDS;
+
+        $all = array_merge($Auth_OpenID_OPENID_PROTOCOL_FIELDS, array('dotted.alias'));
+
+        foreach ($all as $f) {
+            $args = array(sprintf('openid.ns.%s', $f) => 'blah',
+                          sprintf('openid.%s.foo', $f) =>  'test');
+
+            // .fromPostArgs covers .fromPostArgs, .fromOpenIDArgs,
+            // ._fromOpenIDArgs, and .fromOpenIDArgs (since it calls
+            // .fromPostArgs).  Python code raises AssertionError, but
+            // we usually return null for bad things in PHP.
+            $this->assertEquals($this->msg->fromPostArgs($args), null);
+        }
+    }
+
+    function _test_delArgNS($ns)
+    {
+        $key = 'Camper van Beethoven';
+        $value = 'David Lowery';
+
+        $this->assertEquals($this->msg->delArg($ns, $key), false);
+        $this->msg->setArg($ns, $key, $value);
+        $this->assertEquals($this->msg->getArg($ns, $key), $value);
+        $this->msg->delArg($ns, $key);
+        $this->assertEquals($this->msg->getArg($ns, $key), null);
+    }
+
+    function test_delArgOpenID()
+    {
+        $this->_test_delArgNS(Auth_OpenID_OPENID_NS);
+    }
+
+    function test_delArgBARE()
+    {
+        $this->_test_delArgNS(Auth_OpenID_BARE_NS);
+    }
+
+    function test_delArgNS1()
+    {
+        $this->_test_delArgNS(Auth_OpenID_OPENID1_NS);
+    }
+
+    function test_delArgNS2()
+    {
+        $this->_test_delArgNS(Auth_OpenID_OPENID2_NS);
+    }
+
+    function test_delArgNS3()
+    {
+        $this->_test_delArgNS('urn:nothing-significant');
+    }
+
+    function test_overwriteExtensionArg()
+    {
+        $ns = 'urn:unittest_extension';
+        $key = 'mykey';
+        $value_1 = 'value_1';
+        $value_2 = 'value_2';
+
+        $this->msg->setArg($ns, $key, $value_1);
+        $this->assertTrue($this->msg->getArg($ns, $key) == $value_1);
+        $this->msg->setArg($ns, $key, $value_2);
+        $this->assertTrue($this->msg->getArg($ns, $key) == $value_2);
+    }
+
+    function test_argList()
+    {
+        $this->assertEquals($this->msg->fromPostArgs(array('arg' => array(1, 2, 3))),
+                            null);
+    }
+
+    function test_isOpenID1()
+    {
+        $this->assertFalse($this->msg->isOpenID1());
+    }
+
+    function test_isOpenID2()
+    {
+        $this->assertTrue($this->msg->isOpenID2());
+    }
+
+    function test_args()
+    {
+        $this->_argTest(Auth_OpenID_BARE_NS, 'mode');
+        $this->_argTest(Auth_OpenID_OPENID_NS, 'mode', 'error');
+        $this->_argTest(Auth_OpenID_OPENID1_NS, 'mode');
+        $this->_argTest(Auth_OpenID_OPENID2_NS, 'mode', 'error');
+        $this->_argTest('urn:nothing-significant', 'mode');
+    }
+}
+
+class Tests_Auth_OpenID_NamespaceMap extends PHPUnit_TestCase {
+    function test_onealias()
+    {
+        $nsm = new Auth_OpenID_NamespaceMap();
+        $uri = 'http://example.com/foo';
+        $alias = "foo";
+        $nsm->addAlias($uri, $alias);
+        $this->assertTrue($nsm->getNamespaceURI($alias) == $uri);
+        $this->assertTrue($nsm->getAlias($uri) == $alias);
+    }
+
+    function test_iteration()
+    {
+        $nsm = new Auth_OpenID_NamespaceMap();
+        $uripat = 'http://example.com/foo%d';
+
+        $nsm->add(sprintf($uripat, 0));
+
+        for ($n = 1; $n < 23; $n++) {
+            $this->assertTrue($nsm->contains(sprintf($uripat, $n - 1)));
+            $this->assertTrue($nsm->isDefined(sprintf($uripat, $n - 1)));
+            $nsm->add(sprintf($uripat, $n));
+        }
+
+        foreach ($nsm->iteritems() as $pair) {
+            list($uri, $alias) = $pair;
+            $this->assertTrue(substr($uri, 22) == $alias);
+        }
+
+        $it = $nsm->iterAliases();
+        $this->assertTrue(count($it) == 23);
+
+        $it = $nsm->iterNamespaceURIs();
+        $this->assertTrue(count($it) == 23);
+    }
+}
+
+class Tests_Auth_OpenID_Message extends PHPUnit_TestCase {
+}
+
+$Tests_Auth_OpenID_Message_other = array(
+                                         new Tests_Auth_OpenID_EmptyMessage(),
+                                         new Tests_Auth_OpenID_OpenID1Message(),
+                                         new Tests_Auth_OpenID_OpenID2Message(),
+                                         new Tests_Auth_OpenID_NamespaceMap(),
+                                         new Tests_Auth_OpenID_OpenID1ExplicitMessage()
+                                         );
+
+?>

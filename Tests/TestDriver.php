@@ -120,6 +120,7 @@ $_tests = array(
                                        'Discover',
                                        'HMACSHA1',
                                        'KVForm',
+                                       'Message',
                                        'Nonce',
                                        'OpenID_Yadis',
                                        'Parse',
