@@ -23,7 +23,7 @@ if ($response->status == Auth_OpenID_CANCEL) {
         $success .= '  (XRI CanonicalID: '.$response->endpoint->canonicalID.') ';
     }
 
-    $sreg = $response->extensionResponse('sreg');
+    $sreg = $response->extensionResponse('sreg', true);
 
     if (@$sreg['email']) {
         $success .= "  You also returned '".$sreg['email']."' as your email.";

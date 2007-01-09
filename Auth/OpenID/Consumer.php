@@ -1052,9 +1052,13 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
      * @param string $prefix The extension namespace from which to
      * extract the extension data.
      */
-    function extensionResponse($namespace_uri)
+    function extensionResponse($namespace_uri, $require_signed)
     {
-        return $this->message->getArgs($namespace_uri);
+        if ($require_signed) {
+            return $this->getSignedNS($namespace_uri);
+        } else {
+            return $this->message->getArgs($namespace_uri);
+        }
     }
 
     function isOpenID1()
@@ -1080,6 +1084,21 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
         } else {
             return $default;
         }
+    }
+
+    function getSignedNS($ns_uri)
+    {
+        $args = array();
+
+        $msg_args = $this->message->getArgs($ns_uri);
+
+        foreach ($msg_args as $key => $value) {
+            if (!$this->isSigned($ns_uri, $key)) {
+                return null;
+            }
+        }
+
+        return $msg_args;
     }
 
     /**

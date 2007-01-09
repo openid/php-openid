@@ -907,10 +907,41 @@ class Tests_Auth_OpenID_SuccessResponse extends PHPUnit_TestCase {
         $message = Auth_OpenID_Message::fromPostArgs($query);
         $resp = new Auth_OpenID_SuccessResponse($this->endpoint, $message);
 
-        $utargs = $resp->extensionResponse($uri);
+        $utargs = $resp->extensionResponse($uri, false);
         $this->assertEquals($utargs, array('one' => '1', 'two' => '2'));
-        $sregargs = $resp->extensionResponse(Auth_OpenID_SREG_URI);
+        $sregargs = $resp->extensionResponse(Auth_OpenID_SREG_URI, false);
         $this->assertEquals($sregargs, array('nickname' => 'j3h'));
+    }
+
+    function test_extensionResponseSigned()
+    {
+        $args = array(
+            'ns.sreg' => 'urn:sreg',
+            'ns.unittest' => 'urn:unittest',
+            'unittest.one' => '1',
+            'unittest.two' => '2',
+            'sreg.nickname' => 'j3h',
+            'sreg.dob' => 'yesterday',
+            'return_to' => 'return_to',
+            'signed' => 'sreg.nickname,unittest.one,sreg.dob');
+
+        $signed_list = array('openid.sreg.nickname',
+                             'openid.unittest.one',
+                             'openid.sreg.dob');
+
+        $msg = Auth_OpenID_Message::fromOpenIDArgs($args);
+        $resp = new Auth_OpenID_SuccessResponse($this->endpoint, $msg, $signed_list);
+
+        // All args in this NS are signed, so expect all.
+        $sregargs = $resp->extensionResponse('urn:sreg', true);
+        $this->assertEquals($sregargs,
+                            array('nickname' => 'j3h',
+                                  'dob' => 'yesterday'));
+
+        // Not all args in this NS are signed, so expect null when
+        // asking for them.
+        $utargs = $resp->extensionResponse('urn:unittest', true);
+        $this->assertEquals($utargs, null);
     }
 
     function test_noReturnTo()
