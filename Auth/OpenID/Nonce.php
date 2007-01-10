@@ -15,6 +15,7 @@ define('Auth_OpenID_Nonce_CHRS',"abcdefghijklmnopqrstuvwxyz" .
 // Keep nonces for five hours (allow five hours for the combination of
 // request time and clock skew). This is probably way more than is
 // necessary, but there is not much overhead in storing nonces.
+global $Auth_OpenID_SKEW;
 $Auth_OpenID_SKEW = 60 * 60 * 5;
 
 define('Auth_OpenID_Nonce_REGEX',

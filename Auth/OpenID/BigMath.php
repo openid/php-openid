@@ -335,7 +335,6 @@ class Auth_OpenID_GmpMathWrapper extends Auth_OpenID_MathLibrary{
  * You can define new math library implementations and add them to
  * this array.
  */
-global $_Auth_OpenID_math_extensions;
 $_Auth_OpenID_math_extensions = array(
     array('modules' => array('gmp', 'php_gmp'),
           'extension' => 'gmp',
