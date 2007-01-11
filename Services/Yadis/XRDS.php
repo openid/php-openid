@@ -36,10 +36,15 @@ define('SERVICES_YADIS_MATCH_ANY', 102);
  */
 define('SERVICES_YADIS_MAX_PRIORITY', pow(2, 30));
 
+/**
+ * XDR XML namespace
+ */
+define('Services_Yadis_XMLNS_XRD_2_0', 'xri://$xrd*($v*2.0)');
+
 function Services_Yadis_getNSMap()
 {
     return array('xrds' => 'xri://$xrds',
-                 'xrd' => 'xri://$xrd*($v*2.0)');
+                 'xrd' => Services_Yadis_XMLNS_XRD_2_0);
 }
 
 /**
