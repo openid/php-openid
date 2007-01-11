@@ -198,9 +198,10 @@ class Tests_Auth_OpenID_BigMath extends PHPUnit_TestSuite {
         $cases = array(
                        array("\x00", 0),
                        array("\x01", 1),
-                       array("\x00\xFF", 255),
+                       array("\x7F", 127),
                        array("\x00\x80", 128),
                        array("\x00\x81", 129),
+                       array("\x00\xFF", 255),
                        array("\x00\x80\x00", 32768),
                        array("OpenID is cool",
                              "1611215304203901150134421257416556")
