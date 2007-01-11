@@ -52,7 +52,7 @@ class Auth_OpenID_ServiceEndpoint {
 
         // Try to register new namespace.
         $service->parser->registerNamespace('openid',
-                                            'http://openid.net/xmlns/1.0');
+                                            Auth_OpenID_XMLNS_1_0);
 
         // XXX: should this die if there is more than one delegate
         // element?
