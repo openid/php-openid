@@ -39,9 +39,9 @@ $__ext_types = array(
 // All valid combinations of Type tags that should produce an OpenID
 // endpoint
 $__openid_types = array(
-                        _OPENID_1_0_TYPE,
-                        _OPENID_1_1_TYPE,
-                        _OPENID_1_2_TYPE);
+                        Auth_OpenID_TYPE_1_0,
+                        Auth_OpenID_TYPE_1_1,
+                        Auth_OpenID_TYPE_1_2);
 
 $temp = array();
 foreach (__subsets($__ext_types) as $exts) {

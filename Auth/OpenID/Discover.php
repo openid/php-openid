@@ -9,10 +9,10 @@ require_once "Auth/OpenID/Parse.php";
 require_once "Services/Yadis/XRIRes.php";
 require_once "Services/Yadis/Yadis.php";
 
-define('_OPENID_1_0_NS', 'http://openid.net/xmlns/1.0');
-define('_OPENID_1_2_TYPE', 'http://openid.net/signon/1.2');
-define('_OPENID_1_1_TYPE', 'http://openid.net/signon/1.1');
-define('_OPENID_1_0_TYPE', 'http://openid.net/signon/1.0');
+define('Auth_OpenID_XMLNS_1_0', 'http://openid.net/xmlns/1.0');
+define('Auth_OpenID_TYPE_1_2', 'http://openid.net/signon/1.2');
+define('Auth_OpenID_TYPE_1_1', 'http://openid.net/signon/1.1');
+define('Auth_OpenID_TYPE_1_0', 'http://openid.net/signon/1.0');
 
 /**
  * Object representing an OpenID service endpoint.
@@ -95,7 +95,7 @@ class Auth_OpenID_ServiceEndpoint {
         $service->identity_url = $uri;
         $service->delegate = $delegate_url;
         $service->server_url = $server_url;
-        $service->type_uris = array(_OPENID_1_0_TYPE);
+        $service->type_uris = array(Auth_OpenID_TYPE_1_0);
         return $service;
     }
 }
@@ -106,9 +106,9 @@ function filter_MatchesAnyOpenIDType(&$service)
 
     foreach ($uris as $uri) {
         if (in_array($uri,
-                     array(_OPENID_1_0_TYPE,
-                           _OPENID_1_1_TYPE,
-                           _OPENID_1_2_TYPE))) {
+                     array(Auth_OpenID_TYPE_1_0,
+                           Auth_OpenID_TYPE_1_1,
+                           Auth_OpenID_TYPE_1_2))) {
             return true;
         }
     }
@@ -235,9 +235,9 @@ function _Auth_OpenID_discoverXRI($iname, &$fetcher)
 {
     $services = new Services_Yadis_ProxyResolver($fetcher);
     list($canonicalID, $service_list) = $services->query($iname,
-                                                  array(_OPENID_1_0_TYPE,
-                                                        _OPENID_1_1_TYPE,
-                                                        _OPENID_1_2_TYPE),
+                                                  array(Auth_OpenID_TYPE_1_0,
+                                                        Auth_OpenID_TYPE_1_1,
+                                                        Auth_OpenID_TYPE_1_2),
                                      array('filter_MatchesAnyOpenIDType'));
 
     $endpoints = Auth_OpenID_makeOpenIDEndpoints($iname, $service_list);
