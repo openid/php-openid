@@ -584,7 +584,7 @@ class Auth_OpenID_GenericConsumer {
                                                    "Missing required field");
         }
 
-        if ($endpoint->getServerID() != $server_id2) {
+        if ($endpoint->getLocalID() != $server_id2) {
             return new Auth_OpenID_FailureResponse($endpoint,
                                              "Server ID (delegate) mismatch");
         }
@@ -989,7 +989,7 @@ class Auth_OpenID_AuthRequest {
 
         $redir_args = array(
             'openid.mode' => $mode,
-            'openid.identity' => $this->endpoint->getServerID(),
+            'openid.identity' => $this->endpoint->getLocalID(),
             'openid.return_to' => $return_to,
             'openid.trust_root' => $trust_root);
 

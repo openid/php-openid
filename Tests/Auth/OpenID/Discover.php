@@ -663,7 +663,7 @@ class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
       $endpoint = new Auth_OpenID_ServiceEndpoint();
       $endpoint->identity_url = "=example";
       $endpoint->canonicalID = Services_Yadis_XRI("=!1000");
-      $this->assertEquals($endpoint->getServerID(), Services_Yadis_XRI("=!1000"));
+      $this->assertEquals($endpoint->getLocalID(), Services_Yadis_XRI("=!1000"));
     }
 }
 

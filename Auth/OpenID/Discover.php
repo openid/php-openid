@@ -109,7 +109,7 @@ class Auth_OpenID_ServiceEndpoint {
         }
     }
 
-    function getServerID()
+    function getLocalID()
     {
         // Return the identifier that should be sent as the
         // openid.identity_url parameter to the server.
