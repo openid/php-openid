@@ -6,6 +6,7 @@
 
 require_once "Auth/OpenID.php";
 require_once "Auth/OpenID/Parse.php";
+require_once "Auth/OpenID/Message.php";
 require_once "Services/Yadis/XRIRes.php";
 require_once "Services/Yadis/Yadis.php";
 
@@ -16,6 +17,8 @@ define('Auth_OpenID_XMLNS_1_0', 'http://openid.net/xmlns/1.0');
 define('Auth_OpenID_TYPE_1_2', 'http://openid.net/signon/1.2');
 define('Auth_OpenID_TYPE_1_1', 'http://openid.net/signon/1.1');
 define('Auth_OpenID_TYPE_1_0', 'http://openid.net/signon/1.0');
+define('Auth_OpenID_TYPE_2_0_IDP', 'http://openid.net/server/2.0');
+define('Auth_OpenID_TYPE_2_0', 'http://openid.net/signon/2.0');
 
 /**
  * Object representing an OpenID service endpoint.
@@ -34,6 +37,44 @@ class Auth_OpenID_ServiceEndpoint {
     function usesExtension($extension_uri)
     {
         return in_array($extension_uri, $this->type_uris);
+    }
+
+    function preferredNamespace()
+    {
+        if (in_array(Auth_OpenID_TYPE_2_0_IDP, $this->type_uris) ||
+            in_array(Auth_OpenID_TYPE_2_0, $this->type_uris)) {
+            return Auth_OpenID_OPENID2_NS;
+        } else {
+            return Auth_OpenID_OPENID1_NS;
+        }
+    }
+
+    function supportsType($type_uri)
+    {
+        // Does this endpoint support this type?
+        return ((($type_uri == Auth_OpenID_OPENID2_NS) &&
+                 (in_array(Auth_OpenID_TYPE_2_0_IDP, $this->type_uris))) or
+                $this->usesExtension($type_uri));
+    }
+
+    function compatibilityMode()
+    {
+        return $this->preferredNamespace() != Auth_OpenID_OPENID2_NS;
+    }
+
+    function isOPIdentifier()
+    {
+        return in_array(Auth_OpenID_TYPE_2_0_IDP, $this->type_uris);
+    }
+
+    function fromOPEndpointURL($op_endpoint_url)
+    {
+        // Construct an OP-Identifier OpenIDServiceEndpoint object for
+        // a given OP Endpoint URL
+        $obj = new Auth_OpenID_ServiceEndpoint();
+        $obj->server_url = $op_endpoint_url;
+        $obj->type_uris = array(Auth_OpenID_TYPE_2_0_IDP);
+        return $obj;
     }
 
     function parseService($yadis_url, $uri, $type_uris, $service_element)
