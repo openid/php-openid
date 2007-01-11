@@ -9,7 +9,10 @@ require_once "Auth/OpenID/Parse.php";
 require_once "Services/Yadis/XRIRes.php";
 require_once "Services/Yadis/Yadis.php";
 
+// XML namespace value
 define('Auth_OpenID_XMLNS_1_0', 'http://openid.net/xmlns/1.0');
+
+// Yadis service types
 define('Auth_OpenID_TYPE_1_2', 'http://openid.net/signon/1.2');
 define('Auth_OpenID_TYPE_1_1', 'http://openid.net/signon/1.1');
 define('Auth_OpenID_TYPE_1_0', 'http://openid.net/signon/1.0');
