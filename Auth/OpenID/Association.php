@@ -265,27 +265,69 @@ class Auth_OpenID_Association {
      * string => string pairs).
      * @return string $signature The signature, base64 encoded
      */
-    function signDict($fields, $data, $prefix = 'openid.')
+    function signMessage($message)
     {
-        $pairs = array();
-        foreach ($fields as $field) {
-            $pairs[] = array($field, $data[$prefix . $field]);
+        if ($message->hasKey(Auth_OpenID_OPENID_NS, 'sig') ||
+            $message->hasKey(Auth_OpenID_OPENID_NS, 'signed')) {
+            // Already has a sig
+            return null;
         }
 
-        return base64_encode($this->sign($pairs));
+        $extant_handle = $message->getArg(Auth_OpenID_OPENID_NS,
+                                          'assoc_handle');
+
+        if ($extant_handle && ($extant_handle != $this->handle)) {
+            // raise ValueError("Message has a different association handle")
+            return null;
+        }
+
+        $signed_message = $message;
+        $signed_message->setArg(Auth_OpenID_OPENID_NS, 'assoc_handle',
+                                $this->handle);
+
+        $message_keys = array_keys($signed_message->toPostArgs());
+        $signed_list = array();
+        $signed_prefix = 'openid.';
+
+        foreach ($message_keys as $k) {
+            if (strpos($k, $signed_prefix) === 0) {
+                $signed_list[] = substr($k, strlen($signed_prefix));
+            }
+        }
+
+        $signed_list[] = 'signed';
+        sort($signed_list);
+
+        $signed_message->setArg(Auth_OpenID_OPENID_NS, 'signed',
+                                implode(',', $signed_list));
+        $sig = $this->getMessageSignature($signed_message);
+        $signed_message->setArg(Auth_OpenID_OPENID_NS, 'sig', $sig);
+        return $signed_message;
     }
 
-    /**
-     * Add a signature to an array of fields
-     *
-     * @access private
-     */
-    function addSignature($fields, &$data, $prefix = 'openid.')
+    function _makePairs(&$message)
     {
-        $sig = $this->signDict($fields, $data, $prefix);
-        $signed = implode(",", $fields);
-        $data[$prefix . 'sig'] = $sig;
-        $data[$prefix . 'signed'] = $signed;
+        $signed = $message->getArg(Auth_OpenID_OPENID_NS, 'signed');
+        if (!$signed) {
+            // raise ValueError('Message has no signed list: %s' % (message,))
+            return null;
+        }
+
+        $signed_list = explode(',', $signed);
+        $pairs = array();
+        $data = $message->toPostArgs();
+        foreach ($signed_list as $field) {
+            $pairs[] = array($field, Auth_OpenID::arrayGet($data,
+                                                           'openid.' .
+                                                           $field, ''));
+        }
+        return $pairs;
+    }
+
+    function getMessageSignature(&$message)
+    {
+        $pairs = $this->_makePairs($message);
+        return base64_encode($this->sign($pairs));
     }
 
     /**
@@ -294,14 +336,17 @@ class Auth_OpenID_Association {
      *
      * @access private
      */
-    function checkSignature($data, $prefix = 'openid.')
+    function checkMessageSignature(&$message)
     {
-        $signed = $data[$prefix . 'signed'];
-        $fields = explode(",", $signed);
-        $expected_sig = $this->signDict($fields, $data, $prefix);
-        $request_sig = $data[$prefix . 'sig'];
+        $sig = $message->getArg(Auth_OpenID_OPENID_NS,
+                                'sig');
 
-        return ($request_sig == $expected_sig);
+        if (!$sig) {
+            return false;
+        }
+
+        $calculated_sig = $this->getMessageSignature($message);
+        return $calculated_sig == $sig;
     }
 }
 

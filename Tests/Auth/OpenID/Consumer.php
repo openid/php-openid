@@ -209,14 +209,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
                        'openid.assoc_handle'=> $fetcher->assoc_handle,
                        );
 
-        if ($consumer->_use_assocs) {
-            $assoc = $store->getAssociation($_Auth_OpenID_server_url,
-                                            $fetcher->assoc_handle);
-
-            $assoc->addSignature(array('mode', 'return_to',
-                                       'assoc_handle', 'identity'),
-                                 $query);
-        } else {
+        if (!$consumer->_use_assocs) {
             $query['openid.signed'] =
                 'assoc_handle,mode,signed,identity';
             $query['openid.assoc_handle'] = $fetcher->assoc_handle;
@@ -224,6 +217,12 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
         }
 
         $message = Auth_OpenID_Message::fromPostArgs($query);
+
+        if ($consumer->_use_assocs) {
+            $assoc = $store->getAssociation($_Auth_OpenID_server_url,
+                                            $fetcher->assoc_handle);
+            $message = $assoc->signMessage($message);
+        }
 
         $result = $consumer->complete($message, $result->endpoint);
 
@@ -542,9 +541,8 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuthTriggered extends _TestIdRes {
             'openid.identity' => $this->server_id,
             'openid.assoc_handle' => $good_handle);
 
-        $good_assoc->addSignature(array('return_to', 'identity'), $query);
-
         $message = Auth_OpenID_Message::fromPostArgs($query);
+        $message = $good_assoc->signMessage($message);
 
         $info = $this->_doIdRes($message);
         $this->assertEquals($info->status, 'success');
@@ -983,8 +981,7 @@ class Tests_Auth_OpenID_ParseAssociation extends _TestIdRes {
     function _setUpDH()
     {
         list($sess, $message) = $this->consumer->_createAssociateRequest($this->server_url);
-        $args = $message->toPostArgs();
-        $server_sess = Auth_OpenID_DiffieHellmanServerSession::fromQuery($args);
+        $server_sess = Auth_OpenID_DiffieHellmanServerSession::fromMessage($message);
         $server_resp = $server_sess->answer($this->secret);
         $server_resp['assoc_type'] = 'HMAC-SHA1';
         $server_resp['assoc_handle'] = 'handle';

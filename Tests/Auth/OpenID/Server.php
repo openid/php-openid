@@ -64,7 +64,11 @@ class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_TestCase {
             'openid.mode' => 'monkeydance',
             'openid.identity' => 'http://wagu.unittest/',
             'openid.return_to' => $return_to);
-        $e = new Auth_OpenID_ServerError($args, "plucky");
+
+        $e = new Auth_OpenID_ServerError(
+                   Auth_OpenID_Message::fromPostArgs($args),
+                   "plucky");
+
         $this->assertTrue($e->hasReturnTo());
         $expected_args = array(
             'openid.mode' => 'error',
@@ -91,7 +95,10 @@ class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_TestCase {
             'openid.mode' => 'zebradance',
             'openid.identity' => 'http://wagu.unittest/');
 
-        $e = new Auth_OpenID_ServerError($args, "waffles");
+        $e = new Auth_OpenID_ServerError(
+                   Auth_OpenID_Message::fromPostArgs($args),
+                   "waffles");
+
         $this->assertFalse($e->hasReturnTo());
         $expected = "error:waffles\nmode:error\n";
         $this->assertEquals($e->encodeToKVForm(), $expected);
@@ -123,7 +130,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
 
         $r = $this->decoder->decode($args);
 
-        $this->assertTrue($r === null);
+        $this->assertTrue(is_a($r, 'Auth_OpenID_ServerError'));
     }
 
     function test_bad()
@@ -187,7 +194,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
 
         $result = $this->decoder->decode($args);
         if (Auth_OpenID_isError($result)) {
-            $this->assertTrue($result->query);
+            $this->assertTrue($result->message);
         } else {
             $this->fail(sprintf("Expected Auth_OpenID_Error, instead " .
                                 "returned with %s", gettype($result)));
@@ -218,7 +225,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
 
         $result = $this->decoder->decode($args);;
         if (Auth_OpenID_isError($result)) {
-            $this->assertTrue($result->query);
+            $this->assertTrue($result->message);
         } else {
             $this->fail(sprintf("Expected ProtocolError, instead " .
                                 "returned with %s", gettype($result)));
@@ -240,10 +247,6 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
         $this->assertTrue(is_a($r, 'Auth_OpenID_CheckAuthRequest'));
         $this->assertEquals($r->mode, 'check_authentication');
         $this->assertEquals($r->sig, 'sigblob');
-        $this->assertEquals($r->signed, array(
-            array('foo', 'signedval1'),
-            array('bar', 'signedval2'),
-            array('mode', 'id_res')));
     }
 
     function test_checkAuthMissingSignedField()
@@ -464,11 +467,12 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
             'http://burr.unittest/999',
             false);
 
-        $response = new Auth_OpenID_CheckIDResponse($request);
-        $response->fields = array(
-            'mode' => 'id_res',
-            'identity' => $request->identity,
-            'return_to' => $request->return_to);
+        $response = new Auth_OpenID_ServerResponse($request);
+        $response->fields = Auth_OpenID_Message::fromOpenIDArgs(
+               array(
+                     'mode' => 'id_res',
+                     'identity' => $request->identity,
+                     'return_to' => $request->return_to));
 
         $webresponse = $this->encoder->encode($response);
         $this->assertEquals($webresponse->code, AUTH_OPENID_HTTP_REDIRECT);
@@ -482,15 +486,9 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
 
         $parsed = parse_url($location);
         $query = array();
-        parse_str($parsed['query'], $query);
-        $query = Auth_OpenID::fixArgs($query);
+        $query = Auth_OpenID::parse_str($parsed['query']);
 
-        $expected = array();
-
-        foreach ($response->fields as $k => $v) {
-            $expected['openid.' . $k] = $v;
-        }
-
+        $expected = $response->fields->toPostArgs();
         $this->assertEquals($query, $expected);
     }
 
@@ -502,8 +500,8 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
             'http://burr.unittest/999',
             false);
 
-        $response = new Auth_OpenID_CheckIDResponse($request);
-        $response->fields = array('mode' => 'cancel');
+        $response = new Auth_OpenID_ServerResponse($request);
+        $response->fields = Auth_OpenID_Message::fromOpenIDArgs(array('mode' => 'cancel'));
 
         $webresponse = $this->encoder->encode($response);
         $this->assertEquals($webresponse->code, AUTH_OPENID_HTTP_REDIRECT);
@@ -513,9 +511,11 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
     function test_assocReply()
     {
         if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            $request = Auth_OpenID_AssociateRequest::fromQuery(array());
+            $message = new Auth_OpenID_Message();
+            $request = Auth_OpenID_AssociateRequest::fromMessage($message);
             $response = new Auth_OpenID_ServerResponse($request);
-            $response->fields = array('assoc_handle' => "every-zig");
+            $response->fields = Auth_OpenID_Message::fromOpenIDArgs(
+                              array('assoc_handle' => "every-zig"));
             $webresponse = $this->encoder->encode($response);
             $body = "assoc_handle:every-zig\n";
             $this->assertEquals($webresponse->code, AUTH_OPENID_HTTP_OK);
@@ -530,9 +530,9 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
                                                     'siggggg',
                                                     array());
         $response = new Auth_OpenID_ServerResponse($request);
-        $response->fields = array(
+        $response->fields = Auth_OpenID_Message::fromOpenIDArgs(array(
             'is_valid' => 'true',
-            'invalidate_handle' => 'xXxX:xXXx');
+            'invalidate_handle' => 'xXxX:xXXx'));
 
         $body = "invalidate_handle:xXxX:xXXx\nis_valid:true\n";
         $webresponse = $this->encoder->encode($response);
@@ -545,7 +545,8 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
     {
         $args = array('openid.identity' => 'http://limu.unittest/');
 
-        $e = new Auth_OpenID_ServerError($args, "wet paint");
+        $e = new Auth_OpenID_ServerError(Auth_OpenID_Message::fromPostArgs($args),
+                                         "wet paint");
 
         $result = $this->encoder->encode($e);
         if (!Auth_OpenID_isError($result, 'Auth_OpenID_EncodingError')) {
@@ -561,7 +562,9 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
             'openid.identity' => 'http://limu.unittest/');
 
         $body="error:snoot\nmode:error\n";
-        $err = new Auth_OpenID_ServerError($args, "snoot");
+        $err = new Auth_OpenID_ServerError(Auth_OpenID_Message::fromPostArgs($args),
+                                           "snoot");
+
         $webresponse = $this->encoder->encode($err);
         $this->assertEquals($webresponse->code, AUTH_OPENID_HTTP_ERROR);
         $this->assertEquals($webresponse->headers, array());
@@ -581,11 +584,11 @@ class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
             'http://burr.unittest/999',
             false);
 
-        $this->response = new Auth_OpenID_CheckIDResponse($this->request);
-        $this->response->fields = array(
+        $this->response = new Auth_OpenID_ServerResponse($this->request);
+        $this->response->fields = Auth_OpenID_Message::fromOpenIDArgs(array(
             'mode' => 'id_res',
             'identity' => $this->request->identity,
-            'return_to' => $this->request->return_to);
+            'return_to' => $this->request->return_to));
 
         $this->signatory = new Auth_OpenID_Signatory($this->store);
         $this->dumb_key = $this->signatory->dumb_key;
@@ -651,7 +654,7 @@ class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
             'http://burr.unittest/999',
             false);
 
-        $response = new Auth_OpenID_CheckIDResponse($request, 'cancel');
+        $response = new Auth_OpenID_ServerResponse($request, 'cancel');
         $webresponse = $this->encoder->encode($response);
         $this->assertEquals($webresponse->code, AUTH_OPENID_HTTP_REDIRECT);
         $this->assertTrue(array_key_exists('location', $webresponse->headers));
@@ -666,9 +669,11 @@ class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
     function test_assocReply()
     {
         if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            $request = Auth_OpenID_AssociateRequest::fromQuery(array());
+            $message = new Auth_OpenID_Message();
+            $request = Auth_OpenID_AssociateRequest::fromMessage($message);
             $response = new Auth_OpenID_ServerResponse($request);
-            $response->fields = array('assoc_handle' => "every-zig");
+            $response->fields = Auth_OpenID_Message::fromOpenIDArgs(
+                  array('assoc_handle' => "every-zig"));
             $webresponse = $this->encoder->encode($response);
             $body = "assoc_handle:every-zig\n";
 
@@ -680,7 +685,7 @@ class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
 
     function test_alreadySigned()
     {
-        $this->response->fields['sig'] = 'priorSig==';
+        $this->response->fields->setArg(Auth_OpenID_OPENID_NS, 'sig', 'priorSig==');
         $result = $this->encoder->encode($this->response);
         if (!is_a($result, 'Auth_OpenID_AlreadySigned')) {
             $this->fail(sprintf("Expected Auth_OpenID_AlreadySigned " .
@@ -697,6 +702,7 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
             'http://bar.unittest/999',
             'http://bar.unittest/',
             false);
+        $this->request->namespace = Auth_OpenID_OPENID1_NS;
     }
 
     function test_trustRootInvalid()
@@ -735,13 +741,11 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
         }
 
         $this->assertEquals($answer->request, $this->request);
-        $this->assertEquals($answer->fields, array(
+        $this->assertEquals($answer->fields->getArgs(Auth_OpenID_OPENID1_NS),
+           array(
             'mode' => 'id_res',
             'identity' => $this->request->identity,
             'return_to' => $this->request->return_to));
-
-        $this->assertEquals($answer->signed,
-                            array("mode", "identity", "return_to"));
     }
 
     function test_answerAllowNoTrustRoot()
@@ -749,37 +753,34 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
         $this->request->trust_root = null;
         $answer = $this->request->answer(true);
         $this->assertEquals($answer->request, $this->request);
-        $this->assertEquals($answer->fields, array(
+        $this->assertEquals($answer->fields->getArgs(Auth_OpenID_OPENID1_NS),
+           array(
             'mode' => 'id_res',
             'identity' => $this->request->identity,
             'return_to' => $this->request->return_to));
-
-        $this->assertEquals($answer->signed,
-                            array("mode", "identity", "return_to"));
     }
 
     function test_answerImmediateDeny()
     {
         $this->request->mode = 'checkid_immediate';
+        $this->request->namespace = Auth_OpenID_OPENID1_NS;
         $this->request->immediate = true;
         $server_url = "http://setup-url.unittest/";
         $answer = $this->request->answer(false, $server_url);
         $this->assertEquals($answer->request, $this->request);
-        $this->assertEquals(count($answer->fields), 2);
-        $this->assertEquals(Auth_OpenID::arrayGet($answer->fields, 'mode'),
+        $this->assertEquals(count($answer->fields->toPostArgs()), 2);
+        $this->assertEquals($answer->fields->getArg(Auth_OpenID_OPENID_NS, 'mode'),
                             'id_res');
-        $this->assertTrue(strpos(Auth_OpenID::arrayGet($answer->fields,
-                                                       'user_setup_url'),
+        $this->assertTrue(strpos($answer->fields->getArg(Auth_OpenID_OPENID_NS,
+                                                         'user_setup_url'),
                                  $server_url) == 0);
-
-        $this->assertEquals($answer->signed, array());
     }
 
     function test_answerSetupDeny()
     {
         $answer = $this->request->answer(false);
-        $this->assertEquals($answer->fields, array('mode' => 'cancel'));
-        $this->assertEquals($answer->signed, array());
+        $this->assertEquals($answer->fields->getArgs(Auth_OpenID_OPENID1_NS),
+                            array('mode' => 'cancel'));
     }
 
     function test_getCancelURL()
@@ -801,92 +802,6 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_CheckIDExtension extends PHPUnit_TestCase {
-
-    function setUp()
-    {
-        $this->request = new Auth_OpenID_CheckIDRequest(
-            'http://bambam.unittest/',
-            'http://bar.unittest/',
-            'http://bar.unittest/999',
-            false);
-
-        $this->response = new Auth_OpenID_CheckIDResponse($this->request);
-        $this->response->fields['blue'] = 'star';
-    }
-
-    function test_addField()
-    {
-        $namespace = 'mj12';
-        $this->response->addField($namespace, 'bright', 'potato');
-        $this->assertEquals($this->response->fields,
-                             array('blue' => 'star',
-                                   'mode' => 'id_res',
-                                   'mj12.bright' => 'potato'));
-        $this->assertEquals($this->response->signed,
-                            array('mode', 'identity', 'return_to',
-                                  'mj12.bright'));
-    }
-
-    function test_addFieldUnsigned()
-    {
-        $namespace = 'mj12';
-        $this->response->addField($namespace, 'dull', 'lemon', false);
-        $this->assertEquals($this->response->fields,
-                            array('blue' => 'star',
-                                  'mode' => 'id_res',
-                                  'mj12.dull' => 'lemon'));
-        $this->assertEquals($this->response->signed,
-                            array('mode', 'identity', 'return_to'));
-    }
-
-    function test_addFields()
-    {
-        $namespace = 'mi5';
-        $this->response->addFields($namespace, array('tangy' => 'suspenders',
-                                                     'bravo' => 'inclusion'));
-        $this->assertEquals($this->response->fields,
-                            array('blue' => 'star',
-                                  'mode' => 'id_res',
-                                  'mi5.tangy' => 'suspenders',
-                                  'mi5.bravo' => 'inclusion'));
-        $this->assertEquals($this->response->signed,
-                            array('mode', 'identity', 'return_to',
-                                  'mi5.tangy', 'mi5.bravo'));
-    }
-
-    function test_addFieldsUnsigned()
-    {
-        $namespace = 'mi5';
-        $this->response->addFields($namespace, array('strange' => 'conditioner',
-                                                     'elemental' => 'blender'),
-                                   false);
-        $this->assertEquals($this->response->fields,
-                            array('blue' => 'star',
-                                  'mode' => 'id_res',
-                                  'mi5.strange' => 'conditioner',
-                                  'mi5.elemental' => 'blender'));
-        $this->assertEquals($this->response->signed,
-                            array('mode', 'identity', 'return_to'));
-    }
-
-    function test_update()
-    {
-        $eresponse = new Auth_OpenID_ServerResponse(null);
-        $eresponse->fields = array('shape' => 'heart',
-                                   'content' => 'strings,wire');
-        $eresponse->signed = array('content');
-        $this->response->update('box', $eresponse);
-        $this->assertEquals($this->response->fields,
-                            array('blue' => 'star',
-                                  'mode' => 'id_res',
-                                  'box.shape' => 'heart',
-                                  'box.content' => 'strings,wire'));
-        $this->assertEquals($this->response->signed,
-                            array('mode', 'identity', 'return_to', 'content'));
-    }
-}
-
 class _MockSignatory {
     var $isValid = true;
 
@@ -895,13 +810,9 @@ class _MockSignatory {
         $this->assocs = array($assoc);
     }
 
-    function verify($assoc_handle, $sig, $signed_pairs)
+    function verify($assoc_handle, $message)
     {
-        if (!$sig) {
-            return false;
-        }
-
-        if (!is_array($signed_pairs)) {
+        if (!$message->hasKey(Auth_OpenID_OPENID_NS, 'sig')) {
             return false;
         }
 
@@ -942,40 +853,50 @@ class Tests_Auth_OpenID_CheckAuth extends PHPUnit_TestCase {
     function setUp()
     {
         $this->assoc_handle = 'mooooooooo';
+        $this->message = Auth_OpenID_Message::fromPostArgs(
+                           array('openid.sig' => 'signarture',
+                                 'one' => 'alpha',
+                                 'two' => 'beta'));
+
         $this->request = new Auth_OpenID_CheckAuthRequest(
-            $this->assoc_handle, 'signarture',
-            array(array('one', 'alpha'),
-                  array('two', 'beta')));
+                               $this->assoc_handle, $this->message);
 
         $this->signatory = new _MockSignatory(array(true, $this->assoc_handle));
     }
 
     function test_valid()
     {
+        $this->request->namespace = Auth_OpenID_OPENID1_NS;
         $r = $this->request->answer($this->signatory);
-        $this->assertEquals($r->fields, array('is_valid' => 'true'));
+        $this->assertEquals($r->fields->getArgs(Auth_OpenID_OPENID1_NS),
+                            array('is_valid' => 'true'));
         $this->assertEquals($r->request, $this->request);
     }
 
     function test_invalid()
     {
+        $this->request->namespace = Auth_OpenID_OPENID1_NS;
         $this->signatory->isValid = false;
         $r = $this->request->answer($this->signatory);
-        $this->assertEquals($r->fields, array('is_valid' => 'false'));
+        $this->assertEquals($r->fields->getArgs(Auth_OpenID_OPENID1_NS),
+                            array('is_valid' => 'false'));
     }
 
     function test_replay()
     {
+        $this->request->namespace = Auth_OpenID_OPENID1_NS;
         $r = $this->request->answer($this->signatory);
         $r = $this->request->answer($this->signatory);
-        $this->assertEquals($r->fields, array('is_valid' => 'false'));
+        $this->assertEquals($r->fields->getArgs(Auth_OpenID_OPENID1_NS),
+                            array('is_valid' => 'false'));
     }
 
     function test_invalidatehandle()
     {
+        $this->request->namespace = Auth_OpenID_OPENID1_NS;
         $this->request->invalidate_handle = "bogusHandle";
         $r = $this->request->answer($this->signatory);
-        $this->assertEquals($r->fields,
+        $this->assertEquals($r->fields->getArgs(Auth_OpenID_OPENID1_NS),
                             array('is_valid' => 'true',
                                   'invalidate_handle' => "bogusHandle"));
         $this->assertEquals($r->request, $this->request);
@@ -983,11 +904,13 @@ class Tests_Auth_OpenID_CheckAuth extends PHPUnit_TestCase {
 
     function test_invalidatehandleNo()
     {
+        $this->request->namespace = Auth_OpenID_OPENID1_NS;
         $assoc_handle = 'goodhandle';
         $this->signatory->assocs[] = array(false, 'goodhandle');
         $this->request->invalidate_handle = $assoc_handle;
         $r = $this->request->answer($this->signatory);
-        $this->assertEquals($r->fields, array('is_valid' => 'true'));
+        $this->assertEquals($r->fields->getArgs(Auth_OpenID_OPENID1_NS),
+                            array('is_valid' => 'true'));
     }
 }
 
@@ -998,7 +921,8 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
 
     function setUp()
     {
-        $this->request = Auth_OpenID_AssociateRequest::fromQuery(array());
+        $message = new Auth_OpenID_Message();
+        $this->request = Auth_OpenID_AssociateRequest::fromMessage($message);
         $this->store = new Tests_Auth_OpenID_MemStore();
         $this->signatory = new Auth_OpenID_Signatory($this->store);
         $this->assoc = $this->signatory->createAssociation(false);
@@ -1019,32 +943,32 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
             $response = $this->request->answer($this->assoc);
 
             $this->assertEquals(
-                      Auth_OpenID::arrayGet($response->fields, "assoc_type"),
+                      $response->fields->getArg(Auth_OpenID_OPENID_NS, "assoc_type"),
                       "HMAC-SHA1");
 
             $this->assertEquals(
-                      Auth_OpenID::arrayGet($response->fields, "assoc_handle"),
+                      $response->fields->getArg(Auth_OpenID_OPENID_NS, "assoc_handle"),
                       $this->assoc->handle);
 
             $this->assertFalse(
-                      Auth_OpenID::arrayGet($response->fields, "mac_key"));
+                      $response->fields->getArg(Auth_OpenID_OPENID_NS, "mac_key"));
 
             $this->assertEquals(
-                      Auth_OpenID::arrayGet($response->fields, "session_type"),
+                      $response->fields->getArg(Auth_OpenID_OPENID_NS, "session_type"),
                       "DH-SHA1");
 
             $this->assertTrue(
-                      Auth_OpenID::arrayGet($response->fields, "enc_mac_key"));
+                      $response->fields->getArg(Auth_OpenID_OPENID_NS, "enc_mac_key"));
 
             $this->assertTrue(
-                      Auth_OpenID::arrayGet($response->fields,
+                      $response->fields->getArg(Auth_OpenID_OPENID_NS,
                                             "dh_server_public"));
 
             $enc_key = base64_decode(
-                      Auth_OpenID::arrayGet($response->fields, "enc_mac_key"));
+                      $response->fields->getArg(Auth_OpenID_OPENID_NS, "enc_mac_key"));
 
             $spub = $ml->base64ToLong(
-                      Auth_OpenID::arrayGet($response->fields,
+                      $response->fields->getArg(Auth_OpenID_OPENID_NS,
                                             "dh_server_public"));
 
             $secret = $dh->xorSecret($spub, $enc_key);
@@ -1058,28 +982,28 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
         $response = $this->request->answer($this->assoc);
 
         $this->assertEquals(
-                     Auth_OpenID::arrayGet($response->fields, "assoc_type"),
+                     $response->fields->getArg(Auth_OpenID_OPENID_NS, "assoc_type"),
                      "HMAC-SHA1");
 
         $this->assertEquals(
-                     Auth_OpenID::arrayGet($response->fields, "assoc_handle"),
+                     $response->fields->getArg(Auth_OpenID_OPENID_NS, "assoc_handle"),
                      $this->assoc->handle);
 
         $this->assertEquals(
-            Auth_OpenID::arrayGet($response->fields, "expires_in"),
+            $response->fields->getArg(Auth_OpenID_OPENID_NS, "expires_in"),
             sprintf("%d", $this->signatory->SECRET_LIFETIME));
 
         $this->assertEquals(
-            Auth_OpenID::arrayGet($response->fields, "mac_key"),
+            $response->fields->getArg(Auth_OpenID_OPENID_NS, "mac_key"),
             base64_encode($this->assoc->secret));
 
-        $this->assertFalse(Auth_OpenID::arrayGet($response->fields,
+        $this->assertFalse($response->fields->getArg(Auth_OpenID_OPENID_NS,
                                                  "session_type"));
 
-        $this->assertFalse(Auth_OpenID::arrayGet($response->fields,
+        $this->assertFalse($response->fields->getArg(Auth_OpenID_OPENID_NS,
                                                  "enc_mac_key"));
 
-        $this->assertFalse(Auth_OpenID::arrayGet($response->fields,
+        $this->assertFalse($response->fields->getArg(Auth_OpenID_OPENID_NS,
                                                  "dh_server_public"));
     }
 }
@@ -1106,10 +1030,11 @@ class Tests_Auth_OpenID_ServerTest extends PHPUnit_TestCase {
     function test_associate()
     {
         if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            $request = Auth_OpenID_AssociateRequest::fromQuery(array());
+            $message = new Auth_OpenID_Message();
+            $request = Auth_OpenID_AssociateRequest::fromMessage($message);
             $response = $this->server->openid_associate($request);
-            $this->assertTrue(array_key_exists('assoc_handle',
-                                               $response->fields));
+            $this->assertTrue($response->fields->hasKey(Auth_OpenID_OPENID_NS,
+                                                        'assoc_handle'));
         }
     }
 
@@ -1119,8 +1044,7 @@ class Tests_Auth_OpenID_ServerTest extends PHPUnit_TestCase {
                                                     '0x3999', array());
 
         $response = $this->server->openid_check_authentication($request);
-        $this->assertTrue(array_key_exists('is_valid',
-                                           $response->fields));
+        $this->assertTrue($response->fields->hasKey(Auth_OpenID_OPENID_NS, 'is_valid'));
     }
 }
 
@@ -1136,53 +1060,57 @@ class Tests_Auth_OpenID_Signatory extends PHPUnit_TestCase {
     function test_sign()
     {
         $request = new Auth_OpenID_ServerRequest();
+        $request->namespace = Auth_OpenID_OPENID1_NS;
+
         $assoc_handle = '{assoc}{lookatme}';
         $assoc = Auth_OpenID_Association::fromExpiresIn(60, $assoc_handle,
                                                         'sekrit', 'HMAC-SHA1');
         $this->store->storeAssociation($this->normal_key, $assoc);
         $request->assoc_handle = $assoc_handle;
-        $response = new Auth_OpenID_CheckIDResponse($request);
-        $response->fields = array(
+        $request->namespace = Auth_OpenID_OPENID1_NS;
+
+        $response = new Auth_OpenID_ServerResponse($request);
+        $response->fields = Auth_OpenID_Message::fromOpenIDArgs(array(
             'foo' => 'amsigned',
             'bar' => 'notsigned',
-            'azu' => 'alsosigned');
+            'azu' => 'alsosigned'));
 
-        $response->signed = array('foo', 'azu');
         $sresponse = $this->signatory->sign($response);
 
-        $this->assertEquals(Auth_OpenID::arrayGet($sresponse->fields,
-                                                  'assoc_handle'),
+        $this->assertEquals($sresponse->fields->getArg(Auth_OpenID_OPENID_NS,
+                                                       'assoc_handle'),
                             $assoc_handle);
 
-        $this->assertEquals(Auth_OpenID::arrayGet($sresponse->fields, 'signed'),
-                            'foo,azu');
+        $this->assertEquals($sresponse->fields->getArg(Auth_OpenID_OPENID_NS, 'signed'),
+                            'assoc_handle,azu,bar,foo,signed');
 
-        $this->assertTrue(Auth_OpenID::arrayGet($sresponse->fields, 'sig'));
+        $this->assertTrue($sresponse->fields->hasKey(Auth_OpenID_OPENID_NS, 'sig'));
     }
 
     function test_signDumb()
     {
         $request = new Auth_OpenID_ServerRequest();
         $request->assoc_handle = null;
-        $response = new Auth_OpenID_CheckIDResponse($request);
-        $response->fields = array(
+        $request->namespace = Auth_OpenID_OPENID1_NS;
+
+        $response = new Auth_OpenID_ServerResponse($request);
+        $response->fields = Auth_OpenID_Message::fromOpenIDArgs(array(
             'foo' => 'amsigned',
             'bar' => 'notsigned',
-            'azu' => 'alsosigned');
+            'azu' => 'alsosigned'));
 
-        $response->signed = array('foo', 'azu');
         $sresponse = $this->signatory->sign($response);
 
-        $assoc_handle = Auth_OpenID::arrayGet($sresponse->fields,
-                                              'assoc_handle');
+        $assoc_handle = $sresponse->fields->getArg(Auth_OpenID_OPENID_NS,
+                                                   'assoc_handle');
 
         $this->assertTrue($assoc_handle);
         $assoc = $this->signatory->getAssociation($assoc_handle, true);
 
         $this->assertTrue($assoc);
-        $this->assertEquals(Auth_OpenID::arrayGet($sresponse->fields, 'signed'),
-                            'foo,azu');
-        $this->assertTrue(Auth_OpenID::arrayGet($sresponse->fields, 'sig'));
+        $this->assertEquals($sresponse->fields->getArg(Auth_OpenID_OPENID_NS, 'signed'),
+                            'assoc_handle,azu,bar,foo,signed');
+        $this->assertTrue($sresponse->fields->hasKey(Auth_OpenID_OPENID_NS, 'sig'));
     }
 
     function test_signExpired()
@@ -1196,27 +1124,30 @@ class Tests_Auth_OpenID_Signatory extends PHPUnit_TestCase {
                                                        $assoc_handle));
 
         $request->assoc_handle = $assoc_handle;
-        $response = new Auth_OpenID_CheckIDResponse($request);
-        $response->fields = array(
+        $request->namespace = Auth_OpenID_OPENID1_NS;
+
+        $response = new Auth_OpenID_ServerResponse($request);
+        $response->fields = Auth_OpenID_Message::fromOpenIDArgs(array(
             'foo' => 'amsigned',
             'bar' => 'notsigned',
-            'azu' => 'alsosigned');
+            'azu' => 'alsosigned'));
 
-        $response->signed = array('foo', 'azu');
         $sresponse = $this->signatory->sign($response);
 
-        $new_assoc_handle = Auth_OpenID::arrayGet($sresponse->fields,
-                                                  'assoc_handle');
+        $new_assoc_handle = $sresponse->fields->getArg(Auth_OpenID_OPENID_NS,
+                                                       'assoc_handle');
         $this->assertTrue($new_assoc_handle);
         $this->assertFalse($new_assoc_handle == $assoc_handle);
 
-        $this->assertEquals(Auth_OpenID::arrayGet($sresponse->fields,
-                                                  'invalidate_handle'),
+        $this->assertEquals($sresponse->fields->getArg(Auth_OpenID_OPENID_NS,
+                                                       'invalidate_handle'),
                             $assoc_handle);
 
-        $this->assertEquals(Auth_OpenID::arrayGet($sresponse->fields, 'signed'),
-                            'foo,azu');
-        $this->assertTrue(Auth_OpenID::arrayGet($sresponse->fields, 'sig'));
+        $this->assertEquals($sresponse->fields->getArg(Auth_OpenID_OPENID_NS,
+                                                       'signed'),
+                            'assoc_handle,azu,bar,foo,invalidate_handle,signed');
+        $this->assertTrue($sresponse->fields->hasKey(Auth_OpenID_OPENID_NS,
+                                                     'sig'));
 
         // make sure the expired association is gone
         $this->assertFalse($this->store->getAssociation($this->normal_key,
@@ -1236,28 +1167,32 @@ class Tests_Auth_OpenID_Signatory extends PHPUnit_TestCase {
         $assoc_handle = '{bogus-assoc}{notvalid}';
 
         $request->assoc_handle = $assoc_handle;
-        $response = new Auth_OpenID_CheckIDResponse($request);
-        $response->fields = array(
+        $request->namespace = Auth_OpenID_OPENID1_NS;
+
+        $response = new Auth_OpenID_ServerResponse($request);
+        $response->fields = Auth_OpenID_Message::fromOpenIDArgs(array(
             'foo' => 'amsigned',
             'bar' => 'notsigned',
-            'azu' => 'alsosigned');
+            'azu' => 'alsosigned'));
 
         $response->signed = array('foo', 'azu');
         $sresponse = $this->signatory->sign($response);
 
-        $new_assoc_handle = Auth_OpenID::arrayGet($sresponse->fields,
-                                                  'assoc_handle');
+        $new_assoc_handle = $sresponse->fields->getArg(Auth_OpenID_OPENID_NS,
+                                                       'assoc_handle');
 
         $this->assertTrue($new_assoc_handle);
         $this->assertFalse($new_assoc_handle == $assoc_handle);
 
-        $this->assertEquals(Auth_OpenID::arrayGet($sresponse->fields,
-                                                  'invalidate_handle'),
+        $this->assertEquals($sresponse->fields->getArg(Auth_OpenID_OPENID_NS,
+                                                       'invalidate_handle'),
                             $assoc_handle);
 
-        $this->assertEquals(Auth_OpenID::arrayGet($sresponse->fields, 'signed'),
-                            'foo,azu');
-        $this->assertTrue(Auth_OpenID::arrayGet($sresponse->fields, 'sig'));
+        $this->assertEquals($sresponse->fields->getArg(Auth_OpenID_OPENID_NS,
+                                                       'signed'),
+                            'assoc_handle,azu,bar,foo,invalidate_handle,signed');
+        $this->assertTrue($sresponse->fields->hasKey(Auth_OpenID_OPENID_NS,
+                                                     'sig'));
 
         // make sure the new key is a dumb mode association
         $this->assertTrue($this->store->getAssociation($this->dumb_key,
@@ -1275,12 +1210,14 @@ class Tests_Auth_OpenID_Signatory extends PHPUnit_TestCase {
 
         $this->store->storeAssociation($this->dumb_key, $assoc);
 
-        $signed_pairs = array(array('foo', 'bar'),
-                              array('apple', 'orange'));
+        $signed = Auth_OpenID_Message::fromPostArgs(array(
+            'openid.foo' => 'bar',
+            'openid.apple' => 'orange',
+            'openid.assoc_handle' => $assoc_handle,
+            'openid.signed' => 'apple,assoc_handle,foo,signed',
+            'openid.sig' => 'uXoT1qm62/BB09Xbj98TQ8mlBco='));
 
-        $sig = "Ylu0KcIR7PvNegB/K41KpnRgJl0=";
-        $verified = $this->signatory->verify($assoc_handle, $sig,
-                                             $signed_pairs);
+        $verified = $this->signatory->verify($assoc_handle, $signed);
         $this->assertTrue($verified);
     }
 
@@ -1292,12 +1229,14 @@ class Tests_Auth_OpenID_Signatory extends PHPUnit_TestCase {
 
         $this->store->storeAssociation($this->dumb_key, $assoc);
 
-        $signed_pairs = array(array('foo', 'bar'),
-                              array('apple', 'orange'));
+        $signed = Auth_OpenID_Message::fromPostArgs(array(
+            'openid.foo' => 'bar',
+            'openid.apple' => 'orange',
+            'openid.assoc_handle' => $assoc_handle,
+            'openid.signed' => 'apple,assoc_handle,foo,signed',
+            'openid.sig' => str_rot13('uXoT1qm62/BB09Xbj98TQ8mlBco=')));
 
-        $sig = str_rot13("Ylu0KcIR7PvNegB/K41KpnRgJl0=");
-        $verified = $this->signatory->verify($assoc_handle, $sig,
-                                             $signed_pairs);
+        $verified = $this->signatory->verify($assoc_handle, $signed);
 
         $this->assertFalse($verified);
     }
@@ -1305,12 +1244,12 @@ class Tests_Auth_OpenID_Signatory extends PHPUnit_TestCase {
     function test_verifyBadHandle()
     {
         $assoc_handle = '{vroom}{zoom}';
-        $signed_pairs = array(array('foo', 'bar'),
-                              array('apple', 'orange'));
+        $signed = Auth_OpenID_Message::fromPostArgs(
+                       array('foo' => 'bar',
+                             'apple' => 'orange',
+                             'openid.sig' => "Ylu0KcIR7PvNegB/K41KpnRgJl0="));
 
-        $sig = "Ylu0KcIR7PvNegB/K41KpnRgJl0=";
-        $verified = $this->signatory->verify($assoc_handle, $sig,
-                                             $signed_pairs);
+        $verified = $this->signatory->verify($assoc_handle, $signed);
         $this->assertFalse($verified);
     }
 

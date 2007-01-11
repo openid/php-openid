@@ -637,7 +637,7 @@ class Auth_OpenID_GenericConsumer {
             return new Auth_OpenID_FailureResponse($endpoint, $msg);
         }
 
-        $v_sig = $assoc->signDict($signed_list, $message->toPostArgs());
+        $v_sig = $assoc->getMessageSignature($message);
 
         if ($v_sig != $sig) {
             return new Auth_OpenID_FailureResponse($endpoint,
