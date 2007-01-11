@@ -226,10 +226,6 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
 
         $result = $consumer->complete($message, $result->endpoint);
 
-        if ($result->status != Auth_OpenID_SUCCESS) {
-            print $result->message."\n";
-        }
-
         $this->assertEquals(Auth_OpenID_SUCCESS, $result->status);
         $this->assertEquals($result->identity_url, $user_url);
     }
@@ -387,7 +383,6 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
                                                           array('openid.nonce'));
         $ret = $this->consumer->_checkNonce($this->server_url, $this->response);
         $this->assertEquals($ret->status, Auth_OpenID_SUCCESS);
-        # print $ret->message."\n";
         $this->assertEquals($ret->identity_url, $this->consumer_id);
     }
 

@@ -20,6 +20,15 @@ define('Auth_OpenID_TYPE_1_0', 'http://openid.net/signon/1.0');
 define('Auth_OpenID_TYPE_2_0_IDP', 'http://openid.net/server/2.0');
 define('Auth_OpenID_TYPE_2_0', 'http://openid.net/signon/2.0');
 
+function Auth_OpenID_getOpenIDTypeURIs()
+{
+    return array(Auth_OpenID_TYPE_2_0_IDP,
+                 Auth_OpenID_TYPE_2_0,
+                 Auth_OpenID_TYPE_1_2,
+                 Auth_OpenID_TYPE_1_1,
+                 Auth_OpenID_TYPE_1_0);
+}
+
 /**
  * Object representing an OpenID service endpoint.
  */
@@ -200,17 +209,77 @@ function filter_MatchesAnyOpenIDType(&$service)
     $uris = $service->getTypes();
 
     foreach ($uris as $uri) {
-        if (in_array($uri,
-                     array(Auth_OpenID_TYPE_1_0,
-                           Auth_OpenID_TYPE_1_1,
-                           Auth_OpenID_TYPE_1_2,
-                           Auth_OpenID_TYPE_2_0,
-                           Auth_OpenID_TYPE_2_0_IDP))) {
+        if (in_array($uri, Auth_OpenID_getOpenIDTypeURIs())) {
             return true;
         }
     }
 
     return false;
+}
+
+function Auth_OpenID_bestMatchingService($service)
+{
+    // Return the index of the first matching type, or something
+    // higher if no type matches.
+    //
+    // This provides an ordering in which service elements that
+    // contain a type that comes earlier in the preferred types list
+    // come before service elements that come later. If a service
+    // element has more than one type, the most preferred one wins.
+
+    foreach ($preferred_types as $index => $typ) {
+        if (in_array($typ, $service->type_uris)) {
+            return $index;
+        }
+    }
+
+    return count($preferred_types);
+}
+
+function Auth_OpenID_arrangeByType($service_list, $preferred_types)
+{
+    // Rearrange service_list in a new list so services are ordered by
+    // types listed in preferred_types.  Return the new list.
+
+    // Build a list with the service elements in tuples whose
+    // comparison will prefer the one with the best matching service
+    $prio_services = array();
+    foreach ($service_list as $index => $service) {
+        $prio_services[] = array(Auth_OpenID_bestMatchingService($service),
+                                 $index, $service);
+    }
+
+    sort($prio_services);
+
+    // Now that the services are sorted by priority, remove the sort
+    // keys from the list.
+    foreach ($prio_services as $index => $s) {
+        $prio_services[$index] = $prio_services[$index][2];
+    }
+
+    return $prio_services;
+}
+
+// Extract OP Identifier services.  If none found, return the rest,
+// sorted with most preferred first according to
+// OpenIDServiceEndpoint.openid_type_uris.
+//
+// openid_services is a list of OpenIDServiceEndpoint objects.
+//
+// Returns a list of OpenIDServiceEndpoint objects."""
+function Auth_OpenID_getOPOrUserServices($openid_services)
+{
+    $op_services = Auth_OpenID_arrangeByType($openid_services,
+                                             array(Auth_OpenID_TYPE_2_0_IDP));
+
+    $openid_services = arrangeByType($openid_services,
+                                     Auth_OpenID_getOpenIDTypeURIs());
+
+    if ($op_services) {
+        return $op_services;
+    } else {
+        return $openid_services;
+    }
 }
 
 function Auth_OpenID_makeOpenIDEndpoints($uri, $endpoints)
@@ -267,21 +336,24 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
     }
 
     if (!$openid_services) {
-        return @Auth_OpenID_discoverWithoutYadis($uri,
-                                                 $fetcher);
-    }
 
-    if (!$openid_services) {
+        if (Services_Yadis_XRDS::parseXRDS($response->body) !== null) {
+            return @Auth_OpenID_discoverWithoutYadis($uri,
+                                                     $fetcher);
+        }
+
         $body = $response->body;
 
         // Try to parse the response as HTML to get OpenID 1.0/1.1
         // <link rel="...">
         $openid_services = Auth_OpenID_ServiceEndpoint::fromHTML($identity_url,
-                                                         $body);
-    } else {
-        $openid_services = Auth_OpenID_makeOpenIDEndpoints($response->uri,
-                                                           $openid_services);
+                                                                 $body);
+        // } else {
+        // $openid_services = Auth_OpenID_makeOpenIDEndpoints($response->uri,
+        //                                                    $openid_services);
     }
+
+    $openid_services = Auth_OpenID_getOPOrUserServices($openid_services);
 
     return array($identity_url, $openid_services, $http_response);
 }
@@ -322,19 +394,17 @@ function Auth_OpenID_discoverWithoutYadis($uri, &$fetcher)
 function _Auth_OpenID_discoverXRI($iname, &$fetcher)
 {
     $services = new Services_Yadis_ProxyResolver($fetcher);
-    list($canonicalID, $service_list) = $services->query($iname,
-                                                  array(Auth_OpenID_TYPE_1_0,
-                                                        Auth_OpenID_TYPE_1_1,
-                                                        Auth_OpenID_TYPE_1_2,
-                                                        Auth_OpenID_TYPE_2_0,
-                                                        Auth_OpenID_TYPE_2_0_IDP),
-                                     array('filter_MatchesAnyOpenIDType'));
-
-    $endpoints = Auth_OpenID_makeOpenIDEndpoints($iname, $service_list);
+    list($canonicalID, $service_list) =
+        $services->query($iname,
+                         Auth_OpenID_getOpenIDTypeURIs(),
+                         array('filter_MatchesAnyOpenIDType'));
 
     for ($i = 0; $i < count($endpoints); $i++) {
         $endpoints[$i]->canonicalID = $canonicalID;
+        $endpoints[$i]->claimed_id = $canonicalID;
     }
+
+    $endpoints = Auth_OpenID_getOPOrUserServices($endpoints);
 
     // FIXME: returned xri should probably be in some normal form
     return array($iname, $endpoints, null);
