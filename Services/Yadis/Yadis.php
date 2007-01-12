@@ -207,7 +207,7 @@ class Services_Yadis_Yadis {
         }
 
         if ($response->status != 200) {
-          return null;
+            return null;
         }
 
         $xrds_uri = $response->final_url;
@@ -245,7 +245,7 @@ class Services_Yadis_Yadis {
             if ($new_uri) {
                 $response = $fetcher->get($new_uri);
                 if ($response->status != 200) {
-                  return null;
+                    return null;
                 }
                 $http_response = $response;
                 $body = $response->body;
@@ -258,20 +258,21 @@ class Services_Yadis_Yadis {
 
         $xrds = Services_Yadis_XRDS::parseXRDS($body, $extra_ns_map);
 
+        $y = new Services_Yadis_Yadis();
+
+        $y->request_uri = $request_uri;
+        $y->xrds = null;
+        $y->xrds_uri = null;
+        $y->uri = $uri;
+        $y->body = $body;
+        $y->content_type = $content_type;
+
         if ($xrds !== null) {
-            $y = new Services_Yadis_Yadis();
-
-            $y->request_uri = $request_uri;
             $y->xrds = $xrds;
-            $y->uri = $uri;
             $y->xrds_uri = $xrds_uri;
-            $y->body = $body;
-            $y->content_type = $content_type;
-
-            return $y;
-        } else {
-            return null;
         }
+
+        return $y;
     }
 
     /**

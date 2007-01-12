@@ -392,8 +392,9 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
 
         list($id_url, $svclist, $http_response) = $result;
 
-        $this->assertTrue($http_response->status == 404,
-                          "Expected 404 status from /404 discovery");
+        $this->assertTrue($http_response === null);
+        $this->assertTrue($svclist == array());
+        $this->assertTrue($id_url == $this->id_url . '/404');
     }
 
     function test_noYadis()

@@ -97,8 +97,9 @@ class Auth_OpenID_ServiceEndpoint {
 
         if (!$this->isOPIdentifier()) {
             $this->claimed_id = $yadis_url;
-            $this->local_id = Auth_OpenID_findOPLocalIdentifier($service_element,
-                                                                $this->type_uris);
+            $this->local_id = Auth_OpenID_findOPLocalIdentifier(
+                                                    $service_element,
+                                                    $this->type_uris);
             if ($this->local_id === false) {
                 return false;
             }
@@ -329,18 +330,25 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
                                                $fetcher);
 
     $yadis_services = array();
-    $identity_url = null;
+    $identity_url = $uri;
 
     if ($response) {
         $identity_url = $response->uri;
-        $yadis_services =
-            $response->xrds->services(array('filter_MatchesAnyOpenIDType'));
+
+        if ($response->xrds) {
+            $yadis_services =
+                $response->xrds->services(
+                                   array('filter_MatchesAnyOpenIDType'));
+        }
     }
 
     if (!$yadis_services) {
-        if (Services_Yadis_XRDS::parseXRDS($response->body) !== null) {
+        if ($response &&
+            Services_Yadis_XRDS::parseXRDS($response->body) !== null) {
             return @Auth_OpenID_discoverWithoutYadis($uri,
                                                      $fetcher);
+        } else if (!$response) {
+            return array($uri, array(), null);
         }
 
         // Try to parse the response as HTML to get OpenID 1.0/1.1
@@ -354,7 +362,7 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
     }
 
     $openid_services = Auth_OpenID_getOPOrUserServices($openid_services);
-    return array($identity_url, $openid_services, $http_response);
+    return array($identity_url, $openid_services, $response);
 }
 
 function _Auth_OpenID_discoverServiceList($uri, &$fetcher)
@@ -415,7 +423,7 @@ function _Auth_OpenID_discoverXRI($iname, &$fetcher)
 
 function Auth_OpenID_discover($uri, &$fetcher)
 {
-    return @Auth_OpenID_discoverWithYadis($uri, $fetcher);
+    return Auth_OpenID_discoverWithYadis($uri, $fetcher);
 }
 
 ?>
