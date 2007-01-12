@@ -184,12 +184,6 @@ class Tests_Auth_OpenID_Tester extends PHPUnit_TestCase {
             // All endpoints will have same yadis_url
             $this->assertEquals($this->yadis_url, $endpoint->claimed_id);
 
-
-            if ($this->local_id != $endpoint->local_id) {
-                print "Expected: ".$this->local_id."\n";
-                print_r($endpoint);
-            }
-
             // and delegate
             $this->assertEquals($this->local_id, $endpoint->local_id);
 
