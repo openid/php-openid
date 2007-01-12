@@ -26,9 +26,9 @@ class _SimpleMockFetcher {
     }
 }
 
-class Tests_Services_Yadis_DiscoveryFailure extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_DiscoveryFailure extends PHPUnit_TestCase {
 
-    function Tests_Services_Yadis_DiscoveryFailure($responses)
+    function Tests_Auth_OpenID_DiscoveryFailure($responses)
     {
         // Response is ($code, $url, $body).
         $this->cases = array(
@@ -364,7 +364,7 @@ class Tests_Auth_OpenID_DiscoverSession {
 }
 
 $__Tests_BOGUS_SERVICE = new Auth_OpenID_ServiceEndpoint();
-$__Tests_BOGUS_SERVICE->identity_url = "=really.bogus.endpoint";
+$__Tests_BOGUS_SERVICE->claimed_id = "=really.bogus.endpoint";
 
 function __serviceCheck_discover_cb($url, $fetcher)
 {
@@ -414,10 +414,10 @@ class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
         $this->assertEquals($services[0]->server_url,
                             "http://www.myopenid.com/server");
 
-        $this->assertEquals($services[0]->delegate,
+        $this->assertEquals($services[0]->local_id,
                             "http://smoker.myopenid.com/");
 
-        $this->assertEquals($services[0]->identity_url, $this->id_url);
+        $this->assertEquals($services[0]->claimed_id, $this->id_url);
         $this->_notUsedYadis($services[0]);
     }
 
@@ -442,7 +442,7 @@ class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
         foreach ($expected as $openid) {
             $s = $m->getNextService('_Auth_OpenID_discoverServiceList',
                                     $fetcher);
-            $this->assertEquals($s->delegate, $openid);
+            $this->assertEquals($s->local_id, $openid);
         }
     }
 
@@ -470,8 +470,8 @@ class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
         $newMan = $disco->getManager();
 
         $currentService = $newMan->_current;
-        $this->assertEquals($currentService->identity_url,
-                            $__Tests_BOGUS_SERVICE->identity_url);
+        $this->assertEquals($currentService->claimed_id,
+                            $__Tests_BOGUS_SERVICE->claimed_id);
     }
 
     function test_noOpenID()
@@ -535,10 +535,10 @@ class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
         $this->assertEquals($services[0]->server_url,
                             "http://www.myopenid.com/server");
 
-        $this->assertEquals($services[0]->delegate,
+        $this->assertEquals($services[0]->local_id,
                             "http://smoker.myopenid.com/");
 
-        $this->assertEquals($services[0]->identity_url,
+        $this->assertEquals($services[0]->claimed_id,
                             $expected_final_url);
 
         $this->_notUsedYadis($services[0]);
@@ -580,7 +580,7 @@ class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
         $this->assertEquals($services[0]->server_url,
                             "http://www.myopenid.com/server");
 
-        $this->assertEquals($services[0]->identity_url, $this->id_url);
+        $this->assertEquals($services[0]->claimed_id, $this->id_url);
 
         $this->_notUsedYadis($services[0]);
     }
@@ -603,7 +603,7 @@ class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
         $this->assertEquals($services[0]->server_url,
                             "http://www.myopenid.com/server");
 
-        $this->assertEquals($services[0]->delegate, null,
+        $this->assertEquals($services[0]->local_id, null,
                             'Delegate should be null');
 
         $this->_usedYadis($services[0]);
@@ -625,9 +625,9 @@ class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
         $this->assertEquals($services[0]->server_url,
                             "http://www.myopenid.com/server");
 
-        $this->assertEquals($services[0]->identity_url, $this->id_url);
+        $this->assertEquals($services[0]->claimed_id, $this->id_url);
 
-        $this->assertEquals($services[0]->delegate, null,
+        $this->assertEquals($services[0]->local_id, null,
                             'Delegate should be null');
 
         $this->_notUsedYadis($services[0]);
@@ -661,7 +661,7 @@ class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
       // with XRI.
 
       $endpoint = new Auth_OpenID_ServiceEndpoint();
-      $endpoint->identity_url = "=example";
+      $endpoint->claimed_id = "=example";
       $endpoint->canonicalID = Services_Yadis_XRI("=!1000");
       $this->assertEquals($endpoint->getLocalID(), Services_Yadis_XRI("=!1000"));
     }

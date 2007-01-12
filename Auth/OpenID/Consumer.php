@@ -385,9 +385,9 @@ class Auth_OpenID_Consumer {
 
         if (in_array($response->status, array(Auth_OpenID_SUCCESS,
                                               Auth_OpenID_CANCEL))) {
-            if ($response->identity_url !== null) {
+            if ($response->claimed_id !== null) {
                 $disco = new Services_Yadis_Discovery($this->session,
-                                                  $response->identity_url,
+                                                  $response->claimed_id,
                                                   $this->session_key_prefix);
                 $disco->cleanup();
             }
@@ -536,7 +536,7 @@ class Auth_OpenID_GenericConsumer {
             $error = $message->getArg(Auth_OpenID_OPENID_NS, 'error');
             return new Auth_OpenID_FailureResponse($endpoint, $error);
         } else if ($mode == 'id_res') {
-            if ($endpoint->identity_url === null) {
+            if ($endpoint->claimed_id === null) {
                 return new Auth_OpenID_FailureResponse($endpoint,
                                                "No session state found");
             }
@@ -631,7 +631,7 @@ class Auth_OpenID_GenericConsumer {
         }
 
         //Fail if the identity field is present but not signed
-        if (($endpoint->identity_url !== null) &&
+        if (($endpoint->claimed_id !== null) &&
             (!in_array('identity', $signed_list))) {
             $msg = '"openid.identity" not signed';
             return new Auth_OpenID_FailureResponse($endpoint, $msg);
@@ -1019,7 +1019,7 @@ class Auth_OpenID_ConsumerResponse {
  * that the supplied URL is, indeed controlled by the requesting
  * agent.  This has three relevant attributes:
  *
- * identity_url - The identity URL that has been authenticated
+ * claimed_id - The identity URL that has been authenticated
  *
  * signed_args - The arguments in the server's response that were
  * signed and verified.
@@ -1037,7 +1037,7 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
     function Auth_OpenID_SuccessResponse($endpoint, $message, $signed_args=null)
     {
         $this->endpoint = $endpoint;
-        $this->identity_url = $endpoint->identity_url;
+        $this->claimed_id = $endpoint->claimed_id;
         $this->signed_args = $signed_args;
         $this->message = $message;
 
@@ -1127,7 +1127,7 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
  * OpenID protocol has failed. This could be locally or remotely
  * triggered.  This has three relevant attributes:
  *
- * identity_url - The identity URL for which authentication was
+ * claimed_id - The identity URL for which authentication was
  * attempted, if it can be determined.  Otherwise, null.
  *
  * message - A message indicating why the request failed, if one is
@@ -1144,9 +1144,9 @@ class Auth_OpenID_FailureResponse extends Auth_OpenID_ConsumerResponse {
     {
         $this->endpoint = $endpoint;
         if ($endpoint !== null) {
-            $this->identity_url = $endpoint->identity_url;
+            $this->claimed_id = $endpoint->claimed_id;
         } else {
-            $this->identity_url = null;
+            $this->claimed_id = null;
         }
         $this->message = $message;
     }
@@ -1157,7 +1157,7 @@ class Auth_OpenID_FailureResponse extends Auth_OpenID_ConsumerResponse {
  * user cancelled the OpenID authentication request.  This has two
  * relevant attributes:
  *
- * identity_url - The identity URL for which authentication was
+ * claimed_id - The identity URL for which authentication was
  * attempted, if it can be determined.  Otherwise, null.
  *
  * status - Auth_OpenID_SUCCESS.
@@ -1170,7 +1170,7 @@ class Auth_OpenID_CancelResponse extends Auth_OpenID_ConsumerResponse {
     function Auth_OpenID_CancelResponse($endpoint)
     {
         $this->endpoint = $endpoint;
-        $this->identity_url = $endpoint->identity_url;
+        $this->claimed_id = $endpoint->claimed_id;
     }
 }
 
@@ -1179,7 +1179,7 @@ class Auth_OpenID_CancelResponse extends Auth_OpenID_ConsumerResponse {
  * that the request was in immediate mode, and the server is unable to
  * authenticate the user without further interaction.
  *
- * identity_url - The identity URL for which authentication was
+ * claimed_id - The identity URL for which authentication was
  * attempted.
  *
  * setup_url - A URL that can be used to send the user to the server
@@ -1198,7 +1198,7 @@ class Auth_OpenID_SetupNeededResponse extends Auth_OpenID_ConsumerResponse {
                                              $setup_url = null)
     {
         $this->endpoint = $endpoint;
-        $this->identity_url = $endpoint->identity_url;
+        $this->claimed_id = $endpoint->claimed_id;
         $this->setup_url = $setup_url;
     }
 }

@@ -109,6 +109,19 @@ class Services_Yadis_Service {
         return $t;
     }
 
+    function matchTypes($type_uris)
+    {
+        $result = array();
+
+        foreach ($this->getTypes() as $typ) {
+            if (in_array($typ, $type_uris)) {
+                $result[] = $typ;
+            }
+        }
+
+        return $result;
+    }
+
     /**
      * Return the URIs in the "URI" elements, if any, of this Service
      * element.  The URIs are returned sorted in priority order.

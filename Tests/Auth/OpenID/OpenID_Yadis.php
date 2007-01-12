@@ -40,8 +40,7 @@ $__ext_types = array(
 // endpoint
 $__openid_types = array(
                         Auth_OpenID_TYPE_1_0,
-                        Auth_OpenID_TYPE_1_1,
-                        Auth_OpenID_TYPE_1_2);
+                        Auth_OpenID_TYPE_1_1);
 
 $temp = array();
 foreach (__subsets($__ext_types) as $exts) {
@@ -140,7 +139,7 @@ class Tests_Auth_OpenID_Tester extends PHPUnit_TestCase {
     {
         $this->uris = $uris;
         $this->type_uris = $type_uris;
-        $this->delegate = $delegate;
+        $this->local_id = $delegate;
         parent::PHPUnit_TestCase();
     }
 
@@ -151,7 +150,7 @@ class Tests_Auth_OpenID_Tester extends PHPUnit_TestCase {
         // Create an XRDS document to parse
         $services = _mkService($this->uris,
                                $this->type_uris,
-                               $this->delegate);
+                               $this->local_id);
         $this->xrds = _mkXRDS($services);
     }
 
@@ -183,10 +182,16 @@ class Tests_Auth_OpenID_Tester extends PHPUnit_TestCase {
             $seen_uris[] = $endpoint->server_url;
 
             // All endpoints will have same yadis_url
-            $this->assertEquals($this->yadis_url, $endpoint->identity_url);
+            $this->assertEquals($this->yadis_url, $endpoint->claimed_id);
+
+
+            if ($this->local_id != $endpoint->local_id) {
+                print "Expected: ".$this->local_id."\n";
+                print_r($endpoint);
+            }
 
             // and delegate
-            $this->assertEquals($this->delegate, $endpoint->delegate);
+            $this->assertEquals($this->local_id, $endpoint->local_id);
 
             // and types
             $actual_types = $endpoint->type_uris;

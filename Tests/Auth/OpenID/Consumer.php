@@ -170,9 +170,9 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
             $_Auth_OpenID_server_url;
 
         $endpoint = new Auth_OpenID_ServiceEndpoint();
-        $endpoint->identity_url = $user_url;
+        $endpoint->claimed_id = $user_url;
         $endpoint->server_url = $_Auth_OpenID_server_url;
-        $endpoint->delegate = $delegate_url;
+        $endpoint->local_id = $delegate_url;
 
         $result = $consumer->begin($endpoint);
 
@@ -227,7 +227,7 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
         $result = $consumer->complete($message, $result->endpoint);
 
         $this->assertEquals(Auth_OpenID_SUCCESS, $result->status);
-        $this->assertEquals($result->identity_url, $user_url);
+        $this->assertEquals($result->claimed_id, $user_url);
     }
 
     function _test_success($user_url, $delegate_url, $links, $immediate = false)
@@ -325,9 +325,9 @@ class _TestIdRes extends PHPUnit_TestCase {
         $this->server_url = "serlie";
         $this->consumer_id = "consu";
 
-        $this->endpoint->identity_url = $this->consumer_id;
+        $this->endpoint->claimed_id = $this->consumer_id;
         $this->endpoint->server_url = $this->server_url;
-        $this->endpoint->delegate = $this->server_id;
+        $this->endpoint->local_id = $this->server_id;
     }
 }
 
@@ -371,7 +371,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
 
         $ret = $this->consumer->_checkNonce(null, $this->response);
         $this->assertEquals($ret->status, Auth_OpenID_SUCCESS);
-        $this->assertEquals($ret->identity_url, $this->consumer_id);
+        $this->assertEquals($ret->claimed_id, $this->consumer_id);
     }
 
     function test_serverNonce()
@@ -383,7 +383,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
                                                           array('openid.nonce'));
         $ret = $this->consumer->_checkNonce($this->server_url, $this->response);
         $this->assertEquals($ret->status, Auth_OpenID_SUCCESS);
-        $this->assertEquals($ret->identity_url, $this->consumer_id);
+        $this->assertEquals($ret->claimed_id, $this->consumer_id);
     }
 
     function test_badNonce()
@@ -402,7 +402,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
 
         $ret = $this->consumer->_checkNonce($this->server_url, $this->response);
         $this->assertEquals($ret->status, Auth_OpenID_FAILURE);
-        $this->assertEquals($ret->identity_url, $this->consumer_id);
+        $this->assertEquals($ret->claimed_id, $this->consumer_id);
         $this->assertTrue(strpos($ret->message, 'Nonce missing from store') === 0);
     }
 
@@ -417,7 +417,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
 
         $ret = $this->consumer->_checkNonce($this->server_url, $this->response);
         $this->assertEquals($ret->status, Auth_OpenID_FAILURE);
-        $this->assertEquals($ret->identity_url, $this->consumer_id);
+        $this->assertEquals($ret->claimed_id, $this->consumer_id);
         $this->assertTrue(strpos($ret->message, 'Malformed nonce') === 0, $ret->message);
     }
 
@@ -432,7 +432,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
 
         $ret = $this->consumer->_checkNonce($this->server_url, $this->response);
         $this->assertEquals($ret->status, Auth_OpenID_FAILURE);
-        $this->assertEquals($ret->identity_url, $this->consumer_id);
+        $this->assertEquals($ret->claimed_id, $this->consumer_id);
         $this->assertTrue(strpos($ret->message,
                                  'Nonce missing from return_to') === 0);
     }
@@ -508,7 +508,7 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuthTriggered extends _TestIdRes {
 
         $info = $this->_doIdRes($message);
         $this->assertEquals('failure', $info->status);
-        $this->assertEquals($this->consumer_id, $info->identity_url);
+        $this->assertEquals($this->consumer_id, $info->claimed_id);
 
         $this->assertTrue(strpos($info->message, 'expired') !== false);
     }
@@ -541,7 +541,7 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuthTriggered extends _TestIdRes {
 
         $info = $this->_doIdRes($message);
         $this->assertEquals($info->status, 'success');
-        $this->assertEquals($this->consumer_id, $info->identity_url);
+        $this->assertEquals($this->consumer_id, $info->claimed_id);
     }
 }
 
@@ -574,7 +574,7 @@ class Tests_Auth_OpenID_Complete extends _TestIdRes {
 
         $r = $this->consumer->complete($message, $this->endpoint);
         $this->assertEquals($r->status, Auth_OpenID_CANCEL);
-        $this->assertTrue($r->identity_url == $this->endpoint->identity_url);
+        $this->assertTrue($r->claimed_id == $this->endpoint->claimed_id);
     }
 
     function test_error()
@@ -585,7 +585,7 @@ class Tests_Auth_OpenID_Complete extends _TestIdRes {
         $message = Auth_OpenID_Message::fromPostArgs($query);
         $r = $this->consumer->complete($message, $this->endpoint);
         $this->assertEquals($r->status, Auth_OpenID_FAILURE);
-        $this->assertTrue($r->identity_url == $this->endpoint->identity_url);
+        $this->assertTrue($r->claimed_id == $this->endpoint->claimed_id);
         $this->assertEquals($r->message, $msg);
     }
 
@@ -595,7 +595,7 @@ class Tests_Auth_OpenID_Complete extends _TestIdRes {
         $message = Auth_OpenID_Message::fromPostArgs($query);
         $r = $this->consumer->complete($message, $this->endpoint);
         $this->assertEquals($r->status, Auth_OpenID_FAILURE);
-        $this->assertTrue($r->identity_url == $this->endpoint->identity_url);
+        $this->assertTrue($r->claimed_id == $this->endpoint->claimed_id);
     }
 
     function test_idResMissingField()
@@ -604,7 +604,7 @@ class Tests_Auth_OpenID_Complete extends _TestIdRes {
         $message = Auth_OpenID_Message::fromPostArgs($query);
         $r = $this->consumer->complete($message, $this->endpoint);
         $this->assertEquals($r->status, Auth_OpenID_FAILURE);
-        $this->assertEquals($r->identity_url, $this->consumer_id);
+        $this->assertEquals($r->claimed_id, $this->consumer_id);
     }
 
     function test_idResURLMismatch()
@@ -616,7 +616,7 @@ class Tests_Auth_OpenID_Complete extends _TestIdRes {
         $message = Auth_OpenID_Message::fromPostArgs($query);
         $r = $this->consumer->complete($message, $this->endpoint);
         $this->assertEquals($r->status, Auth_OpenID_FAILURE);
-        $this->assertEquals($r->identity_url, $this->consumer_id);
+        $this->assertEquals($r->claimed_id, $this->consumer_id);
         $this->assertTrue(strpos($r->message, 'delegate') !== false);
     }
 }
@@ -727,7 +727,7 @@ class Tests_Auth_OpenID_FetchErrorInIdRes extends _TestIdRes {
         $message = Auth_OpenID_Message::fromPostArgs($query);
         $r = $this->consumer->complete($message, $this->endpoint);
         $this->assertEquals($r->status, Auth_OpenID_FAILURE);
-        $this->assertEquals($r->identity_url, $this->consumer_id);
+        $this->assertEquals($r->claimed_id, $this->consumer_id);
         $this->assertEquals($this->consumer->message, $r->message);
     }
 }
@@ -857,7 +857,7 @@ class Tests_Auth_OpenID_AuthRequest extends PHPUnit_TestCase {
     function setUp()
     {
         $this->endpoint = new Auth_OpenID_ServiceEndpoint();
-        $this->endpoint->delegate = 'http://server.unittest/joe';
+        $this->endpoint->local_id = 'http://server.unittest/joe';
         $this->endpoint->server_url = 'http://server.unittest/';
         $this->assoc =& $this;
         $this->assoc->handle = 'assoc@handle';
@@ -883,7 +883,7 @@ class Tests_Auth_OpenID_SuccessResponse extends PHPUnit_TestCase {
     function setUp()
     {
         $this->endpoint = new Auth_OpenID_ServiceEndpoint();
-        $this->endpoint->identity_url = 'identity_url';
+        $this->endpoint->claimed_id = 'identity_url';
     }
 
     function test_extensionResponse()
@@ -1148,14 +1148,14 @@ class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_TestCase {
         }
 
         $this->endpoint = new Auth_OpenID_ServiceEndpoint();
-        $this->identity_url = 'http://identity.url/';
-        $this->endpoint->identity_url = $this->identity_url;
+        $this->claimed_id = 'http://identity.url/';
+        $this->endpoint->claimed_id = $this->claimed_id;
         $this->store = null;
         $this->session = new Services_Yadis_PHPSession();
         $this->consumer =& new Auth_OpenID_Consumer($this->store, &$this->session);
         $this->consumer->consumer =& new _StubConsumer();
         $this->discovery =& new Services_Yadis_Discovery(&$this->session,
-                                         $this->identity_url,
+                                         $this->claimed_id,
                                          $this->consumer->session_key_prefix);
     }
 
@@ -1186,7 +1186,7 @@ class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_TestCase {
     {
         $response = $this->consumer->complete(array());
         $this->assertEquals($response->status, Auth_OpenID_FAILURE);
-        $this->assertTrue($response->identity_url === null);
+        $this->assertTrue($response->claimed_id === null);
     }
 
     function _doResp($auth_req, $exp_resp)
@@ -1202,7 +1202,7 @@ class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_TestCase {
 
         // All responses should have the same identity URL, and the
         // session should be cleaned out
-        $this->assertTrue($resp->identity_url == $this->identity_url);
+        $this->assertTrue($resp->claimed_id == $this->claimed_id);
         $this->assertFalse(in_array($this->consumer->_token_key,
                                     $_SESSION)); // this->session->data));
 
@@ -1256,8 +1256,8 @@ class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_TestCase {
     {
         // Set up and execute a transaction, with discovery
         $this->discovery->createManager(array($this->endpoint),
-                                        $this->identity_url);
-        $auth_req = $this->consumer->begin($this->identity_url);
+                                        $this->claimed_id);
+        $auth_req = $this->consumer->begin($this->claimed_id);
         $resp = $this->_doResp($auth_req, $exp_resp);
 
         $manager = $this->discovery->getManager();
@@ -1306,9 +1306,9 @@ class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_TestCase {
     function test_begin()
     {
         $this->discovery->createManager(array($this->endpoint),
-                                        $this->identity_url);
+                                        $this->claimed_id);
         // Should not raise an exception
-        $auth_req = $this->consumer->begin($this->identity_url);
+        $auth_req = $this->consumer->begin($this->claimed_id);
         $this->assertTrue(strtolower(get_class($auth_req)) === 'auth_openid_authrequest');
         $this->assertTrue($auth_req->endpoint == $this->endpoint);
         $this->assertTrue($auth_req->endpoint == $this->consumer->consumer->endpoint);
