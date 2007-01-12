@@ -202,7 +202,8 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
         $this->assertEquals(0, strpos($new_return_to, $return_to));
 
         $query = array(
-                       'nonce' => $result->return_to_args['nonce'],
+                       Auth_OpenID_NONCE_NAME =>
+                         $result->return_to_args[Auth_OpenID_NONCE_NAME],
                        'openid.mode'=> 'id_res',
                        'openid.return_to'=> $new_return_to,
                        'openid.identity'=> $delegate_url,
@@ -361,7 +362,8 @@ class _CheckAuthDetectingConsumer extends Auth_OpenID_GenericConsumer {
 class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
     function test_consumerNonce()
     {
-        $this->return_to = sprintf('http://rt.unittest/?nonce=%s',
+        $this->return_to = sprintf('http://rt.unittest/?%s=%s',
+                                   Auth_OpenID_NONCE_NAME,
                                    Auth_OpenID_mkNonce());
         $query = array('openid.return_to' => $this->return_to);
 
@@ -376,11 +378,13 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
 
     function test_serverNonce()
     {
-        $query = array('openid.nonce' => Auth_OpenID_mkNonce());
+        $query = array('openid.' . Auth_OpenID_NONCE_NAME =>
+                       Auth_OpenID_mkNonce());
         $message = Auth_OpenID_Message::fromPostArgs($query);
 
         $this->response = new Auth_OpenID_SuccessResponse($this->endpoint, $message,
-                                                          array('openid.nonce'));
+                                                          array('openid.' .
+                                                                Auth_OpenID_NONCE_NAME));
         $ret = $this->consumer->_checkNonce($this->server_url, $this->response);
         $this->assertEquals($ret->status, Auth_OpenID_SUCCESS);
         $this->assertEquals($ret->claimed_id, $this->consumer_id);
@@ -394,11 +398,12 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
 
         $this->store->useNonce($this->server_url, $timestamp, $salt);
 
-        $query = array('openid.nonce' => $nonce);
+        $query = array('openid.' . Auth_OpenID_NONCE_NAME => $nonce);
         $message = Auth_OpenID_Message::fromPostArgs($query);
 
         $this->response = new Auth_OpenID_SuccessResponse($this->endpoint, $message,
-                                                          array('openid.nonce'));
+                                                          array('openid.' .
+                                                                Auth_OpenID_NONCE_NAME));
 
         $ret = $this->consumer->_checkNonce($this->server_url, $this->response);
         $this->assertEquals($ret->status, Auth_OpenID_FAILURE);
@@ -409,11 +414,12 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
     function test_tamperedNonce()
     {
         // Malformed nonce
-        $query = array('openid.nonce' => 'malformed');
+        $query = array('openid.' . Auth_OpenID_NONCE_NAME => 'malformed');
         $message = Auth_OpenID_Message::fromPostArgs($query);
 
         $this->response = new Auth_OpenID_SuccessResponse($this->endpoint, $message,
-                                                          array('openid.nonce'));
+                                                          array('openid.' .
+                                                                Auth_OpenID_NONCE_NAME));
 
         $ret = $this->consumer->_checkNonce($this->server_url, $this->response);
         $this->assertEquals($ret->status, Auth_OpenID_FAILURE);
@@ -428,7 +434,8 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
         $message = Auth_OpenID_Message::fromPostArgs($query);
 
         $this->response = new Auth_OpenID_SuccessResponse($this->endpoint, $message,
-                                                          array('openid.nonce'));
+                                                          array('openid.' .
+                                                                Auth_OpenID_NONCE_NAME));
 
         $ret = $this->consumer->_checkNonce($this->server_url, $this->response);
         $this->assertEquals($ret->status, Auth_OpenID_FAILURE);
@@ -861,7 +868,7 @@ class Tests_Auth_OpenID_AuthRequest extends PHPUnit_TestCase {
         $this->endpoint->server_url = 'http://server.unittest/';
         $this->assoc =& $this;
         $this->assoc->handle = 'assoc@handle';
-        $this->authreq = new Auth_OpenID_AuthRequest($this->assoc, $this->endpoint);
+        $this->authreq = new Auth_OpenID_AuthRequest($this->endpoint, $this->assoc);
     }
 
     function test_addExtensionArg()
@@ -1129,7 +1136,7 @@ class _StubConsumer {
 
     function begin($service)
     {
-        $auth_req = new Auth_OpenID_AuthRequest($this->assoc, $service);
+        $auth_req = new Auth_OpenID_AuthRequest($service, $this->assoc);
         $this->endpoint = $service;
         return $auth_req;
     }

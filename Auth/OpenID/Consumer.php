@@ -209,6 +209,11 @@ define('Auth_OpenID_SETUP_NEEDED', 'setup needed');
 define('Auth_OpenID_PARSE_ERROR', 'parse error');
 
 /**
+ * Nonce name for OpenID 1.
+ */
+define('Auth_OpenID_NONCE_NAME', 'janrain_nonce');
+
+/**
  * An OpenID consumer implementation that performs discovery and does
  * session management.  See the Consumer.php file documentation for
  * more information.
@@ -516,10 +521,9 @@ class Auth_OpenID_GenericConsumer {
 
     function begin($service_endpoint)
     {
-        $nonce = Auth_OpenID_mkNonce();
         $assoc = $this->_getAssociation($service_endpoint->server_url);
-        $r = new Auth_OpenID_AuthRequest($assoc, $service_endpoint);
-        $r->return_to_args['nonce'] = $nonce;
+        $r = new Auth_OpenID_AuthRequest($service_endpoint, $assoc);
+        $r->return_to_args[Auth_OpenID_NONCE_NAME] = Auth_OpenID_mkNonce();
         return $r;
     }
 
@@ -755,7 +759,7 @@ class Auth_OpenID_GenericConsumer {
             $found = false;
 
             foreach ($query as $k => $v) {
-                if ($k == 'nonce') {
+                if ($k == Auth_OpenID_NONCE_NAME) {
                     $server_url = '';
                     $nonce = $v;
                     $found = true;
@@ -931,7 +935,7 @@ class Auth_OpenID_AuthRequest {
      * class.  Instances of this class are created by the library when
      * needed.
      */
-    function Auth_OpenID_AuthRequest($assoc, $endpoint)
+    function Auth_OpenID_AuthRequest($endpoint, $assoc)
     {
         $this->assoc = $assoc;
         $this->endpoint = $endpoint;
@@ -1118,7 +1122,8 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
 
     function getNonce()
     {
-        return $this->getSigned(Auth_OpenID_OPENID_NS, 'nonce');
+        return $this->getSigned(Auth_OpenID_OPENID_NS,
+                                Auth_OpenID_NONCE_NAME);
     }
 }
 
