@@ -521,7 +521,7 @@ class Auth_OpenID_GenericConsumer {
 
     function begin($service_endpoint)
     {
-        $assoc = $this->_getAssociation($service_endpoint->server_url);
+        $assoc = $this->_getAssociation($service_endpoint);
         $r = new Auth_OpenID_AuthRequest($service_endpoint, $assoc);
         $r->return_to_args[Auth_OpenID_NONCE_NAME] = Auth_OpenID_mkNonce();
         return $r;
@@ -802,18 +802,18 @@ class Auth_OpenID_GenericConsumer {
     /**
      * @access private
      */
-    function _getAssociation($server_url)
+    function _getAssociation($endpoint)
     {
         if (!$this->_use_assocs) {
             return null;
         }
 
-        $assoc = $this->store->getAssociation($server_url);
+        $assoc = $this->store->getAssociation($endpoint->server_url);
 
         if (($assoc === null) ||
             ($assoc->getExpiresIn() <= 0)) {
 
-            $parts = $this->_createAssociateRequest($server_url);
+            $parts = $this->_createAssociateRequest($endpoint->server_url);
 
             if ($parts === null) {
                 return null;
@@ -821,13 +821,13 @@ class Auth_OpenID_GenericConsumer {
 
             list($assoc_session, $message) = $parts;
 
-            $response = $this->_makeKVPost($message, $server_url);
+            $response = $this->_makeKVPost($message, $endpoint->server_url);
 
             if ($response === null) {
                 $assoc = null;
             } else {
                 $assoc = $this->_parseAssociation($response, $assoc_session,
-                                                  $server_url);
+                                                  $endpoint->server_url);
             }
         }
 

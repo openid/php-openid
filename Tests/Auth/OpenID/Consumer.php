@@ -844,8 +844,12 @@ class Tests_Auth_OpenID_Consumer_TestFetchAssoc extends PHPUnit_TestCase {
                         "raise E_MOCK_FETCHER_EXCEPTION");
         }
 
+        $endpoint = new Auth_OpenID_ServiceEndpoint();
+        $endpoint->server_url = 'some://url';
+
         // exception fetching returns no association
-        $this->assertEquals(@$this->consumer->_getAssociation('some://url'), null);
+        $this->assertEquals(@$this->consumer->_getAssociation($endpoint),
+                            null);
 
         $query = array('openid.signed' => '');
         $message = Auth_OpenID_Message::fromPostArgs($query);
