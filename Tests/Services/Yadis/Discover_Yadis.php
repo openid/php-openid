@@ -110,14 +110,11 @@ class _TestCase extends PHPUnit_TestCase {
     function runTest()
     {
         if ($this->expected === null) {
-            $response = array();
             $this->assertTrue(
-                 Services_Yadis_Yadis::discover($this->input_url, $response,
-                                                $this->fetcher) === null);
+                 Services_Yadis_Yadis::discover($this->input_url,
+                                                $this->fetcher)->isFailure());
         } else {
-            $response = array();
             $result = Services_Yadis_Yadis::discover($this->input_url,
-                                                     $response,
                                                      $this->fetcher);
 
             if ($result === null) {
@@ -128,12 +125,12 @@ class _TestCase extends PHPUnit_TestCase {
             $this->assertEquals($this->input_url, $result->request_uri);
 
             $msg = 'Identity URL mismatch: actual = %s, expected = %s';
-            $msg = sprintf($msg, $result->uri, $this->expected->uri);
-            $this->assertEquals($this->expected->uri, $result->uri, $msg);
+            $msg = sprintf($msg, $result->normalized_uri, $this->expected->uri);
+            $this->assertEquals($this->expected->uri, $result->normalized_uri, $msg);
 
             $msg = 'Content mismatch: actual = %s, expected = %s';
-            $msg = sprintf($msg, $result->body, $this->expected->body);
-            $this->assertEquals($this->expected->body, $result->body, $msg);
+            $msg = sprintf($msg, $result->response_text, $this->expected->body);
+            $this->assertEquals($this->expected->body, $result->response_text, $msg);
 
             $this->assertEquals($this->expected->xrds_uri, $result->xrds_uri);
             $this->assertEquals($this->expected->content_type, $result->content_type);

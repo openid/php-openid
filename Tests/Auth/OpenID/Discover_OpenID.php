@@ -52,9 +52,9 @@ class Tests_Auth_OpenID_DiscoveryFailure extends PHPUnit_TestCase {
             $expected_status = $status;
 
             $result = Auth_OpenID_discover($this->url, $this->fetcher);
-            list($id_url, $svclist, $http_response) = $result;
+            list($id_url, $svclist) = $result;
 
-            $this->assertEquals($http_response->status, $expected_status);
+            $this->assertEquals($svclist, array());
         }
     }
 }
@@ -390,9 +390,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
         $result = Auth_OpenID_discover($this->id_url . '/404',
                                        $this->fetcher);
 
-        list($id_url, $svclist, $http_response) = $result;
+        list($id_url, $svclist) = $result;
 
-        $this->assertTrue($http_response === null);
         $this->assertTrue($svclist == array());
         $this->assertTrue($id_url == $this->id_url . '/404');
     }
@@ -403,7 +402,7 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
 
         $this->documents[$this->id_url] = array('text/html', $__openid_html);
 
-        list($id_url, $services, $http_response) =
+        list($id_url, $services) =
             Auth_OpenID_discover($this->id_url,
                                  $this->fetcher);
 
@@ -480,8 +479,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
         $this->fetcher->documents = array(
                           $this->id_url => array('text/plain', "junk"));
 
-        list($id_url, $services, $http) = Auth_OpenID_discover($this->id_url,
-                                                               $this->fetcher);
+        list($id_url, $services) = Auth_OpenID_discover($this->id_url,
+                                                        $this->fetcher);
 
         $this->assertEquals($this->id_url, $id_url);
 
@@ -496,8 +495,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
                  DISCOVERYBASE_ID_URL => array('application/xrds+xml',
                                                $__yadis_2entries));
 
-        list($id_url, $services, $http) = Auth_OpenID_discover($this->id_url,
-                                                               $this->fetcher);
+        list($id_url, $services) = Auth_OpenID_discover($this->id_url,
+                                                        $this->fetcher);
 
         $this->assertEquals($this->id_url, $id_url);
 
@@ -525,8 +524,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
         $this->fetcher->documents = array(
                              $this->id_url => array('text/html', $__openid_html));
 
-        list($id_url, $services, $http) = Auth_OpenID_discover($this->id_url,
-                                                               $this->fetcher);
+        list($id_url, $services) = Auth_OpenID_discover($this->id_url,
+                                                        $this->fetcher);
 
         $this->assertEquals($expected_final_url, $id_url);
 
@@ -553,8 +552,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
                                  $this->id_url =>
                                  array('application/xrds+xml', $__yadis_0entries));
 
-        list($id_url, $services, $http) = Auth_OpenID_discover($this->id_url,
-                                                               $this->fetcher);
+        list($id_url, $services) = Auth_OpenID_discover($this->id_url,
+                                                        $this->fetcher);
 
         $this->assertEquals($this->id_url, $id_url);
 
@@ -570,8 +569,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
             $this->id_url => array('text/html', $__openid_and_yadis_html),
             $this->id_url . 'xrds' => array('application/xrds+xml', $__yadis_0entries));
 
-        list($id_url, $services, $http) = Auth_OpenID_discover($this->id_url,
-                                                               $this->fetcher);
+        list($id_url, $services) = Auth_OpenID_discover($this->id_url,
+                                                        $this->fetcher);
 
         $this->assertEquals($this->id_url, $id_url);
 
@@ -593,8 +592,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
         $this->fetcher->documents = array(
               $this->id_url => array('application/xrds+xml', $__yadis_no_delegate));
 
-        list($id_url, $services, $http) = Auth_OpenID_discover($this->id_url,
-                                                               $this->fetcher);
+        list($id_url, $services) = Auth_OpenID_discover($this->id_url,
+                                                        $this->fetcher);
 
         $this->assertEquals($this->id_url, $id_url);
 
@@ -618,8 +617,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
                       $this->id_url => array('text/html',
                                              $__openid_html_no_delegate));
 
-        list($id_url, $services, $http) = Auth_OpenID_discover($this->id_url,
-                                                               $this->fetcher);
+        list($id_url, $services) = Auth_OpenID_discover($this->id_url,
+                                                        $this->fetcher);
 
         $this->assertEquals($this->id_url, $id_url);
 

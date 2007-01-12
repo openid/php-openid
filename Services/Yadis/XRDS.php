@@ -274,11 +274,11 @@ class Services_Yadis_XRDS {
         $attrs = $parser->attributes($root);
 
         if (array_key_exists('xmlns:xrd', $attrs) &&
-            $attrs['xmlns:xrd'] != 'xri://$xrd*($v*2.0)') {
+            $attrs['xmlns:xrd'] != Services_Yadis_XMLNS_XRDS) {
             return null;
         } else if (array_key_exists('xmlns', $attrs) &&
                    preg_match('/xri/', $attrs['xmlns']) &&
-                   $attrs['xmlns'] != 'xri://$xrd*($v*2.0)') {
+                   $attrs['xmlns'] != Services_Yadis_XMLNS_XRD_2_0) {
             return null;
         }
 

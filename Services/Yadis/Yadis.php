@@ -31,6 +31,88 @@ require_once "Services/Yadis/ParseHTML.php";
 require_once "Services/Yadis/XRDS.php";
 
 /**
+ * XRDS (yadis) content type
+ */
+define('Services_Yadis_CONTENT_TYPE', 'application/xrds+xml');
+
+/**
+ * Yadis header
+ */
+define('Services_Yadis_HEADER_NAME', 'X-XRDS-Location');
+
+// Contains the result of performing Yadis discovery on a URI
+class Services_Yadis_DiscoveryResult {
+
+    // The URI that was passed to the fetcher
+    var $request_uri = null;
+
+    // The result of following redirects from the request_uri
+    var $normalized_uri = null;
+
+    // The URI from which the response text was returned (set to
+    // None if there was no XRDS document found)
+    var $xrds_uri = null;
+
+    var $xrds = null;
+
+    // The content-type returned with the response_text
+    var $content_type = null;
+
+    // The document returned from the xrds_uri
+    var $response_text = null;
+
+    // Did the discovery fail miserably?
+    var $failed = false;
+
+    function Services_Yadis_DiscoveryResult($request_uri)
+    {
+        // Initialize the state of the object
+        // sets all attributes to None except the request_uri
+        $this->request_uri = $request_uri;
+    }
+
+    function fail()
+    {
+        $this->failed = true;
+    }
+
+    function isFailure()
+    {
+        return $this->failed;
+    }
+
+    /**
+     * Returns the list of service objects as described by the XRDS
+     * document, if this yadis object represents a successful Yadis
+     * discovery.
+     *
+     * @return array $services An array of {@link Services_Yadis_Service}
+     * objects
+     */
+    function services()
+    {
+        if ($this->xrds) {
+            return $this->xrds->services();
+        }
+
+        return null;
+    }
+
+    function usedYadisLocation()
+    {
+        // Was the Yadis protocol's indirection used?
+        return $this->normalized_uri == $this->xrds_uri;
+    }
+
+    function isXRDS()
+    {
+        // Is the response text supposed to be an XRDS document?
+        return ($this->usedYadisLocation() ||
+                $this->content_type == Services_Yadis_CONTENT_TYPE);
+    }
+}
+
+/**
  * This is the core of the PHP Yadis library.  This is the only class
  * a user needs to use to perform Yadis discovery.  This class
  * performs the discovery AND stores the result of the discovery.
@@ -185,129 +267,61 @@ class Services_Yadis_Yadis {
      * Services_Yadis_Yadis, depending on whether the discovery
      * succeeded.
      */
-    function discover($uri, &$http_response, &$fetcher,
+    function discover($uri, &$fetcher,
                       $extra_ns_map = null, $timeout = 20)
     {
-        if (!$uri) {
-            return null;
-        }
+        $result = new Services_Yadis_DiscoveryResult($uri);
 
         $request_uri = $uri;
-        $headers = array("Accept: application/xrds+xml");
+        $headers = array("Accept: " . Services_Yadis_CONTENT_TYPE);
 
         if (!$fetcher) {
             $fetcher = Services_Yadis_Yadis::getHTTPFetcher($timeout);
         }
 
         $response = $fetcher->get($uri, $headers);
-        $http_response = $response;
 
-        if (!$response) {
-            return null;
+        if (!$response || ($response->status != 200)) {
+            $result->fail();
+            return $result;
         }
 
-        if ($response->status != 200) {
-            return null;
-        }
+        $result->normalized_uri = $response->final_url;
+        $result->content_type = Services_Yadis_Yadis::_getHeader($response->headers,
+                                                                 array('content-type'));
 
-        $xrds_uri = $response->final_url;
-        $uri = $response->final_url;
-        $body = $response->body;
+        if ($result->content_type &&
+            (Services_Yadis_Yadis::_getContentType($result->content_type) ==
+             Services_Yadis_CONTENT_TYPE)) {
+            $result->xrds_uri = $result->normalized_uri;
+        } else {
+            $yadis_location = Services_Yadis_Yadis::_getHeader(
+                                                      $response->headers,
+                                                      array(Services_Yadis_HEADER_NAME));
 
-        $xrds_header_uri = Services_Yadis_Yadis::_getHeader(
-                                                    $response->headers,
-                                                    array('x-xrds-location',
-                                                          'x-yadis-location'));
-
-        $content_type = Services_Yadis_Yadis::_getHeader($response->headers,
-                                                         array('content-type'));
-
-        if ($xrds_header_uri) {
-            $xrds_uri = $xrds_header_uri;
-            $response = $fetcher->get($xrds_uri);
-            $http_response = $response;
-            if (!$response) {
-                return null;
-            } else {
-                $body = $response->body;
-                $headers = $response->headers;
-                $content_type = Services_Yadis_Yadis::_getHeader($headers,
-                                                       array('content-type'));
+            if (!$yadis_location) {
+                $parser = new Services_Yadis_ParseHTML();
+                $yadis_location = $parser->getHTTPEquiv($response->body);
             }
-        }
 
-        if (Services_Yadis_Yadis::_getContentType($content_type) !=
-            'application/xrds+xml') {
-            // Treat the body as HTML and look for a META tag.
-            $parser = new Services_Yadis_ParseHTML();
-            $new_uri = $parser->getHTTPEquiv($body);
-            $xrds_uri = null;
-            if ($new_uri) {
-                $response = $fetcher->get($new_uri);
+            if ($yadis_location) {
+                $result->xrds_uri = $yadis_location;
+
+                $response = $fetcher->get($yadis_location);
+
                 if ($response->status != 200) {
-                    return null;
+                    $result->fail();
+                    return $result;
                 }
-                $http_response = $response;
-                $body = $response->body;
-                $xrds_uri = $new_uri;
-                $content_type = Services_Yadis_Yadis::_getHeader(
+
+                $result->content_type = Services_Yadis_Yadis::_getHeader(
                                                          $response->headers,
                                                          array('content-type'));
             }
         }
 
-        $xrds = Services_Yadis_XRDS::parseXRDS($body, $extra_ns_map);
-
-        $y = new Services_Yadis_Yadis();
-
-        $y->request_uri = $request_uri;
-        $y->xrds = null;
-        $y->xrds_uri = null;
-        $y->uri = $uri;
-        $y->body = $body;
-        $y->content_type = $content_type;
-
-        if ($xrds !== null) {
-            $y->xrds = $xrds;
-            $y->xrds_uri = $xrds_uri;
-        }
-
-        return $y;
-    }
-
-    /**
-     * Instantiates an empty Services_Yadis_Yadis object.  This
-     * constructor should not be used by any user of the library.
-     * This constructor results in a completely useless object which
-     * must be populated with valid discovery information.  Instead of
-     * using this constructor, call
-     * Services_Yadis_Yadis::discover($uri).
-     */
-    function Services_Yadis_Yadis()
-    {
-        $this->request_uri = null;
-        $this->uri = null;
-        $this->xrds = null;
-        $this->xrds_uri = null;
-        $this->body = null;
-        $this->content_type = null;
-    }
-
-    /**
-     * Returns the list of service objects as described by the XRDS
-     * document, if this yadis object represents a successful Yadis
-     * discovery.
-     *
-     * @return array $services An array of {@link Services_Yadis_Service}
-     * objects
-     */
-    function services()
-    {
-        if ($this->xrds) {
-            return $this->xrds->services();
-        }
-
-        return null;
+        $result->response_text = $response->body;
+        return $result;
     }
 }
 

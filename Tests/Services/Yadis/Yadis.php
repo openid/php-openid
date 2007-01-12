@@ -26,23 +26,22 @@ class Tests_Services_Yadis_DiscoveryTest extends PHPUnit_TestCase {
 
     function runTest()
     {
-        $http_response = null;
         $fetcher = Services_Yadis_Yadis::getHTTPFetcher();
         $y = Services_Yadis_Yadis::discover(
-             $this->input_url, $http_response, $fetcher);
+             $this->input_url, $fetcher);
         $this->assertTrue($y !== null);
 
         // Compare parts of returned Yadis object to expected URLs.
-        $this->assertEquals($this->redir_uri, $y->uri);
+        $this->assertEquals($this->redir_uri, $y->normalized_uri);
 
         if ($this->xrds_uri) {
             $this->assertEquals($this->xrds_uri, $y->xrds_uri);
             // Compare contents of actual HTTP GET with that of Yadis
             // response.
             $f = Services_Yadis_Yadis::getHTTPFetcher();
-            $response = $f->get($this->xrds_uri);
+            $http_response = $f->get($this->xrds_uri);
 
-            $this->assertEquals($response->body, $y->body);
+            $this->assertEquals($http_response->body, $y->response_text);
         } else {
             $this->assertTrue($y->xrds_uri === null);
         }

@@ -324,59 +324,53 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
     // OpenID 1.0 discovery on the same URL will help, so don't bother
     // to catch it.
     $openid_services = array();
-
-    $http_response = null;
-    $response = Services_Yadis_Yadis::discover($uri, $http_response,
-                                               $fetcher);
-
+    $response = Services_Yadis_Yadis::discover($uri, $fetcher);
+    $yadis_url = $response->normalized_uri;
     $yadis_services = array();
-    $identity_url = $uri;
 
-    if ($response) {
-        $identity_url = $response->uri;
+    if ($response->isFailure()) {
+        return array($uri, array());
+    }
 
-        if ($response->xrds) {
-            $yadis_services =
-                $response->xrds->services(
-                                   array('filter_MatchesAnyOpenIDType'));
-        }
+    $xrds =& Services_Yadis_XRDS::parseXRDS($response->response_text);
+
+    if ($xrds) {
+        $yadis_services =
+            $xrds->services(array('filter_MatchesAnyOpenIDType'));
     }
 
     if (!$yadis_services) {
-        if ($response &&
-            Services_Yadis_XRDS::parseXRDS($response->body) !== null) {
-            return @Auth_OpenID_discoverWithoutYadis($uri,
-                                                     $fetcher);
-        } else if (!$response) {
-            return array($uri, array(), null);
+        if ($response->isXRDS()) {
+            return Auth_OpenID_discoverWithoutYadis($uri,
+                                                    $fetcher);
         }
 
         // Try to parse the response as HTML to get OpenID 1.0/1.1
         // <link rel="...">
         $openid_services = Auth_OpenID_ServiceEndpoint::fromHTML(
-                                        $identity_url,
-                                        $response->body);
+                                        $yadis_url,
+                                        $response->response_text);
     } else {
-        $openid_services = Auth_OpenID_makeOpenIDEndpoints($identity_url,
+        $openid_services = Auth_OpenID_makeOpenIDEndpoints($yadis_url,
                                                            $yadis_services);
     }
 
     $openid_services = Auth_OpenID_getOPOrUserServices($openid_services);
-    return array($identity_url, $openid_services, $response);
+    return array($yadis_url, $openid_services);
 }
 
 function _Auth_OpenID_discoverServiceList($uri, &$fetcher)
 {
-    list($url, $services, $resp) = Auth_OpenID_discoverWithYadis($uri,
-                                                                 $fetcher);
+    list($url, $services) = Auth_OpenID_discoverWithYadis($uri,
+                                                          $fetcher);
 
     return $services;
 }
 
 function _Auth_OpenID_discoverXRIServiceList($uri, &$fetcher)
 {
-    list($url, $services, $resp) = _Auth_OpenID_discoverXRI($uri,
-                                                            $fetcher);
+    list($url, $services) = _Auth_OpenID_discoverXRI($uri,
+                                                     $fetcher);
     return $services;
 }
 
@@ -385,7 +379,7 @@ function Auth_OpenID_discoverWithoutYadis($uri, &$fetcher)
     $http_resp = @$fetcher->get($uri);
 
     if ($http_resp->status != 200) {
-        return array(null, array(), $http_resp);
+        return array($uri, array());
     }
 
     $identity_url = $http_resp->final_url;
@@ -396,7 +390,7 @@ function Auth_OpenID_discoverWithoutYadis($uri, &$fetcher)
                                            $identity_url,
                                            $http_resp->body);
 
-    return array($identity_url, $openid_services, $http_resp);
+    return array($identity_url, $openid_services);
 }
 
 function _Auth_OpenID_discoverXRI($iname, &$fetcher)
@@ -418,7 +412,7 @@ function _Auth_OpenID_discoverXRI($iname, &$fetcher)
     }
 
     // FIXME: returned xri should probably be in some normal form
-    return array($iname, $openid_services, null);
+    return array($iname, $openid_services);
 }
 
 function Auth_OpenID_discover($uri, &$fetcher)
