@@ -270,9 +270,9 @@ function Auth_OpenID_arrangeByType($service_list, $preferred_types)
 function Auth_OpenID_getOPOrUserServices($openid_services)
 {
     $op_services = Auth_OpenID_arrangeByType($openid_services,
-                                             array(Auth_OpenID_TYPE_2_0_IDP));
+                                     array(Auth_OpenID_TYPE_2_0_IDP));
 
-    $openid_services = arrangeByType($openid_services,
+    $openid_services = Auth_OpenID_arrangeByType($openid_services,
                                      Auth_OpenID_getOpenIDTypeURIs());
 
     if ($op_services) {
