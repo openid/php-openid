@@ -117,7 +117,7 @@ $_tests = array(
                                        'Consumer',
                                        'CryptUtil',
                                        'DiffieHellman',
-                                       'Discover',
+                                       'Discover_OpenID',
                                        'HMACSHA1',
                                        'KVForm',
                                        'Message',
@@ -136,7 +136,7 @@ $_tests = array(
                                        'ParseHTML',
                                        'XRDS',
                                        'Yadis',
-                                       'Discover',
+                                       'Discover_Yadis',
                                        'XRI'
                                        )
                       )
@@ -182,10 +182,12 @@ function loadSuite($names=null)
         }
     }
     $selected = selectTests($names);
+
     $result = array();
     foreach ($_tests as $package) {
         $result = array_merge($result, loadTests($package['dir'], $selected));
     }
+
     return $result;
 }
 ?>

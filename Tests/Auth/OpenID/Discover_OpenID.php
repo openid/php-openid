@@ -372,7 +372,7 @@ function __serviceCheck_discover_cb($url, $fetcher)
     return array($__Tests_BOGUS_SERVICE);
 }
 
-class Tests_Auth_OpenID_Discover extends _DiscoveryBase {
+class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
     function _usedYadis($service)
     {
         $this->assertTrue($service->used_yadis,

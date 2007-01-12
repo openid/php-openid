@@ -150,14 +150,14 @@ class _TestCase extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Services_Yadis_Discover extends PHPUnit_TestSuite {
+class Tests_Services_Yadis_Discover_Yadis extends PHPUnit_TestSuite {
 
     function getName()
     {
-        return "Tests_Services_Yadis_Discover";
+        return "Tests_Services_Yadis_Discover_Yadis";
     }
 
-    function Tests_Services_Yadis_Discover()
+    function Tests_Services_Yadis_Discover_Yadis()
     {
         global $testlist;
 
