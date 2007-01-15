@@ -110,9 +110,9 @@ class _TestCase extends PHPUnit_TestCase {
     function runTest()
     {
         if ($this->expected === null) {
-            $this->assertTrue(
-                 Services_Yadis_Yadis::discover($this->input_url,
-                                                $this->fetcher)->isFailure());
+            $result = Services_Yadis_Yadis::discover($this->input_url,
+                                                     $this->fetcher);
+            $this->assertTrue($result->isFailure());
         } else {
             $result = Services_Yadis_Yadis::discover($this->input_url,
                                                      $this->fetcher);
