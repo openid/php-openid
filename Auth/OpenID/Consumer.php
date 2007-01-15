@@ -402,10 +402,13 @@ class Auth_OpenID_Consumer {
     }
 }
 
-class Auth_OpenID_DiffieHellmanConsumerSession {
+class Auth_OpenID_DiffieHellmanSHA1ConsumerSession {
     var $session_type = 'DH-SHA1';
+    var $hash_func = 'Auth_OpenID_SHA1';
+    var $secret_size = 20;
+    var $allowed_assoc_types = array('HMAC-SHA1');
 
-    function Auth_OpenID_DiffieHellmanConsumerSession($dh = null)
+    function Auth_OpenID_DiffieHellmanSHA1ConsumerSession($dh = null)
     {
         if ($dh === null) {
             $dh = new Auth_OpenID_DiffieHellman();
@@ -420,14 +423,14 @@ class Auth_OpenID_DiffieHellmanConsumerSession {
 
         $cpub = $math->longToBase64($this->dh->public);
 
-        $args = array('openid.dh_consumer_public' => $cpub);
+        $args = array('dh_consumer_public' => $cpub);
 
         if (!$this->dh->usingDefaultValues()) {
             $args = array_merge($args, array(
-                'openid.dh_modulus' =>
+                'dh_modulus' =>
                      $math->longToBase64($this->dh->mod),
-                'openid.dh_gen' =>
-                $math->longToBase64($this->dh->gen)));
+                'dh_gen' =>
+                     $math->longToBase64($this->dh->gen)));
         }
 
         return $args;
@@ -446,17 +449,19 @@ class Auth_OpenID_DiffieHellmanConsumerSession {
         }
 
         $math =& Auth_OpenID_getMathLib();
+
         $spub = $math->base64ToLong($response->getArg(Auth_OpenID_OPENID_NS,
                                                       'dh_server_public'));
         $enc_mac_key = base64_decode($response->getArg(Auth_OpenID_OPENID_NS,
                                                        'enc_mac_key'));
 
-        return $this->dh->xorSecret($spub, $enc_mac_key);
+        return $this->dh->xorSecret($spub, $enc_mac_key, $this->hash_func);
     }
 }
 
 class Auth_OpenID_PlainTextConsumerSession {
-    var $session_type = null;
+    var $session_type = 'no-encryption';
+    var $allowed_assoc_types =  array('HMAC-SHA1');
 
     function getRequest()
     {
@@ -514,9 +519,16 @@ class Auth_OpenID_GenericConsumer {
     function Auth_OpenID_GenericConsumer(&$store)
     {
         $this->store =& $store;
+        $this->negotiator =& Auth_OpenID_getDefaultNegotiator();
         $this->_use_assocs = !($this->store && $this->store->isDumb());
 
         $this->fetcher = Services_Yadis_Yadis::getHTTPFetcher();
+
+        $this->session_types = array(
+           'DH-SHA1' => 'Auth_OpenID_DiffieHellmanSHA1ConsumerSession',
+           // 'DH-SHA256' => 'Auth_OpenID_DiffieHellmanSHA256ConsumerSession',
+           'no-encryption' => 'Auth_OpenID_PlainTextConsumerSession'
+           );
     }
 
     function begin($service_endpoint)
@@ -813,109 +825,241 @@ class Auth_OpenID_GenericConsumer {
         if (($assoc === null) ||
             ($assoc->getExpiresIn() <= 0)) {
 
-            $parts = $this->_createAssociateRequest($endpoint->server_url);
-
-            if ($parts === null) {
-                return null;
-            }
-
-            list($assoc_session, $message) = $parts;
-
-            $response = $this->_makeKVPost($message, $endpoint->server_url);
-
-            if ($response === null) {
-                $assoc = null;
-            } else {
-                $assoc = $this->_parseAssociation($response, $assoc_session,
-                                                  $endpoint->server_url);
+            $assoc = $this->_negotiateAssociation($endpoint);
+            if ($assoc !== null) {
+                $this->store->storeAssociation($endpoint->server_url,
+                                               $assoc);
             }
         }
 
         return $assoc;
     }
 
-    function _createAssociateRequest($server_url)
+    function _negotiateAssociation($endpoint)
     {
-        $parts = parse_url($server_url);
+        # Get our preferred session/association type from the negotiatior.
+        list($assoc_type, $session_type) = $this->negotiator->getAllowedType();
 
-        if ($parts === false) {
+        $assoc = $this->_requestAssociation(
+                           $endpoint, $assoc_type, $session_type);
+
+        if (is_a($assoc, 'Auth_OpenID_ServerError')) {
+            // Any error message whose code is not 'unsupported-type'
+            // should be considered a total failure.
+            if (($why->error_code != 'unsupported-type') ||
+                ($why->message->isOpenID1())) {
+                // oidutil.log(
+                //    'Server error when requesting an association from %r: %s'
+                //     % (endpoint.server_url, why.error_text))
+                return null;
+            }
+
+            // The server didn't like the association/session type
+            // that we sent, and it sent us back a message that
+            // might tell us how to handle it.
+            // oidutil.log(
+            //     'Unsupported association type %s: %s' % (assoc_type,
+            //                                              why.error_text,))
+
+            // Extract the session_type and assoc_type from the
+            // error message
+            $assoc_type = $why->message->getArg(Auth_OpenID_OPENID_NS,
+                                                'assoc_type');
+
+            $session_type = $why->message->getArg(Auth_OpenID_OPENID_NS,
+                                                  'session_type');
+
+            if (($assoc_type === null) || ($session_type === null)) {
+                // oidutil.log('Server responded with unsupported association '
+                //             'session but did not supply a fallback.')
+                return null;
+            } else if (!$self->negotiator->isAllowed($assoc_type,
+                                                     $session_type)) {
+                // fmt = ('Server sent unsupported session/association type: '
+                //        'session_type=%s, assoc_type=%s')
+                // oidutil.log(fmt % (session_type, assoc_type))
+                return null;
+            } else {
+                // Attempt to create an association from the assoc_type
+                // and session_type that the server told us it
+                // supported.
+                $assoc = $self->_requestAssociation(
+                                   $endpoint, $assoc_type, $session_type);
+
+                if (is_a($assoc, 'Auth_OpenID_ServerError')) {
+                    // Do not keep trying, since it rejected the
+                    // association type that it told us to use.
+                    // oidutil.log('Server %s refused its suggested association
+                    //             'type: session_type=%s, assoc_type=%s'
+                    //             % (endpoint.server_url, session_type,
+                    //                assoc_type))
+                    return null;
+                } else {
+                    return $assoc;
+                }
+            }
+        }
+
+        return $assoc;
+    }
+
+    function _requestAssociation($endpoint, $assoc_type, $session_type)
+    {
+        list($assoc_session, $args) = $this->_createAssociateRequest(
+                                      $endpoint, $assoc_type, $session_type);
+
+        $response = $this->_makeKVPost($args, $endpoint->server_url);
+
+        if ($response === null) {
+            // oidutil.log('openid.associate request failed: %s' % (why[0],))
             return null;
         }
 
-        if (array_key_exists('scheme', $parts)) {
-            $proto = $parts['scheme'];
-        } else {
-            $proto = 'http';
+        return $this->_extractAssociation($response, $assoc_session);
+    }
+
+    function _extractAssociation($assoc_response, $assoc_session)
+    {
+        // Extract the common fields from the response, raising an
+        // exception if they are not found
+        $assoc_type = $assoc_response->getArg(
+                         Auth_OpenID_OPENID_NS, 'assoc_type',
+                         Auth_OpenID_NO_DEFAULT);
+
+        $assoc_handle = $assoc_response->getArg(
+                           Auth_OpenID_OPENID_NS, 'assoc_handle',
+                           Auth_OpenID_NO_DEFAULT);
+
+        // expires_in is a base-10 string. The Python parsing will
+        // accept literals that have whitespace around them and will
+        // accept negative values. Neither of these are really in-spec,
+        // but we think it's OK to accept them.
+        $expires_in_str = $assoc_response->getArg(
+                             Auth_OpenID_OPENID_NS, 'expires_in',
+                             Auth_OpenID_NO_DEFAULT);
+
+        $expires_in = intval($expires_in_str);
+        if ($expires_in === false) {
+            // raise ProtocolError('Invalid expires_in field: %s' % (why[0],))
+            return null;
         }
 
-        if ($proto == 'https' || defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            $assoc_session = new Auth_OpenID_PlainTextConsumerSession();
+        // OpenID 1 has funny association session behaviour.
+        if ($assoc_response->isOpenID1()) {
+            $session_type = $this->_getOpenID1SessionType($assoc_response);
         } else {
-            $assoc_session = new Auth_OpenID_DiffieHellmanConsumerSession();
+            $session_type = $assoc_response->getArg(
+                               Auth_OpenID_OPENID2_NS, 'session_type',
+                               Auth_OpenID_NO_DEFAULT);
         }
+
+        // Session type mismatch
+        if ($assoc_session->session_type != $session_type) {
+            if ($assoc_response->isOpenID1() &&
+                ($session_type == 'no-encryption')) {
+                // In OpenID 1, any association request can result in
+                // a 'no-encryption' association response. Setting
+                // assoc_session to a new no-encryption session should
+                // make the rest of this function work properly for
+                // that case.
+                $assoc_session = new Auth_OpenID_PlainTextConsumerSession();
+            } else {
+                // Any other mismatch, regardless of protocol version
+                // results in the failure of the association session
+                // altogether.
+
+                // fmt = 'Session type mismatch. Expected %r, got %r'
+                // message = fmt % (assoc_session.session_type, session_type)
+                // raise ProtocolError(message)
+                return null;
+            }
+        }
+
+        // Make sure assoc_type is valid for session_type
+        if (!in_array($assoc_type, $assoc_session->allowed_assoc_types)) {
+            // fmt = 'Unsupported assoc_type for session %s returned: %s'
+            // raise ProtocolError(fmt % (assoc_session.session_type,
+            // assoc_type))
+            return null;
+        }
+
+        // Delegate to the association session to extract the secret
+        // from the response, however is appropriate for that session
+        // type.
+        $secret = $assoc_session->extractSecret($assoc_response);
+
+        if ($secret === null) {
+            // fmt = 'Malformed response for %s session: %s'
+            // raise ProtocolError(fmt % (assoc_session.session_type, why[0]))
+            return null;
+        }
+
+        return Auth_OpenID_Association::fromExpiresIn(
+                 $expires_in, $assoc_handle, $secret, $assoc_type);
+    }
+
+    function _createAssociateRequest($endpoint, $assoc_type, $session_type)
+    {
+        $session_type_class = $this->session_types[$session_type];
+        $assoc_session = new $session_type_class();
 
         $args = array(
-            'openid.mode' => 'associate',
-            'openid.assoc_type' => 'HMAC-SHA1');
+            'mode' => 'associate',
+            'assoc_type' => $assoc_type);
 
-        if ($assoc_session->session_type !== null) {
-            $args['openid.session_type'] = $assoc_session->session_type;
+        if (!$endpoint->compatibilityMode()) {
+            $args['ns'] = Auth_OpenID_OPENID2_NS;
+        }
+
+        // Leave out the session type if we're in compatibility mode
+        // *and* it's no-encryption.
+        if ((!$endpoint->compatibilityMode()) ||
+            ($assoc_session->session_type != 'no-encryption')) {
+            $args['session_type'] = $assoc_session->session_type;
         }
 
         $args = array_merge($args, $assoc_session->getRequest());
-        $msg = Auth_OpenID_Message::fromPostArgs($args);
-
-        return array($assoc_session, $msg);
+        $message = Auth_OpenID_Message::fromOpenIDArgs($args);
+        return array($assoc_session, $message);
     }
 
-    /**
-     * @access private
-     */
-    function _parseAssociation($results, $assoc_session, $server_url)
+    // Given an association response message, extract the OpenID 1.X
+    // session type.
+    //
+    // This function mostly takes care of the 'no-encryption' default
+    // behavior in OpenID 1.
+    //
+    // If the association type is plain-text, this function will
+    // return 'no-encryption'
+    //
+    // @returns: The association type for this message
+    // @rtype: str
+    // 
+    // @raises: KeyError, if the session_type field is absent.
+    function _getOpenID1SessionType($assoc_response)
     {
-        $required_keys = array('assoc_type', 'assoc_handle',
-                               'expires_in');
+        // If it's an OpenID 1 message, allow session_type to default
+        // to None (which signifies "no-encryption")
+        $session_type = $assoc_response->getArg(Auth_OpenID_OPENID1_NS,
+                                                'session_type');
 
-        foreach ($required_keys as $key) {
-            if (!$results->hasKey(Auth_OpenID_OPENID_NS, $key)) {
-                return null;
-            }
+        // Handle the differences between no-encryption association
+        // respones in OpenID 1 and 2:
+
+        // no-encryption is not really a valid session type for OpenID
+        // 1, but we'll accept it anyway, while issuing a warning.
+        if ($session_type == 'no-encryption') {
+            // oidutil.log('WARNING: OpenID server sent "no-encryption"'
+            //             'for OpenID 1.X')
+        } else if (($session_type == '') || ($session_type === null)) {
+            // Missing or empty session type is the way to flag a
+            // 'no-encryption' response. Change the session type to
+            // 'no-encryption' so that it can be handled in the same
+            // way as OpenID 2 'no-encryption' respones.
+            $session_type = 'no-encryption';
         }
 
-        $assoc_type = $results->getArg(Auth_OpenID_OPENID_NS, 'assoc_type');
-        $assoc_handle = $results->getArg(Auth_OpenID_OPENID_NS, 'assoc_handle');
-        $expires_in_str = $results->getArg(Auth_OpenID_OPENID_NS, 'expires_in');
-
-        if ($assoc_type != 'HMAC-SHA1') {
-            return null;
-        }
-
-        $expires_in = intval($expires_in_str);
-
-        if ($expires_in <= 0) {
-            return null;
-        }
-
-        $session_type = $results->getArg(Auth_OpenID_OPENID_NS, 'session_type');
-        if ($session_type != $assoc_session->session_type) {
-            if ($session_type === null) {
-                $assoc_session = new Auth_OpenID_PlainTextConsumerSession();
-            } else {
-                return null;
-            }
-        }
-
-        $secret = $assoc_session->extractSecret($results);
-
-        if (!$secret) {
-            return null;
-        }
-
-        $assoc = Auth_OpenID_Association::fromExpiresIn(
-                         $expires_in, $assoc_handle, $secret, $assoc_type);
-        $this->store->storeAssociation($server_url, $assoc);
-
-        return $assoc;
+        return $session_type;
     }
 }
 

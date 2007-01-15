@@ -935,7 +935,7 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
             $ml =& Auth_OpenID_getMathLib();
 
             $cpub = $dh->public;
-            $session = new Auth_OpenID_DiffieHellmanServerSession(
+            $session = new Auth_OpenID_DiffieHellmanSHA1ServerSession(
                                            new Auth_OpenID_DiffieHellman(),
                                            $cpub);
 
@@ -971,7 +971,7 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
                       $response->fields->getArg(Auth_OpenID_OPENID_NS,
                                             "dh_server_public"));
 
-            $secret = $dh->xorSecret($spub, $enc_key);
+            $secret = $dh->xorSecret($spub, $enc_key, $session->hash_func);
 
             $this->assertEquals($secret, $this->assoc->secret);
         }

@@ -68,18 +68,20 @@ function Auth_OpenID_associate($qs, $assoc_secret, $assoc_handle)
 
     if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
         assert(count($query_data) == 2);
-        $reply_dict['mac_key'] = $assoc_secret;
+        $session = Auth_OpenID_PlainTextServerSession::fromQuery($query_data);
     } else {
         assert((count($query_data) == 6) || (count($query_data) == 4));
         assert($query_data['openid.mode'] == 'associate');
         assert($query_data['openid.session_type'] == 'DH-SHA1');
-        $dh_args = Auth_OpenID_DiffieHellman::
-            serverAssociate($query_data, $assoc_secret);
-        
-        $reply_dict = array_merge($reply_dict, $dh_args);
+
+        $message = Auth_OpenID_Message::fromPostArgs($query_data);
+
+        $session = Auth_OpenID_DiffieHellmanSHA1ServerSession::fromMessage($message);
+        $reply_dict['session_type'] = 'DH-SHA1';
 
     }
 
+    $reply_dict = array_merge($reply_dict, $session->answer($assoc_secret));
     return Auth_OpenID_KVForm::fromArray($reply_dict);
 }
 
@@ -142,9 +144,9 @@ class Auth_OpenID_TestFetcher extends Services_Yadis_HTTPFetcher {
             return $this->response($url, $response);
         } elseif (strpos($body, 'openid.mode=check_authentication') !== false) {
             return $this->_checkAuth($url, $body);
-        } else {
-            return $this->response($url, null);
         }
+
+        return $this->response($url, null);
     }
 }
 
@@ -848,7 +850,7 @@ class Tests_Auth_OpenID_Consumer_TestFetchAssoc extends PHPUnit_TestCase {
         $endpoint->server_url = 'some://url';
 
         // exception fetching returns no association
-        $this->assertEquals(@$this->consumer->_getAssociation($endpoint),
+        $this->assertEquals($this->consumer->_getAssociation($endpoint),
                             null);
 
         $query = array('openid.signed' => '');
@@ -964,168 +966,6 @@ class Tests_Auth_OpenID_SuccessResponse extends PHPUnit_TestCase {
                                                 $message, array('openid.return_to'));
 
         $this->assertEquals($resp->getReturnTo(), 'return_to');
-    }
-}
-
-class Tests_Auth_OpenID_ParseAssociation extends _TestIdRes {
-    var $secret = '';
-
-    function setUp()
-    {
-      parent::setUp();
-      $this->secret = str_repeat('x', 20);
-    }
-
-    function test_missing()
-    {
-        // Missing required arguments
-        $message = Auth_OpenID_Message::fromPostArgs(array());
-        $result = $this->consumer->_parseAssociation($message, null, 'server_url');
-        $this->assertTrue($result === null);
-    }
-
-    function _setUpDH()
-    {
-        list($sess, $message) = $this->consumer->_createAssociateRequest($this->server_url);
-        $server_sess = Auth_OpenID_DiffieHellmanServerSession::fromMessage($message);
-        $server_resp = $server_sess->answer($this->secret);
-        $server_resp['assoc_type'] = 'HMAC-SHA1';
-        $server_resp['assoc_handle'] = 'handle';
-        $server_resp['expires_in'] = '1000';
-        $server_resp['session_type'] = 'DH-SHA1';
-        return array($sess, $server_resp);
-    }
-
-    function test_plainSuccess()
-    {
-        $sess = new Auth_OpenID_PlainTextConsumerSession();
-        $server_resp = array('mac_key' => 'AAAAAAAAAAAAAAAAAAAAAAAAAAA=',
-                             'assoc_type' => 'HMAC-SHA1',
-                             'assoc_handle' => 'ahandle',
-                             'expires_in' => '1000'
-                             );
-        $message = Auth_OpenID_Message::fromOpenIDArgs($server_resp);
-        $ret = $this->consumer->_parseAssociation($message, $sess,
-                                                  'server_url');
-        $this->assertEquals($ret->secret,
-                            "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" .
-                            "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00");
-    }
-
-    function test_DHSuccess()
-    {
-        if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            print "No math support: not running test_DHSuccess\n";
-            return;
-        }
-        list($sess, $server_resp) = $this->_setUpDH();
-        $message = Auth_OpenID_Message::fromOpenIDArgs($server_resp);
-        $ret = $this->consumer->_parseAssociation($message, $sess,
-                                                  'server_url');
-        $this->assertTrue($ret !== null);
-        $this->assertEquals($ret->assoc_type, 'HMAC-SHA1');
-        $this->assertEquals($ret->secret, $this->secret);
-        $this->assertEquals($ret->handle, 'handle');
-        $this->assertEquals($ret->lifetime, 1000);
-    }
-
-    function test_badAssocType()
-    {
-        $sess = new Auth_OpenID_PlainTextConsumerSession();
-        $server_resp = array('mac_key' => 'XXXXXXXXXXXXXXXXXXXX',
-                             'assoc_handle' => 'ahandle',
-                             'assoc_type' => 'Crazy Low Prices!!!',
-                             'expires_in' => '1000'
-                             );
-        $message = Auth_OpenID_Message::fromOpenIDArgs($server_resp);
-
-        $ret = $this->consumer->_parseAssociation($message, $sess,
-                                                  'server_url');
-        $this->assertTrue($ret === null);
-    }
-
-    function test_badExpiresIn()
-    {
-        $sess = new Auth_OpenID_PlainTextConsumerSession();
-        $server_resp = array('mac_key' => 'XXXXXXXXXXXXXXXXXXXX',
-                             'assoc_handle' => 'ahandle',
-                             'assoc_type' => 'HMAC-SHA1',
-                             'expires_in' => 'Crazy Low Prices!!!'
-                             );
-        $message = Auth_OpenID_Message::fromOpenIDArgs($server_resp);
-        $ret = $this->consumer->_parseAssociation($message, $sess,
-                                                  'server_url');
-        $this->assertTrue($ret === null);
-    }
-
-    function test_badSessionType()
-    {
-        $sess = new Auth_OpenID_PlainTextConsumerSession();
-        $server_resp = array('mac_key' => 'XXXXXXXXXXXXXXXXXXXX',
-                             'assoc_handle' => 'ahandle',
-                             'assoc_type' => 'HMAC-SHA1',
-                             'expires_in' => '1000',
-                             'session_type' => '|/iA6rA'
-                             );
-        $message = Auth_OpenID_Message::fromOpenIDArgs($server_resp);
-        $ret = $this->consumer->_parseAssociation($message, $sess,
-                                                  'server_url');
-        $this->assertTrue($ret === null);
-    }
-
-    function test_plainFallback()
-    {
-        if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            print "No math support: not running test_plainFallback\n";
-            return;
-        }
-        $sess = new Auth_OpenID_DiffieHellmanConsumerSession();
-        $server_resp = array(
-                             'assoc_type' => 'HMAC-SHA1',
-                             'assoc_handle' => 'handle',
-                             'expires_in' => '1000',
-                             'mac_key' => base64_encode($this->secret));
-
-        $message = Auth_OpenID_Message::fromOpenIDArgs($server_resp);
-        $ret = $this->consumer->_parseAssociation($message, $sess,
-                                                  'server_url');
-        $this->assertTrue($ret !== null);
-        $this->assertEquals($ret->assoc_type, 'HMAC-SHA1');
-        $this->assertEquals($ret->secret, $this->secret);
-        $this->assertEquals($ret->handle, 'handle');
-        $this->assertEquals($ret->lifetime, 1000);
-    }
-
-    function test_plainFallbackFailure()
-    {
-        if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            print "No math support: not running test_plainFallbackFailure\n";
-            return;
-        }
-        $sess = new Auth_OpenID_DiffieHellmanConsumerSession();
-        // missing mac_key
-        $server_resp = array(
-            'assoc_type' => 'HMAC-SHA1',
-            'assoc_handle' => 'handle',
-            'expires_in' => '1000');
-
-        $message = Auth_OpenID_Message::fromOpenIDArgs($server_resp);
-        $ret = $this->consumer->_parseAssociation($message, $sess,
-                                                  'server_url');
-        $this->assertTrue($ret === null);
-    }
-
-    function test_badDHValues()
-    {
-        if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            return;
-        }
-        list($sess, $server_resp) = $this->_setUpDH();
-        $server_resp['enc_mac_key'] = "\x00\x00\x00";
-        $message = Auth_OpenID_Message::fromOpenIDArgs($server_resp);
-        $ret = $this->consumer->_parseAssociation($message, $sess,
-                                                  'server_url');
-        $this->assertTrue($ret === null);
     }
 }
 
@@ -1338,7 +1178,6 @@ $Tests_Auth_OpenID_Consumer_other = array(
                                           new Tests_Auth_OpenID_SuccessResponse(),
                                           new Tests_Auth_OpenID_CheckAuthResponse(),
                                           new Tests_Auth_OpenID_FetchErrorInIdRes(),
-                                          new Tests_Auth_OpenID_ParseAssociation(),
                                           new Tests_Auth_OpenID_ConsumerTest2(),
                                           new Tests_Auth_OpenID_AuthRequest()
                                           );

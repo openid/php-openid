@@ -350,4 +350,122 @@ class Auth_OpenID_Association {
     }
 }
 
+function Auth_OpenID_getSessionTypes($assoc_type)
+{
+    $assoc_to_session = array(
+        'HMAC-SHA1' => array('DH-SHA1', 'no-encryption'),
+        'HMAC-SHA256' => array('DH-SHA256', 'no-encryption'));
+    return Auth_OpenID::arrayGet($assoc_to_session, $assoc_type, array());
+}
+
+function Auth_OpenID_checkSessionType($assoc_type, $session_type)
+{
+    if (!in_array($session_type,
+                  Auth_OpenID_getSessionTypes($assoc_type))) {
+        return false;
+    }
+
+    return true;
+}
+
+function Auth_OpenID_getDefaultAssociationOrder()
+{
+    return array(
+                 array('HMAC-SHA1', 'DH-SHA1'),
+                 array('HMAC-SHA1', 'no-encryption'));
+}
+
+function Auth_OpenID_getOnlyEncryptedOrder()
+{
+    return array(
+                 array('HMAC-SHA1', 'DH-SHA1'));
+}
+
+function Auth_OpenID_getDefaultNegotiator()
+{
+    return new Auth_OpenID_SessionNegotiator(
+                 Auth_OpenID_getDefaultAssociationOrder());
+}
+
+function Auth_OpenID_getEncryptedNegotiator()
+{
+    return new Auth_OpenID_SessionNegotiator(
+                 Auth_OpenID_getOnlyEncryptedOrder());
+}
+
+class Auth_OpenID_SessionNegotiator {
+    function Auth_OpenID_SessionNegotiator($allowed_types)
+    {
+        $this->allowed_types = $allowed_types;
+    }
+
+    // Set the allowed association types, checking to make sure each
+    // combination is valid.
+    function setAllowedTypes($allowed_types)
+    {
+        foreach ($allowed_types as $pair) {
+            list($assoc_type, $session_type) = $pair;
+            if (!Auth_OpenID_checkSessionType($assoc_type, $session_type)) {
+                return false;
+            }
+        }
+
+        $this->allowed_types = $allowed_types;
+        return true;
+    }
+
+    // Add an association type and session type to the allowed types
+    // list. The assocation/session pairs are tried in the order that
+    // they are added.
+    function addAllowedType($assoc_type, $session_type = null)
+    {
+        if ($this->allowed_types === null) {
+            $this->allowed_types = array();
+        }
+
+        if ($session_type === null) {
+            $available = Auth_OpenID_getSessionTypes($assoc_type);
+
+            if (!$available) {
+                return false;
+            }
+
+            foreach ($available as $session_type) {
+                $this->addAllowedType($assoc_type, $session_type);
+            }
+        } else {
+            if (Auth_OpenID_checkSessionType($assoc_type, $session_type)) {
+                $this->allowed_types[] = array($assoc_type, $session_type);
+            } else {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // Is this combination of association type and session type allowed?
+    function isAllowed($assoc_type, $session_type)
+    {
+        $assoc_good = in_array(array($assoc_type, $session_type),
+                               $this->allowed_types);
+
+        $matches = in_array($session_type,
+                            Auth_OpenID_getSessionTypes($assoc_type));
+
+        return ($assoc_good && $matches);
+    }
+
+    // Get a pair of assocation type and session type that are
+    // supported
+    function getAllowedType()
+    {
+        if (!$this->allowed_types) {
+            return array(null, null);
+        }
+
+        return $this->allowed_types[0];
+    }
+}
+
 ?>

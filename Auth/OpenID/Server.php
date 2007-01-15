@@ -363,6 +363,7 @@ class Auth_OpenID_PlainTextServerSession {
      */
     var $session_type = 'plaintext';
     var $needs_math = false;
+    var $allowed_assoc_types = array('HMAC-SHA1');
 
     function fromMessage($unused_request)
     {
@@ -375,7 +376,7 @@ class Auth_OpenID_PlainTextServerSession {
     }
 }
 
-class Auth_OpenID_DiffieHellmanServerSession {
+class Auth_OpenID_DiffieHellmanSHA1ServerSession {
     /**
      * An object that knows how to handle association requests with
      * the Diffie-Hellman session type.
@@ -383,8 +384,10 @@ class Auth_OpenID_DiffieHellmanServerSession {
 
     var $session_type = 'DH-SHA1';
     var $needs_math = true;
+    var $allowed_assoc_types = array('HMAC-SHA1');
+    var $hash_func = 'Auth_OpenID_SHA1';
 
-    function Auth_OpenID_DiffieHellmanServerSession($dh, $consumer_pubkey)
+    function Auth_OpenID_DiffieHellmanSHA1ServerSession($dh, $consumer_pubkey)
     {
         $this->dh = $dh;
         $this->consumer_pubkey = $consumer_pubkey;
@@ -441,14 +444,15 @@ class Auth_OpenID_DiffieHellmanServerSession {
                                        "dh_consumer_public is not base64");
         }
 
-        return new Auth_OpenID_DiffieHellmanServerSession($dh,
-                                                          $consumer_pubkey);
+        return new Auth_OpenID_DiffieHellmanSHA1ServerSession($dh,
+                                                              $consumer_pubkey);
     }
 
     function answer($secret)
     {
         $lib =& Auth_OpenID_getMathLib();
-        $mac_key = $this->dh->xorSecret($this->consumer_pubkey, $secret);
+        $mac_key = $this->dh->xorSecret($this->consumer_pubkey, $secret,
+                                        $this->hash_func);
         return array(
            'dh_server_public' =>
                 $lib->longToBase64($this->dh->public),
@@ -475,7 +479,7 @@ class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
     function fromMessage($message)
     {
         $session_classes = array(
-                 'DH-SHA1' => 'Auth_OpenID_DiffieHellmanServerSession',
+                 'DH-SHA1' => 'Auth_OpenID_DiffieHellmanSHA1ServerSession',
                  null => 'Auth_OpenID_PlainTextServerSession');
 
         $session_type = $message->getArg(Auth_OpenID_OPENID_NS,
