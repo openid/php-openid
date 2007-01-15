@@ -30,10 +30,12 @@ class Auth_OpenID_TestConsumer extends Auth_OpenID_GenericConsumer {
     /**
      * Use a small (insecure) modulus for this test so that it runs quickly
      */
+    /*
     function _createDiffieHellman()
     {
         return new Auth_OpenID_DiffieHellman('1235514290909');
     }
+    */
 }
 
 $_Auth_OpenID_assocs = array(
@@ -68,7 +70,8 @@ function Auth_OpenID_associate($qs, $assoc_secret, $assoc_handle)
 
     if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
         assert(count($query_data) == 2);
-        $session = Auth_OpenID_PlainTextServerSession::fromQuery($query_data);
+        $message = Auth_OpenID_Message::fromPostArgs($query_data);
+        $session = Auth_OpenID_PlainTextServerSession::fromMessage($message);
     } else {
         assert((count($query_data) == 6) || (count($query_data) == 4));
         assert($query_data['openid.mode'] == 'associate');

@@ -479,6 +479,15 @@ class Auth_OpenID_PlainTextConsumerSession {
     }
 }
 
+function Auth_OpenID_getAvailableSessionTypes()
+{
+    $types = array(
+      'no-encryption' => 'Auth_OpenID_PlainTextConsumerSession',
+      'DH-SHA1' => 'Auth_OpenID_DiffieHellmanSHA1ConsumerSession');
+
+    return $types;
+}
+
 /**
  * This class is the interface to the OpenID consumer logic.
  * Instances of it maintain no per-request state, so they can be
@@ -524,11 +533,7 @@ class Auth_OpenID_GenericConsumer {
 
         $this->fetcher = Services_Yadis_Yadis::getHTTPFetcher();
 
-        $this->session_types = array(
-           'DH-SHA1' => 'Auth_OpenID_DiffieHellmanSHA1ConsumerSession',
-           // 'DH-SHA256' => 'Auth_OpenID_DiffieHellmanSHA256ConsumerSession',
-           'no-encryption' => 'Auth_OpenID_PlainTextConsumerSession'
-           );
+        $this->session_types = Auth_OpenID_getAvailableSessionTypes();
     }
 
     function begin($service_endpoint)
@@ -804,14 +809,6 @@ class Auth_OpenID_GenericConsumer {
     }
 
     /**
-     * @access protected
-     */
-    function _createDiffieHellman()
-    {
-        return new Auth_OpenID_DiffieHellman();
-    }
-
-    /**
      * @access private
      */
     function _getAssociation($endpoint)
@@ -1000,8 +997,12 @@ class Auth_OpenID_GenericConsumer {
 
     function _createAssociateRequest($endpoint, $assoc_type, $session_type)
     {
-        $session_type_class = $this->session_types[$session_type];
-        $assoc_session = new $session_type_class();
+        if (array_key_exists($session_type, $this->session_types)) {
+            $session_type_class = $this->session_types[$session_type];
+            $assoc_session = new $session_type_class();
+        } else {
+            return null;
+        }
 
         $args = array(
             'mode' => 'associate',

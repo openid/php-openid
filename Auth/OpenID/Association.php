@@ -370,9 +370,15 @@ function Auth_OpenID_checkSessionType($assoc_type, $session_type)
 
 function Auth_OpenID_getDefaultAssociationOrder()
 {
-    return array(
-                 array('HMAC-SHA1', 'DH-SHA1'),
-                 array('HMAC-SHA1', 'no-encryption'));
+    $order = array();
+
+    if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+        $order[] = array('HMAC-SHA1', 'DH-SHA1');
+    }
+
+    $order[] = array('HMAC-SHA1', 'no-encryption');
+
+    return $order;
 }
 
 function Auth_OpenID_getOnlyEncryptedOrder()
