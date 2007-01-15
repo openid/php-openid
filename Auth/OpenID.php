@@ -22,6 +22,7 @@
  */
 require_once "Services/Yadis/PlainHTTPFetcher.php";
 require_once "Services/Yadis/ParanoidHTTPFetcher.php";
+require_once "Auth/OpenID/BigMath.php";
 
 /**
  * Status code returned by the server when the only option is to show
@@ -94,6 +95,10 @@ define('Auth_OpenID_digits',
 
 define('Auth_OpenID_punct',
        "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~");
+
+if (Auth_OpenID_getMathLib() === null) {
+    define('Auth_OpenID_NO_MATH_SUPPORT', true);
+}
 
 /**
  * The OpenID utility function class.
