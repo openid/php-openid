@@ -387,16 +387,18 @@ function Auth_OpenID_getOnlyEncryptedOrder()
                  array('HMAC-SHA1', 'DH-SHA1'));
 }
 
-function Auth_OpenID_getDefaultNegotiator()
+function &Auth_OpenID_getDefaultNegotiator()
 {
-    return new Auth_OpenID_SessionNegotiator(
+    $x = new Auth_OpenID_SessionNegotiator(
                  Auth_OpenID_getDefaultAssociationOrder());
+    return $x;
 }
 
-function Auth_OpenID_getEncryptedNegotiator()
+function &Auth_OpenID_getEncryptedNegotiator()
 {
-    return new Auth_OpenID_SessionNegotiator(
+    $x = new Auth_OpenID_SessionNegotiator(
                  Auth_OpenID_getOnlyEncryptedOrder());
+    return $x;
 }
 
 class Auth_OpenID_SessionNegotiator {
