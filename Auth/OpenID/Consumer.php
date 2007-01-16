@@ -453,6 +453,14 @@ class Auth_OpenID_DiffieHellmanSHA1ConsumerSession {
     }
 }
 
+class Auth_OpenID_DiffieHellmanSHA256ConsumerSession extends
+      Auth_OpenID_DiffieHellmanSHA1ConsumerSession {
+    var $session_type = 'DH-SHA256';
+    var $hash_func = 'Auth_OpenID_SHA256';
+    var $secret_size = 32;
+    var $allowed_assoc_types = array('HMAC-SHA256');
+}
+
 class Auth_OpenID_PlainTextConsumerSession {
     var $session_type = 'no-encryption';
     var $allowed_assoc_types =  array('HMAC-SHA1');
