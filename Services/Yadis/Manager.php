@@ -388,8 +388,9 @@ class Services_Yadis_Discovery {
             $this->destroyManager();
             $http_response = array();
 
-            $services = call_user_func($discover_cb, $this->url,
-                                       $fetcher);
+            list($unused, $services) = call_user_func($discover_cb,
+                                                      $this->url,
+                                                      $fetcher);
 
             $manager = $this->createManager($services, $this->url);
         }

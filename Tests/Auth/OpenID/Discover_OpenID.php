@@ -369,7 +369,7 @@ $__Tests_BOGUS_SERVICE->claimed_id = "=really.bogus.endpoint";
 function __serviceCheck_discover_cb($url, $fetcher)
 {
     global $__Tests_BOGUS_SERVICE;
-    return array($__Tests_BOGUS_SERVICE);
+    return array($url, array($__Tests_BOGUS_SERVICE));
 }
 
 class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
@@ -440,7 +440,7 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
                           "http://smoker.myopenid.com/");
 
         foreach ($expected as $openid) {
-            $s = $m->getNextService('_Auth_OpenID_discoverServiceList',
+            $s = $m->getNextService('Auth_OpenID_discover',
                                     $fetcher);
             $this->assertEquals($s->local_id, $openid);
         }
@@ -644,8 +644,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
 
         $fetcher = new _MockFetcherForXRIProxy($documents);
 
-        list($user_xri, $services) = _Auth_OpenID_discoverXRI('=smoker',
-                                                              $fetcher);
+        list($user_xri, $services) = Auth_OpenID_discoverXRI('=smoker',
+                                                             $fetcher);
         $this->assertTrue($services);
 
         $this->assertEquals($services[0]->server_url,

@@ -166,6 +166,15 @@ class Auth_OpenID {
         }
     }
 
+    function addPrefix($values, $prefix)
+    {
+        $new_values = array();
+        foreach ($values as $s) {
+            $new_values[] = $prefix . $s;
+        }
+        return $new_values;
+    }
+
     /**
      * Convenience function for getting array values.
      *
@@ -193,6 +202,10 @@ class Auth_OpenID {
      */
     function parse_str($query)
     {
+        if ($query === null) {
+            return null;
+        }
+
         $parts = explode('&', $query);
 
         $new_parts = array();

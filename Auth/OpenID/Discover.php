@@ -359,19 +359,22 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
     return array($yadis_url, $openid_services);
 }
 
-function _Auth_OpenID_discoverServiceList($uri, &$fetcher)
+function Auth_OpenID_discoverURI($uri, &$fetcher)
 {
-    list($url, $services) = Auth_OpenID_discoverWithYadis($uri,
-                                                          $fetcher);
+    $parsed = parse_url($uri);
 
-    return $services;
-}
+    if ($parsed && $parsed['scheme'] && $parsed['host']) {
+        if (!in_array($parsed['scheme'], array('http', 'https'))) {
+            // raise DiscoveryFailure('URI scheme is not HTTP or HTTPS', None)
+            return array($uri, array());
+        }
+    } else {
+        $uri = 'http://' . $uri;
+    }
 
-function _Auth_OpenID_discoverXRIServiceList($uri, &$fetcher)
-{
-    list($url, $services) = _Auth_OpenID_discoverXRI($uri,
-                                                     $fetcher);
-    return $services;
+    $uri = Auth_OpenID::normalizeUrl($uri);
+    return Auth_OpenID_discoverWithYadis($uri,
+                                         $fetcher);
 }
 
 function Auth_OpenID_discoverWithoutYadis($uri, &$fetcher)
@@ -393,7 +396,7 @@ function Auth_OpenID_discoverWithoutYadis($uri, &$fetcher)
     return array($identity_url, $openid_services);
 }
 
-function _Auth_OpenID_discoverXRI($iname, &$fetcher)
+function Auth_OpenID_discoverXRI($iname, &$fetcher)
 {
     $resolver = new Services_Yadis_ProxyResolver($fetcher);
     list($canonicalID, $yadis_services) =
@@ -417,7 +420,11 @@ function _Auth_OpenID_discoverXRI($iname, &$fetcher)
 
 function Auth_OpenID_discover($uri, &$fetcher)
 {
-    return Auth_OpenID_discoverWithYadis($uri, $fetcher);
+    if (Services_Yadis_identifierScheme($uri) == 'XRI') {
+        return Auth_OpenID_discoverXRI($uri, $fetcher);
+    } else {
+        return Auth_OpenID_discoverURI($uri, $fetcher);
+    }
 }
 
 ?>
