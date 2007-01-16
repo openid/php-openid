@@ -25,6 +25,11 @@ require_once 'Auth/OpenID/CryptUtil.php';
 require_once 'Auth/OpenID/KVForm.php';
 
 /**
+ * @access private
+ */
+require_once 'Auth/OpenID/HMACSHA1.php';
+
+/**
  * This class represents an association between a server and a
  * consumer.  In general, users of this library will never see
  * instances of this object.  The only exception is if you implement a
@@ -353,8 +358,13 @@ class Auth_OpenID_Association {
 function Auth_OpenID_getSessionTypes($assoc_type)
 {
     $assoc_to_session = array(
-        'HMAC-SHA1' => array('DH-SHA1', 'no-encryption'),
-        'HMAC-SHA256' => array('DH-SHA256', 'no-encryption'));
+       'HMAC-SHA1' => array('DH-SHA1', 'no-encryption'));
+
+    if (Auth_OpenID_HMACSHA256_SUPPORTED) {
+        $assoc_to_session['HMAC-SHA256'] =
+            array('DH-SHA256', 'no-encryption');
+    }
+
     return Auth_OpenID::arrayGet($assoc_to_session, $assoc_type, array());
 }
 
@@ -374,17 +384,39 @@ function Auth_OpenID_getDefaultAssociationOrder()
 
     if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
         $order[] = array('HMAC-SHA1', 'DH-SHA1');
+
+        if (Auth_OpenID_HMACSHA256_SUPPORTED) {
+            $order[] = array('HMAC-SHA256', 'DH-SHA256');
+        }
     }
 
     $order[] = array('HMAC-SHA1', 'no-encryption');
+
+    if (Auth_OpenID_HMACSHA256_SUPPORTED) {
+        $order[] = array('HMAC-SHA256', 'no-encryption');
+    }
 
     return $order;
 }
 
 function Auth_OpenID_getOnlyEncryptedOrder()
 {
-    return array(
-                 array('HMAC-SHA1', 'DH-SHA1'));
+    $result = array();
+
+    foreach (Auth_OpenID_getDefaultAssociationOrder() as $pair) {
+        list($assoc, $session) = $pair;
+
+        if ($session != 'no-encryption') {
+            if (Auth_OpenID_HMACSHA256_SUPPORTED &&
+                ($assoc == 'HMAC-SHA256')) {
+                $result[] = $pair;
+            } else if ($assoc != 'HMAC-SHA256') {
+                $result[] = $pair;
+            }
+        }
+    }
+
+    return $result;
 }
 
 function &Auth_OpenID_getDefaultNegotiator()
