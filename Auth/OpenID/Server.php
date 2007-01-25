@@ -361,9 +361,9 @@ class Auth_OpenID_PlainTextServerSession {
      * An object that knows how to handle association requests with no
      * session type.
      */
-    var $session_type = 'plaintext';
+    var $session_type = 'no-encryption';
     var $needs_math = false;
-    var $allowed_assoc_types = array('HMAC-SHA1');
+    var $allowed_assoc_types = array('HMAC-SHA1', 'HMAC-SHA256');
 
     function fromMessage($unused_request)
     {
@@ -460,6 +460,14 @@ class Auth_OpenID_DiffieHellmanSHA1ServerSession {
     }
 }
 
+class Auth_OpenID_DiffieHellmanSHA256ServerSession
+      extends Auth_OpenID_DiffieHellmanSHA1ServerSession {
+
+    var $session_type = 'DH-SHA256';
+    var $hash_func = 'Auth_OpenID_SHA256';
+    var $allowed_assoc_types = array('HMAC-SHA256');
+}
+
 /**
  * A request to associate with the server.
  *
@@ -468,67 +476,118 @@ class Auth_OpenID_DiffieHellmanSHA1ServerSession {
  */
 class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
     var $mode = "associate";
-    var $assoc_type = 'HMAC-SHA1';
 
-    function Auth_OpenID_AssociateRequest(&$session)
+    function getSessionClasses()
+    {
+        return array(
+          'no-encryption' => 'Auth_OpenID_PlainTextServerSession',
+          'DH-SHA1' => 'Auth_OpenID_DiffieHellmanSHA1ServerSession',
+          'DH-SHA256' => 'Auth_OpenID_DiffieHellmanSHA256ServerSession');
+    }
+
+    function Auth_OpenID_AssociateRequest(&$session, $assoc_type)
     {
         $this->session =& $session;
         $this->namespace = Auth_OpenID_OPENID2_NS;
+        $this->assoc_type = $assoc_type;
     }
 
     function fromMessage($message)
     {
-        $session_classes = array(
-                 'DH-SHA1' => 'Auth_OpenID_DiffieHellmanSHA1ServerSession',
-                 null => 'Auth_OpenID_PlainTextServerSession');
+        if ($message->isOpenID1()) {
+            $session_type = $message->getArg(Auth_OpenID_OPENID1_NS,
+                                             'session_type');
 
-        $session_type = $message->getArg(Auth_OpenID_OPENID_NS,
-                                         'session_type');
-
-        if (!array_key_exists($session_type, $session_classes)) {
-            return new Auth_OpenID_ServerError($message,
-                                    "Unknown session type $session_type");
-        }
-
-        $session_cls = $session_classes[$session_type];
-
-        // Fall back to null session if there is no math support
-        if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            $vars = get_class_vars($session_cls);
-            if ($vars['needs_math']) {
-                $session_cls = $session_classes[null];
+            if ($session_type == 'no-encryption') {
+                // oidutil.log('Received OpenID 1 request with a no-encryption '
+                //             'assocaition session type. Continuing anyway.')
+            } else if (!$session_type) {
+                $session_type = 'no-encryption';
+            }
+        } else {
+            $session_type = $message->getArg(Auth_OpenID_OPENID2_NS,
+                                             'session_type');
+            if ($session_type === null) {
+                return new Auth_OpenID_ServerError($message,
+                  "session_type missing from request");
             }
         }
-        $session = call_user_func_array(array($session_cls, 'fromMessage'),
-                                        array($message));
 
+        $session_class = Auth_OpenID::arrayGet(
+           Auth_OpenID_AssociateRequest::getSessionClasses(),
+           $session_type);
 
-        if (($session === null) || (Auth_OpenID_isError($session))) {
+        if ($session_class === null) {
             return new Auth_OpenID_ServerError($message,
-                                     "Error parsing $session_type session");
+                                               "Unknown session type " .
+                                               $session_type);
         }
 
-        return new Auth_OpenID_AssociateRequest($session);
+        $session = call_user_func(array($session_class, 'fromMessage'),
+                                  $message);
+        if (is_a($session, 'Auth_OpenID_ServerError')) {
+            return $session;
+        }
+
+        $assoc_type = $message->getArg(Auth_OpenID_OPENID_NS,
+                                       'assoc_type', 'HMAC-SHA1');
+        if (!in_array($assoc_type, $session->allowed_assoc_types)) {
+            $fmt = "Session type %s does not support association type %s";
+            return new Auth_OpenID_ServerError($message,
+              sprintf($fmt, $session_type, $assoc_type));
+        }
+
+        $obj = new Auth_OpenID_AssociateRequest($session, $assoc_type);
+        $obj->message = $message;
+        $obj->namespace = $message->getOpenIDNamespace();
+        return $obj;
     }
 
     function answer($assoc)
     {
         $response = new Auth_OpenID_ServerResponse($this);
+        $response->fields->updateArgs(Auth_OpenID_OPENID_NS,
+           array(
+                 'expires_in' => sprintf('%d', $assoc->getExpiresIn()),
+                 'assoc_type' => $this->assoc_type,
+                 'assoc_handle' => $assoc->handle));
 
         $response->fields->updateArgs(Auth_OpenID_OPENID_NS,
-                              array('expires_in' => $assoc->getExpiresIn(),
-                                    'assoc_type' => 'HMAC-SHA1',
-                                    'assoc_handle' => $assoc->handle));
+           $this->session->answer($assoc->secret));
 
-        $r = $this->session->answer($assoc->secret);
-        foreach ($r as $k => $v) {
-            $response->fields->setArg(Auth_OpenID_OPENID_NS, $k, $v);
-        }
-
-        if ($this->session->session_type != 'plaintext') {
+        if ($this->session->session_type != 'no-encryption') {
             $response->fields->setArg(Auth_OpenID_OPENID_NS,
                                       'session_type',
                                       $this->session->session_type);
+        }
+
+        return $response;
+    }
+
+    function answerUnsupported($text_message,
+                               $preferred_association_type=null,
+                               $preferred_session_type=null)
+    {
+        if ($this->message->isOpenID1()) {
+            return new Auth_OpenID_ServerError($this->message);
+        }
+
+        $response = new Auth_OpenID_ServerResponse($this);
+        $response->fields->setArg(Auth_OpenID_OPENID_NS,
+                                  'error_code', 'unsupported-type');
+        $response->fields->setArg(Auth_OpenID_OPENID_NS,
+                                  'error', $text_message);
+
+        if ($preferred_association_type) {
+            $response->fields->setArg(Auth_OpenID_OPENID_NS,
+                                      'assoc_type',
+                                      $preferred_association_type);
+        }
+
+        if ($preferred_session_type) {
+            $response->fields->setArg(Auth_OpenID_OPENID_NS,
+                                      'session_type',
+                                      $preferred_session_type);
         }
 
         return $response;

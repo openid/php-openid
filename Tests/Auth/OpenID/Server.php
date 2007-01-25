@@ -434,7 +434,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
         $r = $this->decoder->decode($args);
         $this->assertTrue(is_a($r, 'Auth_OpenID_AssociateRequest'));
         $this->assertEquals($r->mode, "associate");
-        $this->assertEquals($r->session->session_type, "plaintext");
+        $this->assertEquals($r->session->session_type, "no-encryption");
         $this->assertEquals($r->assoc_type, "HMAC-SHA1");
     }
 
@@ -511,7 +511,7 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
     function test_assocReply()
     {
         if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            $message = new Auth_OpenID_Message();
+            $message = new Auth_OpenID_Message(Auth_OpenID_OPENID1_NS);
             $request = Auth_OpenID_AssociateRequest::fromMessage($message);
             $response = new Auth_OpenID_ServerResponse($request);
             $response->fields = Auth_OpenID_Message::fromOpenIDArgs(
@@ -669,7 +669,7 @@ class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
     function test_assocReply()
     {
         if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            $message = new Auth_OpenID_Message();
+            $message = new Auth_OpenID_Message(Auth_OpenID_OPENID1_NS);
             $request = Auth_OpenID_AssociateRequest::fromMessage($message);
             $response = new Auth_OpenID_ServerResponse($request);
             $response->fields = Auth_OpenID_Message::fromOpenIDArgs(
@@ -921,7 +921,7 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
 
     function setUp()
     {
-        $message = new Auth_OpenID_Message();
+        $message = new Auth_OpenID_Message(Auth_OpenID_OPENID1_NS);
         $this->request = Auth_OpenID_AssociateRequest::fromMessage($message);
         $this->store = new Tests_Auth_OpenID_MemStore();
         $this->signatory = new Auth_OpenID_Signatory($this->store);
@@ -939,7 +939,8 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
                                            new Auth_OpenID_DiffieHellman(),
                                            $cpub);
 
-            $this->request = new Auth_OpenID_AssociateRequest($session);
+            $this->request = new Auth_OpenID_AssociateRequest($session,
+                                                              'HMAC-SHA1');
             $response = $this->request->answer($this->assoc);
 
             $this->assertEquals(
@@ -1030,7 +1031,7 @@ class Tests_Auth_OpenID_ServerTest extends PHPUnit_TestCase {
     function test_associate()
     {
         if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            $message = new Auth_OpenID_Message();
+            $message = new Auth_OpenID_Message(Auth_OpenID_OPENID1_NS);
             $request = Auth_OpenID_AssociateRequest::fromMessage($message);
             $response = $this->server->openid_associate($request);
             $this->assertTrue($response->fields->hasKey(Auth_OpenID_OPENID_NS,
