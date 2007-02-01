@@ -213,21 +213,37 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
         $this->assertEquals($r->return_to, $this->rt_url);
     }
 
-    function test_checkidSetupNoIdentity()
+    function test_checkidSetupNoClaimedIDOpenID2()
     {
         $args = array(
+            'openid.ns' => Auth_OpenID_OPENID2_NS,
+            'openid.mode' => 'checkid_setup',
+            'openid.identity' => $this->id_url,
+            'openid.assoc_handle' => $this->assoc_handle,
+            'openid.return_to' => $this->rt_url,
+            'openid.realm' => $this->tr_url
+            );
+
+        $result = $this->decoder->decode($args);
+        $this->assertTrue(is_a($result, "Auth_OpenID_ServerError"));
+    }
+
+    function test_checkidSetupNoIdentityOpenID2()
+    {
+        $args = array(
+            'openid.ns' => Auth_OpenID_OPENID2_NS,
             'openid.mode' => 'checkid_setup',
             'openid.assoc_handle' => $this->assoc_handle,
             'openid.return_to' => $this->rt_url,
-            'openid.trust_root' => $this->tr_url);
+            'openid.realm' => $this->tr_url);
 
-        $result = $this->decoder->decode($args);
-        if (Auth_OpenID_isError($result)) {
-            $this->assertTrue($result->message);
-        } else {
-            $this->fail(sprintf("Expected Auth_OpenID_Error, instead " .
-                                "returned with %s", gettype($result)));
-        }
+        $r = $this->decoder->decode($args);
+        $this->assertTrue(is_a($r, 'Auth_OpenID_CheckIDRequest'));
+        $this->assertEquals($r->mode, "checkid_setup");
+        $this->assertEquals($r->immediate, false);
+        $this->assertEquals($r->identity, null);
+        $this->assertEquals($r->trust_root, $this->tr_url);
+        $this->assertEquals($r->return_to, $this->rt_url);
     }
 
     function test_checkidSetupNoReturn()
