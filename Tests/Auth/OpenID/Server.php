@@ -316,6 +316,19 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
         }
     }
 
+    function test_checkidSetupUntrustedReturn()
+    {
+        $args = array(
+            'openid.mode' => 'checkid_setup',
+            'openid.identity' => $this->id_url,
+            'openid.assoc_handle' => $this->assoc_handle,
+            'openid.return_to' => $this->rt_url,
+            'openid.trust_root' => 'http://not-the-return-place.unittest/');
+
+        $result = $this->decoder->decode($args);
+        $this->assertTrue(is_a($result, 'Auth_OpenID_UntrustedReturnURL'));
+    }
+
     function test_checkAuth()
     {
         $args = array(
