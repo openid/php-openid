@@ -600,7 +600,9 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
     function test_assocReply()
     {
         if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            $message = new Auth_OpenID_Message(Auth_OpenID_OPENID1_NS);
+            $message = new Auth_OpenID_Message(Auth_OpenID_OPENID2_NS);
+            $message->setArg(Auth_OpenID_OPENID2_NS, 'session_type',
+                             'no-encryption');
             $request = Auth_OpenID_AssociateRequest::fromMessage($message,
                                                                  $this->server);
             $response = new Auth_OpenID_ServerResponse($request);
