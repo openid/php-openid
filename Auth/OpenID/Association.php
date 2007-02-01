@@ -355,6 +355,17 @@ class Auth_OpenID_Association {
     }
 }
 
+function Auth_OpenID_getSecretSize($assoc_type)
+{
+    if ($assoc_type == 'HMAC-SHA1') {
+        return 20;
+    } else if ($assoc_type == 'HMAC-SHA256') {
+        return 32;
+    } else {
+        return null;
+    }
+}
+
 function Auth_OpenID_getSessionTypes($assoc_type)
 {
     $assoc_to_session = array(

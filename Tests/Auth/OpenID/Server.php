@@ -112,7 +112,14 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
         $this->rt_url = "http://rp.unittest/foobot/?qux=zam";
         $this->tr_url = "http://rp.unittest/";
         $this->assoc_handle = "{assoc}{handle}";
-        $this->decoder = new Auth_OpenID_Decoder();
+
+        $this->claimed_id = 'http://de.legating.de.coder.unittest/';
+        $this->op_endpoint = 'http://endpoint.unittest/encode';
+
+        $this->store = new Tests_Auth_OpenID_MemStore();
+        $this->server = new Auth_OpenID_Server($this->store,
+                                               $this->op_endpoint);
+        $this->decoder = new Auth_OpenID_Decoder($this->server);
     }
 
     function test_none()
@@ -457,6 +464,10 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
     {
         $this->encoder = new Auth_OpenID_Encoder();
         $this->encode = $this->encoder;
+        $this->op_endpoint = 'http://endpoint.unittest/encode';
+        $this->store = new Tests_Auth_OpenID_MemStore();
+        $this->server = new Auth_OpenID_Server($this->store,
+                                               $this->op_endpoint);
     }
 
     function test_id_res()
@@ -465,7 +476,8 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
             'http://bombom.unittest/',
             'http://burr.unittest/',
             'http://burr.unittest/999',
-            false);
+            false,
+            $this->server);
 
         $response = new Auth_OpenID_ServerResponse($request);
         $response->fields = Auth_OpenID_Message::fromOpenIDArgs(
@@ -498,7 +510,8 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
             'http://bombom.unittest/',
             'http://burr.unittest/',
             'http://burr.unittest/999',
-            false);
+            false, null,
+            $this->server);
 
         $response = new Auth_OpenID_ServerResponse($request);
         $response->fields = Auth_OpenID_Message::fromOpenIDArgs(array('mode' => 'cancel'));
@@ -512,7 +525,8 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
     {
         if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
             $message = new Auth_OpenID_Message(Auth_OpenID_OPENID1_NS);
-            $request = Auth_OpenID_AssociateRequest::fromMessage($message);
+            $request = Auth_OpenID_AssociateRequest::fromMessage($message,
+                                                                 $this->server);
             $response = new Auth_OpenID_ServerResponse($request);
             $response->fields = Auth_OpenID_Message::fromOpenIDArgs(
                               array('assoc_handle' => "every-zig"));
@@ -578,11 +592,18 @@ class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
         // Use filestore here instead of memstore
         $this->store = new Tests_Auth_OpenID_MemStore();
 
+        $this->op_endpoint = 'http://endpoint.unittest/encode';
+
+        $this->server = new Auth_OpenID_Server($this->store,
+                                               $this->op_endpoint);
+
         $this->request = new Auth_OpenID_CheckIDRequest(
             'http://bombom.unittest/',
             'http://burr.unittest/',
             'http://burr.unittest/999',
-            false);
+            false,
+            null,
+            $this->server);
 
         $this->response = new Auth_OpenID_ServerResponse($this->request);
         $this->response->fields = Auth_OpenID_Message::fromOpenIDArgs(array(
@@ -652,7 +673,9 @@ class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
             'http://bombom.unittest/',
             'http://burr.unittest/',
             'http://burr.unittest/999',
-            false);
+            false,
+            null,
+            $this->server);
 
         $response = new Auth_OpenID_ServerResponse($request, 'cancel');
         $webresponse = $this->encoder->encode($response);
@@ -670,7 +693,8 @@ class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
     {
         if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
             $message = new Auth_OpenID_Message(Auth_OpenID_OPENID1_NS);
-            $request = Auth_OpenID_AssociateRequest::fromMessage($message);
+            $request = Auth_OpenID_AssociateRequest::fromMessage($message,
+                                                                 $this->server);
             $response = new Auth_OpenID_ServerResponse($request);
             $response->fields = Auth_OpenID_Message::fromOpenIDArgs(
                   array('assoc_handle' => "every-zig"));
@@ -697,12 +721,19 @@ class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
 class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
     function setUp()
     {
+        $this->store = new Tests_Auth_OpenID_MemStore();
+
+        $this->op_endpoint = 'http://endpoint.unittest/encode';
+
+        $this->server = new Auth_OpenID_Server($this->store,
+                                               $this->op_endpoint);
+
         $this->request = new Auth_OpenID_CheckIDRequest(
             'http://bambam.unittest/',
             'http://bar.unittest/999',
             'http://bar.unittest/',
-            false);
-        $this->request->namespace = Auth_OpenID_OPENID1_NS;
+            false, null,
+            $this->server);
     }
 
     function test_trustRootInvalid()
@@ -731,6 +762,38 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
         $this->assertTrue($this->request->answer(false));
     }
 
+    function _expectAnswer($answer, $identity=null, $claimed_id=null)
+    {
+        $expected_list = array(
+                               array('mode', 'id_res'),
+                               array('return_to', $this->request->return_to),
+                               array('op_endpoint', $this->op_endpoint));
+
+        if ($identity) {
+            $expected_list[] = array('identity', $identity);
+
+            if ($claimed_id) {
+                $expected_list[] = array('claimed_id', $claimed_id);
+            } else {
+                $expected_list[] = array('claimed_id', $identity);
+            }
+        }
+
+        foreach ($expected_list as $pair) {
+            list($k, $expected) = $pair;
+            $actual = $answer->fields->getArg(Auth_OpenID_OPENID_NS, $k);
+            $this->assertEquals($expected, $actual,
+				"Got wrong value for field '".$k."'");
+        }
+
+        $this->assertTrue($answer->fields->hasKey(Auth_OpenID_OPENID_NS, 'response_nonce'));
+        $this->assertTrue($answer->fields->getOpenIDNamespace() == Auth_OpenID_OPENID2_NS);
+
+        # One for nonce, one for ns
+        $this->assertEquals(count($answer->fields->toPostArgs()),
+                            count($expected_list) + 2);
+    }
+
     function test_answerAllow()
     {
         $answer = $this->request->answer(true);
@@ -739,36 +802,30 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
             $this->fail($answer->toString());
             return;
         }
-
-        $this->assertEquals($answer->request, $this->request);
-        $this->assertEquals($answer->fields->getArgs(Auth_OpenID_OPENID1_NS),
-           array(
-            'mode' => 'id_res',
-            'identity' => $this->request->identity,
-            'return_to' => $this->request->return_to));
+	$this->assertEquals($answer->request, $this->request);
+        $this->_expectAnswer($answer, $this->request->identity);
     }
 
     function test_answerAllowNoTrustRoot()
     {
         $this->request->trust_root = null;
         $answer = $this->request->answer(true);
-        $this->assertEquals($answer->request, $this->request);
-        $this->assertEquals($answer->fields->getArgs(Auth_OpenID_OPENID1_NS),
-           array(
-            'mode' => 'id_res',
-            'identity' => $this->request->identity,
-            'return_to' => $this->request->return_to));
+	$this->assertEquals($answer->request, $this->request);
+	$this->_expectAnswer($answer, $this->request->identity);
     }
 
-    function test_answerImmediateDeny()
+    function test_answerImmediateDenyOpenID1()
     {
-        $this->request->mode = 'checkid_immediate';
         $this->request->namespace = Auth_OpenID_OPENID1_NS;
+        $this->request->mode = 'checkid_immediate';
         $this->request->immediate = true;
         $server_url = "http://setup-url.unittest/";
         $answer = $this->request->answer(false, $server_url);
+
         $this->assertEquals($answer->request, $this->request);
         $this->assertEquals(count($answer->fields->toPostArgs()), 2);
+	$this->assertEquals($answer->fields->getOpenIDNamespace(),
+			    Auth_OpenID_OPENID1_NS);
         $this->assertEquals($answer->fields->getArg(Auth_OpenID_OPENID_NS, 'mode'),
                             'id_res');
         $this->assertTrue(strpos($answer->fields->getArg(Auth_OpenID_OPENID_NS,
@@ -776,18 +833,40 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
                                  $server_url) == 0);
     }
 
+    function test_answerImmediateDenyOpenID2()
+    {
+        $this->request->mode = 'checkid_immediate';
+        $this->request->immediate = true;
+        $server_url = "http://setup-url.unittest/";
+        $answer = $this->request->answer(false, $server_url);
+
+        $this->assertEquals($answer->request, $this->request);
+        $this->assertEquals(count($answer->fields->toPostArgs()), 3);
+	$this->assertEquals($answer->fields->getOpenIDNamespace(),
+			    Auth_OpenID_OPENID2_NS);
+        $this->assertEquals($answer->fields->getArg(Auth_OpenID_OPENID_NS, 'mode'),
+                            'setup_needed');
+    }
+
     function test_answerSetupDeny()
     {
         $answer = $this->request->answer(false);
-        $this->assertEquals($answer->fields->getArgs(Auth_OpenID_OPENID1_NS),
+        $this->assertEquals($answer->fields->getArgs(Auth_OpenID_OPENID_NS),
                             array('mode' => 'cancel'));
     }
 
     function test_getCancelURL()
     {
         $url = $this->request->getCancelURL();
-        $expected = $this->request->return_to . '?openid.mode=cancel';
-        $this->assertEquals($url, $expected);
+
+        $parsed = parse_url($url);
+        $query = array();
+        parse_str($parsed['query'], $query);
+        $query = Auth_OpenID::fixArgs($query);
+
+	$this->assertEquals(array('openid.mode' => 'cancel',
+				  'openid.ns' => Auth_OpenID_OPENID2_NS),
+			    $query);
     }
 
     function test_getCancelURLimmed()
