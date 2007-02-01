@@ -753,6 +753,8 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
             return $obj;
         }
 
+        $obj->claimed_id = $claimed_id;
+
         return $obj;
     }
 

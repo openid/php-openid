@@ -191,6 +191,28 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
         $this->assertEquals($r->return_to, $this->rt_url);
     }
 
+    function test_checkidSetupOpenID2()
+    {
+        $args = array(
+            'openid.ns' => Auth_OpenID_OPENID2_NS,
+            'openid.mode' => 'checkid_setup',
+            'openid.identity' => $this->id_url,
+            'openid.claimed_id' => $this->claimed_id,
+            'openid.assoc_handle' => $this->assoc_handle,
+            'openid.return_to' => $this->rt_url,
+            'openid.realm' => $this->tr_url
+            );
+
+        $r = $this->decoder->decode($args);
+        $this->assertTrue(is_a($r, 'Auth_OpenID_CheckIDRequest'));
+        $this->assertEquals($r->mode, "checkid_setup");
+        $this->assertEquals($r->immediate, False);
+        $this->assertEquals($r->identity, $this->id_url);
+        $this->assertEquals($r->claimed_id, $this->claimed_id);
+        $this->assertEquals($r->trust_root, $this->tr_url);
+        $this->assertEquals($r->return_to, $this->rt_url);
+    }
+
     function test_checkidSetupNoIdentity()
     {
         $args = array(
