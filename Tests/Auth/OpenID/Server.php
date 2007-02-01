@@ -346,20 +346,6 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
         $this->assertEquals($r->sig, 'sigblob');
     }
 
-    function test_checkAuthMissingSignedField()
-    {
-        $args = array(
-            'openid.mode' => 'check_authentication',
-            'openid.assoc_handle' => '{dumb}{handle}',
-            'openid.sig' => 'sigblob',
-            'openid.signed' => 'foo,bar,mode',
-            'openid.foo' => 'signedval1',
-            'openid.baz' => 'unsigned');
-
-        $r = $this->decoder->decode($args);
-        $this->assertTrue(is_a($r, 'Auth_OpenID_ServerError'));
-    }
-
     function test_checkAuthMissingSignature()
     {
         $args = array(
