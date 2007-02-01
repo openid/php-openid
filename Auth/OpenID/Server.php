@@ -878,16 +878,16 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
 
             if ($response_identity !== null) {
                 $response->fields->setArg(
-					  Auth_OpenID_OPENID_NS,
-					  'identity',
-					  $response_identity);
+                                          Auth_OpenID_OPENID_NS,
+                                          'identity',
+                                          $response_identity);
                 if ($this->namespace == Auth_OpenID_OPENID2_NS) {
                     $response->fields->setArg(
-					      Auth_OpenID_OPENID_NS,
-					      'claimed_id',
-					      $response_claimed_id);
-		}
-	    }
+                                              Auth_OpenID_OPENID_NS,
+                                              'claimed_id',
+                                              $response_claimed_id);
+                }
+            }
 
         } else {
             $response->fields->setArg(Auth_OpenID_OPENID_NS,
