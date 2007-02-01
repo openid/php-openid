@@ -246,7 +246,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
         $this->assertEquals($r->return_to, $this->rt_url);
     }
 
-    function test_checkidSetupNoReturn()
+    function test_checkidSetupNoReturnOpenID1()
     {
         $args = array(
             'openid.mode' => 'checkid_setup',
@@ -256,8 +256,47 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
 
         $result = $this->decoder->decode($args);
         if (!Auth_OpenID_isError($result)) {
-            $this->fail("Expected Auth_OpenID_Error");
+            $this->fail("Expected Auth_OpenID_ServerError");
         }
+    }
+
+    function test_checkidSetupNoReturnOpenID2()
+    {
+        // Make sure an OpenID 2 request with no return_to can be
+        // decoded, and make sure a response to such a request raises
+        // NoReturnToError.
+        $args = array(
+            'openid.ns' => Auth_OpenID_OPENID2_NS,
+            'openid.mode' => 'checkid_setup',
+            'openid.identity' => $this->id_url,
+            'openid.claimed_id' => $this->id_url,
+            'openid.assoc_handle' => $this->assoc_handle,
+            'openid.realm' => $this->tr_url);
+
+        $req = $this->decoder->decode($args);
+
+        $this->assertTrue(is_a($req,
+                               'Auth_OpenID_CheckIDRequest'));
+
+        $this->assertTrue(is_a($req->answer(false), 'Auth_OpenID_NoReturnToError'));
+        $this->assertTrue(is_a($req->encodeToURL('bogus'), 'Auth_OpenID_NoReturnToError'));
+        $this->assertTrue(is_a($req->getCancelURL(), 'Auth_OpenID_NoReturnToError'));
+    }
+
+    function test_checkidSetupRealmRequiredOpenID2()
+    {
+        // Make sure that an OpenID 2 request which lacks return_to
+        // cannot be decoded if it lacks a realm.  Spec: This value
+        // (openid.realm) MUST be sent if openid.return_to is omitted.
+
+        $args = array(
+            'openid.ns' => Auth_OpenID_OPENID2_NS,
+            'openid.mode' => 'checkid_setup',
+            'openid.identity' => $this->id_url,
+            'openid.assoc_handle' => $this->assoc_handle);
+
+        $this->assertTrue(is_a($this->decoder->decode($args),
+                               'Auth_OpenID_ServerError'));
     }
 
     function test_checkidSetupBadReturn()

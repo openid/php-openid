@@ -629,7 +629,8 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
                                                "server must not be null");
         }
 
-        if (!Auth_OpenID_TrustRoot::_parse($return_to)) {
+        if ($return_to &&
+            !Auth_OpenID_TrustRoot::_parse($return_to)) {
             return new Auth_OpenID_MalformedReturnURL($message, $return_to);
         }
 
@@ -776,8 +777,12 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
             return new Auth_OpenID_MalformedTrustRoot(null, $this->trust_root);
         }
 
-        return Auth_OpenID_TrustRoot::match($this->trust_root,
-                                            $this->return_to);
+        if ($this->return_to !== null) {
+            return Auth_OpenID_TrustRoot::match($this->trust_root,
+                                                $this->return_to);
+        } else {
+            return true;
+        }
     }
 
     function answer($allow, $server_url = null, $identity = null,
