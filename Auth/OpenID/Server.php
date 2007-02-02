@@ -244,6 +244,12 @@ class Auth_OpenID_ServerError {
 }
 
 class Auth_OpenID_NoReturnToError extends Auth_OpenID_ServerError {
+    function Auth_OpenID_NoReturnToError($message = null,
+                                         $text = "No return_to URL available")
+    {
+        parent::Auth_OpenID_ServerError($message, $text);
+    }
+
     function toString()
     {
         return "No return_to available";
@@ -269,6 +275,12 @@ class Auth_OpenID_MalformedReturnURL extends Auth_OpenID_ServerError {
  * @package OpenID
  */
 class Auth_OpenID_MalformedTrustRoot extends Auth_OpenID_ServerError {
+    function Auth_OpenID_MalformedTrustRoot($message = null,
+                                            $text = "Malformed trust root")
+    {
+        parent::Auth_OpenID_ServerError($message, $text);
+    }
+
     function toString()
     {
         return "Malformed trust root";
@@ -670,6 +682,18 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
         }
     }
 
+    function equals($other)
+    {
+        return (
+                (is_a($other, 'Auth_OpenID_CheckIDRequest')) &&
+                ($this->namespace == $other->namespace) &&
+                ($this->assoc_handle == $other->assoc_handle) &&
+                ($this->identity == $other->identity) &&
+                ($this->claimed_id == $other->claimed_id) &&
+                ($this->return_to == $other->return_to) &&
+                ($this->trust_root == $other->trust_root));
+    }
+
     function fromMessage(&$message, $server)
     {
         $mode = $message->getArg(Auth_OpenID_OPENID_NS, 'mode');
@@ -703,7 +727,7 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
                                            'claimed_id');
             if (!$claimed_id) {
                 return new Auth_OpenID_ServerError($message,
-                  "OpenID 2.0 message contained openid.identity " +
+                  "OpenID 2.0 message contained openid.identity " .
                   "but not claimed_id");
             }
         } else {
@@ -796,7 +820,7 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
             if (($this->namespace != Auth_OpenID_OPENID1_NS) &&
                 (!$this->server->op_endpoint)) {
                 return new Auth_OpenID_ServerError(null,
-                  "server should be constructed with op_endpoint to " +
+                  "server should be constructed with op_endpoint to " .
                   "respond to OpenID 2.0 messages.");
             }
 
@@ -830,7 +854,7 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
         if ($claimed_id &&
             ($this->namespace == Auth_OpenID_OPENID1_NS)) {
             return new Auth_OpenID_ServerError(null,
-              "claimed_id is new in OpenID 2.0 and not " +
+              "claimed_id is new in OpenID 2.0 and not " .
               "available for ".$this->namespace);
         }
 
@@ -843,7 +867,7 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
             if ($this->identity == Auth_OpenID_IDENTIFIER_SELECT) {
                 if (!$identity) {
                     return new Auth_OpenID_ServerError(null,
-                      "This request uses IdP-driven identifier selection.  " +
+                      "This request uses IdP-driven identifier selection.  " .
                       "You must supply an identifier in the response.");
                 }
 
@@ -863,7 +887,7 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
             } else {
                 if ($identity) {
                     return new Auth_OpenID_ServerError(null,
-                      "This request specified no identity and " +
+                      "This request specified no identity and " .
                       "you supplied ".$identity);
                 }
 
@@ -873,7 +897,7 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
             if (($this->namespace == Auth_OpenID_OPENID1_NS) &&
                 ($response_identity === null)) {
                 return new Auth_OpenID_ServerError(null,
-                  "Request was an OpenID 1 request, so response must " +
+                  "Request was an OpenID 1 request, so response must " .
                   "include an identifier.");
             }
 
@@ -1364,7 +1388,7 @@ class Auth_OpenID_UntrustedReturnURL extends Auth_OpenID_ServerError {
     function Auth_OpenID_UntrustedReturnURL($message, $return_to,
                                             $trust_root)
     {
-        parent::Auth_OpenID_ServerError($message);
+        parent::Auth_OpenID_ServerError($message, "Untrusted return_to URL");
         $this->return_to = $return_to;
         $this->trust_root = $trust_root;
     }

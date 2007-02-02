@@ -842,6 +842,11 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
 
     function _expectAnswer($answer, $identity=null, $claimed_id=null)
     {
+        if (is_a($answer, 'Auth_OpenID_ServerError')) {
+            $this->fail("Got ServerError, expected valid response in ".$this->getName());
+            return;
+        }
+
         $expected_list = array(
                                array('mode', 'id_res'),
                                array('return_to', $this->request->return_to),
@@ -882,6 +887,167 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
         }
 	$this->assertEquals($answer->request, $this->request);
         $this->_expectAnswer($answer, $this->request->identity);
+    }
+
+    function test_answerAllowDelegatedIdentity()
+    {
+        $this->request->claimed_id = 'http://delegating.unittest/';
+        $answer = $this->request->answer(true);
+        $this->_expectAnswer($answer, $this->request->identity,
+                             $this->request->claimed_id);
+    }
+
+    function test_answerAllowWithoutIdentityReally()
+    {
+        $this->request->identity = null;
+        $answer = $this->request->answer(true);
+        $this->assertEquals($answer->request, $this->request);
+        $this->_expectAnswer($answer);
+    }
+
+    function test_answerAllowAnonymousFail()
+    {
+        $this->request->identity = null;
+        // XXX - Check on this, I think this behavior is legal in
+        // OpenID 2.0?
+        // $this->failUnlessRaises(
+        //     ValueError, $this->request->answer, true, identity="=V");
+        $this->assertTrue(is_a($this->request->answer(true, null, "=V"),
+                               'Auth_OpenID_ServerError'));
+    }
+
+    function test_answerAllowWithIdentity()
+    {
+        $this->request->identity = Auth_OpenID_IDENTIFIER_SELECT;
+        $selected_id = 'http://anon.unittest/9861';
+        $answer = $this->request->answer(true, null, $selected_id);
+        $this->_expectAnswer($answer, $selected_id);
+    }
+
+    function test_answerAllowWithDelegatedIdentityOpenID2()
+    {
+        // Answer an IDENTIFIER_SELECT case with a delegated
+        // identifier.  claimed_id delegates to selected_id here.
+        $this->request->identity = Auth_OpenID_IDENTIFIER_SELECT;
+        $selected_id = 'http://anon.unittest/9861';
+        $claimed_id = 'http://monkeyhat.unittest/';
+        $answer = $this->request->answer(true, null, $selected_id,
+                                         $claimed_id);
+        $this->_expectAnswer($answer, $selected_id, $claimed_id);
+    }
+
+    function test_answerAllowWithDelegatedIdentityOpenID1()
+    {
+        // claimed_id parameter doesn't exist in OpenID 1.
+        $this->request->namespace = Auth_OpenID_OPENID1_NS;
+        // claimed_id delegates to selected_id here.
+        $this->request->identity = Auth_OpenID_IDENTIFIER_SELECT;
+        $selected_id = 'http://anon.unittest/9861';
+        $claimed_id = 'http://monkeyhat.unittest/';
+
+        $result = $this->request->answer(true,
+                                         null,
+                                         $selected_id,
+                                         $claimed_id);
+
+        $this->assertTrue(is_a($result, "Auth_OpenID_ServerError"));
+    }
+
+    function test_answerAllowWithAnotherIdentity()
+    {
+        // XXX - Check on this, I think this behavior is legal is
+        // OpenID 2.0?
+        // $this->failUnlessRaises(ValueError, $this->request->answer, true,
+        //                       identity="http://pebbles.unittest/");
+        $result = $this->request->answer(true, null, "http://pebbles.unittest/");
+        $this->assertTrue(is_a($result, "Auth_OpenID_ServerError"));
+    }
+
+    function test_answerAllowNoIdentityOpenID1()
+    {
+        $this->request->namespace = Auth_OpenID_OPENID1_NS;
+        $this->request->identity = null;
+        // $this->failUnlessRaises(ValueError, $this->request->answer, true,
+        //                       identity=null);
+        $result = $this->request->answer(true);
+        $this->assertTrue(is_a($result, "Auth_OpenID_ServerError"));
+    }
+
+    function test_answerAllowForgotEndpoint()
+    {
+        $this->server->op_endpoint = null;
+        // $this->failUnlessRaises(RuntimeError, $this->request->answer, true);
+        $result = $this->request->answer(true);
+        $this->assertTrue(is_a($result, "Auth_OpenID_ServerError"));
+    }
+
+    function test_checkIDWithNoIdentityOpenID1()
+    {
+        $msg = new Auth_OpenID_Message(Auth_OpenID_OPENID1_NS);
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'return_to', 'bogus');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'trust_root', 'bogus');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'mode', 'checkid_setup');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'assoc_handle', 'bogus');
+
+        // $this->failUnlessRaises(server->ProtocolError,
+        //                       server->CheckIDRequest->fromMessage,
+        //                       msg, $this->server);
+        $result = Auth_OpenID_CheckIDRequest::fromMessage($msg, $this->server);
+
+        $this->assertTrue(is_a($result, 'Auth_OpenID_ServerError'));
+    }
+
+    function test_trustRootOpenID1()
+    {
+        // Ignore openid.realm in OpenID 1
+        $msg = new Auth_OpenID_Message(Auth_OpenID_OPENID1_NS);
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'mode', 'checkid_setup');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'trust_root', 'http://real_trust_root/');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'realm', 'http://fake_trust_root/');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'return_to', 'http://real_trust_root/foo');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'assoc_handle', 'bogus');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'identity', 'george');
+
+        $result = Auth_OpenID_CheckIDRequest::fromMessage($msg, $this->server);
+
+        $this->assertTrue($result->trust_root == 'http://real_trust_root/');
+    }
+
+    function test_trustRootOpenID2()
+    {
+        // Ignore openid.trust_root in OpenID 2
+        $msg = new Auth_OpenID_Message(Auth_OpenID_OPENID2_NS);
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'mode', 'checkid_setup');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'realm', 'http://real_trust_root/');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'trust_root', 'http://fake_trust_root/');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'return_to', 'http://real_trust_root/foo');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'assoc_handle', 'bogus');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'identity', 'george');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'claimed_id', 'george');
+
+        $result = Auth_OpenID_CheckIDRequest::fromMessage($msg, $this->server);
+
+        $this->assertTrue($result->trust_root == 'http://real_trust_root/');
+    }
+
+    function test_encodeToURL()
+    {
+        $server_url = 'http://openid-server.unittest/';
+        $result = $this->request->encodeToURL($server_url);
+
+        $this->assertFalse(is_a($result, 'Auth_OpenID_ServerError'));
+
+        // How to check?  How about a round-trip test.
+        list($base, $result_args) = explode("?", $result, 2);
+        $args = array();
+        parse_str($result_args, $args);
+        $args = Auth_OpenID::fixArgs($args);
+        $message = Auth_OpenID_Message::fromPostArgs($args);
+
+        $rebuilt_request = Auth_OpenID_CheckIDRequest::fromMessage($message,
+                                                                   $this->server);
+        // argh, lousy hack
+        $this->assertTrue($rebuilt_request->equals($this->request));
     }
 
     function test_answerAllowNoTrustRoot()
