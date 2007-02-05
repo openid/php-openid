@@ -1125,6 +1125,51 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
     }
 }
 
+class Tests_Auth_OpenID_CheckIDExtension extends PHPUnit_TestCase {
+    function setUp()
+    {
+        $this->op_endpoint = 'http://endpoint.unittest/ext';
+        $this->store = new Tests_Auth_OpenID_MemStore();
+        $this->server = new Auth_OpenID_Server($this->store, $this->op_endpoint);
+        $this->request = new Auth_OpenID_CheckIDRequest(
+            'http://bambam.unittest/',
+            'http://bar.unittest/',
+            'http://bar.unittest/999',
+            false,
+            null,
+            $this->server);
+
+        $this->response = new Auth_OpenID_ServerResponse($this->request);
+        $this->response->fields->setArg(Auth_OpenID_OPENID_NS, 'mode', 'id_res');
+        $this->response->fields->setArg(Auth_OpenID_OPENID_NS, 'blue', 'star');
+    }
+
+    function test_addField()
+    {
+        $namespace = 'something:';
+        $this->response->fields->setArg($namespace, 'bright', 'potato');
+        $this->assertEquals($this->response->fields->getArgs(Auth_OpenID_OPENID_NS),
+                            array('blue' => 'star',
+                                  'mode' => 'id_res'));
+
+        $this->assertEquals($this->response->fields->getArgs($namespace),
+                            array('bright' => 'potato'));
+    }
+
+    function test_addFields()
+    {
+        $namespace = 'mi5:';
+        $args =  array('tangy' => 'suspenders',
+                       'bravo' => 'inclusion');
+
+        $this->response->fields->updateArgs($namespace, $args);
+        $this->assertEquals($this->response->fields->getArgs(Auth_OpenID_OPENID_NS),
+                            array('blue' => 'star',
+                                  'mode' => 'id_res'));
+        $this->assertEquals($this->response->fields->getArgs($namespace), $args);
+    }
+}
+
 class _MockSignatory {
     var $isValid = true;
 
