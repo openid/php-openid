@@ -663,7 +663,7 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
 
     function Auth_OpenID_CheckIDRequest($identity, $return_to,
                                         $trust_root = null, $immediate = false,
-                                        $assoc_handle = null, &$server = null)
+                                        $assoc_handle = null, $server = null)
     {
         $this->namespace = Auth_OpenID_OPENID2_NS;
         $this->assoc_handle = $assoc_handle;
