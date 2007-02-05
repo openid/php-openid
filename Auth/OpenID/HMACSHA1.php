@@ -71,8 +71,8 @@ if (function_exists('hash') &&
     (in_array('sha256', hash_algos()))) {
     function Auth_OpenID_SHA256($text)
     {
-        // PHP 5 case: 'hash' available and 'sha1' algo supported.
-        return hash('sha256', $text);
+        // PHP 5 case: 'hash' available and 'sha256' algo supported.
+        return hash('sha256', $text, true);
     }
     define('Auth_OpenID_SHA256_SUPPORTED', true);
 } else {
