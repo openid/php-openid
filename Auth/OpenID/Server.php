@@ -663,7 +663,7 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
 
     function Auth_OpenID_CheckIDRequest($identity, $return_to,
                                         $trust_root = null, $immediate = false,
-                                        $assoc_handle = null, $server = null)
+                                        $assoc_handle = null, &$server = null)
     {
         $this->namespace = Auth_OpenID_OPENID2_NS;
         $this->assoc_handle = $assoc_handle;
@@ -671,7 +671,7 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
         $this->claimed_id = $identity;
         $this->return_to = $return_to;
         $this->trust_root = $trust_root;
-        $this->server = $server;
+        $this->server =& $server;
 
         if ($immediate) {
             $this->immediate = true;
