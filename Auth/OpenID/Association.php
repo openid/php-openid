@@ -126,7 +126,8 @@ class Auth_OpenID_Association {
     function Auth_OpenID_Association(
         $handle, $secret, $issued, $lifetime, $assoc_type)
     {
-        if ($assoc_type != 'HMAC-SHA1') {
+        if (!in_array($assoc_type,
+                      Auth_OpenID_getSupportedAssociationTypes())) {
             $fmt = 'HMAC-SHA1 is the only supported association type (got %s)';
             trigger_error(sprintf($fmt, $assoc_type), E_USER_ERROR);
         }
@@ -364,6 +365,22 @@ function Auth_OpenID_getSecretSize($assoc_type)
     } else {
         return null;
     }
+}
+
+function Auth_OpenID_getAllAssociationTypes()
+{
+    return array('HMAC-SHA1', 'HMAC-SHA256');
+}
+
+function Auth_OpenID_getSupportedAssociationTypes()
+{
+    $a = array('HMAC-SHA1');
+
+    if (Auth_OpenID_HMACSHA256_SUPPORTED) {
+        $a[] = 'HMAC-SHA256';
+    }
+
+    return $a;
 }
 
 function Auth_OpenID_getSessionTypes($assoc_type)
