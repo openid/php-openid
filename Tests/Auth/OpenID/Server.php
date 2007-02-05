@@ -9,6 +9,8 @@ require_once "Tests/Auth/OpenID/MemStore.php";
 require_once "Auth/OpenID.php";
 require_once "Auth/OpenID/DiffieHellman.php";
 require_once "Auth/OpenID/Server.php";
+require_once "Auth/OpenID/HMACSHA1.php";
+require_once "Auth/OpenID/Consumer.php";
 
 function altModulus()
 {
@@ -1293,12 +1295,14 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
         $this->request = Auth_OpenID_AssociateRequest::fromMessage($message);
         $this->store = new Tests_Auth_OpenID_MemStore();
         $this->signatory = new Auth_OpenID_Signatory($this->store);
-        $this->assoc = $this->signatory->createAssociation(false);
     }
 
-    function test_dh()
+    function test_dhSHA1()
     {
         if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            $this->assoc = $this->signatory->createAssociation(false,
+                                                               'HMAC-SHA1');
+
             $dh = new Auth_OpenID_DiffieHellman();
             $ml =& Auth_OpenID_getMathLib();
 
@@ -1346,8 +1350,87 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
         }
     }
 
+    function test_dhSHA256()
+    {
+        if (!Auth_OpenID_SHA256_SUPPORTED) {
+            print "SHA256 not supported; not running SHA256 tests.";
+            return;
+        }
+
+        $this->assoc = $this->signatory->createAssociation(false,
+                                                           'HMAC-SHA256');
+        $consumer_dh = new Auth_OpenID_DiffieHellman();
+        $cpub = $consumer_dh->public;
+        $server_dh = new Auth_OpenID_DiffieHellman();
+        $session = new Auth_OpenID_DiffieHellmanSHA256ServerSession($server_dh, $cpub);
+
+        $this->request = new Auth_OpenID_AssociateRequest($session, 'HMAC-SHA256');
+        $response = $this->request->answer($this->assoc);
+
+        // $rfg = lambda f: response->fields->getArg(OPENID_NS, f)
+        $this->assertFalse($response->fields->getArg(Auth_OpenID_OPENID_NS, "mac_key"));
+        $this->assertTrue($response->fields->getArg(Auth_OpenID_OPENID_NS, "enc_mac_key"));
+        $this->assertTrue($response->fields->getArg(Auth_OpenID_OPENID_NS, "dh_server_public"));
+
+        $fields = array(
+                        'assoc_type' => 'HMAC-SHA256',
+                        'assoc_handle' => $this->assoc->handle,
+                        'session_type' => 'DH-SHA256',
+                        );
+
+        foreach ($fields as $k => $v) {
+            $this->assertEquals(
+               $response->fields->getArg(Auth_OpenID_OPENID_NS, $k), $v);
+        }
+
+        $enc_key = base64_decode(
+                     $response->fields->getArg(Auth_OpenID_OPENID_NS, "enc_mac_key"));
+
+        $lib =& Auth_OpenID_getMathLib();
+        $spub = $lib->base64ToLong($response->fields->getArg(Auth_OpenID_OPENID_NS,
+                                                             "dh_server_public"));
+        $secret = $consumer_dh->xorSecret($spub, $enc_key, 'Auth_OpenID_SHA256');
+
+        $s = base64_encode($secret);
+        $assoc_s = base64_encode($this->assoc->secret);
+
+        $this->assertEquals($s, $assoc_s);
+    }
+
+    function test_protoError256()
+    {
+        if (!Auth_OpenID_HMACSHA256_SUPPORTED) {
+            print "SHA256 not supported; not running SHA256 tests.";
+            return;
+        }
+
+        $s256_session = new Auth_OpenID_DiffieHellmanSHA256ConsumerSession();
+
+        $invalid_s256 = array('openid.assoc_type' => 'HMAC-SHA1',
+                              'openid.session_type' => 'DH-SHA256');
+
+        $invalid_s256 = array_merge($invalid_s256, $s256_session->getRequest());
+
+        $invalid_s256_2 = array('openid.assoc_type' => 'MONKEY-PIRATE',
+                                'openid.session_type' => 'DH-SHA256');
+
+        $invalid_s256_2 = array_merge($invalid_s256_2, $s256_session->getRequest());
+
+        $bad_request_argss = array(
+                                   $invalid_s256,
+                                   $invalid_s256_2);
+
+        foreach ($bad_request_argss as $request_args) {
+            $message = Auth_OpenID_Message::fromPostArgs($request_args);
+            $result = Auth_OpenID_Associaterequest::fromMessage($message);
+            $this->assertTrue(is_a($result, 'Auth_OpenID_ServerError'));
+        }
+    }
+
     function test_plaintext()
     {
+        $this->assoc = $this->signatory->createAssociation(false,
+                                                           'HMAC-SHA1');
         $response = $this->request->answer($this->assoc);
 
         $this->assertEquals(
