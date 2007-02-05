@@ -977,8 +977,7 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
 
     function test_answerAllowForgotEndpoint()
     {
-        $this->server->op_endpoint = null;
-        // $this->failUnlessRaises(RuntimeError, $this->request->answer, true);
+        $this->request->server->op_endpoint = null;
         $result = $this->request->answer(true);
         $this->assertTrue(is_a($result, "Auth_OpenID_ServerError"));
     }
