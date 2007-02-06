@@ -1944,6 +1944,26 @@ class Tests_Auth_OpenID_Signatory extends PHPUnit_TestCase {
         $this->assertFalse($verified);
     }
 
+    function test_verifyAssocMismatch()
+    {
+        // Attempt to validate sign-all message with a signed-list
+        // assoc.
+        $assoc_handle = '{vroom}{zoom}';
+        $assoc = Auth_OpenID_Association::fromExpiresIn(
+                   60, $assoc_handle, 'sekrit', 'HMAC-SHA1');
+
+        $this->store->storeAssociation($this->dumb_key, $assoc);
+
+        $signed = Auth_OpenID_Message::fromPostArgs(array(
+            'foo' => 'bar',
+            'apple' => 'orange',
+            'openid.sig' => "d71xlHtqnq98DonoSgoK/nD+QRM="
+            ));
+
+        $verified = $this->signatory->verify($assoc_handle, $signed);
+        $this->assertFalse($verified);
+    }
+
     function test_getAssoc()
     {
         $assoc_handle = $this->makeAssoc(true);
