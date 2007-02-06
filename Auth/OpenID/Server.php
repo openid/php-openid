@@ -217,7 +217,8 @@ class Auth_OpenID_ServerError {
         }
 
         if ($this->reference !== null) {
-            $reply->setArg(Auth_OpenID_OPENID_NS, 'reference', $this->reference);
+            $reply->setArg(Auth_OpenID_OPENID_NS, 'reference',
+                           $this->reference);
         }
 
         return $reply;
@@ -444,7 +445,7 @@ class Auth_OpenID_DiffieHellmanSHA1ServerSession {
         $this->consumer_pubkey = $consumer_pubkey;
     }
 
-    function fromMessage($message)
+    function getDH($message)
     {
         $dh_modulus = $message->getArg(Auth_OpenID_OPENID_NS, 'dh_modulus');
         $dh_gen = $message->getArg(Auth_OpenID_OPENID_NS, 'dh_gen');
@@ -495,8 +496,20 @@ class Auth_OpenID_DiffieHellmanSHA1ServerSession {
                                        "dh_consumer_public is not base64");
         }
 
-        return new Auth_OpenID_DiffieHellmanSHA1ServerSession($dh,
-                                                              $consumer_pubkey);
+        return array($dh, $consumer_pubkey);
+    }
+
+    function fromMessage($message)
+    {
+        $result = Auth_OpenID_DiffieHellmanSHA1ServerSession::getDH($message);
+
+        if (is_a($result, 'Auth_OpenID_ServerError')) {
+            return $result;
+        } else {
+            list($dh, $consumer_pubkey) = $result;
+            return new Auth_OpenID_DiffieHellmanSHA1ServerSession($dh,
+                                                    $consumer_pubkey);
+        }
     }
 
     function answer($secret)
@@ -517,6 +530,19 @@ class Auth_OpenID_DiffieHellmanSHA256ServerSession
     var $session_type = 'DH-SHA256';
     var $hash_func = 'Auth_OpenID_SHA256';
     var $allowed_assoc_types = array('HMAC-SHA256');
+
+    function fromMessage($message)
+    {
+        $result = Auth_OpenID_DiffieHellmanSHA1ServerSession::getDH($message);
+
+        if (is_a($result, 'Auth_OpenID_ServerError')) {
+            return $result;
+        } else {
+            list($dh, $consumer_pubkey) = $result;
+            return new Auth_OpenID_DiffieHellmanSHA256ServerSession($dh,
+                                                      $consumer_pubkey);
+        }
+    }
 }
 
 /**
@@ -582,6 +608,7 @@ class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
 
         $assoc_type = $message->getArg(Auth_OpenID_OPENID_NS,
                                        'assoc_type', 'HMAC-SHA1');
+
         if (!in_array($assoc_type, $session->allowed_assoc_types)) {
             $fmt = "Session type %s does not support association type %s";
             return new Auth_OpenID_ServerError($message,
@@ -1439,6 +1466,7 @@ class Auth_OpenID_Server {
         $this->encoder =& new Auth_OpenID_SigningEncoder($this->signatory);
         $this->decoder =& new Auth_OpenID_Decoder($this);
         $this->op_endpoint = $op_endpoint;
+        $this->negotiator =& Auth_OpenID_getDefaultNegotiator();
     }
 
     /**
@@ -1478,8 +1506,21 @@ class Auth_OpenID_Server {
      */
     function openid_associate(&$request)
     {
-        $assoc = $this->signatory->createAssociation(false);
-        return $request->answer($assoc);
+        $assoc_type = $request->assoc_type;
+        $session_type = $request->session->session_type;
+        if ($this->negotiator->isAllowed($assoc_type, $session_type)) {
+            $assoc = $this->signatory->createAssociation(false,
+                                                         $assoc_type);
+            return $request->answer($assoc);
+        } else {
+            $message = sprintf('Association type %s is not supported with '.
+                               'session type %s', $assoc_type, $session_type);
+            list($preferred_assoc_type, $preferred_session_type) = \
+                $this->negotiator->getAllowedType();
+            return $request->answerUnsupported($message,
+                                               $preferred_assoc_type,
+                                               $preferred_session_type);
+        }
     }
 
     /**

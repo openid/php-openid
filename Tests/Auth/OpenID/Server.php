@@ -1366,7 +1366,6 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
         $this->request = new Auth_OpenID_AssociateRequest($session, 'HMAC-SHA256');
         $response = $this->request->answer($this->assoc);
 
-        // $rfg = lambda f: response->fields->getArg(OPENID_NS, f)
         $this->assertFalse($response->fields->getArg(Auth_OpenID_OPENID_NS, "mac_key"));
         $this->assertTrue($response->fields->getArg(Auth_OpenID_OPENID_NS, "enc_mac_key"));
         $this->assertTrue($response->fields->getArg(Auth_OpenID_OPENID_NS, "dh_server_public"));
@@ -1545,7 +1544,6 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
         $this->assoc = $this->signatory->createAssociation(false,
                                                            'HMAC-SHA256');
         $response = $this->request->answer($this->assoc);
-        // rfg = lambda f: response.fields.getArg(OPENID_NS, f)
         $f = $response->fields;
 
         $this->assertEquals($f->getArg(Auth_OpenID_OPENID_NS, "assoc_type"),
@@ -1639,6 +1637,91 @@ class Tests_Auth_OpenID_ServerTest extends PHPUnit_TestCase {
             $this->assertTrue($response->fields->hasKey(Auth_OpenID_OPENID_NS,
                                                         'assoc_handle'));
         }
+    }
+
+    function test_associate2()
+    {
+        // Associate when the server has no allowed association types
+        //
+        // Gives back an error with error_code and no fallback session
+        // or assoc types.
+        $this->server->negotiator->setAllowedTypes(array());
+
+        $msg = Auth_OpenID_Message::fromPostArgs(array(
+                 'openid.ns' => Auth_OpenID_OPENID2_NS,
+                 'openid.session_type' => 'no-encryption'));
+
+        $request = Auth_OpenID_AssociateRequest::fromMessage($msg);
+
+        $response = $this->server->openid_associate($request);
+        $this->assertTrue($response->fields->hasKey(Auth_OpenID_OPENID_NS, "error"));
+        $this->assertTrue($response->fields->hasKey(Auth_OpenID_OPENID_NS, "error_code"));
+        $this->assertFalse($response->fields->hasKey(Auth_OpenID_OPENID_NS, "assoc_handle"));
+        $this->assertFalse($response->fields->hasKey(Auth_OpenID_OPENID_NS, "assoc_type"));
+        $this->assertFalse($response->fields->hasKey(Auth_OpenID_OPENID_NS, "session_type"));
+    }
+
+    function test_associate3()
+    {
+        if (!Auth_OpenID_HMACSHA256_SUPPORTED) {
+            print "Warning: Not running test_associate3 (no HMACSHA-256 support)";
+            return;
+        }
+
+        // Request an assoc type that is not supported when there are
+        // supported types.
+        //
+        // Should give back an error message with a fallback type.
+        $this->server->negotiator->setAllowedTypes(array(array('HMAC-SHA256', 'DH-SHA256')));
+
+        $msg = Auth_OpenID_Message::fromPostArgs(array(
+                 'openid.ns' => Auth_OpenID_OPENID2_NS,
+                 'openid.session_type' => 'no-encryption'));
+
+        $request = Auth_OpenID_AssociateRequest::fromMessage($msg);
+        $response = $this->server->openid_associate($request);
+
+        $this->assertTrue($response->fields->hasKey(Auth_OpenID_OPENID_NS, "error"));
+        $this->assertTrue($response->fields->hasKey(Auth_OpenID_OPENID_NS, "error_code"));
+        $this->assertFalse($response->fields->hasKey(Auth_OpenID_OPENID_NS, "assoc_handle"));
+        $this->assertEquals($response->fields->getArg(Auth_OpenID_OPENID_NS, "assoc_type"),
+                            'HMAC-SHA256');
+        $this->assertEquals($response->fields->getArg(Auth_OpenID_OPENID_NS, "session_type"),
+                            'DH-SHA256');
+    }
+
+    function test_associate4()
+    {
+        if (!Auth_OpenID_HMACSHA256_SUPPORTED) {
+            print "Warning: Not running test_associate4 (no HMACSHA-256 support)";
+            return;
+        }
+
+        $this->assertTrue($this->server->negotiator->setAllowedTypes(
+           array(array('HMAC-SHA256', 'DH-SHA256'))));
+
+        $query = array(
+                       'openid.dh_consumer_public' =>
+                       'ALZgnx8N5Lgd7pCj8K86T/DDMFjJXSss1SKoLmxE72kJTzOtG6I2PaYrHX'.
+                       'xku4jMQWSsGfLJxwCZ6280uYjUST/9NWmuAfcrBfmDHIBc3H8xh6RBnlXJ'.
+                       '1WxJY3jHd5k1/ZReyRZOxZTKdF/dnIqwF8ZXUwI6peV0TyS/K1fOfF/s',
+                       'openid.assoc_type' => 'HMAC-SHA256',
+                       'openid.session_type' => 'DH-SHA256');
+
+        $message = Auth_OpenID_Message::fromPostArgs($query);
+        $request = Auth_OpenID_AssociateRequest::fromMessage($message);
+        $response = $this->server->openid_associate($request);
+        $this->assertTrue($response->fields->hasKey(Auth_OpenID_OPENID_NS, "assoc_handle"));
+    }
+
+    function test_missingSessionTypeOpenID2()
+    {
+        // Make sure session_type is required in OpenID 2
+        $msg = Auth_OpenID_Message::fromPostArgs(array('openid.ns' => Auth_OpenID_OPENID2_NS));
+
+        $result = Auth_OpenID_AssociateRequest::fromMessage($msg);
+
+        $this->assertTrue(is_a($result, 'Auth_OpenID_ServerError'));
     }
 
     function test_checkAuth()
