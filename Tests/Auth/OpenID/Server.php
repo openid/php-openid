@@ -1541,6 +1541,11 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
 
     function test_plaintext256()
     {
+        if (!Auth_OpenID_SHA256_SUPPORTED) {
+            print "Skipping test_plaintext256";
+            return;
+        }
+
         $this->assoc = $this->signatory->createAssociation(false,
                                                            'HMAC-SHA256');
         $response = $this->request->answer($this->assoc);
