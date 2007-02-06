@@ -382,7 +382,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
     function test_associateDH()
     {
         if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            print "Skipping test associateDH (no math support)\n";
+            print "(Skipping test_associateDH)";
             return;
         }
         $args = array(
@@ -401,7 +401,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
     function test_associateDHMissingKey()
     {
         if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            print "Skipping test associateDHMissingKey (no math support)\n";
+            print "(Skipping test_associateDHMissingKey)";
             return;
         }
         $args = array(
@@ -433,7 +433,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
     function test_associateDHModGen()
     {
         if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            print "No math support: not running test_associateDHModGen\n";
+            print "(Skipping test_associateDHModGen)";
             return;
         }
 
@@ -485,7 +485,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
     function test_associateDHMissingModGen()
     {
         if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            print "No math support: not running test_associateDHModGen\n";
+            print "(Skipping test_associateDHMissingModGen)";
             return;
         }
 
@@ -1352,7 +1352,7 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
     function test_dhSHA256()
     {
         if (!Auth_OpenID_SHA256_SUPPORTED) {
-            print "SHA256 not supported; not running SHA256 tests.";
+            print "(Skipping test_dhSHA256)";
             return;
         }
 
@@ -1398,7 +1398,7 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
     function test_protoError256()
     {
         if (!Auth_OpenID_HMACSHA256_SUPPORTED) {
-            print "SHA256 not supported; not running SHA256 tests.";
+            print "(Skipping test_protoError256)";
             return;
         }
 
@@ -1542,7 +1542,7 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
     function test_plaintext256()
     {
         if (!Auth_OpenID_SHA256_SUPPORTED) {
-            print "Skipping test_plaintext256";
+            print "(Skipping test_plaintext256)";
             return;
         }
 
@@ -1669,7 +1669,7 @@ class Tests_Auth_OpenID_ServerTest extends PHPUnit_TestCase {
     function test_associate3()
     {
         if (!Auth_OpenID_HMACSHA256_SUPPORTED) {
-            print "Warning: Not running test_associate3 (no HMACSHA-256 support)";
+            print "(Skipping test_associate3)";
             return;
         }
 
@@ -1698,7 +1698,7 @@ class Tests_Auth_OpenID_ServerTest extends PHPUnit_TestCase {
     function test_associate4()
     {
         if (!Auth_OpenID_HMACSHA256_SUPPORTED) {
-            print "Warning: Not running test_associate4 (no HMACSHA-256 support)";
+            print "(Skipping test_associate4)";
             return;
         }
 
