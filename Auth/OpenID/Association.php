@@ -128,7 +128,7 @@ class Auth_OpenID_Association {
     {
         if (!in_array($assoc_type,
                       Auth_OpenID_getSupportedAssociationTypes())) {
-            $fmt = 'HMAC-SHA1 is the only supported association type (got %s)';
+            $fmt = 'Unsupported association type (%s)';
             trigger_error(sprintf($fmt, $assoc_type), E_USER_ERROR);
         }
 
