@@ -145,10 +145,13 @@ class Auth_OpenID_ServerError {
     /**
      * @access private
      */
-    function Auth_OpenID_ServerError($message = null, $text = null)
+    function Auth_OpenID_ServerError($message = null, $text = null,
+                                     $reference = null, $contact = null)
     {
         $this->message = $message;
         $this->text = $text;
+        $this->contact = $contact;
+        $this->reference = $reference;
     }
 
     /**
@@ -198,6 +201,26 @@ class Auth_OpenID_ServerError {
         return Auth_OpenID_KVForm::fromArray(
                                       array('mode' => 'error',
                                             'error' => $this->toString()));
+    }
+
+    function toMessage()
+    {
+        // Generate a Message object for sending to the relying party,
+        // after encoding.
+        $namespace = $this->message->getOpenIDNamespace();
+        $reply = new Auth_OpenID_Message($namespace);
+        $reply->setArg(Auth_OpenID_OPENID_NS, 'mode', 'error');
+        $reply->setArg(Auth_OpenID_OPENID_NS, 'error', $this->toString());
+
+        if ($this->contact !== null) {
+            $reply->setArg(Auth_OpenID_OPENID_NS, 'contact', $this->contact);
+        }
+
+        if ($this->reference !== null) {
+            $reply->setArg(Auth_OpenID_OPENID_NS, 'reference', $this->reference);
+        }
+
+        return $reply;
     }
 
     /**

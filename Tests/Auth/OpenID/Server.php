@@ -1457,6 +1457,158 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
         $this->assertFalse($response->fields->getArg(Auth_OpenID_OPENID_NS,
                                                  "dh_server_public"));
     }
+
+    function test_protoError()
+    {
+        $s1_session = new Auth_OpenID_DiffieHellmanSHA1ConsumerSession();
+
+        $invalid_s1 = array('openid.assoc_type' => 'HMAC-SHA256',
+                            'openid.session_type' => 'DH-SHA1');
+        $invalid_s1 = array_merge($invalid_s1, $s1_session->getRequest());
+
+        $invalid_s1_2 = array('openid.assoc_type' => 'ROBOT-NINJA',
+                              'openid.session_type' => 'DH-SHA1');
+        $invalid_s1_2 = array_merge($invalid_s1_2, $s1_session->getRequest());
+
+        $bad_request_argss = array(array('openid.assoc_type' => 'Wha?'),
+                                   $invalid_s1,
+                                   $invalid_s1_2);
+
+        foreach ($bad_request_argss as $request_args) {
+            $message = Auth_OpenID_Message::fromPostArgs($request_args);
+            $result = Auth_OpenID_AssociateRequest::fromMessage($message);
+            $this->assertTrue(is_a($result, 'Auth_OpenID_ServerError'));
+        }
+    }
+
+    function test_protoErrorFields()
+    {
+        $contact = 'user@example.invalid';
+        $reference = 'Trac ticket number MAX_INT';
+        $error = 'poltergeist';
+
+        $openid1_args = array(
+            'openid.identitiy' => 'invalid',
+            'openid.mode' => 'checkid_setup');
+
+        $openid2_args = $openid1_args;
+        $openid2_args = array_merge($openid2_args,
+                                    array('openid.ns' => Auth_OpenID_OPENID2_NS));
+
+        // Check presence of optional fields in both protocol versions
+
+        $openid1_msg = Auth_OpenID_Message::fromPostArgs($openid1_args);
+        $p = new Auth_OpenID_ServerError($openid1_msg, $error,
+                                         $reference, $contact);
+        $reply = $p->toMessage();
+
+        $this->assertEquals($reply->getArg(Auth_OpenID_OPENID_NS, 'reference'),
+                            $reference);
+        $this->assertEquals($reply->getArg(Auth_OpenID_OPENID_NS, 'contact'),
+                            $contact);
+
+        $openid2_msg = Auth_OpenID_Message::fromPostArgs($openid2_args);
+        $p = new Auth_OpenID_ServerError($openid2_msg, $error,
+                                         $reference, $contact);
+        $reply = $p->toMessage();
+
+        $this->assertEquals($reply->getArg(Auth_OpenID_OPENID_NS, 'reference'),
+                            $reference);
+        $this->assertEquals($reply->getArg(Auth_OpenID_OPENID_NS, 'contact'),
+                            $contact);
+    }
+
+    function failUnlessExpiresInMatches($msg, $expected_expires_in)
+    {
+        $expires_in_str = $msg->getArg(Auth_OpenID_OPENID_NS, 'expires_in');
+        if ($expires_in_str === null) {
+            $this->fail("Expected expires_in value.");
+            return;
+        }
+
+        $expires_in = intval($expires_in_str);
+
+        // Slop is necessary because the tests can sometimes get run
+        // right on a second boundary
+        $slop = 1; // second
+        $difference = $expected_expires_in - $expires_in;
+
+        $error_message = sprintf('"expires_in" value not within %s of expected: '.
+                                 'expected=%s, actual=%s',
+                                 $slop, $expected_expires_in, $expires_in);
+        $this->assertTrue((0 <= $difference &&
+                           $difference <= $slop), $error_message);
+    }
+
+    function test_plaintext256()
+    {
+        $this->assoc = $this->signatory->createAssociation(false,
+                                                           'HMAC-SHA256');
+        $response = $this->request->answer($this->assoc);
+        // rfg = lambda f: response.fields.getArg(OPENID_NS, f)
+        $f = $response->fields;
+
+        $this->assertEquals($f->getArg(Auth_OpenID_OPENID_NS, "assoc_type"),
+                            "HMAC-SHA1");
+        $this->assertEquals($f->getArg(Auth_OpenID_OPENID_NS, "assoc_handle"),
+                            $this->assoc->handle);
+
+        $this->failUnlessExpiresInMatches(
+                                          $f,
+                                          $this->signatory->SECRET_LIFETIME);
+
+        $this->assertEquals(
+                            $f->getArg(Auth_OpenID_OPENID_NS, "mac_key"),
+                            base64_encode($this->assoc->secret));
+        $this->assertFalse($f->hasKey(Auth_OpenID_OPENID_NS, "session_type"));
+        $this->assertFalse($f->hasKey(Auth_OpenID_OPENID_NS, "enc_mac_key"));
+        $this->assertFalse($f->hasKey(Auth_OpenID_OPENID_NS, "dh_server_public"));
+    }
+
+    function test_unsupportedPrefer()
+    {
+        $allowed_assoc = 'COLD-PET-RAT';
+        $allowed_sess = 'FROG-BONES';
+        $message = 'This is a unit test';
+
+        // Set an OpenID 2 message so answerUnsupported doesn't raise
+        // ProtocolError.
+        $this->request->message = new Auth_OpenID_Message(Auth_OpenID_OPENID2_NS);
+
+        $response = $this->request->answerUnsupported(
+                                                      $message,
+                                                      $allowed_assoc,
+                                                      $allowed_sess);
+        $f = $response->fields;
+        $this->assertEquals($f->getArg(Auth_OpenID_OPENID_NS, 'error_code'),
+                            'unsupported-type');
+
+        $this->assertEquals($f->getArg(Auth_OpenID_OPENID_NS, 'assoc_type'),
+                            $allowed_assoc);
+
+        $this->assertEquals($f->getArg(Auth_OpenID_OPENID_NS, 'error'),
+                            $message);
+
+        $this->assertEquals($f->getArg(Auth_OpenID_OPENID_NS, 'session_type'),
+                            $allowed_sess);
+    }
+
+    function test_unsupported()
+    {
+        $message = 'This is a unit test';
+
+        $this->request->message = new Auth_OpenID_Message(Auth_OpenID_OPENID2_NS);
+
+        $response = $this->request->answerUnsupported($message);
+
+        $f = $response->fields;
+        $this->assertEquals($f->getArg(Auth_OpenID_OPENID_NS, 'error_code'),
+                            'unsupported-type');
+
+        $this->assertEquals($f->getArg(Auth_OpenID_OPENID_NS, 'assoc_type'), null);
+        $this->assertEquals($f->getArg(Auth_OpenID_OPENID_NS, 'error'), $message);
+        $this->assertEquals($f->getArg(Auth_OpenID_OPENID_NS, 'session_type'), null);
+    }
 }
 
 class Counter {
