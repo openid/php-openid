@@ -67,6 +67,16 @@ The best way to get started using the API is to take a look at the
 example consumer and server in the examples/ directory.  See the
 examples/README file for more details.
 
+TROUBLESHOOTING
+===============
+
+On some systems, PHP basedir restrictions prevent web servers from
+opening a source of randomness, such as /dev/urandom.  If your PHP
+OpenID library has trouble getting a satisfactory source of
+randomness, check your Apache and PHP configurations to be sure that
+the randomness source is in the list of allowed paths for the
+"open_basedir" option.
+
 GETTING HELP
 ============
 
