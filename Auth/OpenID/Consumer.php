@@ -610,7 +610,6 @@ class Auth_OpenID_GenericConsumer {
                                             'signed');
 
         if ($signed_list_str === null) {
-            // raise ProtocolError("Response missing signed list")
             return new Auth_OpenID_FailureResponse($endpoint,
                                    "Response missing signed list");
         }
@@ -798,7 +797,6 @@ class Auth_OpenID_GenericConsumer {
         $to_match->claimed_id = $endpoint->claimed_id;
 
         if ($to_match->local_id === null) {
-            // raise ProtocolError('Missing required field openid.identity')
             return new Auth_OpenID_FailureResponse($endpoint,
                          "Missing required field openid.identity");
         }
@@ -818,8 +816,6 @@ class Auth_OpenID_GenericConsumer {
         // present in the discovered endpoint.
         foreach ($to_match->type_uris as $type_uri) {
             if (!$endpoint->usesExtension($type_uri)) {
-                // raise ProtocolError(
-                //     'Required type %r not present' % (type_uri,))
                 return new Auth_OpenID_FailureResponse($endpoint,
                              "Required type ".$type_uri." not present");
             }
@@ -924,8 +920,6 @@ class Auth_OpenID_GenericConsumer {
         // oidutil.log('Performing discovery on %s' % (to_match.claimed_id,))
         list($unused, $services) = Auth_OpenID_discover($to_match->claimed_id);
         if (!$services) {
-            // raise DiscoveryFailure('No OpenID information found at %s' %
-            //                        (to_match.claimed_id,), None)
             return new Auth_OpenID_FailureResponse(null,
               sprintf("No OpenID information found at %s",
                       $to_match->claimed_id));
@@ -1050,7 +1044,6 @@ class Auth_OpenID_GenericConsumer {
             // Field is present and not in signed list
             if ($message->hasKey(Auth_OpenID_OPENID_NS, $field) &&
                 (!in_array($field, $signed_list))) {
-                // raise ProtocolError('"%s" not signed' % (field,))
                 return new Auth_OpenID_FailureResponse(null,
                              "'".$field."' not signed");
             }
@@ -1280,7 +1273,6 @@ class Auth_OpenID_GenericConsumer {
 
         $expires_in = intval($expires_in_str);
         if ($expires_in === false) {
-            // raise ProtocolError('Invalid expires_in field: %s' % (why[0],))
             return null;
         }
 
@@ -1307,19 +1299,12 @@ class Auth_OpenID_GenericConsumer {
                 // Any other mismatch, regardless of protocol version
                 // results in the failure of the association session
                 // altogether.
-
-                // fmt = 'Session type mismatch. Expected %r, got %r'
-                // message = fmt % (assoc_session.session_type, session_type)
-                // raise ProtocolError(message)
                 return null;
             }
         }
 
         // Make sure assoc_type is valid for session_type
         if (!in_array($assoc_type, $assoc_session->allowed_assoc_types)) {
-            // fmt = 'Unsupported assoc_type for session %s returned: %s'
-            // raise ProtocolError(fmt % (assoc_session.session_type,
-            // assoc_type))
             return null;
         }
 
@@ -1329,8 +1314,6 @@ class Auth_OpenID_GenericConsumer {
         $secret = $assoc_session->extractSecret($assoc_response);
 
         if ($secret === null) {
-            // fmt = 'Malformed response for %s session: %s'
-            // raise ProtocolError(fmt % (assoc_session.session_type, why[0]))
             return null;
         }
 

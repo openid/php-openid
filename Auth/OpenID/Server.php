@@ -765,7 +765,6 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
         if (($namespace == Auth_OpenID_OPENID1_NS) &&
             (!$return_to)) {
             $fmt = "Missing required field 'return_to' from checkid request";
-            // raise ProtocolError(message, text=fmt % (message,))
             return new Auth_OpenID_ServerError($message, $fmt);
         }
 
@@ -786,8 +785,6 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
 
         if (($identity === null) &&
             ($namespace == Auth_OpenID_OPENID1_NS)) {
-            // s = "OpenID 1 message did not contain openid.identity"
-            // raise ProtocolError(message, text=s)
             return new Auth_OpenID_ServerError($message,
               "OpenID 1 message did not contain openid.identity");
         }
@@ -806,8 +803,6 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
 
             if (($return_to === null) &&
                 ($trust_root === null)) {
-                // raise ProtocolError(message, "openid.realm required when " +
-                //                     "openid.return_to absent")
                 return new Auth_OpenID_ServerError($message,
                   "openid.realm required when openid.return_to absent");
             }
