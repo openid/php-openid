@@ -938,12 +938,8 @@ class Tests_Auth_OpenID_SetupNeeded extends _TestIdRes {
 }
 
 class TempConsumer extends Auth_OpenID_GenericConsumer {
-    function _verifyDiscoveryResults($m, $e)
+    function _verifyDiscoveryResults($message, $endpoint)
     {
-        $endpoint = new Auth_OpenID_ServiceEndpoint();
-        $endpoint->claimed_id = $m;
-        $endpoint->server_url = $e;
-        $endpoint->local_id = $m;
         return $endpoint;
     }
 }

@@ -1581,7 +1581,6 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
     {
         // Return whether a particular key is signed, regardless of
         // its namespace alias
-        // print_r($this->signed_args);
         return in_array($this->message->getKey($ns_uri, $ns_key),
                         $this->signed_args);
     }

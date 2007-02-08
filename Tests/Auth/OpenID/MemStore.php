@@ -82,7 +82,7 @@ class Tests_Auth_OpenID_MemStore extends Auth_OpenID_OpenIDStore {
 
     function useNonce($server_url, $timestamp, $salt)
     {
-        $nonce =  sprintf("%s%s%s", $server_url, $timestamp, $salt);
+        $nonce = sprintf("%s%s%s", $server_url, $timestamp, $salt);
         if (in_array($nonce, $this->nonces)) {
             return false;
         } else {
