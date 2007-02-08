@@ -675,14 +675,40 @@ class Auth_OpenID_GenericConsumer {
         $msg_return_to = $message->getArg(Auth_OpenID_OPENID_NS,
                                           'return_to');
 
+        $return_to_parts = parse_url($return_to);
+        $msg_return_to_parts = parse_url($msg_return_to);
+
+        // If port is absent from both, add it so it's equal in the
+        // check below.
+        if ((!array_key_exists('port', $return_to_parts)) &&
+            (!array_key_exists('port', $msg_return_to_parts))) {
+            $return_to_parts['port'] = null;
+            $msg_return_to_parts['port'] = null;
+        }
+
+        // If path is absent from both, add it so it's equal in the
+        // check below.
+        if ((!array_key_exists('path', $return_to_parts)) &&
+            (!array_key_exists('path', $msg_return_to_parts))) {
+            $return_to_parts['path'] = null;
+            $msg_return_to_parts['path'] = null;
+        }
+
         // The URL scheme, authority, and path MUST be the same
         // between the two URLs.
-        foreach (array(PHP_URL_SCHEME,
-                       PHP_URL_HOST,
-                       PHP_URL_PORT,
-                       PHP_URL_PATH) as $component) {
-            if (parse_url($return_to, $component) !==
-                parse_url($msg_return_to, $component)) {
+        foreach (array('scheme', 'host', 'port', 'path') as $component) {
+            // If the url component is absent in either URL, fail.
+            // There should always be a scheme, host, port, and path.
+            if (!array_key_exists($component, $return_to_parts)) {
+                return false;
+            }
+
+            if (!array_key_exists($component, $msg_return_to_parts)) {
+                return false;
+            }
+
+            if (Auth_OpenID::arrayGet($return_to_parts, $component) !==
+                Auth_OpenID::arrayGet($msg_return_to_parts, $component)) {
                 return false;
             }
         }
