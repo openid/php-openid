@@ -209,11 +209,6 @@ define('Auth_OpenID_SETUP_NEEDED', 'setup needed');
 define('Auth_OpenID_PARSE_ERROR', 'parse error');
 
 /**
- * Nonce name for OpenID 1.
- */
-define('Auth_OpenID_NONCE_NAME', 'janrain_nonce');
-
-/**
  * An OpenID consumer implementation that performs discovery and does
  * session management.  See the Consumer.php file documentation for
  * more information.
@@ -384,9 +379,9 @@ class Auth_OpenID_Consumer {
 
         if (in_array($response->status, array(Auth_OpenID_SUCCESS,
                                               Auth_OpenID_CANCEL))) {
-            if ($response->claimed_id !== null) {
+            if ($response->identity_url !== null) {
                 $disco = new Services_Yadis_Discovery($this->session,
-                                                  $response->claimed_id,
+                                                  $response->identity_url,
                                                   $this->session_key_prefix);
                 $disco->cleanup();
             }
@@ -510,6 +505,11 @@ class Auth_OpenID_GenericConsumer {
     var $_use_assocs;
 
     /**
+     * @access private
+     */
+    var $openid1_nonce_query_arg_name = 'janrain_nonce';
+
+    /**
      * This method initializes a new {@link Auth_OpenID_Consumer}
      * instance to access the library.
      *
@@ -542,7 +542,8 @@ class Auth_OpenID_GenericConsumer {
     {
         $assoc = $this->_getAssociation($service_endpoint);
         $r = new Auth_OpenID_AuthRequest($service_endpoint, $assoc);
-        $r->return_to_args[Auth_OpenID_NONCE_NAME] = Auth_OpenID_mkNonce();
+        $r->return_to_args[$this->openid1_nonce_query_arg_name] =
+            Auth_OpenID_mkNonce();
         return $r;
     }
 
@@ -551,11 +552,22 @@ class Auth_OpenID_GenericConsumer {
         $mode = $message->getArg(Auth_OpenID_OPENID_NS, 'mode',
                                  '<no mode set>');
 
+        if ($return_to !== null) {
+            if (!$this->_checkReturnTo($message, $return_to)) {
+                return new Auth_OpenID_FailureResponse($endpoint,
+                             "openid.return_to does not match return URL");
+            }
+        }
+
         if ($mode == 'cancel') {
             return new Auth_OpenID_CancelResponse($endpoint);
         } else if ($mode == 'error') {
             $error = $message->getArg(Auth_OpenID_OPENID_NS, 'error');
-            return new Auth_OpenID_FailureResponse($endpoint, $error);
+            $contact = $message->getArg(Auth_OpenID_OPENID_NS, 'contact');
+            $reference = $message->getArg(Auth_OpenID_OPENID_NS, 'reference');
+
+            return new Auth_OpenID_FailureResponse($endpoint, $error,
+                                                   $contact, $reference);
         } else if ($message->isOpenID2() && ($mode == 'setup_needed')) {
             return new Auth_OpenID_SetupNeededResponse($endpoint);
 
@@ -643,6 +655,80 @@ class Auth_OpenID_GenericConsumer {
         return new Auth_OpenID_SuccessResponse($endpoint, $message,
                                                $signed_fields);
 
+    }
+
+    function _checkReturnTo($message, $return_to)
+    {
+        // Check an OpenID message and its openid.return_to value
+        // against a return_to URL from an application.  Return True
+        // on success, False on failure.
+
+        // Check the openid.return_to args against args in the
+        // original message.
+        $result = Auth_OpenID_GenericConsumer::_verifyReturnToArgs(
+                                           $message->toPostArgs());
+        if (is_a($result, 'Auth_OpenID_FailureResponse')) {
+            return false;
+        }
+
+        // Check the return_to base URL against the one in the
+        // message.
+        $msg_return_to = $message->getArg(Auth_OpenID_OPENID_NS,
+                                          'return_to');
+
+        // The URL scheme, authority, and path MUST be the same
+        // between the two URLs.
+        foreach (array(PHP_URL_SCHEME,
+                       PHP_URL_HOST,
+                       PHP_URL_PORT,
+                       PHP_URL_PATH) as $component) {
+            if (parse_url($return_to, $component) !==
+                parse_url($msg_return_to, $component)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function _verifyReturnToArgs($query)
+    {
+        // Verify that the arguments in the return_to URL are present in this
+        // response.
+
+        $message = Auth_OpenID_Message::fromPostArgs($query);
+        $return_to = $message->getArg(Auth_OpenID_OPENID_NS, 'return_to');
+
+        // XXX: this should be checked by _idResCheckForFields
+        if (!$return_to) {
+            return new Auth_OpenID_FailureResponse(null,
+                         "no openid.return_to in query");
+        }
+
+        $parsed_url = parse_url($return_to);
+
+        $q = array();
+        if (array_key_exists('query', $parsed_url)) {
+            $rt_query = $parsed_url['query'];
+            $q = Auth_OpenID::parse_str($rt_query);
+        }
+
+        foreach ($q as $rt_key => $rt_value) {
+            if (!array_key_exists($rt_key, $query)) {
+                return new Auth_OpenID_FailureResponse(null,
+                  sprintf("return_to parameter %s absent from query", $rt_key));
+            } else {
+                $value = $query[$rt_key];
+                if ($rt_value != $value) {
+                    return new Auth_OpenID_FailureResponse(null,
+                      sprintf("parameter %s value %s does not match " .
+                              "return_to value %s", $rt_key,
+                              $value, $rt_value));
+                }
+            }
+        }
+
+        return true;
     }
 
     function _idResCheckSignature($message, $server_url)
@@ -888,7 +974,7 @@ class Auth_OpenID_GenericConsumer {
         }
 
         foreach ($pairs as $k => $v) {
-            if ($k == Auth_OpenID_NONCE_NAME) {
+            if ($k == $this->openid1_nonce_query_arg_name) {
                 return $v;
             }
         }
@@ -1417,6 +1503,16 @@ class Auth_OpenID_AuthRequest {
  */
 class Auth_OpenID_ConsumerResponse {
     var $status = null;
+
+    function setEndpoint($endpoint)
+    {
+        $this->endpoint = $endpoint;
+        if ($endpoint === null) {
+            $this->identity_url = null;
+        } else {
+            $this->identity_url = $endpoint->claimed_id;
+        }
+    }
 }
 
 /**
@@ -1443,7 +1539,7 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
     function Auth_OpenID_SuccessResponse($endpoint, $message, $signed_args=null)
     {
         $this->endpoint = $endpoint;
-        $this->claimed_id = $endpoint->claimed_id;
+        $this->identity_url = $endpoint->claimed_id;
         $this->signed_args = $signed_args;
         $this->message = $message;
 
@@ -1521,12 +1617,6 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
     {
         return $this->getSigned(Auth_OpenID_OPENID_NS, 'return_to');
     }
-
-    function getNonce()
-    {
-        return $this->getSigned(Auth_OpenID_OPENID_NS,
-                                Auth_OpenID_NONCE_NAME);
-    }
 }
 
 /**
@@ -1547,15 +1637,13 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
 class Auth_OpenID_FailureResponse extends Auth_OpenID_ConsumerResponse {
     var $status = Auth_OpenID_FAILURE;
 
-    function Auth_OpenID_FailureResponse($endpoint, $message = null)
+    function Auth_OpenID_FailureResponse($endpoint, $message = null,
+                                         $contact = null, $reference = null)
     {
-        $this->endpoint = $endpoint;
-        if ($endpoint !== null) {
-            $this->claimed_id = $endpoint->claimed_id;
-        } else {
-            $this->claimed_id = null;
-        }
+        $this->setEndpoint($endpoint);
         $this->message = $message;
+        $this->contact = $contact;
+        $this->reference = $reference;
     }
 }
 
@@ -1576,8 +1664,7 @@ class Auth_OpenID_CancelResponse extends Auth_OpenID_ConsumerResponse {
 
     function Auth_OpenID_CancelResponse($endpoint)
     {
-        $this->endpoint = $endpoint;
-        $this->claimed_id = $endpoint->claimed_id;
+        $this->setEndpoint($endpoint);
     }
 }
 
@@ -1604,8 +1691,7 @@ class Auth_OpenID_SetupNeededResponse extends Auth_OpenID_ConsumerResponse {
     function Auth_OpenID_SetupNeededResponse($endpoint,
                                              $setup_url = null)
     {
-        $this->endpoint = $endpoint;
-        $this->claimed_id = $endpoint->claimed_id;
+        $this->setEndpoint($endpoint);
         $this->setup_url = $setup_url;
     }
 }
