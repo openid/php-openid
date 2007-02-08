@@ -1515,7 +1515,7 @@ class Auth_OpenID_Server {
         } else {
             $message = sprintf('Association type %s is not supported with '.
                                'session type %s', $assoc_type, $session_type);
-            list($preferred_assoc_type, $preferred_session_type) = \
+            list($preferred_assoc_type, $preferred_session_type) =
                 $this->negotiator->getAllowedType();
             return $request->answerUnsupported($message,
                                                $preferred_assoc_type,
