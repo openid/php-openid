@@ -263,6 +263,13 @@ class Auth_OpenID_Consumer {
         $this->_token_key = $this->session_key_prefix . $this->_token_suffix;
     }
 
+    function getDiscoveryObject(&$session, $openid_url,
+                                $session_key_prefix)
+    {
+        return new Services_Yadis_Discovery($session, $openid_url,
+                                            $session_key_prefix);
+    }
+
     /**
      * Start the OpenID authentication process. See steps 1-2 in the
      * overview at the top of this file.
@@ -285,9 +292,9 @@ class Auth_OpenID_Consumer {
         $discoverMethod = 'Auth_OpenID_discover';
         $openid_url = $user_url;
 
-        $disco =& new Services_Yadis_Discovery($this->session,
-                                               $openid_url,
-                                               $this->session_key_prefix);
+        $disco =& $this->getDiscoveryObject($this->session,
+                                                $openid_url,
+                                                $this->session_key_prefix);
 
         // Set the 'stale' attribute of the manager.  If discovery
         // fails in a fatal way, the stale flag will cause the manager
@@ -380,9 +387,9 @@ class Auth_OpenID_Consumer {
         if (in_array($response->status, array(Auth_OpenID_SUCCESS,
                                               Auth_OpenID_CANCEL))) {
             if ($response->identity_url !== null) {
-                $disco = new Services_Yadis_Discovery($this->session,
-                                                  $response->identity_url,
-                                                  $this->session_key_prefix);
+                $disco = $this->getDiscoveryObject($this->session,
+                                                   $response->identity_url,
+                                                   $this->session_key_prefix);
                 $disco->cleanup();
             }
         }

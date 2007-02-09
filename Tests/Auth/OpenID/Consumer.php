@@ -1548,6 +1548,29 @@ class _StubConsumer {
     }
 }
 
+class Tests_Auth_OpenID_DiscoFailure extends PHPUnit_TestCase {
+    var $consumerClass = null;
+
+    function setUp()
+    {
+        foreach ($_SESSION as $k => $v) {
+          unset($_SESSION[$k]);
+        }
+
+        $this->endpoint = new Auth_OpenID_ServiceEndpoint();
+        $this->claimed_id = 'http://identity.url/';
+        $this->endpoint->claimed_id = $this->claimed_id;
+        $this->store = null;
+        $this->session = new Services_Yadis_PHPSession();
+        $cls = $this->consumerClass;
+        $this->consumer =& new $cls($this->store, &$this->session);
+        $this->consumer->consumer =& new _StubConsumer();
+        $this->discovery =& new Services_Yadis_Discovery(&$this->session,
+                                         $this->claimed_id,
+                                         $this->consumer->session_key_prefix);
+    }
+}
+
 class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_TestCase {
     function setUp()
     {
@@ -1566,56 +1589,6 @@ class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_TestCase {
                                          $this->claimed_id,
                                          $this->consumer->session_key_prefix);
     }
-
-    /*
-    function withDummyDiscovery(self, callable, dummy_getNextService):
-        class DummyDisco(object):
-            function __init__(self, *ignored):
-                pass
-
-            getNextService = dummy_getNextService
-
-        import openid.consumer.consumer
-        old_discovery = openid.consumer.consumer.Discovery
-        try:
-            openid.consumer.consumer.Discovery = DummyDisco
-            callable()
-        finally:
-            openid.consumer.consumer.Discovery = old_discovery
-
-    function test_beginHTTPError(self):
-        """Make sure that the discovery HTTP failure case behaves properly
-        """
-        function getNextService(self, ignored):
-            raise HTTPFetchingError("Unit test")
-
-        function test():
-            try:
-                $this->consumer.begin('unused in this test')
-            except DiscoveryFailure, why:
-                $this->assertTrue(why[0].startswith('Error fetching'))
-                $this->assertFalse(why[0].find('Unit test') == -1)
-            else:
-                $this->fail('Expected DiscoveryFailure')
-
-        $this->withDummyDiscovery(test, getNextService)
-
-    function test_beginNoServices(self):
-        function getNextService(self, ignored):
-            return None
-
-        url = 'http://a.user.url/'
-        function test():
-            try:
-                $this->consumer.begin(url)
-            except DiscoveryFailure, why:
-                $this->assertTrue(why[0].startswith('No usable OpenID'))
-                $this->assertFalse(why[0].find(url) == -1)
-            else:
-                $this->fail('Expected DiscoveryFailure')
-
-        $this->withDummyDiscovery(test, getNextService)
-    */
 
     function test_beginWithoutDiscovery()
     {
