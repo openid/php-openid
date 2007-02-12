@@ -1747,6 +1747,318 @@ class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_TestCase {
     }
 }
 
+class IDPDrivenTest_Consumer1 extends Auth_OpenID_GenericConsumer {
+    var $iverified = array();
+    var $endpoint = null;
+
+    function _idResCheckNonce($message, $endpoint)
+    {
+        return true;
+    }
+
+    function _verifyDiscoveryResults($identifier, $server_url)
+    {
+        $this->iverified[] = $this->endpoint;
+        return $this->endpoint;
+    }
+}
+
+class IDPDrivenTest_Consumer2 extends Auth_OpenID_GenericConsumer {
+    function verifyDiscoveryResults($identifier, $server_url)
+    {
+        return new Auth_OpenID_FailureResponse(null,
+                                               "Bogus");
+    }
+}
+
+class IDPDrivenTest extends PHPUnit_TestCase {
+    function setUp()
+    {
+        $this->store = new GoodAssocStore();
+        $this->consumer = new Auth_OpenID_GenericConsumer($this->store);
+        $this->endpoint = new Auth_OpenID_ServiceEndpoint();
+        $this->endpoint->server_url = "http://idp.unittest/";
+        $this->endpoint->type_uris = array('http://openid.net/server/2.0');
+    }
+
+    function test_idpDrivenBegin()
+    {
+        // Testing here that the token-handling doesn't explode...
+        $this->assertTrue($this->consumer->begin($this->endpoint) !== null);
+    }
+
+    function test_idpDrivenComplete()
+    {
+        global $GOODSIG;
+
+        $this->consumer = new IDPDrivenTest_Consumer1($this->store);
+
+        $identifier = '=directed_identifier';
+        $message = Auth_OpenID_Message::fromPostArgs(array(
+            'openid.identity'=> '=directed_identifier',
+            'openid.return_to'=> 'x',
+            'openid.assoc_handle'=> 'z',
+            'openid.signed'=> 'identity,return_to',
+            'openid.sig'=> $GOODSIG));
+
+        $endpoint = new Auth_OpenID_ServiceEndpoint();
+        $endpoint->claimed_id = $identifier;
+        $endpoint->server_url = $this->endpoint->server_url;
+        $endpoint->local_id = $identifier;
+
+        $this->consumer->endpoint =& $endpoint;
+        $response = $this->consumer->_doIdRes($message, $this->endpoint);
+
+        $this->failUnlessSuccess($response);
+
+        $this->assertEquals($response->identity_url, "=directed_identifier");
+
+        // assert that discovery attempt happens and returns good
+        $this->assertEquals($this->consumer->iverified, array($endpoint));
+    }
+
+    function test_idpDrivenCompleteFraud()
+    {
+        global $GOODSIG;
+
+        $this->consumer = new IDPDrivenTest_Consumer2($this->store);
+
+        // crap with an identifier that doesn't match discovery info
+        $message = Auth_OpenID_Message::fromPostArgs(array(
+            'openid.identity'=> '=directed_identifier',
+            'openid.return_to'=> 'x',
+            'openid.assoc_handle'=> 'z',
+            'openid.signed'=> 'identity,return_to',
+            'openid.sig'=> $GOODSIG));
+
+        $result = $this->consumer->_doIdRes($message, $this->endpoint);
+        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+    }
+
+    function failUnlessSuccess($response)
+    {
+        if ($response->status != Auth_OpenID_SUCCESS) {
+            $this->fail("Non-successful response (status is ".$response->status.")");
+        }
+    }
+}
+
+class TestDiscoveryVerification extends PHPUnit_TestCase {
+    var $services = array();
+
+    function discoveryFunc($identifier)
+    {
+        return array($identifier, $this->services);
+    }
+
+    function setUp()
+    {
+        $this->store = new GoodAssocStore();
+        $this->consumer = new Auth_OpenID_GenericConsumer($this->store);
+        $this->consumer->discoverMethod = array($this,
+                                                'discoveryFunc');
+
+        $this->identifier = "http://idp.unittest/1337";
+        $this->server_url = "http://endpoint.unittest/";
+
+        $this->message = Auth_OpenID_Message::fromPostArgs(array(
+            'openid.ns'=> Auth_OpenID_OPENID2_NS,
+            'openid.identity'=> $this->identifier,
+            'openid.claimed_id'=> $this->identifier,
+            'openid.op_endpoint'=> $this->server_url));
+
+        $this->endpoint = new Auth_OpenID_ServiceEndpoint();
+        $this->endpoint->server_url = $this->server_url;
+    }
+
+    function test_theGoodStuff()
+    {
+        $endpoint = new Auth_OpenID_ServiceEndpoint();
+        $endpoint->type_uris = array(Auth_OpenID_OPENID2_NS);
+        $endpoint->claimed_id = $this->identifier;
+        $endpoint->server_url = $this->server_url;
+        $endpoint->local_id = $this->identifier;
+        $this->services = array($endpoint);
+        $r = $this->consumer->_verifyDiscoveryResults($this->message, $endpoint);
+
+        $this->assertEquals($r, $endpoint);
+    }
+
+    function test_otherServer()
+    {
+        // a set of things without the stuff
+        $endpoint = new Auth_OpenID_ServiceEndpoint();
+        $endpoint->type_uris = array(Auth_OpenID_OPENID2_NS);
+        $endpoint->claimed_id = $this->identifier;
+        $endpoint->server_url = "http://the-MOON.unittest/";
+        $endpoint->local_id = $this->identifier;
+        $this->services = array($endpoint);
+
+        $result = $this->consumer->_verifyDiscoveryResults(
+                                 $this->message, $endpoint);
+
+        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+    }
+
+    function test_foreignDelegate()
+    {
+        // a set of things with the server stuff but other delegate
+        $endpoint = new Auth_OpenID_ServiceEndpoint();
+        $endpoint->type_uris = array(Auth_OpenID_OPENID2_NS);
+        $endpoint->claimed_id = $this->identifier;
+        $endpoint->server_url = $this->server_url;
+        $endpoint->local_id = "http://unittest/juan-carlos";
+
+        $result = $this->consumer->_verifyDiscoveryResults(
+                                 $this->message, $endpoint);
+        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+    }
+
+    function test_nothingDiscovered()
+    {
+        // a set of no things.
+        $this->services = array();
+        $result = $this->consumer->_verifyDiscoveryResults(
+                                 $this->message, $this->endpoint);
+        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+    }
+}
+
+/*
+class TestCreateAssociationRequest(unittest.TestCase):
+    function setUp(self):
+        class DummyEndpoint(object):
+            use_compatibility = False
+
+            function compatibilityMode(self):
+                return $this->use_compatibility
+
+        $this->endpoint = DummyEndpoint()
+        $this->consumer = GenericConsumer(store=None)
+        $this->assoc_type = 'HMAC-SHA1'
+
+    function test_noEncryptionSendsType(self):
+        session_type = 'no-encryption'
+        session, args = $this->consumer._createAssociateRequest(
+            $this->endpoint, $this->assoc_type, session_type)
+
+        $this->failUnless(isinstance(session, PlainTextConsumerSession))
+        expected = Message.fromOpenIDArgs(
+            {'ns'=>Auth_OpenID_OPENID2_NS,
+             'session_type'=>session_type,
+             'mode'=>'associate',
+             'assoc_type'=>$this->assoc_type,
+             })
+
+        $this->assertEquals(expected, args)
+
+    function test_noEncryptionCompatibility(self):
+        $this->endpoint.use_compatibility = True
+        session_type = 'no-encryption'
+        session, args = $this->consumer._createAssociateRequest(
+            $this->endpoint, $this->assoc_type, session_type)
+
+        $this->failUnless(isinstance(session, PlainTextConsumerSession))
+        $this->assertEquals(Message.fromOpenIDArgs({'mode'=>'associate',
+                              'assoc_type'=>$this->assoc_type,
+                              }), args)
+
+    function test_dhSHA1Compatibility(self):
+        // Set the consumer's session type to a fast session since we
+        // need it here.
+        setConsumerSession($this->consumer)
+
+        $this->endpoint.use_compatibility = True
+        session_type = 'DH-SHA1'
+        session, args = $this->consumer._createAssociateRequest(
+            $this->endpoint, $this->assoc_type, session_type)
+
+        $this->failUnless(isinstance(session, DiffieHellmanSHA1ConsumerSession))
+
+        // This is a random base-64 value, so just check that it's
+        // present.
+        $this->failUnless(args.getArg(Auth_OpenID_OPENID1_NS, 'dh_consumer_public'))
+        args.delArg(Auth_OpenID_OPENID1_NS, 'dh_consumer_public')
+
+        // OK, session_type is set here and not for no-encryption
+        // compatibility
+        expected = Message.fromOpenIDArgs({'mode'=>'associate',
+                                           'session_type'=>'DH-SHA1',
+                                           'assoc_type'=>$this->assoc_type,
+                                           'dh_modulus'=> 'BfvStQ==',
+                                           'dh_gen'=> 'Ag==',
+                                           })
+
+        $this->assertEquals(expected, args)
+
+class TestDiffieHellmanResponseParameters(object):
+    session_cls = None
+    message_namespace = None
+
+    function setUp(self):
+        // Pre-compute DH with small prime so tests run quickly.
+        $this->server_dh = DiffieHellman(100389557, 2)
+        $this->consumer_dh = DiffieHellman(100389557, 2)
+
+        // base64(btwoc(g ^ xb mod p))
+        $this->dh_server_public = cryptutil.longToBase64($this->server_dh.public)
+
+        $this->secret = cryptutil.randomString($this->session_cls.secret_size)
+
+        $this->enc_mac_key = oidutil.toBase64(
+            $this->server_dh.xorSecret($this->consumer_dh.public,
+                                     $this->secret,
+                                     $this->session_cls.hash_func))
+
+        $this->consumer_session = $this->session_cls($this->consumer_dh)
+
+        $this->msg = Message($this->message_namespace)
+
+    function testExtractSecret(self):
+        $this->msg.setArg(Auth_OpenID_OPENID_NS, 'dh_server_public', $this->dh_server_public)
+        $this->msg.setArg(Auth_OpenID_OPENID_NS, 'enc_mac_key', $this->enc_mac_key)
+
+        extracted = $this->consumer_session.extractSecret($this->msg)
+        $this->assertEquals(extracted, $this->secret)
+
+    function testAbsentServerPublic(self):
+        $this->msg.setArg(Auth_OpenID_OPENID_NS, 'enc_mac_key', $this->enc_mac_key)
+
+        $this->failUnlessRaises(KeyError, $this->consumer_session.extractSecret, $this->msg)
+
+    function testAbsentMacKey(self):
+        $this->msg.setArg(Auth_OpenID_OPENID_NS, 'dh_server_public', $this->dh_server_public)
+
+        $this->failUnlessRaises(KeyError, $this->consumer_session.extractSecret, $this->msg)
+
+    function testInvalidBase64Public(self):
+        $this->msg.setArg(Auth_OpenID_OPENID_NS, 'dh_server_public', 'n o t b a s e 6 4.')
+        $this->msg.setArg(Auth_OpenID_OPENID_NS, 'enc_mac_key', $this->enc_mac_key)
+
+        $this->failUnlessRaises(ValueError, $this->consumer_session.extractSecret, $this->msg)
+
+    function testInvalidBase64MacKey(self):
+        $this->msg.setArg(Auth_OpenID_OPENID_NS, 'dh_server_public', $this->dh_server_public)
+        $this->msg.setArg(Auth_OpenID_OPENID_NS, 'enc_mac_key', 'n o t base 64')
+
+        $this->failUnlessRaises(ValueError, $this->consumer_session.extractSecret, $this->msg)
+
+class TestOpenID1SHA1(TestDiffieHellmanResponseParameters, unittest.TestCase):
+    session_cls = DiffieHellmanSHA1ConsumerSession
+    message_namespace = Auth_OpenID_OPENID1_NS
+
+class TestOpenID2SHA1(TestDiffieHellmanResponseParameters, unittest.TestCase):
+    session_cls = DiffieHellmanSHA1ConsumerSession
+    message_namespace = Auth_OpenID_OPENID2_NS
+
+if cryptutil.SHA256_AVAILABLE:
+    class TestOpenID2SHA256(TestDiffieHellmanResponseParameters, unittest.TestCase):
+        session_cls = DiffieHellmanSHA256ConsumerSession
+        message_namespace = Auth_OpenID_OPENID2_NS
+else:
+    warnings.warn("Not running SHA256 association session tests.")
+*/
+
 // Add other test cases to be run.
 $Tests_Auth_OpenID_Consumer_other = array(
                                           // new Tests_Auth_OpenID_Consumer_TestSetupNeeded(),
@@ -1763,7 +2075,9 @@ $Tests_Auth_OpenID_Consumer_other = array(
                                           new Tests_Auth_OpenID_Stateless1(),
                                           new Tests_Auth_OpenID_Stateless2(),
                                           new TestCompleteMissingSig(),
-                                          new TestReturnToArgs()
+                                          new TestReturnToArgs(),
+                                          new IDPDrivenTest(),
+                                          new TestDiscoveryVerification(),
                                           );
 
 ?>

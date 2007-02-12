@@ -220,6 +220,11 @@ class Auth_OpenID_Consumer {
     /**
      * @access private
      */
+    var $discoverMethod = 'Auth_OpenID_discover';
+
+    /**
+     * @access private
+     */
     var $session_key_prefix = "_openid_consumer_";
 
     /**
@@ -289,12 +294,11 @@ class Auth_OpenID_Consumer {
      */
     function begin($user_url)
     {
-        $discoverMethod = 'Auth_OpenID_discover';
         $openid_url = $user_url;
 
         $disco =& $this->getDiscoveryObject($this->session,
-                                                $openid_url,
-                                                $this->session_key_prefix);
+                                            $openid_url,
+                                            $this->session_key_prefix);
 
         // Set the 'stale' attribute of the manager.  If discovery
         // fails in a fatal way, the stale flag will cause the manager
@@ -313,7 +317,7 @@ class Auth_OpenID_Consumer {
             }
         }
 
-        $endpoint = $disco->getNextService($discoverMethod,
+        $endpoint = $disco->getNextService($this->discoverMethod,
                                            $this->consumer->fetcher);
 
         // Reset the 'stale' attribute of the manager.
@@ -501,6 +505,11 @@ function Auth_OpenID_getAvailableSessionTypes()
  * @access private
  */
 class Auth_OpenID_GenericConsumer {
+    /**
+     * @access private
+     */
+    var $discoverMethod = 'Auth_OpenID_discover';
+
     /**
      * This consumer's store object.
      */
@@ -951,7 +960,8 @@ class Auth_OpenID_GenericConsumer {
     function _discoverAndVerify($to_match)
     {
         // oidutil.log('Performing discovery on %s' % (to_match.claimed_id,))
-        list($unused, $services) = Auth_OpenID_discover($to_match->claimed_id);
+        list($unused, $services) = call_user_func($this->discoverMethod,
+                                                  $to_match->claimed_id);
         if (!$services) {
             return new Auth_OpenID_FailureResponse(null,
               sprintf("No OpenID information found at %s",
