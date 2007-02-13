@@ -2021,74 +2021,106 @@ class TestCreateAssociationRequest extends PHPUnit_TestCase {
     }
 }
 
-/*
-class TestDiffieHellmanResponseParameters(object):
-    session_cls = None
-    message_namespace = None
+class TestDiffieHellmanResponseParameters extends PHPUnit_TestCase {
+    var $session_cls = null;
+    var $message_namespace = null;
 
-    function setUp(self):
+    function setUp()
+    {
         // Pre-compute DH with small prime so tests run quickly.
-        $this->server_dh = DiffieHellman(100389557, 2)
-        $this->consumer_dh = DiffieHellman(100389557, 2)
+        $this->server_dh = new Auth_OpenID_DiffieHellman(100389557, 2);
+        $this->consumer_dh = new Auth_OpenID_DiffieHellman(100389557, 2);
+
+        $lib =& Auth_OpenID_getMathLib();
+
+        $cls = $this->session_cls;
+        $this->consumer_session = new $cls($this->consumer_dh);
 
         // base64(btwoc(g ^ xb mod p))
-        $this->dh_server_public = cryptutil.longToBase64($this->server_dh.public)
+        $this->dh_server_public = $lib->longToBase64($this->server_dh->public);
 
-        $this->secret = cryptutil.randomString($this->session_cls.secret_size)
+        $this->secret = Auth_OpenID_CryptUtil::randomString(
+                            $this->consumer_session->secret_size);
 
-        $this->enc_mac_key = oidutil.toBase64(
-            $this->server_dh.xorSecret($this->consumer_dh.public,
-                                     $this->secret,
-                                     $this->session_cls.hash_func))
+        $this->enc_mac_key = base64_encode(
+            $this->server_dh->xorSecret($this->consumer_dh->public,
+                                        $this->secret,
+                                        $this->consumer_session->hash_func));
 
-        $this->consumer_session = $this->session_cls($this->consumer_dh)
+        $this->msg = new Auth_OpenID_Message($this->message_namespace);
+    }
 
-        $this->msg = Message($this->message_namespace)
+    function testExtractSecret()
+    {
+        $this->msg->setArg(Auth_OpenID_OPENID_NS, 'dh_server_public',
+                           $this->dh_server_public);
 
-    function testExtractSecret(self):
-        $this->msg.setArg(Auth_OpenID_OPENID_NS, 'dh_server_public', $this->dh_server_public)
-        $this->msg.setArg(Auth_OpenID_OPENID_NS, 'enc_mac_key', $this->enc_mac_key)
+        $this->msg->setArg(Auth_OpenID_OPENID_NS, 'enc_mac_key',
+                           $this->enc_mac_key);
 
-        extracted = $this->consumer_session.extractSecret($this->msg)
-        $this->assertEquals(extracted, $this->secret)
+        $extracted = $this->consumer_session->extractSecret($this->msg);
+        $this->assertEquals($extracted, $this->secret);
+    }
 
-    function testAbsentServerPublic(self):
-        $this->msg.setArg(Auth_OpenID_OPENID_NS, 'enc_mac_key', $this->enc_mac_key)
+    function testAbsentServerPublic()
+    {
+        $this->msg->setArg(Auth_OpenID_OPENID_NS, 'enc_mac_key',
+                           $this->enc_mac_key);
 
-        $this->failUnlessRaises(KeyError, $this->consumer_session.extractSecret, $this->msg)
+        $this->assertTrue($this->consumer_session->extractSecret($this->msg) === null);
+    }
 
-    function testAbsentMacKey(self):
-        $this->msg.setArg(Auth_OpenID_OPENID_NS, 'dh_server_public', $this->dh_server_public)
+    function testAbsentMacKey()
+    {
+        $this->msg->setArg(Auth_OpenID_OPENID_NS, 'dh_server_public',
+                           $this->dh_server_public);
 
-        $this->failUnlessRaises(KeyError, $this->consumer_session.extractSecret, $this->msg)
+        $this->assertTrue($this->consumer_session->extractSecret($this->msg) === null);
+    }
 
-    function testInvalidBase64Public(self):
-        $this->msg.setArg(Auth_OpenID_OPENID_NS, 'dh_server_public', 'n o t b a s e 6 4.')
-        $this->msg.setArg(Auth_OpenID_OPENID_NS, 'enc_mac_key', $this->enc_mac_key)
+    /*
+    function testInvalidBase64Public()
+    {
+        $this->msg->setArg(Auth_OpenID_OPENID_NS, 'dh_server_public',
+                           'n o t b a s e 6 4.');
 
-        $this->failUnlessRaises(ValueError, $this->consumer_session.extractSecret, $this->msg)
+        $this->msg->setArg(Auth_OpenID_OPENID_NS, 'enc_mac_key',
+                           $this->enc_mac_key);
 
-    function testInvalidBase64MacKey(self):
-        $this->msg.setArg(Auth_OpenID_OPENID_NS, 'dh_server_public', $this->dh_server_public)
-        $this->msg.setArg(Auth_OpenID_OPENID_NS, 'enc_mac_key', 'n o t base 64')
+        $this->assertTrue($this->consumer_session->extractSecret($this->msg) === null);
+    }
 
-        $this->failUnlessRaises(ValueError, $this->consumer_session.extractSecret, $this->msg)
+    function testInvalidBase64MacKey()
+    {
+        $this->msg->setArg(Auth_OpenID_OPENID_NS, 'dh_server_public',
+                           $this->dh_server_public);
 
-class TestOpenID1SHA1(TestDiffieHellmanResponseParameters, unittest.TestCase):
-    session_cls = DiffieHellmanSHA1ConsumerSession
-    message_namespace = Auth_OpenID_OPENID1_NS
+        $this->msg->setArg(Auth_OpenID_OPENID_NS, 'enc_mac_key',
+                           'n o t base 64');
 
-class TestOpenID2SHA1(TestDiffieHellmanResponseParameters, unittest.TestCase):
-    session_cls = DiffieHellmanSHA1ConsumerSession
-    message_namespace = Auth_OpenID_OPENID2_NS
+        $this->assertTrue($this->consumer_session->extractSecret($this->msg) === null);
+    }
+    */
+}
 
-if cryptutil.SHA256_AVAILABLE:
-    class TestOpenID2SHA256(TestDiffieHellmanResponseParameters, unittest.TestCase):
-        session_cls = DiffieHellmanSHA256ConsumerSession
-        message_namespace = Auth_OpenID_OPENID2_NS
-else:
-    warnings.warn("Not running SHA256 association session tests.")
-*/
+class TestOpenID1SHA1 extends TestDiffieHellmanResponseParameters {
+    var $session_cls = 'Auth_OpenID_DiffieHellmanSHA1ConsumerSession';
+    var $message_namespace = Auth_OpenID_OPENID1_NS;
+}
+
+class TestOpenID2SHA1 extends TestDiffieHellmanResponseParameters {
+    var $session_cls = 'Auth_OpenID_DiffieHellmanSHA1ConsumerSession';
+    var $message_namespace = Auth_OpenID_OPENID2_NS;
+}
+
+if (Auth_OpenID_SHA256_AVAILABLE) {
+    class TestOpenID2SHA256 extends TestDiffieHellmanResponseParameters {
+        var $session_cls = 'Auth_OpenID_DiffieHellmanSHA256ConsumerSession';
+        var $message_namespace = Auth_OpenID_OPENID2_NS;
+    }
+} else {
+    print "(Skipping TestOpenID2SHA256)";
+}
 
 // Add other test cases to be run.
 $Tests_Auth_OpenID_Consumer_other = array(
@@ -2110,6 +2142,12 @@ $Tests_Auth_OpenID_Consumer_other = array(
                                           new IDPDrivenTest(),
                                           new TestDiscoveryVerification(),
                                           new TestCreateAssociationRequest(),
+                                          new TestOpenID1SHA1(),
+                                          new TestOpenID2SHA1(),
                                           );
+
+if (Auth_OpenID_SHA256_AVAILABLE) {
+    $Tests_Auth_OpenID_Consumer_other[] = new TestOpenID2SHA256();
+}
 
 ?>
