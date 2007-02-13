@@ -296,9 +296,9 @@ class Auth_OpenID_Consumer {
     {
         $openid_url = $user_url;
 
-        $disco =& $this->getDiscoveryObject($this->session,
-                                            $openid_url,
-                                            $this->session_key_prefix);
+        $disco = $this->getDiscoveryObject($this->session,
+                                           $openid_url,
+                                           $this->session_key_prefix);
 
         // Set the 'stale' attribute of the manager.  If discovery
         // fails in a fatal way, the stale flag will cause the manager

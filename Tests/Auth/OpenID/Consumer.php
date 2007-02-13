@@ -23,6 +23,7 @@ require_once 'Auth/OpenID/KVForm.php';
 require_once 'Auth/OpenID/Consumer.php';
 require_once 'Auth/OpenID/Server.php';
 require_once 'Auth/OpenID/Nonce.php';
+require_once 'Auth/OpenID/HMACSHA1.php';
 require_once 'Tests/Auth/OpenID/MemStore.php';
 require_once 'PHPUnit.php';
 
@@ -1583,7 +1584,7 @@ class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_TestCase {
         $this->endpoint->claimed_id = $this->claimed_id;
         $this->store = null;
         $this->session = new Services_Yadis_PHPSession();
-        $this->consumer =& new Auth_OpenID_Consumer($this->store, &$this->session);
+        $this->consumer =& new Auth_OpenID_Consumer($this->store, $this->session);
         $this->consumer->consumer =& new _StubConsumer();
         $this->discovery =& new Services_Yadis_Discovery(&$this->session,
                                          $this->claimed_id,
@@ -2113,9 +2114,12 @@ class TestOpenID2SHA1 extends TestDiffieHellmanResponseParameters {
     var $message_namespace = Auth_OpenID_OPENID2_NS;
 }
 
-class TestOpenID2SHA256 extends TestDiffieHellmanResponseParameters {
-    var $session_cls = 'Auth_OpenID_DiffieHellmanSHA256ConsumerSession';
-    var $message_namespace = Auth_OpenID_OPENID2_NS;
+if (!defined('Auth_OpenID_NO_MATH_SUPPORT') &&
+    Auth_OpenID_SHA256_SUPPORTED) {
+    class TestOpenID2SHA256 extends TestDiffieHellmanResponseParameters {
+        var $session_cls = 'Auth_OpenID_DiffieHellmanSHA256ConsumerSession';
+        var $message_namespace = Auth_OpenID_OPENID2_NS;
+    }
 }
 
 // Add other test cases to be run.
@@ -2146,7 +2150,7 @@ if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
 }
 
 if (!defined('Auth_OpenID_NO_MATH_SUPPORT') &&
-    Auth_OpenID_SHA256_AVAILABLE) {
+    Auth_OpenID_SHA256_SUPPORTED) {
     $Tests_Auth_OpenID_Consumer_other[] = new TestOpenID2SHA256();
 }
 

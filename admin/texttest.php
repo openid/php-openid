@@ -1,5 +1,8 @@
 <?php
 
+define('Auth_OpenID_SHA256_SUPPORTED', false);
+define('Auth_OpenID_HMACSHA256_SUPPORTED', false);
+
 require_once 'Tests/TestDriver.php';
 require_once 'PHPUnit/TestResult.php';
 require_once 'Console/Getopt.php';
