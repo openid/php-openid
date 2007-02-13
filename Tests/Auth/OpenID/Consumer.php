@@ -1949,7 +1949,6 @@ function setConsumerSession(&$con)
     $con->session_types = array('DH-SHA1' => 'FastConsumerSession');
 }
 
-if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
 class TestCreateAssociationRequest extends PHPUnit_TestCase {
     function setUp()
     {
@@ -2114,16 +2113,9 @@ class TestOpenID2SHA1 extends TestDiffieHellmanResponseParameters {
     var $message_namespace = Auth_OpenID_OPENID2_NS;
 }
 
-if (Auth_OpenID_SHA256_AVAILABLE) {
-    class TestOpenID2SHA256 extends TestDiffieHellmanResponseParameters {
-        var $session_cls = 'Auth_OpenID_DiffieHellmanSHA256ConsumerSession';
-        var $message_namespace = Auth_OpenID_OPENID2_NS;
-    }
-} else {
-    print "(Skipping TestOpenID2SHA256)";
-}
-} else {
-    print "(Skipping association tests)";
+class TestOpenID2SHA256 extends TestDiffieHellmanResponseParameters {
+    var $session_cls = 'Auth_OpenID_DiffieHellmanSHA256ConsumerSession';
+    var $message_namespace = Auth_OpenID_OPENID2_NS;
 }
 
 // Add other test cases to be run.
@@ -2145,15 +2137,16 @@ $Tests_Auth_OpenID_Consumer_other = array(
                                           new TestReturnToArgs(),
                                           new IDPDrivenTest(),
                                           new TestDiscoveryVerification(),
-                                          new TestCreateAssociationRequest(),
                                           );
 
 if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+    $Tests_Auth_OpenID_Consumer_other[] = new TestCreateAssociationRequest();
     $Tests_Auth_OpenID_Consumer_other[] = new TestOpenID1SHA1();
     $Tests_Auth_OpenID_Consumer_other[] = new TestOpenID2SHA1();
 }
 
-if (Auth_OpenID_SHA256_AVAILABLE) {
+if (!defined('Auth_OpenID_NO_MATH_SUPPORT') &&
+    Auth_OpenID_SHA256_AVAILABLE) {
     $Tests_Auth_OpenID_Consumer_other[] = new TestOpenID2SHA256();
 }
 

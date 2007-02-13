@@ -1697,7 +1697,8 @@ class Tests_Auth_OpenID_ServerTest extends PHPUnit_TestCase {
 
     function test_associate4()
     {
-        if (!Auth_OpenID_HMACSHA256_SUPPORTED) {
+        if (defined('Auth_OpenID_NO_MATH_SUPPORT') ||
+            !Auth_OpenID_HMACSHA256_SUPPORTED) {
             print "(Skipping test_associate4)";
             return;
         }
