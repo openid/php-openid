@@ -1924,73 +1924,104 @@ class TestDiscoveryVerification extends PHPUnit_TestCase {
     }
 }
 
-/*
-class TestCreateAssociationRequest(unittest.TestCase):
-    function setUp(self):
-        class DummyEndpoint(object):
-            use_compatibility = False
+class DummyEndpoint {
+    var $use_compatibility = false;
 
-            function compatibilityMode(self):
-                return $this->use_compatibility
+    function compatibilityMode()
+    {
+        return $this->use_compatibility;
+    }
+}
 
-        $this->endpoint = DummyEndpoint()
-        $this->consumer = GenericConsumer(store=None)
-        $this->assoc_type = 'HMAC-SHA1'
+class FastConsumerSession extends Auth_OpenID_DiffieHellmanSHA1ConsumerSession {
+    function FastConsumerSession($dh = null)
+    {
+        if ($dh === null) {
+            $dh = new Auth_OpenID_DiffieHellman(100389557, 2);
+        }
 
-    function test_noEncryptionSendsType(self):
-        session_type = 'no-encryption'
-        session, args = $this->consumer._createAssociateRequest(
-            $this->endpoint, $this->assoc_type, session_type)
+        $this->dh = $dh;
+    }
+}
 
-        $this->failUnless(isinstance(session, PlainTextConsumerSession))
-        expected = Message.fromOpenIDArgs(
-            {'ns'=>Auth_OpenID_OPENID2_NS,
-             'session_type'=>session_type,
-             'mode'=>'associate',
-             'assoc_type'=>$this->assoc_type,
-             })
+function setConsumerSession(&$con)
+{
+    $con->session_types = array('DH-SHA1' => 'FastConsumerSession');
+}
 
-        $this->assertEquals(expected, args)
+class TestCreateAssociationRequest extends PHPUnit_TestCase {
+    function setUp()
+    {
+        $this->endpoint = new DummyEndpoint();
+        $s = null;
+        $this->consumer = new Auth_OpenID_GenericConsumer($s);
+        $this->assoc_type = 'HMAC-SHA1';
+    }
 
-    function test_noEncryptionCompatibility(self):
-        $this->endpoint.use_compatibility = True
-        session_type = 'no-encryption'
-        session, args = $this->consumer._createAssociateRequest(
-            $this->endpoint, $this->assoc_type, session_type)
+    function test_noEncryptionSendsType()
+    {
+        $session_type = 'no-encryption';
+        list($session, $args) = $this->consumer->_createAssociateRequest(
+                       $this->endpoint, $this->assoc_type, $session_type);
 
-        $this->failUnless(isinstance(session, PlainTextConsumerSession))
-        $this->assertEquals(Message.fromOpenIDArgs({'mode'=>'associate',
-                              'assoc_type'=>$this->assoc_type,
-                              }), args)
+        $this->assertTrue(is_a($session, 'Auth_OpenID_PlainTextConsumerSession'));
 
-    function test_dhSHA1Compatibility(self):
+        $expected = Auth_OpenID_Message::fromOpenIDArgs(
+                                                        array('ns' => Auth_OpenID_OPENID2_NS,
+                                                              'session_type'=>$session_type,
+                                                              'mode'=>'associate',
+                                                              'assoc_type'=>$this->assoc_type));
+
+        $this->assertEquals($expected->toPostArgs(),
+                            $args->toPostArgs());
+    }
+
+    function test_noEncryptionCompatibility()
+    {
+        $this->endpoint->use_compatibility = true;
+        $session_type = 'no-encryption';
+        list($session, $args) = $this->consumer->_createAssociateRequest(
+                       $this->endpoint, $this->assoc_type, $session_type);
+
+        $this->assertTrue(is_a($session, 'Auth_OpenID_PlainTextConsumerSession'));
+        $this->assertEquals(Auth_OpenID_Message::fromOpenIDArgs(array('mode'=>'associate',
+                                                                      'assoc_type'=>$this->assoc_type)),
+                            $args);
+    }
+
+    function test_dhSHA1Compatibility()
+    {
         // Set the consumer's session type to a fast session since we
         // need it here.
-        setConsumerSession($this->consumer)
+        setConsumerSession($this->consumer);
 
-        $this->endpoint.use_compatibility = True
-        session_type = 'DH-SHA1'
-        session, args = $this->consumer._createAssociateRequest(
-            $this->endpoint, $this->assoc_type, session_type)
+        $this->endpoint->use_compatibility = true;
+        $session_type = 'DH-SHA1';
+        list($session, $args) = $this->consumer->_createAssociateRequest(
+                       $this->endpoint, $this->assoc_type, $session_type);
 
-        $this->failUnless(isinstance(session, DiffieHellmanSHA1ConsumerSession))
+        $this->assertTrue(is_a($session,
+                               'Auth_OpenID_DiffieHellmanSHA1ConsumerSession'));
 
         // This is a random base-64 value, so just check that it's
         // present.
-        $this->failUnless(args.getArg(Auth_OpenID_OPENID1_NS, 'dh_consumer_public'))
-        args.delArg(Auth_OpenID_OPENID1_NS, 'dh_consumer_public')
+        $this->assertTrue($args->hasKey(Auth_OpenID_OPENID1_NS, 'dh_consumer_public'));
+        $args->delArg(Auth_OpenID_OPENID1_NS, 'dh_consumer_public');
 
         // OK, session_type is set here and not for no-encryption
         // compatibility
-        expected = Message.fromOpenIDArgs({'mode'=>'associate',
-                                           'session_type'=>'DH-SHA1',
-                                           'assoc_type'=>$this->assoc_type,
-                                           'dh_modulus'=> 'BfvStQ==',
-                                           'dh_gen'=> 'Ag==',
-                                           })
+        $expected = Auth_OpenID_Message::fromOpenIDArgs(array('mode'=>'associate',
+                                                              'session_type'=>'DH-SHA1',
+                                                              'assoc_type'=>$this->assoc_type,
+                                                              'dh_modulus'=> 'BfvStQ==',
+                                                              'dh_gen'=> 'Ag=='));
 
-        $this->assertEquals(expected, args)
+        $this->assertEquals($expected->toPostArgs(),
+                            $args->toPostArgs());
+    }
+}
 
+/*
 class TestDiffieHellmanResponseParameters(object):
     session_cls = None
     message_namespace = None
@@ -2078,6 +2109,7 @@ $Tests_Auth_OpenID_Consumer_other = array(
                                           new TestReturnToArgs(),
                                           new IDPDrivenTest(),
                                           new TestDiscoveryVerification(),
+                                          new TestCreateAssociationRequest(),
                                           );
 
 ?>

@@ -102,6 +102,7 @@ class Auth_OpenID_Mapping {
     function items()
     {
         $temp = array();
+
         for ($i = 0; $i < count($this->keys); $i++) {
             $temp[] = array($this->keys[$i],
                             $this->values[$i]);
@@ -149,6 +150,25 @@ class Auth_OpenID_Mapping {
         }
     }
 
+    function _reflow()
+    {
+        // PHP is broken yet again.  Sort the arrays to remove the
+        // hole in the numeric indexes that make up the array.
+        $old_keys = $this->keys;
+        $old_values = $this->values;
+
+        $this->keys = array();
+        $this->values = array();
+
+        foreach ($old_keys as $k) {
+            $this->keys[] = $k;
+        }
+
+        foreach ($old_values as $v) {
+            $this->values[] = $v;
+        }
+    }
+
     /**
      * Deletes a key-value pair from the mapping with the specified
      * key.
@@ -160,6 +180,7 @@ class Auth_OpenID_Mapping {
         if ($index !== false) {
             unset($this->keys[$index]);
             unset($this->values[$index]);
+            $this->_reflow();
             return true;
         }
         return false;
