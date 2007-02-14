@@ -1,6 +1,7 @@
 <?php
 
 require_once 'PHPUnit.php';
+require_once 'TestUtil.php';
 
 require_once 'Auth/OpenID.php';
 require_once 'Auth/OpenID/Discover.php';
@@ -155,137 +156,299 @@ class _DiscoveryMockFetcher {
     }
 }
 
-define('DISCOVERYBASE_ID_URL', "http://someuser.unittest/");
-
 class _DiscoveryBase extends PHPUnit_TestCase {
-    var $id_url = DISCOVERYBASE_ID_URL;
-    var $documents = array();
+    var $id_url = "http://someuser.unittest/";
+    var $fetcherClass = '_DiscoveryMockFetcher';
+
+    function _checkService($s,
+                           $server_url,
+                           $claimed_id=null,
+                           $local_id=null,
+                           $canonical_id=null,
+                           $types=null,
+                           $used_yadis=false)
+    {
+        $this->assertEquals($server_url, $s->server_url);
+        if ($types == array('2.0 OP')) {
+            $this->assertFalse($claimed_id);
+            $this->assertFalse($local_id);
+            $this->assertFalse($s->claimed_id);
+            $this->assertFalse($s->local_id);
+            $this->assertFalse($s->getLocalID());
+            $this->assertFalse($s->compatibilityMode());
+            $this->assertTrue($s->isOPIdentifier());
+            $this->assertEquals($s->preferredNamespace(),
+                                Auth_OpenID_TYPE_2_0);
+        } else {
+            $this->assertEquals($claimed_id, $s->claimed_id);
+            $this->assertEquals($local_id, $s->getLocalID());
+        }
+
+        if ($used_yadis) {
+            $this->assertTrue($s->used_yadis, "Expected to use Yadis");
+        } else {
+            $this->assertFalse($s->used_yadis,
+                               "Expected to use old-style discovery");
+        }
+
+        $openid_types = array(
+                              '1.1' => Auth_OpenID_TYPE_1_1,
+                              '1.0' => Auth_OpenID_TYPE_1_0,
+                              '2.0' => Auth_OpenID_TYPE_2_0,
+                              '2.0 OP' => Auth_OpenID_TYPE_2_0_IDP);
+
+        $type_uris = array();
+        foreach ($types as $t) {
+            $type_uris[] = $openid_types[$t];
+        }
+
+        $this->assertEquals($type_uris, $s->type_uris);
+        $this->assertEquals($canonical_id, $s->canonicalID);
+    }
 
     function setUp()
     {
-        $this->fetcher = new _DiscoveryMockFetcher($this->documents);
+        $cls = $this->fetcherClass;
+        // D is for Dumb.
+        $d = array();
+        $this->fetcher = new $cls($d);
     }
 }
 
-$__yadis_2entries = '<?xml version="1.0" encoding="UTF-8"?>
-<xrds:XRDS xmlns:xrds="xri://$xrds"
-           xmlns="xri://$xrd*($v*2.0)"
-           xmlns:openid="http://openid.net/xmlns/1.0"
-           >
-  <XRD>
-    <CanonicalID>=!1000</CanonicalID>
+class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
+    function _discover($content_type, $data,
+                       $expected_services, $expected_id=null)
+    {
+        if ($expected_id === null) {
+            $expected_id = $this->id_url;
+        }
 
-    <Service priority="10">
-      <Type>http://openid.net/signon/1.0</Type>
-      <URI>http://www.myopenid.com/server</URI>
-      <openid:Delegate>http://smoker.myopenid.com/</openid:Delegate>
-    </Service>
+        $this->fetcher->documents[$this->id_url] = array($content_type, $data);
+        list($id_url, $services) = Auth_OpenID_discover($this->id_url,
+                                                        $this->fetcher);
+        $this->assertEquals($expected_services, count($services));
+        $this->assertEquals($expected_id, $id_url);
+        return $services;
+    }
 
-    <Service priority="20">
-      <Type>http://openid.net/signon/1.0</Type>
-      <URI>http://www.livejournal.com/openid/server.bml</URI>
-      <openid:Delegate>http://frank.livejournal.com/</openid:Delegate>
-    </Service>
+    function test_404()
+    {
+        list($url, $services) = Auth_OpenID_discover($this->id_url . '/404',
+                                                     $this->fetcher);
+        $this->assertTrue($services == array());
+    }
 
-  </XRD>
-</xrds:XRDS>
-';
+    function test_noOpenID()
+    {
+        $services = $this->_discover('text/plain',
+                                     "junk",
+                                     0);
 
-$__yadis_2entries_flipped_priority = '<?xml version="1.0" encoding="UTF-8"?>
-<xrds:XRDS xmlns:xrds="xri://$xrds"
-           xmlns="xri://$xrd*($v*2.0)"
-           xmlns:openid="http://openid.net/xmlns/1.0"
-           >
-  <XRD>
+        $services = $this->_discover(
+                                     'text/html',
+                                     Tests_Auth_OpenID_readdata('test_discover_openid_no_delegate.html'),
+                                     1);
 
-    <Service priority="20">
-      <Type>http://openid.net/signon/1.0</Type>
-      <URI>http://www.myopenid.com/server</URI>
-      <openid:Delegate>http://smoker.myopenid.com/</openid:Delegate>
-    </Service>
+        $this->_checkService($services[0],
+                             "http://www.myopenid.com/server",
+                             $this->id_url,
+                             $this->id_url,
+                             null,
+                             array('1.1'),
+                             false);
+    }
 
-    <Service priority="10">
-      <Type>http://openid.net/signon/1.0</Type>
-      <URI>http://www.livejournal.com/openid/server.bml</URI>
-      <openid:Delegate>http://frank.livejournal.com/</openid:Delegate>
-    </Service>
+    function test_html1()
+    {
+        $services = $this->_discover('text/html',
+                                     Tests_Auth_OpenID_readdata('test_discover_openid.html'),
+                                     1);
 
-  </XRD>
-</xrds:XRDS>
-';
 
-$__yadis_another = '<?xml version="1.0" encoding="UTF-8"?>
-<xrds:XRDS xmlns:xrds="xri://$xrds"
-           xmlns="xri://$xrd*($v*2.0)"
-           xmlns:openid="http://openid.net/xmlns/1.0"
-           >
-  <XRD>
+        $this->_checkService($services[0],
+                             "http://www.myopenid.com/server",
+                             $this->id_url,
+                             'http://smoker.myopenid.com/',
+                             null,
+                             array('1.1'),
+                             false);
+    }
 
-    <Service priority="10">
-      <Type>http://openid.net/signon/1.0</Type>
-      <URI>http://vroom.unittest/server</URI>
-      <openid:Delegate>http://smoker.myopenid.com/</openid:Delegate>
-    </Service>
-  </XRD>
-</xrds:XRDS>
-';
+    function test_html2()
+    {
+        $services = $this->_discover('text/html',
+                                     Tests_Auth_OpenID_readdata('test_discover_openid2.html'),
+                                     1);
 
-$__yadis_0entries = '<?xml version="1.0" encoding="UTF-8"?>
-<xrds:XRDS xmlns:xrds="xri://$xrds"
-           xmlns="xri://$xrd*($v*2.0)"
-           xmlns:openid="http://openid.net/xmlns/1.0"
-           >
-  <XRD>
-    <Service >
-      <Type>http://is-not-openid.unittest/</Type>
-      <URI>http://noffing.unittest./</URI>
-    </Service>
-  </XRD>
-</xrds:XRDS>
-';
+        $this->_checkService($services[0],
+                             "http://www.myopenid.com/server",
+                             $this->id_url,
+                             'http://smoker.myopenid.com/',
+                             null,
+                             array('2.0'),
+                             false);
+    }
 
-$__yadis_no_delegate = '<?xml version="1.0" encoding="UTF-8"?>
-<xrds:XRDS xmlns:xrds="xri://$xrds"
-           xmlns="xri://$xrd*($v*2.0)"
-           >
-  <XRD>
-    <Service priority="10">
-      <Type>http://openid.net/signon/1.0</Type>
-      <URI>http://www.myopenid.com/server</URI>
-    </Service>
-  </XRD>
-</xrds:XRDS>
-';
+    function test_html1And2()
+    {
+        $services = $this->_discover('text/html',
+                                     Tests_Auth_OpenID_readdata('test_discover_openid_1_and_2.html'),
+                                     2);
 
-$__openid_html = '
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
-  <head>
-    <title>Identity Page for Smoker</title>
-<link rel="openid.server" href="http://www.myopenid.com/server" />
-<link rel="openid.delegate" href="http://smoker.myopenid.com/" />
-  </head><body><p>foo</p></body></html>
-';
+        $types = array('2.0', '1.1');
 
-$__openid_html_no_delegate = '
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
-  <head>
-    <title>Identity Page for Smoker</title>
-<link rel="openid.server" href="http://www.myopenid.com/server" />
-  </head><body><p>foo</p></body></html>
-';
+        for ($i = 0; $i < count($types); $i++) {
+            $t = $types[$i];
+            $s = $services[$i];
 
-$__openid_and_yadis_html = '
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
-  <head>
-    <title>Identity Page for Smoker</title>
-<meta http-equiv="X-XRDS-Location" content="http://someuser.unittest/xrds" />
-<link rel="openid.server" href="http://www.myopenid.com/server" />
-<link rel="openid.delegate" href="http://smoker.myopenid.com/" />
-  </head><body><p>foo</p></body></html>
-';
+            $this->_checkService(
+                $s,
+                "http://www.myopenid.com/server",
+                $this->id_url,
+                'http://smoker.myopenid.com/',
+                null,
+                array($t),
+                false);
+        }
+    }
+
+    function test_yadisEmpty()
+    {
+        $services = $this->_discover('application/xrds+xml',
+                                     Tests_Auth_OpenID_readdata('test_discover_yadis_0entries.xml'),
+                                     0);
+    }
+
+    function test_htmlEmptyYadis()
+    {
+        // HTML document has discovery information, but points to an
+        // empty Yadis document.
+
+        // The XRDS document pointed to by "openid_and_yadis.html"
+        $this->fetcher->documents[$this->id_url . 'xrds'] =
+            array('application/xrds+xml',
+                  Tests_Auth_OpenID_readdata('test_discover_yadis_0entries.xml'));
+
+        $services = $this->_discover('text/html',
+                                     Tests_Auth_OpenID_readdata('test_discover_openid_and_yadis.html'),
+                                     1);
+
+        $this->_checkService($services[0],
+                             "http://www.myopenid.com/server",
+                             $this->id_url,
+                             'http://smoker.myopenid.com/',
+                             null,
+                             array('1.1'),
+                             false);
+    }
+
+    function test_yadis1NoDelegate()
+    {
+        $services = $this->_discover('application/xrds+xml',
+                                     Tests_Auth_OpenID_readdata('test_discover_yadis_no_delegate.xml'),
+                                     1);
+
+        $this->_checkService(
+                             $services[0],
+                             "http://www.myopenid.com/server",
+                             $this->id_url,
+                             $this->id_url,
+                             null,
+                             array('1.0'),
+                             true);
+    }
+
+    function test_yadis2NoLocalID()
+    {
+        $services = $this->_discover('application/xrds+xml',
+                                     Tests_Auth_OpenID_readdata('test_discover_openid2_xrds_no_local_id.xml'),
+                                     1);
+
+        $this->_checkService(
+                             $services[0],
+                             "http://www.myopenid.com/server",
+                             $this->id_url,
+                             $this->id_url,
+                             null,
+                             array('2.0'),
+                             true);
+    }
+
+    function test_yadis2()
+    {
+        $services = $this->_discover('application/xrds+xml',
+                                     Tests_Auth_OpenID_readdata('test_discover_openid2_xrds.xml'),
+                                     1);
+
+        $this->_checkService($services[0],
+                             "http://www.myopenid.com/server",
+                             $this->id_url,
+                             'http://smoker.myopenid.com/',
+                             null,
+                             array('2.0'),
+                             true);
+    }
+
+    function test_yadis2OP()
+    {
+        $services = $this->_discover('application/xrds+xml',
+                                     Tests_Auth_OpenID_readdata('test_discover_yadis_idp.xml'),
+                                     1);
+
+        $this->_checkService($services[0],
+                             "http://www.myopenid.com/server",
+                             null,
+                             null,
+                             null,
+                             array('2.0 OP'),
+                             true);
+    }
+
+    function test_yadis2OPDelegate()
+    {
+        // The delegate tag isn't meaningful for OP entries.
+        $services = $this->_discover('application/xrds+xml',
+                                     Tests_Auth_OpenID_readdata('test_discover_yadis_idp_delegate.xml'),
+                                     1);
+
+        $this->_checkService(
+                             $services[0],
+                             "http://www.myopenid.com/server",
+                             null, null, null,
+                             array('2.0 OP'),
+                             true);
+    }
+
+    function test_yadis2BadLocalID()
+    {
+        $services = $this->_discover('application/xrds+xml',
+                                     Tests_Auth_OpenID_readdata('test_discover_yadis_2_bad_local_id.xml'),
+                                     0);
+    }
+
+    function test_yadis1And2()
+    {
+        $services = $this->_discover('application/xrds+xml',
+                                     Tests_Auth_OpenID_readdata('test_discover_openid_1_and_2_xrds.xml'),
+                                     1);
+
+        $this->_checkService(
+            $services[0],
+            "http://www.myopenid.com/server",
+            $this->id_url,
+            'http://smoker.myopenid.com/',
+            null,
+            array('2.0', '1.1'),
+            true);
+    }
+
+    function test_yadis1And2BadLocalID()
+    {
+        $services = $this->_discover('application/xrds+xml',
+                                     Tests_Auth_OpenID_readdata('test_discover_openid_1_and_2_xrds_bad_delegate.xml'),
+                                     0);
+    }
+}
 
 class _MockFetcherForXRIProxy {
 
@@ -372,299 +535,5 @@ function __serviceCheck_discover_cb($url, $fetcher)
     return array($url, array($__Tests_BOGUS_SERVICE));
 }
 
-class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
-    function _usedYadis($service)
-    {
-        $this->assertTrue($service->used_yadis,
-                          "Expected to use Yadis");
-    }
-
-    function _notUsedYadis($service)
-    {
-        $this->assertFalse($service->used_yadis,
-                           "Expected to use old-style discovery");
-    }
-
-    function test_404()
-    {
-        $result = Auth_OpenID_discover($this->id_url . '/404',
-                                       $this->fetcher);
-
-        list($id_url, $svclist) = $result;
-
-        $this->assertTrue($svclist == array());
-        $this->assertTrue($id_url == $this->id_url . '/404');
-    }
-
-    function test_noYadis()
-    {
-        global $__openid_html;
-
-        $this->documents[$this->id_url] = array('text/html', $__openid_html);
-
-        list($id_url, $services) =
-            Auth_OpenID_discover($this->id_url,
-                                 $this->fetcher);
-
-        $this->assertEquals($this->id_url, $id_url);
-
-        $this->assertEquals(count($services), 1,
-                            "More than one service");
-
-        $this->assertEquals($services[0]->server_url,
-                            "http://www.myopenid.com/server");
-
-        $this->assertEquals($services[0]->local_id,
-                            "http://smoker.myopenid.com/");
-
-        $this->assertEquals($services[0]->claimed_id, $this->id_url);
-        $this->_notUsedYadis($services[0]);
-    }
-
-    function test_managerServices()
-    {
-        global $__yadis_2entries_flipped_priority;
-
-        $url = "http://bogus.xxx/";
-        $sess = new Tests_Auth_OpenID_DiscoverSession();
-        $m = new Services_Yadis_Discovery($sess, $url);
-
-        $documents = array(
-                           $url => array("application/xrds+xml",
-                                         $__yadis_2entries_flipped_priority)
-                           );
-
-        $fetcher = new _DiscoveryMockFetcher($documents);
-
-        $expected = array("http://frank.livejournal.com/",
-                          "http://smoker.myopenid.com/");
-
-        foreach ($expected as $openid) {
-            $s = $m->getNextService('Auth_OpenID_discover',
-                                    $fetcher);
-            $this->assertEquals($s->local_id, $openid);
-        }
-    }
-
-    function test_serviceCheck()
-    {
-        global $__Tests_BOGUS_SERVICE;
-
-        $url = "http://bogus.xxx/";
-        $sess =& new Tests_Auth_OpenID_DiscoverSession();
-        $disco =& new Services_Yadis_Discovery($sess, $url);
-
-        # Set an empty manager to be sure it gets blown away
-        $manager =& new Services_Yadis_Manager($url, null, array(),
-                                               $disco->getSessionKey());
-
-        $loader =& new Services_Yadis_ManagerLoader();
-        $disco->session->set($disco->session_key,
-                             serialize($loader->toSession($manager)));
-
-        $docs = array();
-        $fetcher =& new _DiscoveryMockFetcher($docs);
-
-        $result = $disco->getNextService('__serviceCheck_discover_cb', $fetcher);
-
-        $newMan = $disco->getManager();
-
-        $currentService = $newMan->_current;
-        $this->assertEquals($currentService->claimed_id,
-                            $__Tests_BOGUS_SERVICE->claimed_id);
-    }
-
-    function test_noOpenID()
-    {
-        $this->fetcher->documents = array(
-                          $this->id_url => array('text/plain', "junk"));
-
-        list($id_url, $services) = Auth_OpenID_discover($this->id_url,
-                                                        $this->fetcher);
-
-        $this->assertEquals($this->id_url, $id_url);
-
-        $this->assertFalse(count($services) > 0);
-    }
-
-    function test_yadis()
-    {
-        global $__yadis_2entries;
-
-        $this->fetcher->documents = array(
-                 DISCOVERYBASE_ID_URL => array('application/xrds+xml',
-                                               $__yadis_2entries));
-
-        list($id_url, $services) = Auth_OpenID_discover($this->id_url,
-                                                        $this->fetcher);
-
-        $this->assertEquals($this->id_url, $id_url);
-
-        $this->assertEquals(count($services), 2,
-                            "Not 2 services");
-
-        $this->assertEquals($services[0]->server_url,
-                            "http://www.myopenid.com/server");
-
-        $this->_usedYadis($services[0]);
-
-        $this->assertEquals($services[1]->server_url,
-                            "http://www.livejournal.com/openid/server.bml");
-
-        $this->_usedYadis($services[1]);
-    }
-
-    function test_redirect()
-    {
-        global $__openid_html;
-
-        $expected_final_url = "http://elsewhere.unittest/";
-
-        $this->fetcher->redirect = $expected_final_url;
-        $this->fetcher->documents = array(
-                             $this->id_url => array('text/html', $__openid_html));
-
-        list($id_url, $services) = Auth_OpenID_discover($this->id_url,
-                                                        $this->fetcher);
-
-        $this->assertEquals($expected_final_url, $id_url);
-
-        $this->assertEquals(count($services), 1,
-                            "More than one service");
-
-        $this->assertEquals($services[0]->server_url,
-                            "http://www.myopenid.com/server");
-
-        $this->assertEquals($services[0]->local_id,
-                            "http://smoker.myopenid.com/");
-
-        $this->assertEquals($services[0]->claimed_id,
-                            $expected_final_url);
-
-        $this->_notUsedYadis($services[0]);
-    }
-
-    function test_emptyList()
-    {
-        global $__yadis_0entries;
-
-        $this->fetcher->documents = array(
-                                 $this->id_url =>
-                                 array('application/xrds+xml', $__yadis_0entries));
-
-        list($id_url, $services) = Auth_OpenID_discover($this->id_url,
-                                                        $this->fetcher);
-
-        $this->assertEquals($this->id_url, $id_url);
-
-        $this->assertTrue(count($services) == 0);
-    }
-
-    function test_emptyListWithLegacy()
-    {
-        global $__openid_and_yadis_html,
-            $__yadis_0entries;
-
-        $this->fetcher->documents = array(
-            $this->id_url => array('text/html', $__openid_and_yadis_html),
-            $this->id_url . 'xrds' => array('application/xrds+xml', $__yadis_0entries));
-
-        list($id_url, $services) = Auth_OpenID_discover($this->id_url,
-                                                        $this->fetcher);
-
-        $this->assertEquals($this->id_url, $id_url);
-
-        $this->assertEquals(count($services), 1,
-                            "Not one service");
-
-        $this->assertEquals($services[0]->server_url,
-                            "http://www.myopenid.com/server");
-
-        $this->assertEquals($services[0]->claimed_id, $this->id_url);
-
-        $this->_notUsedYadis($services[0]);
-    }
-
-    function test_yadisNoDelegate()
-    {
-        global $__yadis_no_delegate;
-
-        $this->fetcher->documents = array(
-              $this->id_url => array('application/xrds+xml', $__yadis_no_delegate));
-
-        list($id_url, $services) = Auth_OpenID_discover($this->id_url,
-                                                        $this->fetcher);
-
-        $this->assertEquals($this->id_url, $id_url);
-
-        $this->assertEquals(count($services), 1,
-                            "Not 1 service");
-
-        $this->assertEquals($services[0]->server_url,
-                            "http://www.myopenid.com/server");
-
-        $this->assertEquals($services[0]->local_id, null,
-                            'Delegate should be null');
-
-        $this->_usedYadis($services[0]);
-    }
-
-    function test_openidNoDelegate()
-    {
-        global $__openid_html_no_delegate;
-
-        $this->fetcher->documents = array(
-                      $this->id_url => array('text/html',
-                                             $__openid_html_no_delegate));
-
-        list($id_url, $services) = Auth_OpenID_discover($this->id_url,
-                                                        $this->fetcher);
-
-        $this->assertEquals($this->id_url, $id_url);
-
-        $this->assertEquals($services[0]->server_url,
-                            "http://www.myopenid.com/server");
-
-        $this->assertEquals($services[0]->claimed_id, $this->id_url);
-
-        $this->assertEquals($services[0]->local_id, null,
-                            'Delegate should be null');
-
-        $this->_notUsedYadis($services[0]);
-    }
-
-    function test_xriDiscovery()
-    {
-        global $__yadis_2entries;
-
-        $documents = array(
-                           '=smoker' => array('application/xrds+xml',
-                                              $__yadis_2entries)
-                           );
-
-        $fetcher = new _MockFetcherForXRIProxy($documents);
-
-        list($user_xri, $services) = Auth_OpenID_discoverXRI('=smoker',
-                                                             $fetcher);
-        $this->assertTrue($services);
-
-        $this->assertEquals($services[0]->server_url,
-                            "http://www.myopenid.com/server");
-        $this->assertEquals($services[1]->server_url,
-                            "http://www.livejournal.com/openid/server.bml");
-        $this->assertEquals($services[0]->canonicalID, Services_Yadis_XRI("=!1000"));
-    }
-
-    function test_useCanonicalID()
-    {
-      // When there is no delegate, the CanonicalID should be used
-      // with XRI.
-
-      $endpoint = new Auth_OpenID_ServiceEndpoint();
-      $endpoint->claimed_id = "=example";
-      $endpoint->canonicalID = Services_Yadis_XRI("=!1000");
-      $this->assertEquals($endpoint->getLocalID(), Services_Yadis_XRI("=!1000"));
-    }
-}
 
 ?>
