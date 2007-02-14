@@ -317,24 +317,12 @@ explicitly');
             // And using again has the same effect
             $this->_checkUseNonce($store, $nonce1, false, $url, 3);
         }
-
-        // Auth key functions
-
-        // There is no key to start with, so generate a new key and
-        // return it.
-        $key = $store->getAuthKey();
-
-        // The second time around should return the same as last time.
-        $key2 = $store->getAuthKey();
-        $this->assertEquals($key, $key2, "Auth keys differ");
-        $this->assertEquals(strlen($key), $store->AUTH_KEY_LEN,
-                            "Key length not equals AUTH_KEY_LEN");
     }
 
     function test_memstore()
     {
         require_once 'Tests/Auth/OpenID/MemStore.php';
-        $store = new Tests_Auth_OpenID_MemStore('Bogus auth key      ');
+        $store = new Tests_Auth_OpenID_MemStore();
         $this->_testStore(&$store);
         $this->_testNonce(&$store);
     }

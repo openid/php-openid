@@ -33,17 +33,6 @@ class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
             "CONSTRAINT secret_length_constraint CHECK ".
             "(LENGTH(secret) <= 128))";
 
-        $this->sql['settings_table'] =
-            "CREATE TABLE %s (setting VARCHAR(128) UNIQUE PRIMARY KEY, ".
-            "value BYTEA, ".
-            "CONSTRAINT value_length_constraint CHECK (LENGTH(value) <= 20))";
-
-        $this->sql['create_auth'] =
-            "INSERT INTO %s VALUES ('auth_key', '!')";
-
-        $this->sql['get_auth'] =
-            "SELECT value FROM %s WHERE setting = 'auth_key'";
-
         $this->sql['set_assoc'] =
             array(
                   'insert_assoc' => "INSERT INTO %s (server_url, handle, ".

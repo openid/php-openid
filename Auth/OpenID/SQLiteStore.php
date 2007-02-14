@@ -28,16 +28,6 @@ class Auth_OpenID_SQLiteStore extends Auth_OpenID_SQLStore {
             "secret BLOB(128), issued INTEGER, lifetime INTEGER, ".
             "assoc_type VARCHAR(64), PRIMARY KEY (server_url, handle))";
 
-        $this->sql['settings_table'] =
-            "CREATE TABLE %s (setting VARCHAR(128) UNIQUE PRIMARY KEY, ".
-            "value BLOB(20))";
-
-        $this->sql['create_auth'] =
-            "INSERT INTO %s VALUES ('auth_key', ?)";
-
-        $this->sql['get_auth'] =
-            "SELECT value FROM %s WHERE setting = 'auth_key'";
-
         $this->sql['set_assoc'] =
             "INSERT OR REPLACE INTO %s VALUES (?, ?, ?, ?, ?, ?)";
 

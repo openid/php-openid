@@ -9,11 +9,10 @@ class Tests_Auth_OpenID_MemStore extends Auth_OpenID_OpenIDStore {
     var $assocs = null;
     var $nonces = null;
 
-    function Tests_Auth_OpenID_MemStore($auth_key=null)
+    function Tests_Auth_OpenID_MemStore()
     {
         $this->assocs = array();
         $this->nonces = array();
-        $this->auth_key = $auth_key;
     }
 
     function getKey($server_url, $handle)
@@ -95,10 +94,5 @@ class Tests_Auth_OpenID_MemStore extends Auth_OpenID_OpenIDStore {
     {
         $this->assocs = array();
         $this->nonces = array();
-    }
-
-    function getAuthKey()
-    {
-        return $this->auth_key;
     }
 }

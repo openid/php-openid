@@ -41,16 +41,6 @@ class Auth_OpenID_MySQLStore extends Auth_OpenID_SQLStore {
             "  PRIMARY KEY (server_url(255), handle)\n".
             ") TYPE=InnoDB";
 
-        $this->sql['settings_table'] =
-            "CREATE TABLE %s (setting VARCHAR(128) UNIQUE PRIMARY KEY, ".
-            "value BLOB) TYPE=InnoDB";
-
-        $this->sql['create_auth'] =
-            "INSERT INTO %s VALUES ('auth_key', !)";
-
-        $this->sql['get_auth'] =
-            "SELECT value FROM %s WHERE setting = 'auth_key'";
-
         $this->sql['set_assoc'] =
             "REPLACE INTO %s VALUES (?, ?, !, ?, ?, ?)";
 

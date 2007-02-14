@@ -25,12 +25,6 @@
  */
 class Auth_OpenID_OpenIDStore {
     /**
-     * @var integer The length of the auth key that should be returned
-     * by the getAuthKey method.
-     */
-    var $AUTH_KEY_LEN = 20;
-
-    /**
      * This method puts an Association object into storage,
      * retrievable by server URL and handle.
      *
@@ -141,22 +135,6 @@ class Auth_OpenID_OpenIDStore {
     function useNonce($nonce)
     {
         trigger_error("Auth_OpenID_OpenIDStore::useNonce ".
-                      "not implemented", E_USER_ERROR);
-    }
-
-    /**
-     * This method returns a key used to sign the tokens, to ensure
-     * that they haven't been tampered with in transit. It should
-     * return the same key every time it is called. The key returned
-     * should be {@link AUTH_KEY_LEN} bytes long.
-     *
-     * @return string The key. It should be {@link AUTH_KEY_LEN} bytes in
-     * length, and use the full range of byte values. That is, it
-     * should be treated as a lump of binary data stored in a string.
-     */
-    function getAuthKey()
-    {
-        trigger_error("Auth_OpenID_OpenIDStore::getAuthKey ".
                       "not implemented", E_USER_ERROR);
     }
 
