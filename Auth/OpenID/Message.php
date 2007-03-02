@@ -796,6 +796,25 @@ class Auth_OpenID_Message {
             return false;
         }
     }
+
+    function getAliasedArg($aliased_key, $default = null)
+    {
+        $parts = explode('.', $aliased_key, 2);
+
+        if (count($parts) != 2) {
+            $ns = null;
+        } else {
+            list($alias, $key) = $parts;
+            $ns = $this->namespaces->getNamespaceURI($alias);
+        }
+
+        if ($ns === null) {
+            $key = $aliased_key;
+            $ns = $this->getOpenIDNamespace();
+        }
+
+        return $this->getArg($ns, $key, $default);
+    }
 }
 
 ?>
