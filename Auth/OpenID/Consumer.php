@@ -257,14 +257,21 @@ class Auth_OpenID_Consumer {
      * need to pass something here if you have your own sessioning
      * implementation.
      */
-    function Auth_OpenID_Consumer(&$store, $session = null)
+    function Auth_OpenID_Consumer(&$store, $session = null,
+                                  $consumer_cls = null)
     {
         if ($session === null) {
             $session = new Services_Yadis_PHPSession();
         }
 
         $this->session =& $session;
-        $this->consumer =& new Auth_OpenID_GenericConsumer($store);
+
+        if ($consumer_cls !== null) {
+            $this->consumer =& new $consumer_cls($store);
+        } else {
+            $this->consumer =& new Auth_OpenID_GenericConsumer($store);
+        }
+
         $this->_token_key = $this->session_key_prefix . $this->_token_suffix;
     }
 
