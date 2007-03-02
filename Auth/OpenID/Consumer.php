@@ -1126,18 +1126,38 @@ class Auth_OpenID_GenericConsumer {
         $whitelist = array('assoc_handle', 'sig',
                            'signed', 'invalidate_handle');
 
-        $signed = array_merge(explode(",", $signed), $whitelist);
-
         $check_args = array();
 
-        foreach ($message->toPostArgs() as $key => $value) {
-            if (in_array(substr($key, 7), $signed)) {
-                $check_args[$key] = $value;
+        foreach ($whitelist as $k) {
+            $val = $message->getArg(Auth_OpenID_OPENID_NS, $k);
+            if ($val !== null) {
+                $check_args[$k] = $val;
             }
         }
 
-        $check_args['openid.mode'] = 'check_authentication';
-        return Auth_OpenID_Message::fromPostArgs($check_args);
+        $signed = $message->getArg(Auth_OpenID_OPENID_NS,
+                                   'signed');
+
+        if ($signed) {
+            foreach (explode(',', $signed) as $k) {
+                if ($k == 'ns') {
+                    $check_args['ns'] = $message->getOpenIDNamespace();
+                    continue;
+                }
+
+                if (!$message->hasKey(Auth_OpenID_OPENID_NS,
+                                      $k)) {
+                    return null;
+                }
+
+                $val = $message->getArg(Auth_OpenID_OPENID_NS,
+                                        $k);
+                $check_args[$k] = $val;
+            }
+        }
+
+        $check_args['mode'] = 'check_authentication';
+        return Auth_OpenID_Message::fromOpenIDArgs($check_args);
     }
 
     /**

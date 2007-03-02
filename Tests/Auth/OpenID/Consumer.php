@@ -1324,8 +1324,7 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuth extends _TestIdRes {
 
         $message = Auth_OpenID_Message::fromPostArgs($query);
 
-        $consumer->_checkAuth($message, 'does://not.matter');
-        $this->assertEquals(__getError(), E_ASSERTION_ERROR);
+        $this->assertFalse($consumer->_checkAuth($message, 'does://not.matter'));
     }
 
     function test_signedList()
