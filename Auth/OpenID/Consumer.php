@@ -1157,8 +1157,7 @@ class Auth_OpenID_GenericConsumer {
                     return null;
                 }
 
-                $val = $message->getArg(Auth_OpenID_OPENID_NS,
-                                        $k);
+                $val = $message->getAliasedArg($k);
                 $check_args[$k] = $val;
             }
         }
