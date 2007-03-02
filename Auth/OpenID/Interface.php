@@ -133,23 +133,6 @@ class Auth_OpenID_OpenIDStore {
     }
 
     /**
-     * This method must return true if the store is a dumb-mode-style
-     * store. Unlike all other methods in this class, this one
-     * provides a default implementation, which returns false.
-     *
-     * In general, any custom subclass of {@link Auth_OpenID_OpenIDStore}
-     * won't override this method, as custom subclasses are only likely to
-     * be created when the store is fully functional.
-     *
-     * @return bool true if the store works fully, false if the
-     * consumer will have to use dumb mode to use this store.
-     */
-    function isDumb()
-    {
-        return false;
-    }
-
-    /**
      * Removes all entries from the store; implementation is optional.
      */
     function reset()

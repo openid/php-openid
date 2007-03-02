@@ -98,26 +98,18 @@ class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
     function _checkRetrieve(&$store, $url, $handle, $expected, $name = null)
     {
         $retrieved_assoc = $store->getAssociation($url, $handle);
-        if (($expected === null) || ($store->isDumb())) {
-            $this->assertNull($retrieved_assoc, "Retrieved association " .
-                              "was non-null");
+        if ($expected === null) {
+            $this->assertTrue($retrieved_assoc === null);
         } else {
-            if ($retrieved_assoc === null) {
-                $this->fail("$name: Got null when expecting " .
-                            $expected->serialize());
-            } else {
-                $this->assertEquals($expected->serialize(),
-                                    $retrieved_assoc->serialize(), $name);
-            }
+            $this->assertTrue($expected->equal($retrieved_assoc), $name);
         }
     }
 
     function _checkRemove(&$store, $url, $handle, $expected, $name = null)
     {
         $present = $store->removeAssociation($url, $handle);
-        $expectedPresent = (!$store->isDumb() && $expected);
-        $this->assertTrue((!$expectedPresent && !$present) ||
-                          ($expectedPresent && $present),
+        $this->assertTrue((!$expected && !$present) ||
+                          ($expected && $present),
                           $name);
     }
 
@@ -293,7 +285,6 @@ explicitly');
     {
         list($stamp, $salt) = Auth_OpenID_splitNonce($nonce);
         $actual = $store->useNonce($server_url, $stamp, $salt);
-        $expected = $store->isDumb() || $expected;
         $val = ($actual && $expected) || (!$actual && !$expected);
         $this->assertTrue($val, "_checkUseNonce failed: $msg");
     }

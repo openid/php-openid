@@ -547,7 +547,7 @@ class Auth_OpenID_GenericConsumer {
     {
         $this->store =& $store;
         $this->negotiator =& Auth_OpenID_getDefaultNegotiator();
-        $this->_use_assocs = !($this->store && $this->store->isDumb());
+        $this->_use_assocs = ($this->store ? true : false);
 
         $this->fetcher = Services_Yadis_Yadis::getHTTPFetcher();
 
