@@ -20,6 +20,10 @@
  * consumers.  If you want to create an SQL-driven store, please see
  * then {@link Auth_OpenID_SQLStore} class.
  *
+ * Change: Version 2.0 removed the storeNonce and getAuthKey methods,
+ * and changed the behavior of the useNonce method to support one-way
+ * nonces.
+ *
  * @package OpenID
  * @author JanRain, Inc. <openid@janrain.com>
  */
@@ -104,29 +108,19 @@ class Auth_OpenID_OpenIDStore {
     }
 
     /**
-     * Stores a nonce. This is used by the consumer to prevent replay
-     * attacks.
+     * Called when using a nonce.
      *
-     * @param string $nonce The nonce to store.
+     * This method should return C{True} if the nonce has not been
+     * used before, and store it for a while to make sure nobody
+     * tries to use the same value again.  If the nonce has already
+     * been used, return C{False}.
      *
-     * @return null
-     */
-    function storeNonce($nonce)
-    {
-        trigger_error("Auth_OpenID_OpenIDStore::storeNonce ".
-                      "not implemented", E_USER_ERROR);
-    }
-
-    /**
-     * This method is called when the library is attempting to use a
-     * nonce. If the nonce is in the store, this method removes it and
-     * returns a value which evaluates as true. Otherwise it returns a
-     * value which evaluates as false.
-     *
-     * This method is allowed and encouraged to treat nonces older
-     * than some period (a very conservative window would be 6 hours,
-     * for example) as no longer existing, and return False and remove
-     * them.
+     * Change: In earlier versions, round-trip nonces were used and a
+     * nonce was only valid if it had been previously stored with
+     * storeNonce.  Version 2.0 uses one-way nonces, requiring a
+     * different implementation here that does not depend on a
+     * storeNonce call.  (storeNonce is no longer part of the
+     * interface.
      *
      * @param string $nonce The nonce to use.
      *
