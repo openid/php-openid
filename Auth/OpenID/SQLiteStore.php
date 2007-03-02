@@ -35,6 +35,9 @@ class Auth_OpenID_SQLiteStore extends Auth_OpenID_SQLStore {
             "SELECT handle, secret, issued, lifetime, assoc_type FROM %s ".
             "WHERE server_url = ?";
 
+        $this->sql['get_expired'] =
+            "SELECT server_url FROM %s WHERE issued + lifetime < ?";
+
         $this->sql['get_assoc'] =
             "SELECT handle, secret, issued, lifetime, assoc_type FROM %s ".
             "WHERE server_url = ? AND handle = ?";

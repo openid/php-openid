@@ -123,6 +123,7 @@ class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
      */
     function _testStore($store)
     {
+        $this->assertTrue($store->getExpired() === array());
 
         // Association functions
         $now = time();

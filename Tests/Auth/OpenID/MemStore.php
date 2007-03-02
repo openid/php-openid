@@ -20,6 +20,32 @@ class Tests_Auth_OpenID_MemStore extends Auth_OpenID_OpenIDStore {
         return serialize(array($server_url, $handle));
     }
 
+    function getBest($assoc_list)
+    {
+        $best = null;
+        foreach ($assoc_list as $assoc) {
+            if (($best === null) ||
+                ($best->issued < $assoc->issued)) {
+                $best = $assoc;
+            }
+        }
+        return $best;
+    }
+
+    function getExpired()
+    {
+        $expired = array();
+        foreach ($this->assocs as $url => $assocs) {
+            $best = $this->getBest($assocs);
+            if (($best === null) ||
+                ($best->getExpiresIn() == 0)) {
+                $expired[] = $server_url;
+            }
+        }
+
+        return $expired;
+    }
+
     function getAssocPairs()
     {
         $pairs = array();

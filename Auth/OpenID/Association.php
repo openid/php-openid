@@ -221,7 +221,7 @@ class Auth_OpenID_Association {
         sort($class_assoc_keys);
 
         if ($keys != $class_assoc_keys) {
-            trigger_error('Unexpected key values: ' . strval($keys),
+            trigger_error('Unexpected key values: ' . var_export($keys, true),
                           E_USER_WARNING);
             return null;
         }

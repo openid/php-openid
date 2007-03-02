@@ -373,23 +373,9 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
      * Remove expired entries from the database. This is potentially
      * expensive, so only run when it is acceptable to take time.
      */
-    function clean()
+    function _allAssocs()
     {
-        if (!$this->active) {
-            trigger_error("FileStore no longer active", E_USER_ERROR);
-            return null;
-        }
-
-        $nonces = Auth_OpenID_FileStore::_listdir($this->nonce_dir);
-        $now = time();
-
-        // Check all nonces for expiry
-        foreach ($nonces as $nonce) {
-            if (!Auth_OpenID_checkTimestamp($nonce, $now)) {
-                $filename = $this->nonce_dir . DIRECTORY_SEPARATOR . $nonce;
-                Auth_OpenID_FileStore::_removeIfPresent($filename);
-            }
-        }
+        $all_associations = array();
 
         $association_filenames =
             Auth_OpenID_FileStore::_listdir($this->association_dir);
@@ -412,12 +398,52 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
                                                  $association_filename);
                 } else {
                     if ($association->getExpiresIn() == 0) {
-                        Auth_OpenID_FileStore::_removeIfPresent(
-                                                 $association_filename);
+                        $all_associations[] = array($association_filename,
+                                                    $association);
                     }
                 }
             }
         }
+
+        return $all_associations;
+    }
+
+    function clean()
+    {
+        if (!$this->active) {
+            trigger_error("FileStore no longer active", E_USER_ERROR);
+            return null;
+        }
+
+        $nonces = Auth_OpenID_FileStore::_listdir($this->nonce_dir);
+        $now = time();
+
+        // Check all nonces for expiry
+        foreach ($nonces as $nonce) {
+            if (!Auth_OpenID_checkTimestamp($nonce, $now)) {
+                $filename = $this->nonce_dir . DIRECTORY_SEPARATOR . $nonce;
+                Auth_OpenID_FileStore::_removeIfPresent($filename);
+            }
+        }
+
+        foreach ($this->_allAssocs() as $pair) {
+            list($assoc_filename, $assoc) = $pair;
+            if ($assoc->getExpiresIn() == 0) {
+                Auth_OpenID_FileStore::_removeIfPresent($assoc_filename);
+            }
+        }
+    }
+
+    function getExpired()
+    {
+        $urls = array();
+        foreach ($this->_allAssocs() as $pair) {
+            list($_, $assoc) = $pair;
+            if ($assoc->getExpiresIn() <= 0) {
+                $urls[] = $assoc->server_url;
+            }
+        }
+        return $urls;
     }
 
     /**
@@ -498,7 +524,9 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
         $handle = opendir($dir);
         $files = array();
         while (false !== ($filename = readdir($handle))) {
-            $files[] = $filename;
+            if (!in_array($filename, array('.', '..'))) {
+                $files[] = $filename;
+            }
         }
         return $files;
     }
