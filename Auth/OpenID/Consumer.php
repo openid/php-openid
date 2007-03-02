@@ -850,7 +850,14 @@ class Auth_OpenID_GenericConsumer {
                          "Missing required field openid.identity");
         }
 
+        $to_match_1_0 = $to_match->copy();
+        $to_match_1_0->type_uris = array(Auth_OpenID_TYPE_1_0);
+
         $result = $this->_verifyDiscoverySingle($endpoint, $to_match);
+
+        if (is_a($result, 'Auth_OpenID_TypeURIMismatch')) {
+            $result = $this->_verifyDiscoverySingle($endpoint, $to_match_1_0);
+        }
 
         if (is_a($result, 'Auth_OpenID_FailureResponse')) {
             return $result;
@@ -865,7 +872,7 @@ class Auth_OpenID_GenericConsumer {
         // present in the discovered endpoint.
         foreach ($to_match->type_uris as $type_uri) {
             if (!$endpoint->usesExtension($type_uri)) {
-                return new Auth_OpenID_FailureResponse($endpoint,
+                return new Auth_OpenID_TypeURIMismatch($endpoint,
                              "Required type ".$type_uri." not present");
             }
         }
@@ -1696,6 +1703,12 @@ class Auth_OpenID_FailureResponse extends Auth_OpenID_ConsumerResponse {
         $this->contact = $contact;
         $this->reference = $reference;
     }
+}
+
+/**
+ * A specific, internal failure used to detect type URI mismatch.
+ */
+class Auth_OpenID_TypeURIMismatch extends Auth_OpenID_FailureResponse {
 }
 
 /**

@@ -157,6 +157,20 @@ class Auth_OpenID_ServiceEndpoint {
 
         return $services;
     }
+
+    function copy()
+    {
+        $x = new Auth_OpenID_ServiceEndpoint();
+
+        $x->claimed_id = $this->claimed_id;
+        $x->server_url = $this->server_url;
+        $x->type_uris = $this->type_uris;
+        $x->local_id = $this->local_id;
+        $x->canonicalID = $this->canonicalID;
+        $x->used_yadis = $this->used_yadis;
+
+        return $x;
+    }
 }
 
 function Auth_OpenID_findOPLocalIdentifier($service, $type_uris)
