@@ -1438,14 +1438,11 @@ class Tests_Auth_OpenID_AuthRequest extends PHPUnit_TestCase {
     {
         $this->authreq->addExtensionArg('bag', 'color', 'brown');
         $this->authreq->addExtensionArg('bag', 'material', 'paper');
-        $this->assertEquals($this->authreq->extra_args,
-                            array('openid.bag.color' => 'brown',
-                                  'openid.bag.material' => 'paper'));
-        $url = $this->authreq->redirectURL('http://7.utest/', 'http://7.utest/r');
-        $this->assertTrue(strpos($url, 'openid.bag.color=brown') !== false,
-                          'extension arg not found in '.$url);
-        $this->assertTrue(strpos($url, 'openid.bag.material=paper') !== false,
-                          'extension arg not found in '.$url);
+
+        $m = $this->authreq->getMessage('realm', 'return_to');
+
+        $this->assertTrue($m->hasKey('bag', 'color'));
+        $this->assertTrue($m->hasKey('bag', 'material'));
     }
 }
 

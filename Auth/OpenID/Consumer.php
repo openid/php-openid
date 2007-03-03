@@ -299,7 +299,7 @@ class Auth_OpenID_Consumer {
      * extension arguments to the request, using its 'addExtensionArg'
      * method.
      */
-    function begin($user_url)
+    function begin($user_url, $anonymous=false)
     {
         $openid_url = $user_url;
 
@@ -338,7 +338,8 @@ class Auth_OpenID_Consumer {
         if ($endpoint === null) {
             return null;
         } else {
-            return $this->beginWithoutDiscovery($endpoint);
+            return $this->beginWithoutDiscovery($endpoint,
+                                                $anonymous);
         }
     }
 
@@ -355,12 +356,13 @@ class Auth_OpenID_Consumer {
      * @return Auth_OpenID_AuthRequest $auth_request An OpenID
      * authentication request object.
      */
-    function &beginWithoutDiscovery($endpoint)
+    function &beginWithoutDiscovery($endpoint, $anonymous=false)
     {
         $loader = new Auth_OpenID_ServiceEndpointLoader();
         $auth_req = $this->consumer->begin($endpoint);
         $this->session->set($this->_token_key,
               $loader->toSession($auth_req->endpoint));
+        $auth_req->anonymous = $anonymous;
         return $auth_req;
     }
 
@@ -1486,8 +1488,11 @@ class Auth_OpenID_AuthRequest {
     {
         $this->assoc = $assoc;
         $this->endpoint = $endpoint;
-        $this->extra_args = array();
         $this->return_to_args = array();
+        $this->message = new Auth_OpenID_Message();
+        $this->message->setOpenIDNamespace(
+            $endpoint->preferredNamespace());
+        $this->_anonymous = false;
     }
 
     /**
@@ -1511,47 +1516,126 @@ class Auth_OpenID_AuthRequest {
      */
     function addExtensionArg($namespace, $key, $value)
     {
-        $arg_name = implode('.', array('openid', $namespace, $key));
-        $this->extra_args[$arg_name] = $value;
+        $this->message->setArg($namespace, $key, $value);
     }
 
     /**
-     * Compute the appropriate redirection URL for this request based
-     * on a specified trust root and return-to.
+     * Set whether this request should be made anonymously. If a
+     * request is anonymous, the identifier will not be sent in the
+     * request. This is only useful if you are making another kind of
+     * request with an extension in this request.
      *
-     * @param string $trust_root The trust root URI for your
-     * application.
-     *
-     * @param string$ $return_to The return-to URL to be used when the
-     * OpenID server redirects the user back to your site.
-     *
-     * @return string $redirect_url The resulting redirect URL that
-     * you should send to the user agent.
+     * Anonymous requests are not allowed when the request is made
+     * with OpenID 1.
      */
-    function redirectURL($trust_root, $return_to, $immediate=false)
+    function setAnonymous($is_anonymous)
     {
+        if ($is_anonymous && $this->message->isOpenID1()) {
+            return null;
+        } else {
+            $this->_anonymous = $is_anonymous;
+        }
+    }
+
+    /**
+     * Not specifying a return_to URL means that the user will not be
+     * returned to the site issuing the request upon its completion.
+     */
+    function getMessage($realm, $return_to=null, $immediate=false)
+    {
+        if ($return_to) {
+            $return_to = Auth_OpenID::appendArgs($return_to,
+                                                 $this->return_to_args);
+        } else if ($immediate) {
+            // raise ValueError(
+            //     '"return_to" is mandatory when
+            //using "checkid_immediate"')
+            return null;
+        } else if ($this->message->isOpenID1()) {
+            // raise ValueError('"return_to" is
+            // mandatory for OpenID 1 requests')
+            return null;
+        } else if ($this->return_to_args) {
+            // raise ValueError('extra "return_to" arguments
+            // were specified, but no return_to was specified')
+            return null;
+        }
+
         if ($immediate) {
             $mode = 'checkid_immediate';
         } else {
             $mode = 'checkid_setup';
         }
 
-        $return_to = Auth_OpenID::appendArgs($return_to, $this->return_to_args);
-
-        $redir_args = array(
-            'openid.mode' => $mode,
-            'openid.identity' => $this->endpoint->getLocalID(),
-            'openid.return_to' => $return_to,
-            'openid.trust_root' => $trust_root);
-
-        if ($this->assoc) {
-            $redir_args['openid.assoc_handle'] = $this->assoc->handle;
+        $message = $this->message->copy();
+        if ($message->isOpenID1()) {
+            $realm_key = 'trust_root';
+        } else {
+            $realm_key = 'realm';
         }
 
-        $redir_args = array_merge($redir_args, $this->extra_args);
+        $message->updateArgs(Auth_OpenID_OPENID_NS,
+                             array(
+                                   $realm_key => $realm,
+                                   'mode' => $mode,
+                                   'return_to' => $return_to));
 
-        return Auth_OpenID::appendArgs($this->endpoint->server_url,
-                                       $redir_args);
+        if (!$this->_anonymous) {
+            if ($this->endpoint->isOPIdentifier()) {
+                // This will never happen when we're in compatibility
+                // mode, as long as isOPIdentifier() returns False
+                // whenever preferredNamespace() returns OPENID1_NS.
+                $claimed_id = $request_identity =
+                    Auth_OpenID_IDENTIFIER_SELECT;
+            } else {
+                $request_identity = $this->endpoint->getLocalID();
+                $claimed_id = $this->endpoint->claimed_id;
+            }
+
+            // This is true for both OpenID 1 and 2
+            $message->setArg(Auth_OpenID_OPENID_NS, 'identity',
+                             $request_identity);
+
+            if ($message->isOpenID2()) {
+                $message->setArg(Auth_OpenID_OPENID2_NS, 'claimed_id',
+                                 $claimed_id);
+            }
+        }
+
+        if ($this->assoc) {
+            $message->setArg(Auth_OpenID_OPENID_NS, 'assoc_handle',
+                             $this->assoc->handle);
+        }
+
+        return $message;
+    }
+
+    function redirectURL($realm, $return_to = null,
+                         $immediate = false)
+    {
+        $message = $this->getMessage($realm, $return_to, $immediate);
+        return $message->toURL($this->endpoint->server_url);
+    }
+
+    /**
+     * Get html for a form to submit this request to the IDP.
+     *
+     * form_tag_attrs: An array of attributes to be added to the form
+     * tag. 'accept-charset' and 'enctype' have defaults that can be
+     * overridden. If a value is supplied for 'action' or 'method', it
+     * will be replaced.
+     */
+    function formMarkup($realm, $return_to=null, $immediate=false,
+                        $form_tag_attrs=null)
+    {
+        $message = $this->getMessage($realm, $return_to, $immediate);
+        return $message->toFormMarkup($this->endpoint->server_url,
+                                      $form_tag_attrs);
+    }
+
+    function shouldSendRedirect()
+    {
+        return $this->endpoint->compatibilityMode();
     }
 }
 
