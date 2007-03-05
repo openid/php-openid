@@ -1428,29 +1428,6 @@ class Tests_Auth_OpenID_Consumer_TestFetchAssoc extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_AuthRequest extends PHPUnit_TestCase {
-    function setUp()
-    {
-        $this->endpoint = new Auth_OpenID_ServiceEndpoint();
-        $this->endpoint->local_id = 'http://server.unittest/joe';
-        $this->endpoint->server_url = 'http://server.unittest/';
-        $this->assoc =& $this;
-        $this->assoc->handle = 'assoc@handle';
-        $this->authreq = new Auth_OpenID_AuthRequest($this->endpoint, $this->assoc);
-    }
-
-    function test_addExtensionArg()
-    {
-        $this->authreq->addExtensionArg('bag', 'color', 'brown');
-        $this->authreq->addExtensionArg('bag', 'material', 'paper');
-
-        $m = $this->authreq->getMessage('realm', 'return_to');
-
-        $this->assertTrue($m->hasKey('bag', 'color'));
-        $this->assertTrue($m->hasKey('bag', 'material'));
-    }
-}
-
 class Tests_Auth_OpenID_SuccessResponse extends PHPUnit_TestCase {
     function setUp()
     {
@@ -2136,7 +2113,6 @@ $Tests_Auth_OpenID_Consumer_other = array(
                                           new Tests_Auth_OpenID_CheckAuthResponse(),
                                           new Tests_Auth_OpenID_FetchErrorInIdRes(),
                                           new Tests_Auth_OpenID_ConsumerTest2(),
-                                          new Tests_Auth_OpenID_AuthRequest(),
                                           new Tests_Auth_OpenID_Stateless1(),
                                           new Tests_Auth_OpenID_Stateless2(),
                                           new TestCompleteMissingSig(),

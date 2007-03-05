@@ -115,6 +115,7 @@ $_tests = array(
                       'dir' => 'Tests/Auth/OpenID/',
                       'files' => array(
                                        'Association',
+                                       'AuthRequest',
                                        'BigMath',
                                        'Consumer',
                                        'CryptUtil',

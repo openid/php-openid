@@ -1531,9 +1531,10 @@ class Auth_OpenID_AuthRequest {
     function setAnonymous($is_anonymous)
     {
         if ($is_anonymous && $this->message->isOpenID1()) {
-            return null;
+            return false;
         } else {
             $this->_anonymous = $is_anonymous;
+            return true;
         }
     }
 
