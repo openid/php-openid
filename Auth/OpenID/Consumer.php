@@ -1484,10 +1484,10 @@ class Auth_OpenID_AuthRequest {
      * class.  Instances of this class are created by the library when
      * needed.
      */
-    function Auth_OpenID_AuthRequest($endpoint, $assoc)
+    function Auth_OpenID_AuthRequest(&$endpoint, $assoc)
     {
         $this->assoc = $assoc;
-        $this->endpoint = $endpoint;
+        $this->endpoint =& $endpoint;
         $this->return_to_args = array();
         $this->message = new Auth_OpenID_Message();
         $this->message->setOpenIDNamespace(
