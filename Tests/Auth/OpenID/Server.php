@@ -32,6 +32,7 @@ function altModulus()
     return $num;
 }
 
+global $ALT_GEN;
 $ALT_GEN = 5;
 
 function arrayToString($arr)

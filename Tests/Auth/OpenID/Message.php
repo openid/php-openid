@@ -1078,6 +1078,7 @@ class Tests_Auth_OpenID_NamespaceMap extends PHPUnit_TestCase {
 class Tests_Auth_OpenID_Message extends PHPUnit_TestCase {
 }
 
+global $Tests_Auth_OpenID_Message_other;
 $Tests_Auth_OpenID_Message_other = array(
                                          new Tests_Auth_OpenID_EmptyMessage(),
                                          new Tests_Auth_OpenID_OpenID1Message(),

@@ -39,6 +39,7 @@ class Auth_OpenID_TestConsumer extends Auth_OpenID_GenericConsumer {
     */
 }
 
+global $_Auth_OpenID_assocs;
 $_Auth_OpenID_assocs = array(
                             array('another 20-byte key.', 'Snarky'),
                             array(str_repeat("\x00", 20), 'Zeros'),
@@ -154,6 +155,7 @@ class Auth_OpenID_TestFetcher extends Services_Yadis_HTTPFetcher {
     }
 }
 
+global $_Auth_OpenID_user_page_pat;
 $_Auth_OpenID_user_page_pat = "<html>
   <head>
     <title>A user page</title>
@@ -164,7 +166,10 @@ $_Auth_OpenID_user_page_pat = "<html>
   </body>
 </html>";
 
+global $_Auth_OpenID_server_url;
 $_Auth_OpenID_server_url = "http://server.example.com/";
+
+global $_Auth_OpenID_consumer_url;
 $_Auth_OpenID_consumer_url = "http://consumer.example.com/";
 
 class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
@@ -2119,6 +2124,7 @@ if (!defined('Auth_OpenID_NO_MATH_SUPPORT') &&
 }
 
 // Add other test cases to be run.
+global $Tests_Auth_OpenID_Consumer_other;
 $Tests_Auth_OpenID_Consumer_other = array(
                                           // new Tests_Auth_OpenID_Consumer_TestSetupNeeded(),
                                           new Tests_Auth_OpenID_Consumer_TestCheckAuth(),

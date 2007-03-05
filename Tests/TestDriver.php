@@ -18,6 +18,7 @@ require_once 'PHPUnit/GUI/HTML.php';
 
 error_reporting(E_ALL);
 
+global $__test_errors;
 $__test_errors = array();
 
 function __handler($code, $message)
@@ -62,6 +63,7 @@ function __getError()
  */
 function loadTests($test_dir, $test_names)
 {
+    global $_tests;
     $suites = array();
 
     foreach ($test_names as $filename) {

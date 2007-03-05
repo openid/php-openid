@@ -16,7 +16,9 @@
 require_once 'PHPUnit.php';
 require_once 'Auth/OpenID/KVForm.php';
 
+global $_Tests_Auth_OpenID_kverrors;
 $_Tests_Auth_OpenID_kverrors = null;
+
 /**
  * Keep a list of the logged errors
  */

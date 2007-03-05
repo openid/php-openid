@@ -526,6 +526,7 @@ class Tests_Auth_OpenID_DiscoverSession {
     }
 }
 
+global $__Tests_BOGUS_SERVICE;
 $__Tests_BOGUS_SERVICE = new Auth_OpenID_ServiceEndpoint();
 $__Tests_BOGUS_SERVICE->claimed_id = "=really.bogus.endpoint";
 

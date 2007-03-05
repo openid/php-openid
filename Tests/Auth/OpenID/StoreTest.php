@@ -44,6 +44,7 @@ function _Auth_OpenID_mkdtemp()
  * This is the host where the SQL stores' databases should be created
  * and destroyed.
  */
+global $_Auth_OpenID_db_test_host;
 $_Auth_OpenID_db_test_host = 'dbtest';
 
 /**

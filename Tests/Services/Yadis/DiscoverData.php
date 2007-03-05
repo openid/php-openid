@@ -3,6 +3,7 @@
 require_once "Services/Yadis/Yadis.php";
 require_once "Tests/Services/Yadis/TestUtil.php";
 
+global $testlist;
 $testlist = array(
                   // success,  input_name,          id_name,            result_name
                   array(true,  "equiv",             "equiv",            "xrds"),
@@ -29,9 +30,13 @@ function getExampleXRDS()
     return Tests_Services_Yadis_readdata('example-xrds.xml');
 }
 
+global $example_xrds;
 $example_xrds = getExampleXRDS();
+
+global $default_test_file;
 $default_test_file = 'test1-discover.txt';
 
+global $discover_tests;
 $discover_tests = array();
 
 function readTests($filename)

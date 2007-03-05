@@ -5,6 +5,7 @@ require_once "Tests/Services/Yadis/DiscoverData.php";
 require_once "Services/Yadis/Yadis.php";
 require_once "Services/Yadis/HTTPFetcher.php";
 
+global $__status_header_re;
 $__status_header_re = '/Status: (\d+) .*?$/m';
 
 function mkResponse($data)
