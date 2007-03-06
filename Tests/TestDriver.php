@@ -131,7 +131,8 @@ $_tests = array(
                                        'StoreTest',
                                        'TrustRoot',
                                        'URINorm',
-                                       'Util'),
+                                       'Util',
+                                       'VerifyDisco'),
                       ),
                 array(
                       'dir' => 'Tests/Services/Yadis/',

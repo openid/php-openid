@@ -818,7 +818,7 @@ class Auth_OpenID_GenericConsumer {
         return null;
     }
 
-    function _verifyDiscoveryResults($message, $endpoint)
+    function _verifyDiscoveryResults($message, $endpoint=null)
     {
         if ($message->getOpenIDNamespace() == Auth_OpenID_OPENID2_NS) {
             return $this->_verifyDiscoveryResultsOpenID2($message,
