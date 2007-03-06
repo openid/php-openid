@@ -1551,15 +1551,19 @@ class Auth_OpenID_AuthRequest {
             // raise ValueError(
             //     '"return_to" is mandatory when
             //using "checkid_immediate"')
-            return null;
+            return new Auth_OpenID_FailureResponse(null,
+              "'return_to' is mandatory when using checkid_immediate");
         } else if ($this->message->isOpenID1()) {
             // raise ValueError('"return_to" is
             // mandatory for OpenID 1 requests')
-            return null;
+            return new Auth_OpenID_FailureResponse(null,
+              "'return_to' is mandatory for OpenID 1 requests");
         } else if ($this->return_to_args) {
             // raise ValueError('extra "return_to" arguments
             // were specified, but no return_to was specified')
-            return null;
+            return new Auth_OpenID_FailureResponse(null,
+              "extra 'return_to' arguments where specified, " .
+              "but no return_to was specified");
         }
 
         if ($immediate) {
@@ -1630,6 +1634,11 @@ class Auth_OpenID_AuthRequest {
                         $form_tag_attrs=null)
     {
         $message = $this->getMessage($realm, $return_to, $immediate);
+
+        if (is_a($message, 'Auth_OpenID_FailureResponse')) {
+            return $message;
+        }
+
         return $message->toFormMarkup($this->endpoint->server_url,
                                       $form_tag_attrs);
     }

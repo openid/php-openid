@@ -40,9 +40,25 @@ $auth_request->addExtensionArg('sreg', 'optional', 'email');
 // Redirect the user to the OpenID server for authentication.  Store
 // the token for this authentication so we can verify the response.
 
-$redirect_url = $auth_request->redirectURL($trust_root,
-                                           $process_url);
+if ($auth_request->shouldSendRedirect()) {
+    $redirect_url = $auth_request->redirectURL($trust_root,
+                                               $process_url);
+    header("Location: ".$redirect_url);
+} else {
+    $form_id = 'openid_message';
+    $form_html = $auth_request->formMarkup($trust_root, $process_url, false,
+                                           $form_tag_attrs=array('id' => $form_id));
 
-header("Location: ".$redirect_url);
+    if (is_a($form_html, 'Auth_OpenID_FailureResponse')) {
+        print "Error: " . $form_html->message;
+    }
+
+?>
+<html><head><title>OpenID transaction in progress</title></head>
+<body onload='document.getElementById("<?=$form_id?>").submit()'>
+<?=$form_html?>
+</body></html>
+<?
+}
 
 ?>
