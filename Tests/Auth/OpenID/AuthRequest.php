@@ -157,6 +157,21 @@ class TestAuthRequestOpenID2 extends TestAuthRequestMixin {
 
     // TESTS
 
+    function test_markup_checkidImmediate()
+    {
+        $result = $this->authreq->formMarkup($this->realm,
+                                             null, true);
+        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+    }
+
+    function test_markup_returnToArgs()
+    {
+        $this->authreq->return_to_args = array('extra' => 'args');
+        $result = $this->authreq->formMarkup($this->realm,
+                                             null, false);
+        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+    }
+
     function test_setAnonymousWorksForOpenID2()
     {
         // OpenID AuthRequests should be able to set 'anonymous' to true.
@@ -227,6 +242,13 @@ class TestAuthRequestOpenID1 extends TestAuthRequestMixin {
     }
 
     // TESTS
+
+    function test_markup_missingReturnTo()
+    {
+        $result = $this->authreq->formMarkup($this->realm,
+                                             null, false);
+        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+    }
 
     function test_setAnonymousFailsForOpenID1()
     {
