@@ -124,6 +124,7 @@ $_tests = array(
                                        'HMACSHA1',
                                        'KVForm',
                                        'Message',
+                                       'Negotiation',
                                        'Nonce',
                                        'OpenID_Yadis',
                                        'Parse',

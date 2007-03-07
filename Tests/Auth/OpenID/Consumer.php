@@ -1278,6 +1278,9 @@ class _ExceptionRaisingMockFetcher {
     function post($url, $body)
     {
         __raiseError(E_MOCK_FETCHER_EXCEPTION);
+
+        return new Services_Yadis_HTTPResponse($url, 400,
+                                               array(), '');
     }
 }
 

@@ -1122,7 +1122,8 @@ class Auth_OpenID_GenericConsumer {
         }
 
         $resp_message = $this->_makeKVPost($request, $server_url);
-        if ($resp_message == null) {
+        if (($resp_message === null) ||
+            (is_a($resp_message, 'Auth_OpenID_ServerErrorContainer'))) {
             return false;
         }
 
@@ -1207,19 +1208,19 @@ class Auth_OpenID_GenericConsumer {
         $resp = $this->fetcher->post($server_url, $body);
 
         if ($resp === null) {
-            return null;
+            return Auth_OpenID_ServerErrorContainer::fromMessage('');
         }
 
-        $response = Auth_OpenID_KVForm::toArray($resp->body);
+        $response_message = Auth_OpenID_Message::fromKVForm($resp->body);
 
         if ($resp->status == 400) {
-            return null;
+            return Auth_OpenID_ServerErrorContainer::fromMessage(
+                                                     $response_message);
         } else if ($resp->status != 200) {
             return null;
         }
 
-        $response = Auth_OpenID_Message::fromKVForm($resp->body);
-        return $response;
+        return $response_message;
     }
 
     /**
@@ -1248,13 +1249,15 @@ class Auth_OpenID_GenericConsumer {
 
     function _negotiateAssociation($endpoint)
     {
-        # Get our preferred session/association type from the negotiatior.
+        // Get our preferred session/association type from the negotiatior.
         list($assoc_type, $session_type) = $this->negotiator->getAllowedType();
 
         $assoc = $this->_requestAssociation(
                            $endpoint, $assoc_type, $session_type);
 
-        if (is_a($assoc, 'Auth_OpenID_ServerError')) {
+        if (is_a($assoc, 'Auth_OpenID_ServerErrorContainer')) {
+            $why = $assoc;
+
             // Any error message whose code is not 'unsupported-type'
             // should be considered a total failure.
             if (($why->error_code != 'unsupported-type') ||
@@ -1284,7 +1287,7 @@ class Auth_OpenID_GenericConsumer {
                 // oidutil.log('Server responded with unsupported association '
                 //             'session but did not supply a fallback.')
                 return null;
-            } else if (!$self->negotiator->isAllowed($assoc_type,
+            } else if (!$this->negotiator->isAllowed($assoc_type,
                                                      $session_type)) {
                 // fmt = ('Server sent unsupported session/association type: '
                 //        'session_type=%s, assoc_type=%s')
@@ -1294,10 +1297,10 @@ class Auth_OpenID_GenericConsumer {
                 // Attempt to create an association from the assoc_type
                 // and session_type that the server told us it
                 // supported.
-                $assoc = $self->_requestAssociation(
+                $assoc = $this->_requestAssociation(
                                    $endpoint, $assoc_type, $session_type);
 
-                if (is_a($assoc, 'Auth_OpenID_ServerError')) {
+                if (is_a($assoc, 'Auth_OpenID_ServerErrorContainer')) {
                     // Do not keep trying, since it rejected the
                     // association type that it told us to use.
                     // oidutil.log('Server %s refused its suggested association
@@ -1319,14 +1322,17 @@ class Auth_OpenID_GenericConsumer {
         list($assoc_session, $args) = $this->_createAssociateRequest(
                                       $endpoint, $assoc_type, $session_type);
 
-        $response = $this->_makeKVPost($args, $endpoint->server_url);
+        $response_message = $this->_makeKVPost($args, $endpoint->server_url);
 
-        if ($response === null) {
+        if ($response_message === null) {
             // oidutil.log('openid.associate request failed: %s' % (why[0],))
             return null;
+        } else if (is_a($response_message,
+                        'Auth_OpenID_ServerErrorContainer')) {
+            return $response_message;
         }
 
-        return $this->_extractAssociation($response, $assoc_session);
+        return $this->_extractAssociation($response_message, $assoc_session);
     }
 
     function _extractAssociation($assoc_response, $assoc_session)
@@ -1803,6 +1809,31 @@ class Auth_OpenID_FailureResponse extends Auth_OpenID_ConsumerResponse {
  * A specific, internal failure used to detect type URI mismatch.
  */
 class Auth_OpenID_TypeURIMismatch extends Auth_OpenID_FailureResponse {
+}
+
+/**
+ * Exception that is raised when the server returns a 400 response
+ * code to a direct request.
+ */
+class Auth_OpenID_ServerErrorContainer {
+    function Auth_OpenID_ServerErrorContainer($error_text,
+                                              $error_code,
+                                              $message)
+    {
+        $this->error_text = $error_text;
+        $this->error_code = $error_code;
+        $this->message = $message;
+    }
+
+    function fromMessage($message)
+    {
+        $error_text = $message->getArg(
+           Auth_OpenID_OPENID_NS, 'error', '<no error message supplied>');
+        $error_code = $message->getArg(Auth_OpenID_OPENID_NS, 'error_code');
+        return new Auth_OpenID_ServerErrorContainer($error_text,
+                                                    $error_code,
+                                                    $message);
+    }
 }
 
 /**
