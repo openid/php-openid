@@ -55,7 +55,8 @@ class Tests_Auth_OpenID_AssociationResponse extends PHPUnit_TestCase {
     function _run($keys)
     {
         $msg = mkAssocResponse($keys);
-        $this->assertTrue(is_a($this->consumer->_extractAssociation($msg, null),
+        $dumb = null;
+        $this->assertTrue(is_a($this->consumer->_extractAssociation($msg, $dumb),
                                'Auth_OpenID_FailureResponse'));
     }
 }

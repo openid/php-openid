@@ -1335,7 +1335,7 @@ class Auth_OpenID_GenericConsumer {
         return $this->_extractAssociation($response_message, $assoc_session);
     }
 
-    function _extractAssociation($assoc_response, $assoc_session)
+    function _extractAssociation(&$assoc_response, &$assoc_session)
     {
         // Extract the common fields from the response, raising an
         // exception if they are not found
