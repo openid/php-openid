@@ -1343,9 +1343,19 @@ class Auth_OpenID_GenericConsumer {
                          Auth_OpenID_OPENID_NS, 'assoc_type',
                          Auth_OpenID_NO_DEFAULT);
 
+        if ($assoc_type === null) {
+            return new Auth_OpenID_FailureResponse(null,
+              'assoc_type missing from association response');
+        }
+
         $assoc_handle = $assoc_response->getArg(
                            Auth_OpenID_OPENID_NS, 'assoc_handle',
                            Auth_OpenID_NO_DEFAULT);
+
+        if ($assoc_handle === null) {
+            return new Auth_OpenID_FailureResponse(null,
+              'assoc_handle missing from association response');
+        }
 
         // expires_in is a base-10 string. The Python parsing will
         // accept literals that have whitespace around them and will
@@ -1355,7 +1365,12 @@ class Auth_OpenID_GenericConsumer {
                              Auth_OpenID_OPENID_NS, 'expires_in',
                              Auth_OpenID_NO_DEFAULT);
 
-        $expires_in = intval($expires_in_str);
+        if ($expires_in_str === null) {
+            return new Auth_OpenID_FailureResponse(null,
+              'expires_in missing from association response');
+        }
+
+        $expires_in = Auth_OpenID::intval($expires_in_str);
         if ($expires_in === false) {
             return null;
         }
@@ -1367,6 +1382,11 @@ class Auth_OpenID_GenericConsumer {
             $session_type = $assoc_response->getArg(
                                Auth_OpenID_OPENID2_NS, 'session_type',
                                Auth_OpenID_NO_DEFAULT);
+
+            if ($session_type === null) {
+                return new Auth_OpenID_FailureResponse(null,
+                  'session_type missing from association response');
+            }
         }
 
         // Session type mismatch

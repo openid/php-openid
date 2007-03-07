@@ -444,6 +444,20 @@ class Auth_OpenID {
 
         return $url;
     }
+
+    /**
+     * Replacement (wrapper) for PHP's intval() because it's broken.
+     */
+    function intval($value)
+    {
+        $re = "/^\\d+$/";
+
+        if (!preg_match($re, $value)) {
+            return false;
+        }
+
+        return intval($value);
+    }
 }
 
 ?>
