@@ -119,6 +119,15 @@ class Auth_OpenID {
     }
 
     /**
+     * Return true if $thing is an Auth_OpenID_FailureResponse object;
+     * false if not.
+     */
+    function isFailure($thing)
+    {
+        return is_a($thing, 'Auth_OpenID_FailureResponse');
+    }
+
+    /**
      * Rename query arguments back to 'openid.' from 'openid_'
      *
      * @access private

@@ -645,14 +645,14 @@ class Auth_OpenID_GenericConsumer {
         // signed list fields)
         $result = $this->_idResCheckForFields($message, $signed_list);
 
-        if (is_a($result, 'Auth_OpenID_FailureResponse')) {
+        if (Auth_OpenID::isFailure($result)) {
             return $result;
         }
 
         // Verify discovery information:
         $result = $this->_verifyDiscoveryResults($message, $endpoint);
 
-        if (is_a($result, 'Auth_OpenID_FailureResponse')) {
+        if (Auth_OpenID::isFailure($result)) {
             return $result;
         }
 
@@ -661,7 +661,7 @@ class Auth_OpenID_GenericConsumer {
         $result = $this->_idResCheckSignature($message,
                                               $endpoint->server_url);
 
-        if (is_a($result, 'Auth_OpenID_FailureResponse')) {
+        if (Auth_OpenID::isFailure($result)) {
             return $result;
         }
 
@@ -670,7 +670,7 @@ class Auth_OpenID_GenericConsumer {
 
         $result = $this->_idResCheckNonce($message, $endpoint);
 
-        if (is_a($result, 'Auth_OpenID_FailureResponse')) {
+        if (Auth_OpenID::isFailure($result)) {
             return $result;
         }
 
@@ -691,7 +691,7 @@ class Auth_OpenID_GenericConsumer {
         // original message.
         $result = Auth_OpenID_GenericConsumer::_verifyReturnToArgs(
                                            $message->toPostArgs());
-        if (is_a($result, 'Auth_OpenID_FailureResponse')) {
+        if (Auth_OpenID::isFailure($result)) {
             return false;
         }
 
@@ -861,7 +861,7 @@ class Auth_OpenID_GenericConsumer {
             $result = $this->_verifyDiscoverySingle($endpoint, $to_match_1_0);
         }
 
-        if (is_a($result, 'Auth_OpenID_FailureResponse')) {
+        if (Auth_OpenID::isFailure($result)) {
             return $result;
         } else {
             return $endpoint;
@@ -963,7 +963,7 @@ class Auth_OpenID_GenericConsumer {
             // common case.
             $result = $this->_verifyDiscoverySingle($endpoint, $to_match);
 
-            if (is_a($result, 'Auth_OpenID_FailureResponse')) {
+            if (Auth_OpenID::isFailure($result)) {
                 return $result;
             }
 
@@ -991,7 +991,7 @@ class Auth_OpenID_GenericConsumer {
         foreach ($services as $endpoint) {
             $result = $this->_verifyDiscoverySingle($endpoint, $to_match);
 
-            if (is_a($result, 'Auth_OpenID_FailureResponse')) {
+            if (Auth_OpenID::isFailure($result)) {
                 $failure_messages->append($result);
             } else {
                 // It matches, so discover verification has
@@ -1645,6 +1645,11 @@ class Auth_OpenID_AuthRequest {
                          $immediate = false)
     {
         $message = $this->getMessage($realm, $return_to, $immediate);
+
+        if (Auth_OpenID::isFailure($message)) {
+            return $message;
+        }
+
         return $message->toURL($this->endpoint->server_url);
     }
 
@@ -1661,7 +1666,7 @@ class Auth_OpenID_AuthRequest {
     {
         $message = $this->getMessage($realm, $return_to, $immediate);
 
-        if (is_a($message, 'Auth_OpenID_FailureResponse')) {
+        if (Auth_OpenID::isFailure($message)) {
             return $message;
         }
 

@@ -161,7 +161,7 @@ class TestAuthRequestOpenID2 extends TestAuthRequestMixin {
     {
         $result = $this->authreq->formMarkup($this->realm,
                                              null, true);
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function test_markup_returnToArgs()
@@ -169,7 +169,7 @@ class TestAuthRequestOpenID2 extends TestAuthRequestMixin {
         $this->authreq->return_to_args = array('extra' => 'args');
         $result = $this->authreq->formMarkup($this->realm,
                                              null, false);
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function test_setAnonymousWorksForOpenID2()
@@ -247,7 +247,7 @@ class TestAuthRequestOpenID1 extends TestAuthRequestMixin {
     {
         $result = $this->authreq->formMarkup($this->realm,
                                              null, false);
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function test_setAnonymousFailsForOpenID1()

@@ -30,7 +30,7 @@ class Tests_Auth_OpenID_VerifyDisco extends OpenIDTestMixin {
 
     function failUnlessProtocolError($thing)
     {
-        $this->assertTrue(is_a($thing, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($thing));
     }
 
     function test_openID1NoLocalID()

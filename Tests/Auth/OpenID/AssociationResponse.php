@@ -49,15 +49,14 @@ class Tests_Auth_OpenID_AssociationResponse extends PHPUnit_TestCase {
 
     function failUnlessProtocolError($thing)
     {
-        $this->assertTrue(is_a($thing, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($thing));
     }
 
     function _run($keys)
     {
         $msg = mkAssocResponse($keys);
         $dumb = null;
-        $this->assertTrue(is_a($this->consumer->_extractAssociation($msg, $dumb),
-                               'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($this->consumer->_extractAssociation($msg, $dumb)));
     }
 }
 

@@ -508,7 +508,7 @@ class TestIdResCheckSignature extends _TestIdRes {
     {
         $this->message.setArg(Auth_OpenID_OPENID_NS, 'sig', 'BAD SIGNATURE');
         $result = $this->consumer->_idResCheckSignature($this->message, $this->endpoint->server_url);
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 }
 
@@ -591,7 +591,7 @@ class Tests_Auth_OpenID_Stateless2 extends _TestIdRes {
                                "dumbHandle");
         $result = $this->consumer->_idResCheckSignature($this->message,
                                                         $this->endpoint->server_url);
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 }
 
@@ -611,7 +611,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
                             array('return_to' => $this->return_to));
 
         $result = $this->consumer->_idResCheckNonce($this->response, $this->endpoint);
-        $this->assertFalse(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertFalse(Auth_OpenID::isFailure($result));
     }
 
     function test_openid1Missing()
@@ -631,7 +631,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
                             array('return_to' => $this->return_to,
                                   'ns' => Auth_OpenID_OPENID2_NS));
         $result = $this->consumer->_idResCheckNonce($this->response, $this->endpoint);
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function test_serverNonce()
@@ -651,7 +651,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
              'return_to'=> 'http://return.to/',
               'response_nonce'=> Auth_OpenID_mkNonce()));
         $result = $this->consumer->_idResCheckNonce($this->response, $this->endpoint);
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function test_badNonce()
@@ -670,7 +670,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
         $result = $this->consumer->_idResCheckNonce($response,
                                                     $this->endpoint);
 
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function test_tamperedNonce()
@@ -683,7 +683,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
         $result = $this->consumer->_idResCheckNonce($message,
                                                     $this->endpoint);
 
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function test_missingNonce()
@@ -695,7 +695,7 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
         $result = $this->consumer->_idResCheckNonce($message,
                                                     $this->endpoint);
 
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 }
 
@@ -1056,7 +1056,7 @@ class TestReturnToArgs extends PHPUnit_TestCase {
         // no return value, success is assumed if there are no exceptions.
         $result = $this->consumer->_verifyReturnToArgs($query);
 
-        $this->assertFalse(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertFalse(Auth_OpenID::isFailure($result));
         $this->assertTrue($result);
     }
 
@@ -1068,19 +1068,19 @@ class TestReturnToArgs extends PHPUnit_TestCase {
 
         // fail, query has no key 'foo'.
         $result = $this->consumer->_verifyReturnToArgs($query);
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
 
         $query['foo'] = 'baz';
         // fail, values for 'foo' do not match.
         $result = $this->consumer->_verifyReturnToArgs($query);
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function test_noReturnTo()
     {
         $query = array('openid.mode'=> 'id_res');
         $result = $this->consumer->_verifyReturnToArgs($query);
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function test_completeBadReturnTo()
@@ -1112,7 +1112,7 @@ class TestReturnToArgs extends PHPUnit_TestCase {
         foreach ($bad_return_tos as $bad) {
             $m->setArg(Auth_OpenID_OPENID_NS, 'return_to', $bad);
             $result = $this->consumer->complete($m, $endpoint, $return_to);
-            $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+            $this->assertTrue(Auth_OpenID::isFailure($result));
             $this->assertTrue($result->message ==
                               "openid.return_to does not match return URL");
         }
@@ -1814,7 +1814,7 @@ class IDPDrivenTest extends PHPUnit_TestCase {
             'openid.sig'=> $GOODSIG));
 
         $result = $this->consumer->_doIdRes($message, $this->endpoint);
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function failUnlessSuccess($response)
@@ -1879,7 +1879,7 @@ class TestDiscoveryVerification extends PHPUnit_TestCase {
         $result = $this->consumer->_verifyDiscoveryResults(
                                  $this->message, $endpoint);
 
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function test_foreignDelegate()
@@ -1893,7 +1893,7 @@ class TestDiscoveryVerification extends PHPUnit_TestCase {
 
         $result = $this->consumer->_verifyDiscoveryResults(
                                  $this->message, $endpoint);
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function test_nothingDiscovered()
@@ -1902,7 +1902,7 @@ class TestDiscoveryVerification extends PHPUnit_TestCase {
         $this->services = array();
         $result = $this->consumer->_verifyDiscoveryResults(
                                  $this->message, $this->endpoint);
-        $this->assertTrue(is_a($result, 'Auth_OpenID_FailureResponse'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 }
 
