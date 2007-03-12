@@ -386,6 +386,14 @@ function detect_xml($r, &$out)
 function detect_fetcher($r, &$out)
 {
     $out .= $r->h2('HTTP Fetching');
+
+    $result = @include 'Services/Yadis/Yadis.php';
+
+    if (!$result) {
+        $out .= $r->p('Yadis code unavailable; could not test fetcher support.');
+	return false;
+    }
+
     if (Services_Yadis_Yadis::curlPresent()) {
         // XXX: actually fetch a URL.
         $out .= $r->p('This PHP installation has support for libcurl. Good.');
