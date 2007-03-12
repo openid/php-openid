@@ -8,6 +8,13 @@ implementations and tools:
 
   http://www.openidenabled.com/
 
+GETTING STARTED
+===============
+
+First, run the 'examples/detect.php' script either from the command
+line or via the web.  It will generate a report of any system
+configuration changes necessary to run the library.
+
 INSTALLATION
 ============
 
