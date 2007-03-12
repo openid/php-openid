@@ -405,11 +405,13 @@ function detect_fetcher($r, &$out)
         $out .= $r->p('See ' . $lnk . ' about enabling the libcurl support ' .
                       'for PHP.');
     }
+
     $ok = true;
     $fetcher = Services_Yadis_Yadis::getHTTPFetcher();
     $fetch_url = 'http://www.openidenabled.com/resources/php-fetch-test';
     $expected_url = $fetch_url . '.txt';
     $result = $fetcher->get($fetch_url);
+
     if (isset($result)) {
         $parts = array('An HTTP request was completed.');
         // list ($code, $url, $data) = $result;
