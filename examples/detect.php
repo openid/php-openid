@@ -328,7 +328,7 @@ function detect_stores($r, &$out)
     if (function_exists('posix_getpwuid') &&
         function_exists('posix_geteuid')) {
         $processUser = posix_getpwuid(posix_geteuid());
-        $web_user = $r->tt($processUser['name']);
+        $web_user = $r->b($r->tt($processUser['name']));
     } else {
         $web_user = 'the PHP process';
     }
