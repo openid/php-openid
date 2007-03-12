@@ -484,8 +484,10 @@ if (!$_include) {
 
     if ($result) {
         $out .= $r->h2('Setup Complete!');
+	$out .= $r->p('Your system should be ready to run the OpenID library.');
     } else {
         $out .= $r->h2('Setup Incomplete');
+	$out .= $r->p('Your system needs a few changes before it will be ready to run the OpenID library.');
     }
 }
 
