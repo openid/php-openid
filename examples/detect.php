@@ -471,9 +471,9 @@ if (!($_file1 && $_file2)) {
     }
 
     if ($result) {
-        $out .= $r->h2('<font color="green">Setup Complete!</font>');
+        $out .= $r->h2('Setup Complete!');
     } else {
-        $out .= $r->h2('<font color="red">Setup Incomplete.</font>');
+        $out .= $r->h2('Setup Incomplete');
     }
 }
 
