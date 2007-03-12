@@ -22,10 +22,6 @@ You will need PHP 4.3.0 or greater to use this library.  We have
 tested the library Linux on PHP 4.3.0, 4.4.1, 5.0.5, and 5.1.1.  We
 have tested the library on Windows XP on PHP 4.4.4.
 
-At any time, visit the 'detect.php' script in the examples/ directory
-to see a web page detailing the state of your PHP installation.  This
-script will tell you if you meet the installation requirements.
-
 Follow these steps:
 
 1. Install dependencies.
