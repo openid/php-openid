@@ -395,7 +395,6 @@ function detect_fetcher($r, &$out)
     }
 
     if (Services_Yadis_Yadis::curlPresent()) {
-        // XXX: actually fetch a URL.
         $out .= $r->p('This PHP installation has support for libcurl. Good.');
     } else {
         $out .= $r->p('This PHP installation does not have support for ' .
