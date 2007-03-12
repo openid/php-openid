@@ -398,9 +398,9 @@ function detect_fetcher($r, &$out)
         $out .= $r->p('This PHP installation has support for libcurl. Good.');
     } else {
         $out .= $r->p('This PHP installation does not have support for ' .
-                      'libcurl. Some functionality, such as fetching ' .
-                      'https:// URLs, will be missing and performance ' .
-                      'will not be as good.');
+                      'libcurl. CURL is not required, but some functionality, ' .
+		      'such as fetching HTTPS URLs, will be missing and ' .
+		      ' performance will not be as good.');
         $lnk = $r->link('http://us3.php.net/manual/en/ref.curl.php');
         $out .= $r->p('See ' . $lnk . ' about enabling the libcurl support ' .
                       'for PHP.');
