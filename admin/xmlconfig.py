@@ -37,7 +37,7 @@ license_uri = 'http://www.gnu.org/copyleft/lesser.txt'
 # directory.  All .php files in these directories will be included in
 # the <contents> element of the output XML and will be assigned the
 # role 'php'.
-contents_dirs = ['../Auth', '../Services']
+contents_dirs = ['../Auth',]
 
 # Director(ies) containing package documentation.  All files and
 # subdirectories in these directories will be included in the
