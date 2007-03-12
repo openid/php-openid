@@ -314,7 +314,7 @@ function detect_stores($r, &$out)
     } else {
         $text = 'Support was found for ';
         if (count($found) == 1) {
-            $text .= $found[0];
+            $text .= $found[0] . '.';
         } else {
             $last = array_pop($found);
             $text .= implode(', ', $found) . ' and ' . $last . '.';
