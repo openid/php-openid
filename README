@@ -99,3 +99,19 @@ Phpdoc lives at:
 
   http://www.phpdoc.org/
 
+CONTRIBUTING
+============
+
+If you have a bugfix or feature you'd like to contribute, don't
+hesitate to send it to us.  Post your patch to the development list at
+
+  http://lists.openidenabled.com/mailman/listinfo/dev
+
+To run the test suite included with this package, install PHPUnit 1.x
+and run
+
+  php admin/texttest.php
+
+PHPUnit 1.x can be found at
+
+  http://pear.phpunit.de/get/
