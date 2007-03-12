@@ -1,7 +1,7 @@
 <?php
 
-require_once "Services/Yadis/Yadis.php";
-require_once "Tests/Services/Yadis/TestUtil.php";
+require_once "Auth/Yadis/Yadis.php";
+require_once "Tests/Auth/Yadis/TestUtil.php";
 
 global $testlist;
 $testlist = array(
@@ -27,7 +27,7 @@ $testlist = array(
 
 function getExampleXRDS()
 {
-    return Tests_Services_Yadis_readdata('example-xrds.xml');
+    return Tests_Auth_Yadis_readdata('example-xrds.xml');
 }
 
 global $example_xrds;
@@ -41,7 +41,7 @@ $discover_tests = array();
 
 function readTests($filename)
 {
-    $data = Tests_Services_Yadis_readdata($filename);
+    $data = Tests_Auth_Yadis_readdata($filename);
 
     if ($data === null) {
         return null;
@@ -138,7 +138,7 @@ function generateResult($base_url, $input_name, $id_name, $result_name, $success
 
     $id_url = $base_url . $id_name;
 
-    $result = new Services_Yadis_Yadis();
+    $result = new Auth_Yadis_Yadis();
     $result->uri = $id_url;
     if ($success) {
         $result->xrds_uri = $base_url . $result_name;

@@ -5,9 +5,9 @@ require_once 'TestUtil.php';
 
 require_once 'Auth/OpenID.php';
 require_once 'Auth/OpenID/Discover.php';
-require_once 'Services/Yadis/Manager.php';
-require_once 'Services/Yadis/Misc.php';
-require_once 'Services/Yadis/XRI.php';
+require_once 'Auth/Yadis/Manager.php';
+require_once 'Auth/Yadis/Misc.php';
+require_once 'Auth/Yadis/XRI.php';
 
 /**
  * Tests for the core of the PHP Yadis library discovery logic.
@@ -151,7 +151,7 @@ class _DiscoveryMockFetcher {
             $body = '';
         }
 
-        return new Services_Yadis_HTTPResponse($final_url, $status,
+        return new Auth_Yadis_HTTPResponse($final_url, $status,
                                                array('content-type' => $ctype), $body);
     }
 }
@@ -481,7 +481,7 @@ class _MockFetcherForXRIProxy {
             trigger_error('Error in mock XRI fetcher: no headers or query');
         }
 
-        if (Services_Yadis_startswith($xri, '/')) {
+        if (Auth_Yadis_startswith($xri, '/')) {
             $xri = substr($xri, 1);
         }
 
@@ -494,7 +494,7 @@ class _MockFetcherForXRIProxy {
             $body = '';
         }
 
-        return new Services_Yadis_HTTPResponse($url, $status,
+        return new Auth_Yadis_HTTPResponse($url, $status,
                                                array('content-type' => $ctype),
                                                $body);
     }

@@ -1,9 +1,9 @@
 <?php
 
 require_once "PHPUnit.php";
-require_once "Tests/Services/Yadis/DiscoverData.php";
-require_once "Services/Yadis/Yadis.php";
-require_once "Services/Yadis/HTTPFetcher.php";
+require_once "Tests/Auth/Yadis/DiscoverData.php";
+require_once "Auth/Yadis/Yadis.php";
+require_once "Auth/Yadis/HTTPFetcher.php";
 
 global $__status_header_re;
 $__status_header_re = '/Status: (\d+) .*?$/m';
@@ -23,7 +23,7 @@ function mkResponse($data)
         $headers[$k] = $v;
     }
     $status = intval($matches[1]);
-    $r = new Services_Yadis_HTTPResponse(null, $status, $headers, $body);
+    $r = new Auth_Yadis_HTTPResponse(null, $status, $headers, $body);
     return $r;
 }
 class TestFetcher {
@@ -41,7 +41,7 @@ class TestFetcher {
             $data = generateSample($path, $this->base_url);
 
             if ($data === null) {
-                return new Services_Yadis_HTTPResponse($current_url,
+                return new Auth_Yadis_HTTPResponse($current_url,
                                                        404,
                                                        array(),
                                                        '');
@@ -68,9 +68,9 @@ class MockFetcher {
         $this->count++;
         if ($this->count == 1) {
             $headers = array(strtolower('X-XRDS-Location') . ': http://unittest/404');
-            return new Services_Yadis_HTTPResponse($uri, 200, $headers, '');
+            return new Auth_Yadis_HTTPResponse($uri, 200, $headers, '');
         } else {
-            return new Services_Yadis_HTTPResponse($uri, 404);
+            return new Auth_Yadis_HTTPResponse($uri, 404);
         }
     }
 }
@@ -82,7 +82,7 @@ class TestSecondGet extends PHPUnit_TestCase {
         $response = null;
         $fetcher = new MockFetcher();
         $this->assertTrue(
-               Services_Yadis_Yadis::discover($uri, $response, $fetcher) === null);
+               Auth_Yadis_Yadis::discover($uri, $response, $fetcher) === null);
     }
 }
 
@@ -111,11 +111,11 @@ class _TestCase extends PHPUnit_TestCase {
     function runTest()
     {
         if ($this->expected === null) {
-            $result = Services_Yadis_Yadis::discover($this->input_url,
+            $result = Auth_Yadis_Yadis::discover($this->input_url,
                                                      $this->fetcher);
             $this->assertTrue($result->isFailure());
         } else {
-            $result = Services_Yadis_Yadis::discover($this->input_url,
+            $result = Auth_Yadis_Yadis::discover($this->input_url,
                                                      $this->fetcher);
 
             if ($result === null) {
@@ -148,14 +148,14 @@ class _TestCase extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Services_Yadis_Discover_Yadis extends PHPUnit_TestSuite {
+class Tests_Auth_Yadis_Discover_Yadis extends PHPUnit_TestSuite {
 
     function getName()
     {
-        return "Tests_Services_Yadis_Discover_Yadis";
+        return "Tests_Auth_Yadis_Discover_Yadis";
     }
 
-    function Tests_Services_Yadis_Discover_Yadis()
+    function Tests_Auth_Yadis_Discover_Yadis()
     {
         global $testlist;
 

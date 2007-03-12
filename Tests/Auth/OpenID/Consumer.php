@@ -16,7 +16,7 @@
 session_start();
 
 require_once 'Auth/OpenID/CryptUtil.php';
-require_once 'Services/Yadis/HTTPFetcher.php';
+require_once 'Auth/Yadis/HTTPFetcher.php';
 require_once 'Auth/OpenID/DiffieHellman.php';
 require_once 'Auth/OpenID/FileStore.php';
 require_once 'Auth/OpenID/KVForm.php';
@@ -90,12 +90,12 @@ function Auth_OpenID_associate($qs, $assoc_secret, $assoc_handle)
     return Auth_OpenID_KVForm::fromArray($reply_dict);
 }
 
-class Auth_OpenID_TestFetcher extends Services_Yadis_HTTPFetcher {
+class Auth_OpenID_TestFetcher extends Auth_Yadis_HTTPFetcher {
     function Auth_OpenID_TestFetcher($user_url, $user_page,
                                      $assoc_secret, $assoc_handle)
     {
         $this->get_responses = array($user_url =>
-                                     new Services_Yadis_HTTPResponse($user_url,
+                                     new Auth_Yadis_HTTPResponse($user_url,
                                                                      200,
                                                                      array(),
                                                                      $user_page));
@@ -107,9 +107,9 @@ class Auth_OpenID_TestFetcher extends Services_Yadis_HTTPFetcher {
     function response($url, $body)
     {
         if ($body === null) {
-            return new Services_Yadis_HTTPResponse($url, 404, array(), 'Not found');
+            return new Auth_Yadis_HTTPResponse($url, 404, array(), 'Not found');
         } else {
-            return new Services_Yadis_HTTPResponse($url, 200, array(), $body);
+            return new Auth_Yadis_HTTPResponse($url, 200, array(), $body);
         }
     }
 
@@ -133,9 +133,9 @@ class Auth_OpenID_TestFetcher extends Services_Yadis_HTTPFetcher {
                           );
 
         if ($query_data == $expected) {
-            return new Services_Yadis_HTTPResponse($url, 200, array(), "is_valid:true\n");
+            return new Auth_Yadis_HTTPResponse($url, 200, array(), "is_valid:true\n");
         } else {
-            return new Services_Yadis_HTTPResponse($url, 400, array(),
+            return new Auth_Yadis_HTTPResponse($url, 400, array(),
                                                 "error:bad check_authentication query\n");
         }
     }
@@ -1279,7 +1279,7 @@ class _ExceptionRaisingMockFetcher {
     {
         __raiseError(E_MOCK_FETCHER_EXCEPTION);
 
-        return new Services_Yadis_HTTPResponse($url, 400,
+        return new Auth_Yadis_HTTPResponse($url, 400,
                                                array(), '');
     }
 }
@@ -1310,7 +1310,7 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuth extends _TestIdRes {
     function test_checkauth_error()
     {
         global $_Auth_OpenID_server_url;
-        $this->fetcher->response = new Services_Yadis_HTTPResponse("http://some_url",
+        $this->fetcher->response = new Auth_Yadis_HTTPResponse("http://some_url",
                                                                 404,
                                                                 array(),
                                                                 "blah:blah\n");
@@ -1369,7 +1369,7 @@ class Tests_Auth_OpenID_Consumer_TestFetchAssoc extends PHPUnit_TestCase {
 
     function test_kvpost_error()
     {
-        $this->fetcher->response = new Services_Yadis_HTTPResponse("http://some_url",
+        $this->fetcher->response = new Auth_Yadis_HTTPResponse("http://some_url",
                                                                    404,
                                                                    array(),
                                                                    "blah:blah\n");
@@ -1386,7 +1386,7 @@ class Tests_Auth_OpenID_Consumer_TestFetchAssoc extends PHPUnit_TestCase {
     function test_error_404()
     {
         // 404 from a kv post raises HTTPFetchingError
-        $this->fetcher->response = new Services_Yadis_HTTPResponse(
+        $this->fetcher->response = new Auth_Yadis_HTTPResponse(
            "http://some_url", 404, array('Hea'=> 'der'), 'blah:blah\n');
 
         $result = $this->consumer->_makeKVPost(
@@ -1543,11 +1543,11 @@ class Tests_Auth_OpenID_DiscoFailure extends PHPUnit_TestCase {
         $this->claimed_id = 'http://identity.url/';
         $this->endpoint->claimed_id = $this->claimed_id;
         $this->store = null;
-        $this->session = new Services_Yadis_PHPSession();
+        $this->session = new Auth_Yadis_PHPSession();
         $cls = $this->consumerClass;
         $this->consumer =& new $cls($this->store, &$this->session);
         $this->consumer->consumer =& new _StubConsumer();
-        $this->discovery =& new Services_Yadis_Discovery(&$this->session,
+        $this->discovery =& new Auth_Yadis_Discovery(&$this->session,
                                          $this->claimed_id,
                                          $this->consumer->session_key_prefix);
     }
@@ -1564,10 +1564,10 @@ class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_TestCase {
         $this->claimed_id = 'http://identity.url/';
         $this->endpoint->claimed_id = $this->claimed_id;
         $this->store = null;
-        $this->session = new Services_Yadis_PHPSession();
+        $this->session = new Auth_Yadis_PHPSession();
         $this->consumer =& new Auth_OpenID_Consumer($this->store, $this->session);
         $this->consumer->consumer =& new _StubConsumer();
-        $this->discovery =& new Services_Yadis_Discovery(&$this->session,
+        $this->discovery =& new Auth_Yadis_Discovery(&$this->session,
                                          $this->claimed_id,
                                          $this->consumer->session_key_prefix);
     }

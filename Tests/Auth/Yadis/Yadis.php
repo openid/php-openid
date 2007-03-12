@@ -5,12 +5,12 @@
  */
 
 require_once 'PHPUnit.php';
-require_once 'Services/Yadis/Yadis.php';
-require_once 'Tests/Services/Yadis/TestUtil.php';
+require_once 'Auth/Yadis/Yadis.php';
+require_once 'Tests/Auth/Yadis/TestUtil.php';
 
-class Tests_Services_Yadis_DiscoveryTest extends PHPUnit_TestCase {
+class Tests_Auth_Yadis_DiscoveryTest extends PHPUnit_TestCase {
 
-    function Tests_Services_Yadis_DiscoveryTest($input_url, $redir_uri,
+    function Tests_Auth_Yadis_DiscoveryTest($input_url, $redir_uri,
                                                 $xrds_uri, $num)
     {
         $this->input_url = $input_url;
@@ -26,8 +26,8 @@ class Tests_Services_Yadis_DiscoveryTest extends PHPUnit_TestCase {
 
     function runTest()
     {
-        $fetcher = Services_Yadis_Yadis::getHTTPFetcher();
-        $y = Services_Yadis_Yadis::discover(
+        $fetcher = Auth_Yadis_Yadis::getHTTPFetcher();
+        $y = Auth_Yadis_Yadis::discover(
              $this->input_url, $fetcher);
         $this->assertTrue($y !== null);
 
@@ -38,7 +38,7 @@ class Tests_Services_Yadis_DiscoveryTest extends PHPUnit_TestCase {
             $this->assertEquals($this->xrds_uri, $y->xrds_uri);
             // Compare contents of actual HTTP GET with that of Yadis
             // response.
-            $f = Services_Yadis_Yadis::getHTTPFetcher();
+            $f = Auth_Yadis_Yadis::getHTTPFetcher();
             $http_response = $f->get($this->xrds_uri);
 
             $this->assertEquals($http_response->body, $y->response_text);
@@ -48,11 +48,11 @@ class Tests_Services_Yadis_DiscoveryTest extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Services_Yadis_Yadis extends PHPUnit_TestSuite {
+class Tests_Auth_Yadis_Yadis extends PHPUnit_TestSuite {
 
     function getName()
     {
-        return "Tests_Services_Yadis_Yadis";
+        return "Tests_Auth_Yadis_Yadis";
     }
 
     function parseTests($data)
@@ -69,9 +69,9 @@ class Tests_Services_Yadis_Yadis extends PHPUnit_TestSuite {
         return $tests;
     }
 
-    function Tests_Services_Yadis_Yadis()
+    function Tests_Auth_Yadis_Yadis()
     {
-        $test_data = Tests_Services_Yadis_readdata('manifest.txt');
+        $test_data = Tests_Auth_Yadis_readdata('manifest.txt');
 
         $test_cases = $this->parseTests($test_data);
 
@@ -79,7 +79,7 @@ class Tests_Services_Yadis_Yadis extends PHPUnit_TestSuite {
         foreach ($test_cases as $case) {
             $i++;
             list($input, $redir, $xrds) = $case;
-            $this->addTest(new Tests_Services_Yadis_DiscoveryTest($input,
+            $this->addTest(new Tests_Auth_Yadis_DiscoveryTest($input,
                                                                   $redir,
                                                                   $xrds, $i));
         }

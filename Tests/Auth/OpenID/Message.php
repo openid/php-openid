@@ -915,7 +915,7 @@ class Tests_Auth_OpenID_GeneralMessageTest extends PHPUnit_TestCase {
     function _checkForm($html, $message_, $action_url,
                         $form_tag_attrs, $submit_text)
     {
-        $parser =& Services_Yadis_getXMLParser();
+        $parser =& Auth_Yadis_getXMLParser();
 
         // Parse HTML source
         $this->assertTrue($parser->init($html, array()));

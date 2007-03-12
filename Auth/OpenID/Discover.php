@@ -7,8 +7,8 @@
 require_once "Auth/OpenID.php";
 require_once "Auth/OpenID/Parse.php";
 require_once "Auth/OpenID/Message.php";
-require_once "Services/Yadis/XRIRes.php";
-require_once "Services/Yadis/Yadis.php";
+require_once "Auth/Yadis/XRIRes.php";
+require_once "Auth/Yadis/Yadis.php";
 
 // XML namespace value
 define('Auth_OpenID_XMLNS_1_0', 'http://openid.net/xmlns/1.0');
@@ -184,7 +184,7 @@ function Auth_OpenID_findOPLocalIdentifier($service, $type_uris)
                                         Auth_OpenID_XMLNS_1_0);
 
     $service->parser->registerNamespace('xrd',
-                                        Services_Yadis_XMLNS_XRD_2_0);
+                                        Auth_Yadis_XMLNS_XRD_2_0);
 
     $parser =& $service->parser;
 
@@ -338,7 +338,7 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
     // OpenID 1.0 discovery on the same URL will help, so don't bother
     // to catch it.
     $openid_services = array();
-    $response = Services_Yadis_Yadis::discover($uri, $fetcher);
+    $response = Auth_Yadis_Yadis::discover($uri, $fetcher);
     $yadis_url = $response->normalized_uri;
     $yadis_services = array();
 
@@ -346,7 +346,7 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
         return array($uri, array());
     }
 
-    $xrds =& Services_Yadis_XRDS::parseXRDS($response->response_text);
+    $xrds =& Auth_Yadis_XRDS::parseXRDS($response->response_text);
 
     if ($xrds) {
         $yadis_services =
@@ -412,7 +412,7 @@ function Auth_OpenID_discoverWithoutYadis($uri, &$fetcher)
 
 function Auth_OpenID_discoverXRI($iname, &$fetcher)
 {
-    $resolver = new Services_Yadis_ProxyResolver($fetcher);
+    $resolver = new Auth_Yadis_ProxyResolver($fetcher);
     list($canonicalID, $yadis_services) =
         $resolver->query($iname,
                          Auth_OpenID_getOpenIDTypeURIs(),
@@ -434,7 +434,7 @@ function Auth_OpenID_discoverXRI($iname, &$fetcher)
 
 function Auth_OpenID_discover($uri, &$fetcher)
 {
-    if (Services_Yadis_identifierScheme($uri) == 'XRI') {
+    if (Auth_Yadis_identifierScheme($uri) == 'XRI') {
         return Auth_OpenID_discoverXRI($uri, $fetcher);
     } else {
         return Auth_OpenID_discoverURI($uri, $fetcher);

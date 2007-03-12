@@ -6,7 +6,7 @@
  */
 
 require_once "PHPUnit.php";
-require_once "Services/Yadis/XRDS.php";
+require_once "Auth/Yadis/XRDS.php";
 require_once "Auth/OpenID/Discover.php";
 
 global $__XRDS_BOILERPLATE;
@@ -164,7 +164,7 @@ class Tests_Auth_OpenID_Tester extends PHPUnit_TestCase {
     function runTest()
     {
         // Parse into endpoint objects that we will check
-        $xrds_object = Services_Yadis_XRDS::parseXRDS($this->xrds);
+        $xrds_object = Auth_Yadis_XRDS::parseXRDS($this->xrds);
 
         $endpoints = array();
 

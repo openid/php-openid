@@ -8,7 +8,7 @@
 
 require_once 'Auth/OpenID.php';
 require_once 'Auth/OpenID/KVForm.php';
-require_once 'Services/Yadis/XML.php';
+require_once 'Auth/Yadis/XML.php';
 
 // This doesn't REALLY belong here, but where is better?
 define('Auth_OpenID_IDENTIFIER_SELECT',

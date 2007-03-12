@@ -13,8 +13,8 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-class Services_Yadis_HTTPResponse {
-    function Services_Yadis_HTTPResponse($final_url = null, $status = null,
+class Auth_Yadis_HTTPResponse {
+    function Auth_Yadis_HTTPResponse($final_url = null, $status = null,
                                          $headers = null, $body = null)
     {
         $this->final_url = $final_url;
@@ -32,7 +32,7 @@ class Services_Yadis_HTTPResponse {
  * @access private
  * @package Yadis
  */
-class Services_Yadis_HTTPFetcher {
+class Auth_Yadis_HTTPFetcher {
 
     var $timeout = 20; // timeout in seconds.
 

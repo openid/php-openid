@@ -362,12 +362,12 @@ function detect_stores($r, &$out)
 
 function detect_xml($r, &$out)
 {
-    global $__Services_Yadis_xml_extensions;
+    global $__Auth_Yadis_xml_extensions;
 
     $out .= $r->h2('XML Support');
 
     // Try to get an XML extension.
-    $ext = Services_Yadis_getXMLParser();
+    $ext = Auth_Yadis_getXMLParser();
 
     if ($ext !== null) {
         $out .= $r->p('XML parsing support is present using the '.
@@ -376,7 +376,7 @@ function detect_xml($r, &$out)
     } else {
         $out .= $r->p('XML parsing support is absent; please install one '.
                       'of the following PHP extensions:');
-        foreach ($__Services_Yadis_xml_extensions as $name => $cls) {
+        foreach ($__Auth_Yadis_xml_extensions as $name => $cls) {
             $out .= "<li>" . $r->b($name) . "</li>";
         }
         return false;
@@ -387,14 +387,14 @@ function detect_fetcher($r, &$out)
 {
     $out .= $r->h2('HTTP Fetching');
 
-    $result = @include 'Services/Yadis/Yadis.php';
+    $result = @include 'Auth/Yadis/Yadis.php';
 
     if (!$result) {
         $out .= $r->p('Yadis code unavailable; could not test fetcher support.');
 	return false;
     }
 
-    if (Services_Yadis_Yadis::curlPresent()) {
+    if (Auth_Yadis_Yadis::curlPresent()) {
         $out .= $r->p('This PHP installation has support for libcurl. Good.');
     } else {
         $out .= $r->p('This PHP installation does not have support for ' .
@@ -407,7 +407,7 @@ function detect_fetcher($r, &$out)
     }
 
     $ok = true;
-    $fetcher = Services_Yadis_Yadis::getHTTPFetcher();
+    $fetcher = Auth_Yadis_Yadis::getHTTPFetcher();
     $fetch_url = 'http://www.openidenabled.com/resources/php-fetch-test';
     $expected_url = $fetch_url . '.txt';
     $result = $fetcher->get($fetch_url);

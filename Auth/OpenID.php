@@ -20,8 +20,8 @@
 /**
  * Require the fetcher code.
  */
-require_once "Services/Yadis/PlainHTTPFetcher.php";
-require_once "Services/Yadis/ParanoidHTTPFetcher.php";
+require_once "Auth/Yadis/PlainHTTPFetcher.php";
+require_once "Auth/Yadis/ParanoidHTTPFetcher.php";
 require_once "Auth/OpenID/BigMath.php";
 
 /**

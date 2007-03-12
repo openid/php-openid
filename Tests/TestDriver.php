@@ -137,7 +137,7 @@ $_tests = array(
                                        'VerifyDisco'),
                       ),
                 array(
-                      'dir' => 'Tests/Services/Yadis/',
+                      'dir' => 'Tests/Auth/Yadis/',
                       'files' => array(
                                        'ParseHTML',
                                        'XRDS',

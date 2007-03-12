@@ -17,7 +17,7 @@
 /**
  * Interface import
  */
-require_once "Services/Yadis/HTTPFetcher.php";
+require_once "Auth/Yadis/HTTPFetcher.php";
 
 /**
  * This class implements a plain, hand-built socket-based fetcher
@@ -25,7 +25,7 @@ require_once "Services/Yadis/HTTPFetcher.php";
  *
  * @package Yadis
  */
-class Services_Yadis_PlainHTTPFetcher extends Services_Yadis_HTTPFetcher {
+class Auth_Yadis_PlainHTTPFetcher extends Auth_Yadis_HTTPFetcher {
     function get($url, $extra_headers = null)
     {
         if (!$this->allowedURL($url)) {
@@ -132,7 +132,7 @@ class Services_Yadis_PlainHTTPFetcher extends Services_Yadis_HTTPFetcher {
 
         }
 
-        return new Services_Yadis_HTTPResponse($url, $code, $new_headers, $body);
+        return new Auth_Yadis_HTTPResponse($url, $code, $new_headers, $body);
     }
 
     function post($url, $body, $extra_headers = null)
@@ -237,7 +237,7 @@ class Services_Yadis_PlainHTTPFetcher extends Services_Yadis_HTTPFetcher {
 
         }
 
-        return new Services_Yadis_HTTPResponse($url, $code,
+        return new Auth_Yadis_HTTPResponse($url, $code,
                                                $headers, $response_body);
     }
 }

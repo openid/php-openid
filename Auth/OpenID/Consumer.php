@@ -173,8 +173,8 @@ require_once "Auth/OpenID/DiffieHellman.php";
 require_once "Auth/OpenID/KVForm.php";
 require_once "Auth/OpenID/Nonce.php";
 require_once "Auth/OpenID/Discover.php";
-require_once "Services/Yadis/Manager.php";
-require_once "Services/Yadis/XRI.php";
+require_once "Auth/Yadis/Manager.php";
+require_once "Auth/Yadis/XRI.php";
 
 /**
  * This is the status code returned when the complete method returns
@@ -250,7 +250,7 @@ class Auth_OpenID_Consumer {
      * Auth_OpenID_DumbStore} can be used.
      *
      * @param mixed session An object which implements the interface
-     * of the Services_Yadis_Session class.  Particularly, this object
+     * of the Auth_Yadis_Session class.  Particularly, this object
      * is expected to have these methods: get($key), set($key,
      * $value), and del($key).  This defaults to a session object
      * which wraps PHP's native session machinery.  You should only
@@ -261,7 +261,7 @@ class Auth_OpenID_Consumer {
                                   $consumer_cls = null)
     {
         if ($session === null) {
-            $session = new Services_Yadis_PHPSession();
+            $session = new Auth_Yadis_PHPSession();
         }
 
         $this->session =& $session;
@@ -278,7 +278,7 @@ class Auth_OpenID_Consumer {
     function getDiscoveryObject(&$session, $openid_url,
                                 $session_key_prefix)
     {
-        return new Services_Yadis_Discovery($session, $openid_url,
+        return new Auth_Yadis_Discovery($session, $openid_url,
                                             $session_key_prefix);
     }
 
@@ -312,7 +312,7 @@ class Auth_OpenID_Consumer {
         // to be cleaned up next time discovery is attempted.
 
         $m = $disco->getManager();
-        $loader = new Services_Yadis_ManagerLoader();
+        $loader = new Auth_Yadis_ManagerLoader();
 
         if ($m) {
             if ($m->stale) {
@@ -558,7 +558,7 @@ class Auth_OpenID_GenericConsumer {
         $this->negotiator =& Auth_OpenID_getDefaultNegotiator();
         $this->_use_assocs = ($this->store ? true : false);
 
-        $this->fetcher = Services_Yadis_Yadis::getHTTPFetcher();
+        $this->fetcher = Auth_Yadis_Yadis::getHTTPFetcher();
 
         $this->session_types = Auth_OpenID_getAvailableSessionTypes();
     }

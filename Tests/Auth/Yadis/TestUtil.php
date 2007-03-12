@@ -4,7 +4,7 @@
  * Utilites for test functions
  */
 
-function Tests_Services_Yadis_datafile($name, $reader)
+function Tests_Auth_Yadis_datafile($name, $reader)
 {
     $path = dirname(realpath(__FILE__));
     $sep = DIRECTORY_SEPARATOR;
@@ -17,12 +17,12 @@ function Tests_Services_Yadis_datafile($name, $reader)
     return $data;
 }
 
-function Tests_Services_Yadis_readdata($name)
+function Tests_Auth_Yadis_readdata($name)
 {
-    return Tests_Services_Yadis_datafile($name, 'file_get_contents');
+    return Tests_Auth_Yadis_datafile($name, 'file_get_contents');
 }
 
-function Tests_Services_Yadis_readlines($name)
+function Tests_Auth_Yadis_readlines($name)
 {
-    return Tests_Services_Yadis_datafile($name, 'file');
+    return Tests_Auth_Yadis_datafile($name, 'file');
 }

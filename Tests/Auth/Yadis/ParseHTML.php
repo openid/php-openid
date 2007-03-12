@@ -13,19 +13,19 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
-require_once 'Tests/Services/Yadis/TestUtil.php';
-require_once 'Services/Yadis/ParseHTML.php';
+require_once 'Tests/Auth/Yadis/TestUtil.php';
+require_once 'Auth/Yadis/ParseHTML.php';
 require_once 'PHPUnit.php';
 
-class Tests_Services_Yadis_ParseTest extends PHPUnit_TestCase {
-    function Tests_Services_Yadis_ParseTest($case)
+class Tests_Auth_Yadis_ParseTest extends PHPUnit_TestCase {
+    function Tests_Auth_Yadis_ParseTest($case)
     {
         list($result, $comment, $html) = $case;
 
         $this->result = $result;
         $this->comment = $comment;
         $this->html_string = $html;
-        $this->parser = new Services_Yadis_ParseHTML();
+        $this->parser = new Auth_Yadis_ParseHTML();
     }
 
     function getName()
@@ -47,11 +47,11 @@ class Tests_Services_Yadis_ParseTest extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Services_Yadis_ParseHTML extends PHPUnit_TestSuite {
+class Tests_Auth_Yadis_ParseHTML extends PHPUnit_TestSuite {
 
     function getName()
     {
-        return "Tests_Services_Yadis_Parse";
+        return "Tests_Auth_Yadis_Parse";
     }
 
     function parseTests($s)
@@ -73,14 +73,14 @@ class Tests_Services_Yadis_ParseHTML extends PHPUnit_TestSuite {
         return $tests;
     }
 
-    function Tests_Services_Yadis_ParseHTML()
+    function Tests_Auth_Yadis_ParseHTML()
     {
-        $test_data = Tests_Services_Yadis_readdata('test1-parsehtml.txt');
+        $test_data = Tests_Auth_Yadis_readdata('test1-parsehtml.txt');
 
         $test_cases = $this->parseTests($test_data);
 
         foreach ($test_cases as $case) {
-            $this->addTest(new Tests_Services_Yadis_ParseTest($case));
+            $this->addTest(new Tests_Auth_Yadis_ParseTest($case));
         }
     }
 }
