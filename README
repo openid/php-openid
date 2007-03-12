@@ -39,7 +39,8 @@ Follow these steps:
      the filesystem instead of using a relational database.  Nothing
      special is required for using the filesystem method.
 
-   - Install either the DOM or domxml PHP XML processing extension.
+   - Install either the DOM or domxml PHP XML processing extension,
+     but not both (they are incompatible).
 
 2. Use the PEAR installer to install the package.  To use the PEAR
    installer, run this command from the package directory:
