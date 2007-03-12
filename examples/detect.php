@@ -349,6 +349,9 @@ function detect_stores($r, &$out)
                       'that your data will have to be stored in one of the ' .
                       'following locations:');
         $out .= $r->pre(var_export($basedir_str, true));
+    } else {
+        $out .= $r->p('The ' . $r->b($r->tt('open_basedir')) . ' configuration restriction ' .
+		      'is not in effect.');
     }
 
     $out .= $r->p('If you are using the filesystem store, your ' .
