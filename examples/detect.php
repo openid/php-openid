@@ -319,6 +319,7 @@ function detect_stores($r, &$out)
             $last = array_pop($found);
             $text .= implode(', ', $found) . ' and ' . $last . '.';
         }
+	$text = $r->b($text);
     }
     $text .= ' The library supports the MySQL, PostgreSQL, and SQLite ' .
         'database engines.';
