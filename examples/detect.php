@@ -322,7 +322,7 @@ function detect_stores($r, &$out)
 	$text = $r->b($text);
     }
     $text .= ' The library supports the MySQL, PostgreSQL, and SQLite ' .
-        'database engines.';
+        'database engines, as well as filesystem-based storage.';
     $out .= $r->p($text);
 
     if (function_exists('posix_getpwuid') &&
