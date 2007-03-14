@@ -12,6 +12,10 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
+$path_extra = dirname(dirname(dirname(__FILE__)));
+$path = ini_get('include_path');
+$path = $path_extra . PATH_SEPARATOR . $path;
+ini_set('include_path', $path);
 require_once "Auth/OpenID.php";
 
 /**
