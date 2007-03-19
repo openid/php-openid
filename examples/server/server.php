@@ -11,7 +11,7 @@ if (!$try_include) {
     header("Location: setup.php");
 }
 
-if (function_exists('getOpenIDStore') && isset($openid_users)) {
+if (function_exists('getOpenIDStore')) {
     require_once 'lib/session.php';
     require_once 'lib/actions.php';
 

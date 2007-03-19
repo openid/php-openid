@@ -15,7 +15,7 @@ define('page_template',
   </body>
 </html>');
 
-define('logged_in_pat', 'You are logged in as %s.');
+define('logged_in_pat', 'You are logged in as %s (URL: %s)');
 
 /**
  * HTTP response line contstants
@@ -88,7 +88,8 @@ function page_render($body, $user, $title, $h1=null, $login=false)
     $h1 = $h1 ? $h1 : $title;
 
     if ($user) {
-        $msg = sprintf(logged_in_pat, link_render($user));
+        $msg = sprintf(logged_in_pat, link_render($user),
+                       link_render(idURL($user)));
         $nav = array('logout' => 'Log Out',
                      'sites' => 'Remembered Sites',
                      );

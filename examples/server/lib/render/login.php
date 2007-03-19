@@ -18,10 +18,6 @@ define('login_form_pat',
                    value="%s" id="openid_url" /></td>
       </tr>
       <tr>
-        <th><label for="password">Password:</label></th>
-        <td><input type="password" name="password" id="password" /></td>
-      </tr>
-      <tr>
         <td colspan="2">
           <input type="submit" value="Log in" />
           <input type="submit" name="cancel" value="Cancel" />

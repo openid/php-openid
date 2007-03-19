@@ -6,6 +6,7 @@ require_once "lib/render.php";
 
 require_once "lib/render/login.php";
 require_once "lib/render/sites.php";
+require_once "lib/render/idpage.php";
 
 require_once "Auth/OpenID.php";
 
@@ -88,17 +89,8 @@ function login_checkInput($input)
     if (!isset($input['openid_url'])) {
         $errors[] = 'Enter an OpenID URL to continue';
     }
-    if (!isset($input['password'])) {
-        $errors[] = 'Enter a password to continue';
-    }
     if (count($errors) == 0) {
         $openid_url = $input['openid_url'];
-        $openid_url = Auth_OpenID::normalizeUrl($openid_url);
-        $password = $input['password'];
-        if (!checkLogin($openid_url, $password)) {
-            $errors[] = 'The entered password does not match the ' .
-                'entered identity URL.';
-        }
     }
     return array($errors, $openid_url);
 }
@@ -164,6 +156,11 @@ function action_sites()
         }
     }
     return sites_render($sites);
+}
+
+function action_idpage()
+{
+    return idpage_render(getLoggedInUser());
 }
 
 ?>

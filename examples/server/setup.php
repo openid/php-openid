@@ -368,41 +368,6 @@ configuration for use with the OpenID server example.
 <? } ?>
 </div>
 </div>
-<div>
-
-  <p>
-  Your OpenID server will need to know what URLs it can authenticate.  Supply URLs and passwords here.
-  </p>
-
-  <span class="label">OpenID URLs to serve:</span>
-
-  <div class="store_fields">
-<?
-if ($_SESSION['users']) {
-    print "<div><table><tr><th>OpenID URL</th><th>Password Hash</th></tr>";
-    foreach ($_SESSION['users'] as $url => $p) {
-        print "<tr><td>".$url."</td><td>".$p."</td></tr>";
-    }
-    print "</table></div>";
-}
-?>
-   <div>
-        <span>Add an OpenID:</span>
-    <div>
-      <label for="i_add_user" class="field">OpenID URL:</label><input type="text" name="openid_url" id="i_add_user">
-    </div>
-    <div>
-      <label for="i_p1" class="field">Password:</label><input type="password" name="p1" id="i_p1">
-    </div>
-    <div>
-      <label for="i_p2" class="field">Password (confirm):</label><input type="password" name="p2" id="i_p2">
-    </div>
-
-    <input type="submit" name="add_openid" value="Add OpenID">
-   </div>
-
-  </div>
-</div>
 
 <div>
 
@@ -458,10 +423,6 @@ function init_session() {
         $_SESSION['store_data'] = array();
     }
 
-    if (!isset($_SESSION['users'])) {
-        $_SESSION['users'] = array();
-    }
-
     if (!isset($_SESSION['trust_roots'])) {
         $_SESSION['trust_roots'] = array();
     }
@@ -479,29 +440,11 @@ function init_session() {
     }
 
     if ($_GET &&
-        isset($_GET['add_openid']) &&
-        isset($_GET['openid_url']) &&
-        isset($_GET['p1']) &&
-        isset($_GET['p2']) &&
-        $_GET['p1'] == $_GET['p2'] &&
-        $_GET['p1']) {
-
-        if (check_url($_GET['openid_url'])) {
-            $normalized = Auth_OpenID::normalizeUrl($_GET['openid_url']);
-            $_SESSION['users'][$normalized] = sha1($_GET['p1']);
-        } else {
-            $messages[] = "Cannot add OpenID URL; '".$_GET['openid_url']."' doesn't look like a URL.";
-        }
-
-    } else if ($_GET &&
                isset($_GET['trust_root']) &&
                $_GET['trust_root']) {
         if (!in_array($_GET['trust_root'], $_SESSION['trust_roots'])) {
             $_SESSION['trust_roots'][] = $_GET['trust_root'];
         }
-    } else if ($_GET &&
-               isset($_GET['del_user'])) {
-        unset($_SESSION['users'][$_GET['del_user']]);
     }
 }
 
@@ -637,34 +580,6 @@ function getOpenIDStore()
 
     ?>
 }
-
-/**
- * Users who are allowed to log in to this OpenID server.
- *
- * This is an array from URL to password hash. The URL must include
- * the proper OpenID server information in order to work with this
- * server.
- *
- * This must be set for the server to be usable. If it is not set, no
- * users will be able to log in.
- *
- * Example:
- * $openid_users = array(
- *                    'http://joe.example.com/' => sha1('foo')
- *                      )
- */
-$openid_users = array(<?
-$i = 0;
-foreach ($_SESSION['users'] as $url => $hash) {
-    $i++;
-    print "\n    '$url' => '$hash'";
-    if ($i < count($_SESSION['users'])) {
-        print ",";
-    }
-}
-?>
-
-);
 
 /**
  * Trusted sites is an array of trust roots.

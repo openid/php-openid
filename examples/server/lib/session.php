@@ -82,7 +82,8 @@ function getServer()
 {
     static $server = null;
     if (!isset($server)) {
-        $server =& new Auth_OpenID_Server(getOpenIDStore());
+        $server =& new Auth_OpenID_Server(getOpenIDStore(),
+                                          getServerURL());
     }
     return $server;
 }
@@ -113,19 +114,6 @@ function isTrusted($identity_url, $trust_root)
 function hashPassword($password)
 {
     return bin2hex(Auth_OpenID_SHA1($password));
-}
-
-/**
- * Check the user's login information
- */
-function checkLogin($openid_url, $password)
-{
-    // from config.php
-    global $openid_users;
-    $hash = hashPassword($password);
-
-    return isset($openid_users[$openid_url])
-        && $hash == $openid_users[$openid_url];
 }
 
 /**
@@ -200,6 +188,27 @@ function getSreg($identity)
 
     return $openid_sreg[$identity];
 
+}
+
+function idURL($identity)
+{
+    return buildURL('idpage') . "?user=" . $identity;
+}
+
+function idFromURL($url)
+{
+    if (strpos($url, 'idpage') === false) {
+        return null;
+    }
+
+    $parsed = parse_url($url);
+
+    $q = $parsed['query'];
+
+    $parts = array();
+    parse_str($q, $parts);
+
+    return @$parts['user'];
 }
 
 ?>

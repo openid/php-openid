@@ -32,7 +32,7 @@ function doAuth($info, $trusted=null, $fail_cancels=false)
     $user = getLoggedInUser();
     setRequestInfo($info);
 
-    if ($req_url != $user) {
+    if ($req_url != idURL($user)) {
         return login_render(array(), $req_url, $req_url);
     }
 
