@@ -85,7 +85,7 @@ function run() {
                "<html><head><title>",
                "OpenID transaction in progress",
                "</title></head>",
-               "<body onload='document.getElementById(\"<?=$form_id?>\").submit()'>",
+               "<body onload='document.getElementById(\"".$form_id."\").submit()'>",
                $form_html,
                "</body></html>");
 
