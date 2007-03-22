@@ -21,29 +21,37 @@ function authCancel($info)
     return redirect_render($url);
 }
 
-function doAuth($info, $trusted=null, $fail_cancels=false)
+function doAuth($info, $trusted=null, $fail_cancels=false,
+                $idpSelect=null)
 {
     if (!$info) {
         // There is no authentication information, so bail
         return authCancel(null);
     }
 
-    $req_url = $info->identity;
+    if ($info->idSelect()) {
+        if ($idpSelect) {
+            $req_url = idURL($idpSelect);
+        } else {
+            $trusted = false;
+        }
+    } else {
+        $req_url = $info->identity;
+    }
+
     $user = getLoggedInUser();
     setRequestInfo($info);
 
-    if ($req_url != idURL($user)) {
+    if ((!$info->idSelect()) && ($req_url != idURL($user))) {
         return login_render(array(), $req_url, $req_url);
     }
 
-    $sites = getSessionSites();
     $trust_root = $info->trust_root;
-    $fail_cancels = $fail_cancels || isset($sites[$trust_root]);
-    $trusted = isset($trusted) ? $trusted : isTrusted($req_url, $trust_root);
+
     if ($trusted) {
         setRequestInfo();
         $server =& getServer();
-        $response =& $info->answer(true);
+        $response =& $info->answer(true, null, $req_url);
         $webresponse =& $server->encodeResponse($response);
 
         $new_headers = array();

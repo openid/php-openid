@@ -88,11 +88,10 @@ function page_render($body, $user, $title, $h1=null, $login=false)
     $h1 = $h1 ? $h1 : $title;
 
     if ($user) {
-        $msg = sprintf(logged_in_pat, link_render($user),
+        $msg = sprintf(logged_in_pat, link_render(idURL($user), $user),
                        link_render(idURL($user)));
-        $nav = array('logout' => 'Log Out',
-                     'sites' => 'Remembered Sites',
-                     );
+        $nav = array('logout' => 'Log Out');
+
         $navigation = navigation_render($msg, $nav);
     } else {
         if (!$login) {

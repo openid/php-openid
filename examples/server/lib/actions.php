@@ -5,8 +5,8 @@ require_once "lib/session.php";
 require_once "lib/render.php";
 
 require_once "lib/render/login.php";
-require_once "lib/render/sites.php";
 require_once "lib/render/idpage.php";
+require_once "lib/render/idpXrds.php";
 
 require_once "Auth/OpenID.php";
 
@@ -15,6 +15,8 @@ require_once "Auth/OpenID.php";
  */
 function action_default()
 {
+    header('X-XRDS-Location: '.buildURL('idpXrds'));
+
     $server =& getServer();
     $method = $_SERVER['REQUEST_METHOD'];
     $request = null;
@@ -36,17 +38,20 @@ function action_default()
     if (in_array($request->mode,
                  array('checkid_immediate', 'checkid_setup'))) {
 
-        if (isTrusted($request->identity, $request->trust_root)) {
-            $response =& $request->answer(true);
-            $sreg = getSreg($request->identity);
-            if (is_array($sreg)) {
-                foreach ($sreg as $k => $v) {
-                    $response->addField('sreg', $k, 
-                                        $v);
-                }
+        if ($request->idSelect()) {
+            // Perform IDP-driven identifier selection
+            if ($request->mode == 'checkid_immediate') {
+                $response =& $request->answer(false);
+            } else {
+                return trust_render($request);
             }
+        } else if ((!$request->identity) &&
+                   (!$request->idSelect())) {
+            // No identifier used or desired; display a page saying
+            // so.
+            return noIdentifier_render();
         } else if ($request->immediate) {
-            $response =& $request->answer(false, getServerURL());
+            $response =& $request->answer(false, buildURL());
         } else {
             if (!getLoggedInUser()) {
                 return login_render();
@@ -131,36 +136,17 @@ function action_trust()
 {
     $info = getRequestInfo();
     $trusted = isset($_POST['trust']);
-    if ($info && isset($_POST['remember'])) {
-        $sites = getSessionSites();
-        $sites[$info->trust_root] = $trusted;
-        setSessionSites($sites);
-    }
-    return doAuth($info, $trusted, true);
-}
-
-function action_sites()
-{
-    $sites = getSessionSites();
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        if (isset($_POST['forget'])) {
-            $sites = null;
-            setSessionSites($sites);
-        } elseif (isset($_POST['remove'])) {
-            foreach ($_POST as $k => $v) {
-                if (preg_match('/^site[0-9]+$/', $k) && isset($sites[$v])) {
-                    unset($sites[$v]);
-                }
-            }
-            setSessionSites($sites);
-        }
-    }
-    return sites_render($sites);
+    return doAuth($info, $trusted, true, @$_POST['idSelect']);
 }
 
 function action_idpage()
 {
     return idpage_render(getLoggedInUser());
+}
+
+function action_idpXrds()
+{
+    return idpXrds_render();
 }
 
 ?>

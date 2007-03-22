@@ -9,7 +9,7 @@ define('idpage_pat',
   <link rel="openid2.provider openid.server" href="%s"/>
 </head>
 <body>
-  This is the identity page for %s.
+  This is the identity page for users of this server.
 </body>
 </html>');
 
@@ -18,8 +18,7 @@ define('login_needed_pat',
 
 function idpage_render($identity)
 {
-    $esc_identity = htmlspecialchars($identity, ENT_QUOTES);
-    $body = sprintf(idpage_pat, buildURL(), $esc_identity);
+    $body = sprintf(idpage_pat, buildURL());
     return array(array(), $body);
 }
 

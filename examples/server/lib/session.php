@@ -37,7 +37,7 @@ function getServerURL()
     } else {
         $p = ':' . $port;
     }
-    
+
     return "http$s://$host$p$path";
 }
 
@@ -83,29 +83,9 @@ function getServer()
     static $server = null;
     if (!isset($server)) {
         $server =& new Auth_OpenID_Server(getOpenIDStore(),
-                                          getServerURL());
+                                          buildURL());
     }
     return $server;
-}
-
-/**
- * Return whether the trust root is currently trusted
- */
-function isTrusted($identity_url, $trust_root)
-{
-    // from config.php
-    global $trusted_sites;
-
-    if ($identity_url != getLoggedInUser()) {
-        return false;
-    }
-
-    if (in_array($trust_root, $trusted_sites)) {
-        return true;
-    }
-
-    $sites = getSessionSites();
-    return isset($sites[$trust_root]) && $sites[$trust_root];
 }
 
 /**
@@ -142,22 +122,6 @@ function setLoggedInUser($identity_url=null)
     } else {
         $_SESSION['openid_url'] = $identity_url;
     }
-}
-
-function setSessionSites($sites=null)
-{
-    if (!isset($sites)) {
-        unset($_SESSION['session_sites']);
-    } else {
-        $_SESSION['session_sites'] = serialize($sites);
-    }
-}
-
-function getSessionSites()
-{
-    return isset($_SESSION['session_sites'])
-        ? unserialize($_SESSION['session_sites'])
-        : false;
 }
 
 function getRequestInfo()

@@ -369,34 +369,6 @@ configuration for use with the OpenID server example.
 </div>
 </div>
 
-<div>
-
-  <p>
-  Your OpenID server can be configured to trust a set of sites by default.  Enter those here.
-  </p>
-
-  <span class="label">Trusted sites:</span>
-
-  <div class="store_fields">
-<?
-if ($_SESSION['trust_roots']) {
-    print "<div><table><tr><th>Trusted site URL</th></tr>";
-    foreach ($_SESSION['trust_roots'] as $url) {
-        print "<tr><td>".$url."</td></tr>";
-    }
-    print "</table></div>";
-}
-?>
-   <div>
-    <span>Add a trusted site:</span>
-    <div>
-      <label for="i_tr" class="field">Trusted site URL:</label><input type="text" name="trust_root" id="i_tr">
-    </div>
-   </div>
-
-  </div>
-</div>
-
 <input type="submit" name="generate" value="Generate Configuration">
 </form>
 </body>
@@ -423,10 +395,6 @@ function init_session() {
         $_SESSION['store_data'] = array();
     }
 
-    if (!isset($_SESSION['trust_roots'])) {
-        $_SESSION['trust_roots'] = array();
-    }
-
     foreach (array('server_url', 'include_path', 'store_type') as $field) {
         if (array_key_exists($field, $_GET)) {
             $_SESSION[$field] = $_GET[$field];
@@ -436,14 +404,6 @@ function init_session() {
     foreach (array('username', 'password', 'database', 'host', 'fs_path', 'sqlite_path') as $field) {
         if (array_key_exists($field, $_GET)) {
             $_SESSION['store_data'][$field] = $_GET[$field];
-        }
-    }
-
-    if ($_GET &&
-               isset($_GET['trust_root']) &&
-               $_GET['trust_root']) {
-        if (!in_array($_GET['trust_root'], $_SESSION['trust_roots'])) {
-            $_SESSION['trust_roots'][] = $_GET['trust_root'];
         }
     }
 }
@@ -581,26 +541,6 @@ function getOpenIDStore()
     ?>
 }
 
-/**
- * Trusted sites is an array of trust roots.
- *
- * Sites in this list will not have to be approved by the user in
- * order to be used. It is OK to leave this value as-is.
- *
- * In a more robust server, this should be a per-user setting.
- */
-$trusted_sites = array(<?
-$i = 0;
-foreach ($_SESSION['trust_roots'] as $url) {
-    $i++;
-    print "\n    '$url'";
-    if ($i < count($_SESSION['trust_roots'])) {
-        print ",";
-    }
-}
-?>
-
-);
 <?
     if (!$download) {
 ?>
