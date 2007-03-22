@@ -977,7 +977,8 @@ class Auth_OpenID_GenericConsumer {
     {
         // oidutil.log('Performing discovery on %s' % (to_match.claimed_id,))
         list($unused, $services) = call_user_func($this->discoverMethod,
-                                                  $to_match->claimed_id);
+                                                  $to_match->claimed_id,
+                                                  $this->fetcher);
         if (!$services) {
             return new Auth_OpenID_FailureResponse(null,
               sprintf("No OpenID information found at %s",
