@@ -298,7 +298,8 @@ class Auth_Yadis_dom extends Auth_Yadis_XMLParser {
     }
 }
 
-$__Services_Yadis_defaultParser = null;
+global $__Auth_Yadis_defaultParser;
+$__Auth_Yadis_defaultParser = null;
 
 /**
  * Set a default parser to override the extension-driven selection of
