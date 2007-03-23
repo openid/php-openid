@@ -289,6 +289,7 @@ class Services_Yadis_dom extends Services_Yadis_XMLParser {
     }
 }
 
+global $__Services_Yadis_defaultParser;
 $__Services_Yadis_defaultParser = null;
 
 /**
