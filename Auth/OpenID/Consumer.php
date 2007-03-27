@@ -1239,6 +1239,7 @@ class Auth_OpenID_GenericConsumer {
             ($assoc->getExpiresIn() <= 0)) {
 
             $assoc = $this->_negotiateAssociation($endpoint);
+
             if ($assoc !== null) {
                 $this->store->storeAssociation($endpoint->server_url,
                                                $assoc);
@@ -1255,6 +1256,10 @@ class Auth_OpenID_GenericConsumer {
 
         $assoc = $this->_requestAssociation(
                            $endpoint, $assoc_type, $session_type);
+
+        if (Auth_OpenID::isFailure($assoc)) {
+            return null;
+        }
 
         if (is_a($assoc, 'Auth_OpenID_ServerErrorContainer')) {
             $why = $assoc;

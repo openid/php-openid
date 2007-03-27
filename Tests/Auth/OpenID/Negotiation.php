@@ -25,6 +25,8 @@ class ErrorRaisingConsumer extends Auth_OpenID_GenericConsumer {
         $m = array_pop($this->return_messages);
         if (is_a($m, 'Auth_OpenID_Message')) {
             return Auth_OpenID_ServerErrorContainer::fromMessage($m);
+        } else if (Auth_OpenID::isFailure($m)) {
+            return $m;
         } else {
             return $m;
         }
@@ -52,6 +54,18 @@ class TestOpenID2SessionNegotiation extends PHPUnit_TestCase {
     {
         $this->consumer->return_messages = array(
            new Auth_OpenID_Message($this->endpoint->preferredNamespace()));
+        $this->assertEquals($this->consumer->_negotiateAssociation($this->endpoint), null);
+        // $this->failUnlessLogMatches('Server error when requesting an association')
+    }
+
+    /**
+     * Test the case where the response to an associate request is a
+     * a failure response object.
+     */
+    function testBadResponseWithFailure()
+    {
+        $this->consumer->return_messages = array(
+             new Auth_OpenID_FailureResponse($this->endpoint));
         $this->assertEquals($this->consumer->_negotiateAssociation($this->endpoint), null);
         // $this->failUnlessLogMatches('Server error when requesting an association')
     }
