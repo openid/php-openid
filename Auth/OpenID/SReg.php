@@ -83,7 +83,7 @@ Auth_OpenID_registerNamespaceAlias(Auth_OpenID_SREG_NS_URI_1_1, 'sreg');
  * $endpoint: The endpoint object as returned by OpenID discovery.
  * returns whether an sreg type was advertised by the endpoint
  */
-function Auth_OpenID_supportsSReg($endpoint)
+function Auth_OpenID_supportsSReg(&$endpoint)
 {
     return ($endpoint->usesExtension(Auth_OpenID_SREG_NS_URI_1_1) ||
             $endpoint->usesExtension(Auth_OpenID_SREG_NS_URI_1_0));
