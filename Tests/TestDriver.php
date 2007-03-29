@@ -130,6 +130,7 @@ $_tests = array(
                                        'OpenID_Yadis',
                                        'Parse',
                                        'Server',
+                                       'SReg',
                                        'StoreTest',
                                        'TrustRoot',
                                        'URINorm',

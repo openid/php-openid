@@ -23,6 +23,7 @@ require_once 'Auth/OpenID/KVForm.php';
 require_once 'Auth/OpenID/Consumer.php';
 require_once 'Auth/OpenID/Server.php';
 require_once 'Auth/OpenID/Nonce.php';
+require_once 'Auth/OpenID/SReg.php';
 require_once 'Auth/OpenID/Message.php';
 require_once 'Auth/OpenID/HMACSHA1.php';
 require_once 'Tests/Auth/OpenID/MemStore.php';
@@ -1450,15 +1451,12 @@ class Tests_Auth_OpenID_SuccessResponse extends PHPUnit_TestCase {
             'openid.sreg.nickname' => 'j3h',
             'openid.return_to' => 'return_to');
 
-        $temp_sreg_uri = 'bogus';
-        $this->assertTrue(Auth_OpenID_registerNamespaceAlias($temp_sreg_uri, 'sreg'));
-
         $message = Auth_OpenID_Message::fromPostArgs($query);
         $resp = new Auth_OpenID_SuccessResponse($this->endpoint, $message);
 
         $utargs = $resp->extensionResponse($uri, false);
         $this->assertEquals($utargs, array('one' => '1', 'two' => '2'));
-        $sregargs = $resp->extensionResponse($temp_sreg_uri, false);
+        $sregargs = $resp->extensionResponse(Auth_OpenID_SREG_NS_URI, false);
         $this->assertEquals($sregargs, array('nickname' => 'j3h'));
     }
 

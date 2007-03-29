@@ -74,12 +74,30 @@ function Auth_OpenID_registerNamespaceAlias($namespace_uri, $alias)
         return false;
     }
 
-    if (in_array($alias, $Auth_OpenID_registered_aliases)) {
+    if (in_array($alias, array_keys($Auth_OpenID_registered_aliases))) {
         return false;
     }
 
     $Auth_OpenID_registered_aliases[$alias] = $namespace_uri;
     return true;
+}
+
+/**
+ * Removes a (namespace_uri, alias) registration from the global
+ * namespace alias map.  Returns true if the removal succeeded; false
+ * if not (if the mapping did not exist).
+ */
+function Auth_OpenID_removeNamespaceAlias($namespace_uri, $alias)
+{
+    global $Auth_OpenID_registered_aliases;
+
+    if (Auth_OpenID::arrayGet($Auth_OpenID_registered_aliases,
+                              $alias) === $namespace_uri) {
+        unset($Auth_OpenID_registered_aliases[$alias]);
+        return true;
+    }
+
+    return false;
 }
 
 /**
