@@ -126,7 +126,7 @@ class Tests_Auth_OpenID_EmptyMessage extends MessageTest {
 
     function test_getArgs()
     {
-        $this->assertEquals($this->msg->getArgs(Auth_OpenID_OPENID_NS), null);
+        $this->assertEquals($this->msg->getArgs(Auth_OpenID_OPENID_NS), array());
     }
 
     function test_getArgsBARE()

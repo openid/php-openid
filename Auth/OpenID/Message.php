@@ -48,6 +48,40 @@ $Auth_OpenID_OPENID_PROTOCOL_FIELDS = array(
     'invalidate_handle', 'op_endpoint', 'response_nonce', 'sig',
     'assoc_handle', 'trust_root', 'openid');
 
+// Global namespace / alias registration map.  See
+// Auth_OpenID_registerNamespaceAlias.
+global $Auth_OpenID_registered_aliases;
+$Auth_OpenID_registered_aliases = array();
+
+/**
+ * Registers a (namespace URI, alias) mapping in a global namespace
+ * alias map.  Raises NamespaceAliasRegistrationError if either the
+ * namespace URI or alias has already been registered with a different
+ * value.  This function is required if you want to use a namespace
+ * with an OpenID 1 message.
+ */
+function Auth_OpenID_registerNamespaceAlias($namespace_uri, $alias)
+{
+    global $Auth_OpenID_registered_aliases;
+
+    if (Auth_OpenID::arrayGet($Auth_OpenID_registered_aliases,
+                              $alias) == $namespace_uri) {
+        return true;
+    }
+
+    if (in_array($namespace_uri,
+                 array_values($Auth_OpenID_registered_aliases))) {
+        return false;
+    }
+
+    if (in_array($alias, $Auth_OpenID_registered_aliases)) {
+        return false;
+    }
+
+    $Auth_OpenID_registered_aliases[$alias] = $namespace_uri;
+    return true;
+}
+
 /**
  * An Auth_OpenID_Mapping maintains a mapping from arbitrary keys to
  * arbitrary values.  (This is unlike an ordinary PHP array, whose
@@ -202,7 +236,6 @@ class Auth_OpenID_Mapping {
 class Auth_OpenID_NamespaceMap {
     function Auth_OpenID_NamespaceMap()
     {
-        $this->default_aliases = array(Auth_OpenID_SREG_URI => 'sreg');
         $this->alias_to_namespace = new Auth_OpenID_Mapping();
         $this->namespace_to_alias = new Auth_OpenID_Mapping();
     }
@@ -296,16 +329,6 @@ class Auth_OpenID_NamespaceMap {
             return $alias;
         }
 
-        // See if there is a default alias for this namespace
-        $default_alias = Auth_OpenID::arrayGet($this->default_aliases,
-                                               $namespace_uri);
-
-        if ($default_alias !== null) {
-            if ($this->addAlias($namespace_uri, $default_alias) !== null) {
-                return $default_alias;
-            }
-        }
-
         // Fall back to generating a numerical alias
         $i = 0;
         while (1) {
@@ -344,10 +367,6 @@ class Auth_OpenID_Message {
         $this->allowed_openid_namespaces = array(
                                Auth_OpenID_OPENID1_NS,
                                Auth_OpenID_OPENID2_NS);
-
-        $this->default_namespaces = array(
-                       'sreg' => Auth_OpenID_SREG_URI
-                                          );
 
         $this->args = new Auth_OpenID_Mapping();
         $this->namespaces = new Auth_OpenID_NamespaceMap();
@@ -418,6 +437,8 @@ class Auth_OpenID_Message {
 
     function _fromOpenIDArgs($openid_args)
     {
+        global $Auth_OpenID_registered_aliases;
+
         // Takes an Auth_OpenID_Mapping instance OR an array.
 
         if (!Auth_OpenID_Mapping::isA($openid_args)) {
@@ -473,9 +494,13 @@ class Auth_OpenID_Message {
                 // Only try to map an alias to a default if it's an
                 // OpenID 1.x message.
                 if ($openid_ns_uri == Auth_OpenID_OPENID1_NS) {
-                    $ns_uri = Auth_OpenID::arrayGet(
-                                        $this->default_namespaces,
-                                        $ns_alias);
+                    foreach ($Auth_OpenID_registered_aliases
+                             as $alias => $uri) {
+                        if ($alias == $ns_alias) {
+                            $ns_uri = $uri;
+                            break;
+                        }
+                    }
                 }
 
                 if ($ns_uri === null) {
@@ -751,7 +776,7 @@ class Auth_OpenID_Message {
             return $stuff;
         }
 
-        return null;
+        return array();
     }
 
     function updateArgs($namespace, $updates)
