@@ -701,6 +701,7 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
                                             $assoc_handle, $server);
 
         $r->namespace = $message->getOpenIDNamespace();
+        $r->message =& $message;
 
         if (!$r->trustRootValid()) {
             return new Auth_OpenID_UntrustedReturnURL($message,
