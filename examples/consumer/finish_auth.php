@@ -32,14 +32,20 @@ function run() {
             $success .= '  (XRI CanonicalID: '.$response->endpoint->canonicalID.') ';
         }
 
-        $sreg = $response->extensionResponse('sreg', true);
+        $sreg_resp = Auth_OpenID_SRegResponse::fromSuccessResponse($response);
+
+        $sreg = $sreg_resp->contents();
 
         if (@$sreg['email']) {
             $success .= "  You also returned '".$sreg['email']."' as your email.";
         }
 
-        if (@$sreg['postcode']) {
-            $success .= "  Your postal code is '".$sreg['postcode']."'";
+        if (@$sreg['nickname']) {
+            $success .= "  Your nickname is '".$sreg['nickname']."'.";
+        }
+
+        if (@$sreg['fullname']) {
+            $success .= "  Your fullname is '".$sreg['fullname']."'.";
         }
     }
 

@@ -49,8 +49,15 @@ function run() {
         displayError("Authentication error; not a valid OpenID.");
     }
 
-    // Add an extension arg for optional Simple Registration parameters.
-    $auth_request->addExtensionArg('sreg', 'optional', 'email,postcode');
+    $sreg_request = Auth_OpenID_SRegRequest::build(
+                                     // Required
+                                     array('nickname'),
+                                     // Optional
+                                     array('fullname', 'email'));
+
+    if ($sreg_request) {
+        $auth_request->addExtension($sreg_request);
+    }
 
     // Redirect the user to the OpenID server for authentication.
     // Store the token for this authentication so we can verify the

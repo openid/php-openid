@@ -22,6 +22,11 @@ function doIncludes() {
      * OpenID information.
      */
     require_once "Auth/OpenID/FileStore.php";
+
+    /**
+     * Require the Simple Registration extension API.
+     */
+    require_once "Auth/OpenID/SReg.php";
 }
 
 doIncludes();
