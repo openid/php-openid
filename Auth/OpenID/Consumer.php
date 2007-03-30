@@ -1528,6 +1528,17 @@ class Auth_OpenID_AuthRequest {
     }
 
     /**
+     * Add an extension to this checkid request.
+     *
+     * $extension_request: An object that implements the extension
+     * request interface for adding arguments to an OpenID message.
+     */
+    function addExtension(&$extension_request)
+    {
+        $extension_request->toMessage($this->message);
+    }
+
+    /**
      * Add an extension argument to this OpenID authentication
      * request.
      *
