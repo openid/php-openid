@@ -379,9 +379,11 @@ class Auth_OpenID_Consumer {
      * indicated by the status attribute, which will be one of
      * SUCCESS, CANCEL, FAILURE, or SETUP_NEEDED.
      */
-    function complete($query)
+    function complete($query=null)
     {
-        $query = Auth_OpenID::fixArgs($query);
+        if ($query === null) {
+            $query = Auth_OpenID::getQuery();
+        }
 
         $loader = new Auth_OpenID_ServiceEndpointLoader();
         $endpoint_data = $this->session->get($this->_token_key);

@@ -84,9 +84,7 @@ class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_TestCase {
         }
 
         list($rt_base, $_result_args) = explode("?", $e->encodeToURL(), 2);
-        $result_args = array();
-        parse_str($_result_args, $result_args);
-        $result_args = Auth_OpenID::fixArgs($result_args);
+        $result_args = Auth_OpenID::getQuery($_result_args);
 
         $this->assertEquals($result_args, $expected_args);
     }
@@ -713,9 +711,7 @@ class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
 
         $location = $webresponse->headers['location'];
         $parsed = parse_url($location);
-        $query = array();
-        parse_str($parsed['query'], $query);
-        $query = Auth_OpenID::fixArgs($query);
+        $query = Auth_OpenID::getQuery($parsed['query']);
 
         $this->assertTrue(array_key_exists('openid.sig', $query));
         $this->assertTrue(array_key_exists('openid.assoc_handle', $query));
@@ -730,9 +726,8 @@ class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
 
         $location = $webresponse->headers['location'];
         $parsed = parse_url($location);
-        $query = array();
-        parse_str($parsed['query'], $query);
-        $query = Auth_OpenID::fixArgs($query);
+        $query = Auth_OpenID::getQuery($parsed['query']);
+
         $this->assertTrue(array_key_exists('openid.sig', $query));
         $this->assertTrue(array_key_exists('openid.assoc_handle', $query));
         $this->assertTrue(array_key_exists('openid.signed', $query));
@@ -764,9 +759,8 @@ class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
         $this->assertTrue(array_key_exists('location', $webresponse->headers));
         $location = $webresponse->headers['location'];
         $parsed = parse_url($location);
-        $query = array();
-        parse_str($parsed['query'], $query);
-        $query = Auth_OpenID::fixArgs($query);
+        $query = Auth_OpenID::getQuery($parsed['query']);
+
         $this->assertFalse(array_key_exists('openid.sig', $query));
     }
 
@@ -1041,9 +1035,7 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
 
         // How to check?  How about a round-trip test.
         list($base, $result_args) = explode("?", $result, 2);
-        $args = array();
-        parse_str($result_args, $args);
-        $args = Auth_OpenID::fixArgs($args);
+        $args = Auth_OpenID::getQuery($result_args);
         $message = Auth_OpenID_Message::fromPostArgs($args);
 
         $rebuilt_request = Auth_OpenID_CheckIDRequest::fromMessage($message,
@@ -1106,9 +1098,7 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
         $url = $this->request->getCancelURL();
 
         $parsed = parse_url($url);
-        $query = array();
-        parse_str($parsed['query'], $query);
-        $query = Auth_OpenID::fixArgs($query);
+        $query = Auth_OpenID::getQuery($parsed['query']);
 
 	$this->assertEquals(array('openid.mode' => 'cancel',
 				  'openid.ns' => Auth_OpenID_OPENID2_NS),

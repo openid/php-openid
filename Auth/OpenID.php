@@ -109,16 +109,6 @@ if (Auth_OpenID_getMathLib() === null) {
 class Auth_OpenID {
 
     /**
-     * These namespaces are automatically fixed in query arguments by
-     * Auth_OpenID::fixArgs.
-     */
-    function getOpenIDNamespaces()
-    {
-        return array('openid',
-                     'sreg');
-    }
-
-    /**
      * Return true if $thing is an Auth_OpenID_FailureResponse object;
      * false if not.
      */
@@ -128,31 +118,45 @@ class Auth_OpenID {
     }
 
     /**
-     * Rename query arguments back to 'openid.' from 'openid_'
+     * Gets the query data from the server environment based on the
+     * request method used.  If GET was used, this looks at
+     * $_SERVER['QUERY_STRING'] directly.  If POST was used, this
+     * fetches data from the special php://input file stream.
      *
-     * @access private
-     * @param array $args An associative array of URL query arguments
+     * Returns an associative array of the query arguments.
+     *
+     * Skips invalid key/value pairs (i.e. keys with no '=value'
+     * portion).
+     *
+     * Returns an empty array if neither GET nor POST was used.
      */
-    function fixArgs($args)
+    function getQuery($query_str=null)
     {
-        foreach (array_keys($args) as $key) {
-            $fixed = $key;
-            if (preg_match('/^openid/', $key)) {
-                foreach (Auth_OpenID::getOpenIDNamespaces() as $ns) {
-                    if (preg_match('/'.$ns.'_/', $key)) {
-                        $fixed = preg_replace('/'.$ns.'_/', $ns.'.', $fixed);
-                    }
-                }
-
-                if ($fixed != $key) {
-                    $val = $args[$key];
-                    unset($args[$key]);
-                    $args[$fixed] = $val;
-                }
-            }
+        if ($query_str !== null) {
+            $str = $query_str;
+        } else if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+            $str = $_SERVER['QUERY_STRING'];
+        } else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $str = file_get_contents('php://input');
+        } else {
+            return array();
         }
 
-        return $args;
+        $chunks = explode("&", $str);
+
+        $data = array();
+        foreach ($chunks as $chunk) {
+            $parts = explode("=", $chunk, 2);
+
+            if (count($parts) != 2) {
+                continue;
+            }
+
+            list($k, $v) = $parts;
+            $data[$k] = urldecode($v);
+        }
+
+        return $data;
     }
 
     /**
