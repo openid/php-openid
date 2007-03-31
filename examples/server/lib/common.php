@@ -8,6 +8,7 @@ require_once "lib/render/about.php";
 require_once "lib/render/trust.php";
 
 require_once "Auth/OpenID/Server.php";
+require_once "Auth/OpenID/SReg.php";
 require_once "Auth/OpenID/HMACSHA1.php";
 
 function authCancel($info)
@@ -52,6 +53,22 @@ function doAuth($info, $trusted=null, $fail_cancels=false,
         setRequestInfo();
         $server =& getServer();
         $response =& $info->answer(true, null, $req_url);
+
+        // Answer with some sample Simple Registration data.
+        $sreg_data = array(
+                           'fullname' => 'Example User',
+                           'nickname' => 'example',
+                           'dob' => '1970-01-01',
+                           'email' => 'invalid@example.com',
+                           'gender' => 'F',
+                           'postcode' => '12345',
+                           'country' => 'ES',
+                           'language' => 'eu',
+                           'timezone' => 'America/New_York');
+
+        Auth_OpenID_sendSRegFields($info, $sreg_data,
+                                   $response);
+
         $webresponse =& $server->encodeResponse($response);
 
         $new_headers = array();
