@@ -26,8 +26,8 @@ function action_default()
         $request = $_POST;
     }
 
-    $request = Auth_OpenID::fixArgs($request);
-    $request = $server->decodeRequest($request);
+    $request_args = Auth_OpenID::getQuery();
+    $request = $server->decodeRequest($request_args);
 
     if (!$request) {
         return about_render();
