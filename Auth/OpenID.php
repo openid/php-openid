@@ -128,7 +128,8 @@ class Auth_OpenID {
      * Skips invalid key/value pairs (i.e. keys with no '=value'
      * portion).
      *
-     * Returns an empty array if neither GET nor POST was used.
+     * Returns an empty array if neither GET nor POST was used, or if
+     * POST was used but php://input cannot be opened.
      */
     function getQuery($query_str=null)
     {
@@ -138,6 +139,10 @@ class Auth_OpenID {
             $str = $_SERVER['QUERY_STRING'];
         } else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $str = file_get_contents('php://input');
+
+            if ($str === false) {
+                return array();
+            }
         } else {
             return array();
         }
