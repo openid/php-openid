@@ -599,7 +599,11 @@ function getOpenIDStore()
 
     $db->query("USE <? print $_SESSION['store_data']['database']; ?>");
         
-    return new Auth_OpenID_MySQLStore($db);
+    $s =& new Auth_OpenID_MySQLStore($db);
+
+    $s->createTables();
+
+    return $s;
 <?
         break;
 
@@ -622,7 +626,11 @@ function getOpenIDStore()
         return null;
     }
 
-    return new Auth_OpenID_PostgreSQLStore($db);
+    $s =& new Auth_OpenID_PostgreSQLStore($db);
+
+    $s->createTables();
+
+    return $s;
 <?
         break;
     }
