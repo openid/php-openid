@@ -126,7 +126,7 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
         return null;
     }
 
-    function post($url, $body)
+    function post($url, $body, $extra_headers = null)
     {
         $this->reset();
 
@@ -159,7 +159,11 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
 
         curl_close($c);
 
-        $new_headers = array();
+        if ($extra_headers === null) {
+            $new_headers = null;
+        } else {
+            $new_headers = $extra_headers;
+        }
 
         foreach ($this->headers as $header) {
             if (preg_match("/:/", $header)) {
@@ -170,7 +174,7 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
         }
 
         return new Auth_Yadis_HTTPResponse($url, $code,
-                                               $new_headers, $body);
+                                           $new_headers, $body);
     }
 }
 
