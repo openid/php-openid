@@ -311,6 +311,11 @@ class Auth_OpenID_Association {
         return $signed_message;
     }
 
+    /**
+     * Given a {@link Auth_OpenID_Message}, return the key/value pairs
+     * to be signed according to the signed list in the message.  If
+     * the message lacks a signed list, return null.
+     */
     function _makePairs(&$message)
     {
         $signed = $message->getArg(Auth_OpenID_OPENID_NS, 'signed');
@@ -330,6 +335,12 @@ class Auth_OpenID_Association {
         return $pairs;
     }
 
+    /**
+     * Given an {@link Auth_OpenID_Message}, return the signature for
+     * the signed list in the message.
+     *
+     * @access private
+     */
     function getMessageSignature(&$message)
     {
         $pairs = $this->_makePairs($message);
@@ -338,7 +349,7 @@ class Auth_OpenID_Association {
 
     /**
      * Confirm that the signature of these fields matches the
-     * signature contained in the data
+     * signature contained in the data.
      *
      * @access private
      */
