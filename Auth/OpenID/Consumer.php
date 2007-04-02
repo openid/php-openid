@@ -502,7 +502,8 @@ function Auth_OpenID_getAvailableSessionTypes()
 {
     $types = array(
       'no-encryption' => 'Auth_OpenID_PlainTextConsumerSession',
-      'DH-SHA1' => 'Auth_OpenID_DiffieHellmanSHA1ConsumerSession');
+      'DH-SHA1' => 'Auth_OpenID_DiffieHellmanSHA1ConsumerSession',
+      'DH-SHA256' => 'Auth_OpenID_DiffieHellmanSHA256ConsumerSession');
 
     return $types;
 }
