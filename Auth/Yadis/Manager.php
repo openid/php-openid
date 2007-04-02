@@ -174,6 +174,9 @@ class Auth_Yadis_SessionLoader {
     }
 }
 
+/**
+ * A concrete loader implementation for Auth_OpenID_ServiceEndpoints.
+ */
 class Auth_OpenID_ServiceEndpointLoader extends Auth_Yadis_SessionLoader {
     function newObject($data)
     {
@@ -196,6 +199,9 @@ class Auth_OpenID_ServiceEndpointLoader extends Auth_Yadis_SessionLoader {
     }
 }
 
+/**
+ * A concrete loader implementation for Auth_Yadis_Managers.
+ */
 class Auth_Yadis_ManagerLoader extends Auth_Yadis_SessionLoader {
     function requiredKeys()
     {
