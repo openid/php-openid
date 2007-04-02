@@ -200,10 +200,14 @@ class Auth_Yadis_Yadis {
      * present, an instance of {@link Auth_Yadis_ParanoidHTTPFetcher}
      * is returned.  If not, an instance of
      * {@link Auth_Yadis_PlainHTTPFetcher} is returned.
+     *
+     * If Auth_Yadis_CURL_OVERRIDE is defined, this method will always
+     * return a {@link Auth_Yadis_PlainHTTPFetcher}.
      */
     function getHTTPFetcher($timeout = 20)
     {
-        if (Auth_Yadis_Yadis::curlPresent()) {
+        if (Auth_Yadis_Yadis::curlPresent() &&
+            (!defined('Auth_Yadis_CURL_OVERRIDE'))) {
             $fetcher = new Auth_Yadis_ParanoidHTTPFetcher($timeout);
         } else {
             $fetcher = new Auth_Yadis_PlainHTTPFetcher($timeout);
