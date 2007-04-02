@@ -1532,8 +1532,12 @@ class Auth_OpenID_Server {
      * Decodes a query args array into the appropriate
      * Auth_OpenID_Request object.
      */
-    function decodeRequest(&$query)
+    function decodeRequest($query=null)
     {
+        if ($query === null) {
+            $query = Auth_OpenID::getQuery();
+        }
+
         return $this->decoder->decode($query);
     }
 }
