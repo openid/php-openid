@@ -111,6 +111,8 @@ class Auth_OpenID {
     /**
      * Return true if $thing is an Auth_OpenID_FailureResponse object;
      * false if not.
+     *
+     * @access private
      */
     function isFailure($thing)
     {
@@ -130,6 +132,8 @@ class Auth_OpenID {
      *
      * Returns an empty array if neither GET nor POST was used, or if
      * POST was used but php://input cannot be opened.
+     *
+     * @access private
      */
     function getQuery($query_str=null)
     {
@@ -184,6 +188,12 @@ class Auth_OpenID {
         }
     }
 
+    /**
+     * Adds a string prefix to all values of an array.  Returns a new
+     * array containing the prefixed values.
+     *
+     * @access private
+     */
     function addPrefix($values, $prefix)
     {
         $new_values = array();
@@ -194,7 +204,9 @@ class Auth_OpenID {
     }
 
     /**
-     * Convenience function for getting array values.
+     * Convenience function for getting array values.  Given an array
+     * $arr and a key $key, get the corresponding value from the array
+     * or return $default if the key is absent.
      *
      * @access private
      */
@@ -269,6 +281,7 @@ class Auth_OpenID {
      * "Appends" query arguments onto a URL.  The URL may or may not
      * already have arguments (following a question mark).
      *
+     * @access private
      * @param string $url A URL, which may or may not already have
      * arguments.
      * @param array $args Either an array key/value pairs or an array of
@@ -356,7 +369,7 @@ class Auth_OpenID {
      * specified components.
      */
     function urlunparse($scheme, $host, $port = null, $path = '/',
-                                    $query = '', $fragment = '')
+                        $query = '', $fragment = '')
     {
 
         if (!$scheme) {
@@ -465,6 +478,8 @@ class Auth_OpenID {
 
     /**
      * Replacement (wrapper) for PHP's intval() because it's broken.
+     *
+     * @access private
      */
     function intval($value)
     {
