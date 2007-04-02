@@ -238,7 +238,7 @@ class Auth_Yadis_PlainHTTPFetcher extends Auth_Yadis_HTTPFetcher {
         }
 
         return new Auth_Yadis_HTTPResponse($url, $code,
-                                               $headers, $response_body);
+                                           $new_headers, $response_body);
     }
 }
 
