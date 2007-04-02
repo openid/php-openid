@@ -336,14 +336,19 @@ class Auth_OpenID_GmpMathWrapper extends Auth_OpenID_MathLibrary{
  * this array.
  */
 global $_Auth_OpenID_math_extensions;
-$_Auth_OpenID_math_extensions = array(
-    array('modules' => array('gmp', 'php_gmp'),
-          'extension' => 'gmp',
-          'class' => 'Auth_OpenID_GmpMathWrapper'),
-    array('modules' => array('bcmath', 'php_bcmath'),
-          'extension' => 'bcmath',
-          'class' => 'Auth_OpenID_BcMathWrapper')
-    );
+$_Auth_OpenID_math_extensions = array();
+
+if (!defined('Auth_OpenID_BUGGY_GMP')) {
+    $_Auth_OpenID_math_extensions[] =
+        array('modules' => array('gmp', 'php_gmp'),
+              'extension' => 'gmp',
+              'class' => 'Auth_OpenID_GmpMathWrapper');
+}
+
+$_Auth_OpenID_math_extensions[] = array(
+                'modules' => array('bcmath', 'php_bcmath'),
+                'extension' => 'bcmath',
+                'class' => 'Auth_OpenID_BcMathWrapper');
 
 /**
  * Detect which (if any) math library is available

@@ -75,12 +75,20 @@ examples/README file for more details.
 TROUBLESHOOTING
 ===============
 
-On some systems, PHP basedir restrictions prevent web servers from
+* On some systems, PHP basedir restrictions prevent web servers from
 opening a source of randomness, such as /dev/urandom.  If your PHP
 OpenID library has trouble getting a satisfactory source of
 randomness, check your Apache and PHP configurations to be sure that
 the randomness source is in the list of allowed paths for the
 "open_basedir" option.
+
+* In some cases, bugs in the GMP math library will result in signature
+validation errors when using this library.  Since GMP is preferred
+over bcmath (for performance), you will have to define
+Auth_OpenID_BUGGY_GMP in your application *before* importing any of
+the library code:
+
+  define('Auth_OpenID_BUGGY_GMP', true);
 
 GETTING HELP
 ============

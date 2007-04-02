@@ -45,6 +45,7 @@ function microtime_float()
 }
 
 $longopts = array('no-math',
+                  'buggy-gmp',
                   'no-curl',
                   'math-lib=',
                   'insecure-rand',
@@ -72,6 +73,9 @@ foreach ($flags as $flag) {
         break;
     case '--no-math':
         define('Auth_OpenID_NO_MATH_SUPPORT', true);
+        break;
+    case '--buggy-gmp':
+        define('Auth_OpenID_BUGGY_GMP', true);
         break;
     case '--no-curl':
         define('Auth_Yadis_CURL_OVERRIDE', true);
