@@ -360,7 +360,7 @@ class Auth_OpenID_NamespaceMap {
         // Fall back to generating a numerical alias
         $i = 0;
         while (1) {
-            $alias = strval($i);
+            $alias = 'ext' . strval($i);
             if ($this->addAlias($namespace_uri, $alias) === null) {
                 $i += 1;
             } else {

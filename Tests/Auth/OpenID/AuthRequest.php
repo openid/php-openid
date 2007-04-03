@@ -114,9 +114,9 @@ class TestAuthRequestMixin extends OpenIDTestMixin {
         // namespaces. Really it doesn't care that it has alias "0",
         // but that is tested anyway
         $post_args = $msg->toPostArgs();
-        $this->assertEquals('bag:', $post_args['openid.ns.0']);
-        $this->assertEquals('brown', $post_args['openid.0.color']);
-        $this->assertEquals('paper', $post_args['openid.0.material']);
+        $this->assertEquals('bag:', $post_args['openid.ns.ext0']);
+        $this->assertEquals('brown', $post_args['openid.ext0.color']);
+        $this->assertEquals('paper', $post_args['openid.ext0.material']);
     }
 
     function test_standard()

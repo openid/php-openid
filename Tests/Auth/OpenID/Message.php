@@ -1064,7 +1064,7 @@ class Tests_Auth_OpenID_NamespaceMap extends PHPUnit_TestCase {
 
         foreach ($nsm->iteritems() as $pair) {
             list($uri, $alias) = $pair;
-            $this->assertTrue(substr($uri, 22) == $alias);
+            $this->assertTrue('ext'.substr($uri, 22) == $alias);
         }
 
         $it = $nsm->iterAliases();
