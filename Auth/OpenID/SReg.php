@@ -21,17 +21,20 @@
  * approval and data, creates an {@link Auth_OpenID_SRegResponse}
  * object and adds it to the id_res response:
  *
- *   $sreg_req = Auth_OpenID_SRegRequest::fromOpenIDRequest($checkid_request->message);
+ *   $sreg_req = Auth_OpenID_SRegRequest::fromOpenIDRequest(
+ *                                  $checkid_request->message);
  *   // [ get the user's approval and data, informing the user that
  *   //   the fields in sreg_response were requested ]
- *   $sreg_resp = Auth_OpenID_SRegResponse::extractResponse($sreg_req, $user_data);
+ *   $sreg_resp = Auth_OpenID_SRegResponse::extractResponse(
+ *                                  $sreg_req, $user_data);
  *   $sreg_resp->addToOpenIDResponse($openid_response);
  *
  * 3. The relying party uses {@link
  * Auth_OpenID_SRegResponse::fromSuccessResponse} to extract the data
  * from the OpenID response:
  *
- *   $sreg_resp = Auth_OpenID_SRegResponse::fromSuccessResponse($success_response);
+ *   $sreg_resp = Auth_OpenID_SRegResponse::fromSuccessResponse(
+ *                                  $success_response);
  *
  * @package OpenID
  */
