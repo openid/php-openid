@@ -375,7 +375,11 @@ class Auth_OpenID_Consumer {
         $auth_req = $this->consumer->begin($endpoint);
         $this->session->set($this->_token_key,
               $loader->toSession($auth_req->endpoint));
-        $auth_req->anonymous = $anonymous;
+        if (!$auth_req->setAnonymous($anonymous)) {
+            return new Auth_OpenID_FailureResponse(null,
+              "OpenID 1 requests MUST include the identifier " .
+              "in the request.");
+        }
         return $auth_req;
     }
 
