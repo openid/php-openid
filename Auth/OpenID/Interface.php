@@ -126,7 +126,7 @@ class Auth_OpenID_OpenIDStore {
      *
      * @return bool Whether or not the nonce was valid.
      */
-    function useNonce($nonce)
+    function useNonce($server_url, $timestamp, $salt)
     {
         trigger_error("Auth_OpenID_OpenIDStore::useNonce ".
                       "not implemented", E_USER_ERROR);
