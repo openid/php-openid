@@ -4,7 +4,7 @@
  * XML-parsing classes to wrap the domxml and DOM extensions for PHP 4
  * and 5, respectively.
  *
- * @package Yadis
+ * @package OpenID
  */
 
 /**
@@ -16,7 +16,7 @@
  * internally by the library depending on the availability of
  * supported PHP XML extensions.
  *
- * @package Yadis
+ * @package OpenID
  */
 class Auth_Yadis_XMLParser {
     /**
@@ -131,7 +131,7 @@ class Auth_Yadis_XMLParser {
  * extension is detected.  See the Auth_Yadis_XMLParser class for
  * details on this class's methods.
  *
- * @package Yadis
+ * @package OpenID
  */
 class Auth_Yadis_domxml extends Auth_Yadis_XMLParser {
     function Auth_Yadis_domxml()
@@ -214,7 +214,7 @@ class Auth_Yadis_domxml extends Auth_Yadis_XMLParser {
  * extension is detected.  See the Auth_Yadis_XMLParser class for
  * details on this class's methods.
  *
- * @package Yadis
+ * @package OpenID
  */
 class Auth_Yadis_dom extends Auth_Yadis_XMLParser {
     function Auth_Yadis_dom()

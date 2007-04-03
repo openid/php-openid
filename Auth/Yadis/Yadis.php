@@ -7,7 +7,7 @@
  *
  * LICENSE: See the COPYING file included in this distribution.
  *
- * @package Yadis
+ * @package OpenID
  * @author JanRain, Inc. <openid@janrain.com>
  * @copyright 2005 Janrain, Inc.
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
@@ -195,7 +195,7 @@ class Auth_Yadis_DiscoveryResult {
  * to write your own filter, see the documentation for {@link
  * Auth_Yadis_Service}.
  *
- * @package Yadis
+ * @package OpenID
  */
 class Auth_Yadis_Yadis {
 

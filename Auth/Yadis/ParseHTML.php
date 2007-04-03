@@ -7,7 +7,7 @@
  *
  * LICENSE: See the COPYING file included in this distribution.
  *
- * @package Yadis
+ * @package OpenID
  * @author JanRain, Inc. <openid@janrain.com>
  * @copyright 2005 Janrain, Inc.
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
@@ -18,7 +18,7 @@
  * tags and their attributes.  This is used by the Yadis discovery
  * process.  This class must be instantiated to be used.
  *
- * @package Yadis
+ * @package OpenID
  */
 class Auth_Yadis_ParseHTML {
 

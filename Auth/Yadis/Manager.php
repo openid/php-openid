@@ -4,7 +4,7 @@
  * Yadis service manager to be used during yadis-driven authentication
  * attempts.
  *
- * @package Yadis
+ * @package OpenID
  */
 
 /**
@@ -12,7 +12,7 @@
  * class wraps the default PHP session machinery and should be
  * subclassed if your application doesn't use PHP sessioning.
  *
- * @package Yadis
+ * @package OpenID
  */
 class Auth_Yadis_PHPSession {
     /**
@@ -271,7 +271,7 @@ class Auth_Yadis_ManagerLoader extends Auth_Yadis_SessionLoader {
  * a caller attempt to use each one.  This is used by the Yadis
  * library internally.
  *
- * @package Yadis
+ * @package OpenID
  */
 class Auth_Yadis_Manager {
 
@@ -364,7 +364,7 @@ class Auth_Yadis_Manager {
  * session. Once a request completes, call .finish() to clean up the
  * session state.
  *
- * @package Yadis
+ * @package OpenID
  */
 class Auth_Yadis_Discovery {
 

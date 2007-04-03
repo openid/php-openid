@@ -7,7 +7,7 @@
  *
  * LICENSE: See the COPYING file included in this distribution.
  *
- * @package Yadis
+ * @package OpenID
  * @author JanRain, Inc. <openid@janrain.com>
  * @copyright 2005 Janrain, Inc.
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
@@ -78,7 +78,7 @@ function Auth_Yadis_array_scramble($arr)
  * element's contents.  See {@link Auth_Yadis_Yadis} for more
  * information on the role this class plays in Yadis discovery.
  *
- * @package Yadis
+ * @package OpenID
  */
 class Auth_Yadis_Service {
 
@@ -217,7 +217,7 @@ class Auth_Yadis_Service {
  * returned.  This class is used by the Auth_Yadis_Yadis::discover
  * method.
  *
- * @package Yadis
+ * @package OpenID
  */
 class Auth_Yadis_XRDS {
 

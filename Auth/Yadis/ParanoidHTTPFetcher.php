@@ -7,7 +7,7 @@
  *
  * LICENSE: See the COPYING file included in this distribution.
  *
- * @package Yadis
+ * @package OpenID
  * @author JanRain, Inc. <openid@janrain.com>
  * @copyright 2005 Janrain, Inc.
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
@@ -22,7 +22,7 @@ require_once "Auth/Yadis/HTTPFetcher.php";
  * A paranoid {@link Auth_Yadis_HTTPFetcher} class which uses CURL
  * for fetching.
  *
- * @package Yadis
+ * @package OpenID
  */
 class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
     function Auth_Yadis_ParanoidHTTPFetcher()
