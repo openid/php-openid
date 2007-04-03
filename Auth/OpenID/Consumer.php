@@ -114,11 +114,10 @@
  *
  * First, the application should instantiate the Auth_OpenID_Consumer
  * class using the store of choice (Auth_OpenID_FileStore or one of
- * the SQL-based stores).  If the application has any sort of session
- * framework that provides per-client state management, a dict-like
- * object to access the session should be passed as the optional
- * second parameter.  (The default behavior is to use PHP's standard
- * session machinery.)
+ * the SQL-based stores).  If the application has a custom
+ * session-management implementation, an object implementing the
+ * {@link Auth_Yadis_Session} interface should be passed as the second
+ * parameter.  Otherwise, the default uses $_SESSION.
  *
  * Next, the application should call the Auth_OpenID_Consumer object's
  * 'begin' method.  This method takes the OpenID URL.  The 'begin'
@@ -249,15 +248,15 @@ class Auth_OpenID_Consumer {
      * to store state at all, an instance of {@link
      * Auth_OpenID_DumbStore} can be used.
      *
-     * @param mixed session An object which implements the interface
-     * of the Auth_Yadis_Session class.  Particularly, this object
-     * is expected to have these methods: get($key), set($key,
+     * @param mixed $session An object which implements the interface
+     * of the {@link Auth_Yadis_Session} class.  Particularly, this
+     * object is expected to have these methods: get($key), set($key),
      * $value), and del($key).  This defaults to a session object
      * which wraps PHP's native session machinery.  You should only
      * need to pass something here if you have your own sessioning
      * implementation.
      *
-     * @param str consumer_cls The name of the class to instantiate
+     * @param str $consumer_cls The name of the class to instantiate
      * when creating the internal consumer object.  This is used for
      * testing.
      */
