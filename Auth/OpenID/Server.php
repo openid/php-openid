@@ -28,13 +28,13 @@
  *
  * Examine the properties of the Auth_OpenID_CheckIDRequest object,
  * and if and when you've come to a decision, form a response by
- * calling Auth_OpenID_CheckIDRequest::answer.
+ * calling {@link Auth_OpenID_CheckIDRequest::answer()}.
  *
  * Other types of requests relate to establishing associations between
  * client and server and verifing the authenticity of previous
  * communications.  Auth_OpenID_Server contains all the logic and data
  * necessary to respond to such requests; just pass it to
- * Auth_OpenID_Server::handleRequest.
+ * {@link Auth_OpenID_Server::handleRequest()}.
  *
  * OpenID Extensions
  * 
@@ -50,16 +50,16 @@
  * Since extensions do not change the way OpenID authentication works,
  * code to handle extension requests may be completely separate from
  * the Auth_OpenID_Request class here.  But you'll likely want data
- * sent back by your extension to be signed.  Auth_OpenID_Response
+ * sent back by your extension to be signed.  {@link Auth_OpenID_ServerResponse}
  * provides methods with which you can add data to it which can be
  * signed with the other data in the OpenID signature.
  *
  * For example:
  *
- *   //  when request is a checkid_* request
- *   $response = $request->answer(true);
- *   // this will a signed 'openid.sreg.timezone' parameter to the response
- *   response.addField('sreg', 'timezone', 'America/Los_Angeles')
+ * <pre>  // when request is a checkid_* request
+ *  $response = $request->answer(true);
+ *  // this will a signed 'openid.sreg.timezone' parameter to the response
+ *  response.addField('sreg', 'timezone', 'America/Los_Angeles')</pre>
  *
  * Stores
  *
@@ -320,7 +320,6 @@ class Auth_OpenID_MalformedTrustRoot extends Auth_OpenID_ServerError {
 /**
  * The base class for all server request classes.
  *
- * @access private
  * @package OpenID
  */
 class Auth_OpenID_Request {
@@ -330,7 +329,6 @@ class Auth_OpenID_Request {
 /**
  * A request to verify the validity of a previous response.
  *
- * @access private
  * @package OpenID
  */
 class Auth_OpenID_CheckAuthRequest extends Auth_OpenID_Request {
@@ -569,7 +567,6 @@ class Auth_OpenID_DiffieHellmanSHA256ServerSession
 /**
  * A request to associate with the server.
  *
- * @access private
  * @package OpenID
  */
 class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
@@ -696,12 +693,22 @@ class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
 /**
  * A request to confirm the identity of a user.
  *
- * @access private
  * @package OpenID
  */
 class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
+    /**
+     * The mode of this request.
+     */
     var $mode = "checkid_setup"; // or "checkid_immediate"
+
+    /**
+     * Whether this request is for immediate mode.
+     */
     var $immediate = false;
+
+    /**
+     * The trust_root value for this request.
+     */
     var $trust_root = null;
 
     function make(&$message, $identity, $return_to, $trust_root = null,
@@ -876,6 +883,45 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
         }
     }
 
+    /**
+     * Respond to this request.  Return either an
+     * {@link Auth_OpenID_ServerResponse} or
+     * {@link Auth_OpenID_ServerError}.
+     *
+     * @param bool $allow Allow this user to claim this identity, and
+     * allow the consumer to have this information?
+     *
+     * @param string $server_url DEPRECATED.  Passing $op_endpoint to
+     * the {@link Auth_OpenID_Server} constructor makes this optional.
+     *
+     * When an OpenID 1.x immediate mode request does not succeed, it
+     * gets back a URL where the request may be carried out in a
+     * not-so-immediate fashion.  Pass my URL in here (the fully
+     * qualified address of this server's endpoint, i.e.
+     * http://example.com/server), and I will use it as a base for the
+     * URL for a new request.
+     *
+     * Optional for requests where {@link $immediate} is false or
+     * $allow is true.
+     *
+     * @param string $identity The OP-local identifier to answer with.
+     * Only for use when the relying party requested identifier
+     * selection.
+     *
+     * @param string $claimed_id The claimed identifier to answer
+     * with, for use with identifier selection in the case where the
+     * claimed identifier and the OP-local identifier differ,
+     * i.e. when the claimed_id uses delegation.
+     *
+     * If $identity is provided but this is not, $claimed_id will
+     * default to the value of $identity.  When answering requests
+     * that did not ask for identifier selection, the response
+     * $claimed_id will default to that of the request.
+     *
+     * This parameter is new in OpenID 2.0.
+     *
+     * @return mixed
+     */
     function answer($allow, $server_url = null, $identity = null,
                     $claimed_id = null)
     {
@@ -1078,7 +1124,6 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
 /**
  * This class encapsulates the response to an OpenID server request.
  *
- * @access private
  * @package OpenID
  */
 class Auth_OpenID_ServerResponse {
@@ -1293,7 +1338,8 @@ class Auth_OpenID_Signatory {
 }
 
 /**
- * Encode an Auth_OpenID_Response to an Auth_OpenID_WebResponse.
+ * Encode an {@link Auth_OpenID_ServerResponse} to an
+ * {@link Auth_OpenID_WebResponse}.
  *
  * @package OpenID
  */
@@ -1302,8 +1348,8 @@ class Auth_OpenID_Encoder {
     var $responseFactory = 'Auth_OpenID_WebResponse';
 
     /**
-     * Encode an Auth_OpenID_Response and return an
-     * Auth_OpenID_WebResponse.
+     * Encode an {@link Auth_OpenID_ServerResponse} and return an
+     * {@link Auth_OpenID_WebResponse}.
      */
     function encode(&$response)
     {
@@ -1342,8 +1388,8 @@ class Auth_OpenID_SigningEncoder extends Auth_OpenID_Encoder {
     }
 
     /**
-     * Sign an Auth_OpenID_Response and return an
-     * Auth_OpenID_WebResponse.
+     * Sign an {@link Auth_OpenID_ServerResponse} and return an
+     * {@link Auth_OpenID_WebResponse}.
      */
     function encode(&$response)
     {
@@ -1468,10 +1514,39 @@ class Auth_OpenID_UntrustedReturnURL extends Auth_OpenID_ServerError {
 }
 
 /**
- * An object that implements the OpenID protocol for a single URL.
+ * I handle requests for an OpenID server.
  *
- * Use this object by calling getOpenIDResponse when you get any
- * request for the server URL.
+ * Some types of requests (those which are not checkid requests) may
+ * be handed to my {@link handleRequest} method, and I will take care
+ * of it and return a response.
+ *
+ * For your convenience, I also provide an interface to {@link
+ * Auth_OpenID_Decoder::decode()} and {@link
+ * Auth_OpenID_SigningEncoder::encode()} through my methods {@link
+ * decodeRequest} and {@link encodeResponse}.
+ *
+ * All my state is encapsulated in an {@link Auth_OpenID_OpenIDStore}.
+ *
+ * Example:
+ *
+ * <pre> $oserver = new Auth_OpenID_Server(Auth_OpenID_FileStore($data_path),
+ *                                   "http://example.com/op");
+ * $request = $oserver->decodeRequest();
+ * if (in_array($request->mode, array('checkid_immediate',
+ *                                    'checkid_setup'))) {
+ *     if ($app->isAuthorized($request->identity, $request->trust_root)) {
+ *         $response = $request->answer(true);
+ *     } else if ($request->immediate) {
+ *         $response = $request->answer(false);
+ *     } else {
+ *         $app->showDecidePage($request);
+ *         return;
+ *     }
+ * } else {
+ *     $response = $oserver->handleRequest($request);
+ * }
+ *
+ * $webresponse = $oserver->encode($response);</pre>
  *
  * @package OpenID
  */
@@ -1487,14 +1562,14 @@ class Auth_OpenID_Server {
     }
 
     /**
-     * Handle a request.  Given an Auth_OpenID_Request object, call
-     * the appropriate Auth_OpenID_Server method to process the
-     * request and generate a response.
+     * Handle a request.  Given an {@link Auth_OpenID_Request} object,
+     * call the appropriate {@link Auth_OpenID_Server} method to
+     * process the request and generate a response.
      *
-     * @param Auth_OpenID_Request $request An Auth_OpenID_Request
-     * returned by Auth_OpenID_Server::decodeRequest.
+     * @param Auth_OpenID_Request $request An {@link Auth_OpenID_Request}
+     * returned by {@link Auth_OpenID_Server::decodeRequest()}.
      *
-     * @return Auth_OpenID_Response $response A response object
+     * @return Auth_OpenID_ServerResponse $response A response object
      * capable of generating a user-agent reply.
      */
     function handleRequest($request)
@@ -1508,8 +1583,6 @@ class Auth_OpenID_Server {
 
     /**
      * The callback for 'check_authentication' messages.
-     *
-     * @access private
      */
     function openid_check_authentication(&$request)
     {
@@ -1518,8 +1591,6 @@ class Auth_OpenID_Server {
 
     /**
      * The callback for 'associate' messages.
-     *
-     * @access private
      */
     function openid_associate(&$request)
     {
@@ -1551,7 +1622,7 @@ class Auth_OpenID_Server {
 
     /**
      * Decodes a query args array into the appropriate
-     * Auth_OpenID_Request object.
+     * {@link Auth_OpenID_Request} object.
      */
     function decodeRequest($query=null)
     {
