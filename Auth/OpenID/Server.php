@@ -57,7 +57,7 @@
  * For example:
  *
  *   //  when request is a checkid_* request
- *   response = request.answer(True)
+ *   $response = $request->answer(true);
  *   // this will a signed 'openid.sreg.timezone' parameter to the response
  *   response.addField('sreg', 'timezone', 'America/Los_Angeles')
  *
@@ -267,6 +267,12 @@ class Auth_OpenID_ServerError {
     }
 }
 
+/**
+ * Error returned by the server code when a return_to is absent from a
+ * request.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_NoReturnToError extends Auth_OpenID_ServerError {
     function Auth_OpenID_NoReturnToError($message = null,
                                          $text = "No return_to URL available")
@@ -408,6 +414,11 @@ class Auth_OpenID_CheckAuthRequest extends Auth_OpenID_Request {
     }
 }
 
+/**
+ * A class implementing plaintext server sessions.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_PlainTextServerSession {
     /**
      * An object that knows how to handle association requests with no
@@ -428,6 +439,11 @@ class Auth_OpenID_PlainTextServerSession {
     }
 }
 
+/**
+ * A class implementing DH-SHA1 server sessions.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_DiffieHellmanSHA1ServerSession {
     /**
      * An object that knows how to handle association requests with
@@ -524,6 +540,11 @@ class Auth_OpenID_DiffieHellmanSHA1ServerSession {
     }
 }
 
+/**
+ * A class implementing DH-SHA256 server sessions.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_DiffieHellmanSHA256ServerSession
       extends Auth_OpenID_DiffieHellmanSHA1ServerSession {
 

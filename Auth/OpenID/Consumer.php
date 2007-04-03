@@ -256,6 +256,10 @@ class Auth_OpenID_Consumer {
      * which wraps PHP's native session machinery.  You should only
      * need to pass something here if you have your own sessioning
      * implementation.
+     *
+     * @param str consumer_cls The name of the class to instantiate
+     * when creating the internal consumer object.  This is used for
+     * testing.
      */
     function Auth_OpenID_Consumer(&$store, $session = null,
                                   $consumer_cls = null)
@@ -275,6 +279,11 @@ class Auth_OpenID_Consumer {
         $this->_token_key = $this->session_key_prefix . $this->_token_suffix;
     }
 
+    /**
+     * Used in testing to define the discovery mechanism.
+     *
+     * @access private
+     */
     function getDiscoveryObject(&$session, $openid_url,
                                 $session_key_prefix)
     {
@@ -291,6 +300,11 @@ class Auth_OpenID_Consumer {
      * sure it is normalized. For example, a user_url of example.com
      * will be normalized to http://example.com/ normalizing and
      * resolving any redirects the server might issue.
+     *
+     * @param bool anonymous True if the OpenID request is to be sent
+     * to the server without any identifier information.  Use this
+     * when you want to transport data but don't want to do OpenID
+     * authentication with identifiers.
      *
      * @return Auth_OpenID_AuthRequest $auth_request An object
      * containing the discovered information will be returned, with a
@@ -353,6 +367,9 @@ class Auth_OpenID_Consumer {
      * @param Auth_OpenID_ServiceEndpoint $endpoint an OpenID service
      * endpoint descriptor.
      *
+     * @param bool anonymous Set to true if you want to perform OpenID
+     * without identifiers.
+     *
      * @return Auth_OpenID_AuthRequest $auth_request An OpenID
      * authentication request object.
      */
@@ -372,7 +389,10 @@ class Auth_OpenID_Consumer {
      * consumer overview.
      *
      * @param array $query An array of the query parameters (key =>
-     * value pairs) for this HTTP request.
+     * value pairs) for this HTTP request.  Defaults to null.  If
+     * null, the GET or POST data are automatically gotten from the
+     * PHP environment.  It is only useful to override $query for
+     * testing.
      *
      * @return Auth_OpenID_ConsumerResponse $response A instance of an
      * Auth_OpenID_ConsumerResponse subclass. The type of response is
@@ -413,6 +433,11 @@ class Auth_OpenID_Consumer {
     }
 }
 
+/**
+ * A class implementing HMAC/DH-SHA1 consumer sessions.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_DiffieHellmanSHA1ConsumerSession {
     var $session_type = 'DH-SHA1';
     var $hash_func = 'Auth_OpenID_SHA1';
@@ -470,6 +495,11 @@ class Auth_OpenID_DiffieHellmanSHA1ConsumerSession {
     }
 }
 
+/**
+ * A class implementing HMAC/DH-SHA256 consumer sessions.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_DiffieHellmanSHA256ConsumerSession extends
       Auth_OpenID_DiffieHellmanSHA1ConsumerSession {
     var $session_type = 'DH-SHA256';
@@ -478,6 +508,11 @@ class Auth_OpenID_DiffieHellmanSHA256ConsumerSession extends
     var $allowed_assoc_types = array('HMAC-SHA256');
 }
 
+/**
+ * A class implementing plaintext consumer sessions.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_PlainTextConsumerSession {
     var $session_type = 'no-encryption';
     var $allowed_assoc_types =  array('HMAC-SHA1');
@@ -498,6 +533,9 @@ class Auth_OpenID_PlainTextConsumerSession {
     }
 }
 
+/**
+ * Returns available session types.
+ */
 function Auth_OpenID_getAvailableSessionTypes()
 {
     $types = array(
@@ -514,7 +552,6 @@ function Auth_OpenID_getAvailableSessionTypes()
  * reused (or even used by multiple threads concurrently) as needed.
  *
  * @package OpenID
- * @access private
  */
 class Auth_OpenID_GenericConsumer {
     /**
@@ -566,6 +603,12 @@ class Auth_OpenID_GenericConsumer {
         $this->session_types = Auth_OpenID_getAvailableSessionTypes();
     }
 
+    /**
+     * Called to begin OpenID authentication using the specified
+     * {@link Auth_OpenID_ServiceEndpoint}.
+     *
+     * @access private
+     */
     function begin($service_endpoint)
     {
         $assoc = $this->_getAssociation($service_endpoint);
@@ -575,6 +618,13 @@ class Auth_OpenID_GenericConsumer {
         return $r;
     }
 
+    /**
+     * Given an {@link Auth_OpenID_Message}, {@link
+     * Auth_OpenID_ServiceEndpoint} and optional return_to URL,
+     * complete OpenID authentication.
+     *
+     * @access private
+     */
     function complete($message, $endpoint, $return_to = null)
     {
         $mode = $message->getArg(Auth_OpenID_OPENID_NS, 'mode',
@@ -613,6 +663,9 @@ class Auth_OpenID_GenericConsumer {
         }
     }
 
+    /**
+     * @access private
+     */
     function _checkSetupNeeded($message)
     {
         // In OpenID 1, we check to see if this is a cancel from
@@ -684,6 +737,9 @@ class Auth_OpenID_GenericConsumer {
 
     }
 
+    /**
+     * @access private
+     */
     function _checkReturnTo($message, $return_to)
     {
         // Check an OpenID message and its openid.return_to value
@@ -744,6 +800,9 @@ class Auth_OpenID_GenericConsumer {
         return true;
     }
 
+    /**
+     * @access private
+     */
     function _verifyReturnToArgs($query)
     {
         // Verify that the arguments in the return_to URL are present in this
@@ -784,6 +843,9 @@ class Auth_OpenID_GenericConsumer {
         return true;
     }
 
+    /**
+     * @access private
+     */
     function _idResCheckSignature($message, $server_url)
     {
         $assoc_handle = $message->getArg(Auth_OpenID_OPENID_NS,
@@ -821,6 +883,9 @@ class Auth_OpenID_GenericConsumer {
         return null;
     }
 
+    /**
+     * @access private
+     */
     function _verifyDiscoveryResults($message, $endpoint=null)
     {
         if ($message->getOpenIDNamespace() == Auth_OpenID_OPENID2_NS) {
@@ -832,6 +897,9 @@ class Auth_OpenID_GenericConsumer {
         }
     }
 
+    /**
+     * @access private
+     */
     function _verifyDiscoveryResultsOpenID1($message, $endpoint)
     {
         if ($endpoint === null) {
@@ -871,6 +939,9 @@ class Auth_OpenID_GenericConsumer {
         }
     }
 
+    /**
+     * @access private
+     */
     function _verifyDiscoverySingle($endpoint, $to_match)
     {
         // Every type URI that's in the to_match endpoint has to be
@@ -914,6 +985,9 @@ class Auth_OpenID_GenericConsumer {
         return null;
     }
 
+    /**
+     * @access private
+     */
     function _verifyDiscoveryResultsOpenID2($message, $endpoint)
     {
         $to_match = new Auth_OpenID_ServiceEndpoint();
@@ -976,6 +1050,9 @@ class Auth_OpenID_GenericConsumer {
         // Never reached.
     }
 
+    /**
+     * @access private
+     */
     function _discoverAndVerify($to_match)
     {
         // oidutil.log('Performing discovery on %s' % (to_match.claimed_id,))
@@ -1009,6 +1086,9 @@ class Auth_OpenID_GenericConsumer {
                   $to_match->claimed_id));
     }
 
+    /**
+     * @access private
+     */
     function _idResGetNonceOpenID1($message, $endpoint)
     {
         $return_to = $message->getArg(Auth_OpenID_OPENID1_NS,
@@ -1039,6 +1119,9 @@ class Auth_OpenID_GenericConsumer {
         return null;
     }
 
+    /**
+     * @access private
+     */
     function _idResCheckNonce($message, $endpoint)
     {
         if ($message->isOpenID1()) {
@@ -1074,6 +1157,9 @@ class Auth_OpenID_GenericConsumer {
         return null;
     }
 
+    /**
+     * @access private
+     */
     function _idResCheckForFields($message, $signed_list)
     {
         $basic_fields = array('return_to', 'assoc_handle', 'sig');
@@ -1252,6 +1338,9 @@ class Auth_OpenID_GenericConsumer {
         return $assoc;
     }
 
+    /**
+     * @access private
+     */
     function _negotiateAssociation($endpoint)
     {
         // Get our preferred session/association type from the negotiatior.
@@ -1326,6 +1415,9 @@ class Auth_OpenID_GenericConsumer {
         return $assoc;
     }
 
+    /**
+     * @access private
+     */
     function _requestAssociation($endpoint, $assoc_type, $session_type)
     {
         list($assoc_session, $args) = $this->_createAssociateRequest(
@@ -1344,6 +1436,9 @@ class Auth_OpenID_GenericConsumer {
         return $this->_extractAssociation($response_message, $assoc_session);
     }
 
+    /**
+     * @access private
+     */
     function _extractAssociation(&$assoc_response, &$assoc_session)
     {
         // Extract the common fields from the response, raising an
@@ -1434,6 +1529,9 @@ class Auth_OpenID_GenericConsumer {
                  $expires_in, $assoc_handle, $secret, $assoc_type);
     }
 
+    /**
+     * @access private
+     */
     function _createAssociateRequest($endpoint, $assoc_type, $session_type)
     {
         if (array_key_exists($session_type, $this->session_types)) {
@@ -1463,19 +1561,19 @@ class Auth_OpenID_GenericConsumer {
         return array($assoc_session, $message);
     }
 
-    // Given an association response message, extract the OpenID 1.X
-    // session type.
-    //
-    // This function mostly takes care of the 'no-encryption' default
-    // behavior in OpenID 1.
-    //
-    // If the association type is plain-text, this function will
-    // return 'no-encryption'
-    //
-    // @returns: The association type for this message
-    // @rtype: str
-    // 
-    // @raises: KeyError, if the session_type field is absent.
+    /**
+     * Given an association response message, extract the OpenID 1.X
+     * session type.
+     *
+     * This function mostly takes care of the 'no-encryption' default
+     * behavior in OpenID 1.
+     *
+     * If the association type is plain-text, this function will
+     * return 'no-encryption'
+     *
+     * @access private
+     * @return $typ The association type for this message
+     */
     function _getOpenID1SessionType($assoc_response)
     {
         // If it's an OpenID 1 message, allow session_type to default
@@ -1852,6 +1950,8 @@ class Auth_OpenID_FailureResponse extends Auth_OpenID_ConsumerResponse {
 
 /**
  * A specific, internal failure used to detect type URI mismatch.
+ *
+ * @package OpenID
  */
 class Auth_OpenID_TypeURIMismatch extends Auth_OpenID_FailureResponse {
 }
@@ -1859,6 +1959,8 @@ class Auth_OpenID_TypeURIMismatch extends Auth_OpenID_FailureResponse {
 /**
  * Exception that is raised when the server returns a 400 response
  * code to a direct request.
+ *
+ * @package OpenID
  */
 class Auth_OpenID_ServerErrorContainer {
     function Auth_OpenID_ServerErrorContainer($error_text,
@@ -1870,6 +1972,9 @@ class Auth_OpenID_ServerErrorContainer {
         $this->message = $message;
     }
 
+    /**
+     * @access private
+     */
     function fromMessage($message)
     {
         $error_text = $message->getArg(

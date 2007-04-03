@@ -2,35 +2,43 @@
 
 /**
  * Simple registration request and response parsing and object
- * representation
+ * representation.
  *
  * This module contains objects representing simple registration
  * requests and responses that can be used with both OpenID relying
  * parties and OpenID providers.
  *
  * 1. The relying party creates a request object and adds it to the
- *    C{L{AuthRequest<openid.consumer.consumer.AuthRequest>}} object
- *    before making the C{checkid_} request to the OpenID provider::
+ * {@link Auth_OpenID_AuthRequest} object before making the
+ * checkid request to the OpenID provider:
  *
- *     auth_request.addExtension(SRegRequest(required=['email']))
+ *   $sreg_req = Auth_OpenID_SRegRequest::build(array('email'));
+ *   $auth_request->addExtension($sreg_req);
  *
- * 2. The OpenID provider extracts the simple registration request from
- *    the OpenID request using C{L{SRegRequest.fromOpenIDRequest}},
- *    gets the user's approval and data, creates a C{L{SRegResponse}}
- *    object and adds it to the C{id_res} response::
+ * 2. The OpenID provider extracts the simple registration request
+ * from the OpenID request using {@link
+ * Auth_OpenID_SRegRequest::fromOpenIDRequest}, gets the user's
+ * approval and data, creates an {@link Auth_OpenID_SRegResponse}
+ * object and adds it to the id_res response:
  *
- *    sreg_req = SRegRequest.fromOpenIDRequest(checkid_request.message)
- *    // [ get the user's approval and data, informing the user that
- *    //   the fields in sreg_response were requested ]
- *    sreg_resp = SRegResponse.extractResponse(sreg_req, user_data)
- *    sreg_resp.addToOpenIDResponse(openid_response)
+ *   $sreg_req = Auth_OpenID_SRegRequest::fromOpenIDRequest($checkid_request->message);
+ *   // [ get the user's approval and data, informing the user that
+ *   //   the fields in sreg_response were requested ]
+ *   $sreg_resp = Auth_OpenID_SRegResponse::extractResponse($sreg_req, $user_data);
+ *   $sreg_resp->addToOpenIDResponse($openid_response);
  *
- * 3. The relying party uses C{L{SRegResponse.fromSuccessResponse}} to
- *    extract the data from the OpenID response::
+ * 3. The relying party uses {@link
+ * Auth_OpenID_SRegResponse::fromSuccessResponse} to extract the data
+ * from the OpenID response:
  *
- *     sreg_resp = SRegResponse.fromSuccessResponse(success_response)
+ *   $sreg_resp = Auth_OpenID_SRegResponse::fromSuccessResponse($success_response);
+ *
+ * @package OpenID
  */
 
+/**
+ * Import message and extension internals.
+ */
 require_once 'Auth/OpenID/Message.php';
 require_once 'Auth/OpenID/Extension.php';
 
@@ -89,6 +97,12 @@ function Auth_OpenID_supportsSReg(&$endpoint)
             $endpoint->usesExtension(Auth_OpenID_SREG_NS_URI_1_0));
 }
 
+/**
+ * A base class for classes dealing with Simple Registration protocol
+ * messages.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_SRegBase extends Auth_OpenID_Extension {
     /**
      * Extract the simple registration namespace URI from the given
@@ -102,6 +116,8 @@ class Auth_OpenID_SRegBase extends Auth_OpenID_Extension {
      * Returns the sreg namespace URI for the supplied message. The
      * message may be modified to define a simple registration
      * namespace.
+     *
+     * @access private
      */
     function _getSRegNS(&$message)
     {
@@ -145,14 +161,14 @@ class Auth_OpenID_SRegBase extends Auth_OpenID_Extension {
  * optional: A list of the optional fields in this simple registration
  * request
  *
- * @ivar policy_url: The policy URL that was provided with the request
+ * @package OpenID
  */
 class Auth_OpenID_SRegRequest extends Auth_OpenID_SRegBase {
 
     var $ns_alias = 'sreg';
 
     /**
-     * Initialize an empty simple registration request
+     * Initialize an empty simple registration request.
      */
     function build($required=null, $optional=null,
                    $policy_url=null,
@@ -215,18 +231,18 @@ class Auth_OpenID_SRegRequest extends Auth_OpenID_SRegBase {
      * and add them to this object.
      *
      * This method is essentially the inverse of
-     * C{L{getExtensionArgs}}. This method restores the serialized
-     * simple registration request fields.
+     * getExtensionArgs. This method restores the serialized simple
+     * registration request fields.
      *
      * If you are extracting arguments from a standard OpenID
-     * checkid_* request, you probably want to use
-     * C{L{fromOpenIDRequest}}, which will extract the sreg namespace
-     * and arguments from the OpenID request. This method is intended
-     * for cases where the OpenID server needs more control over how
-     * the arguments are parsed than that method provides.
+     * checkid_* request, you probably want to use fromOpenIDRequest,
+     * which will extract the sreg namespace and arguments from the
+     * OpenID request. This method is intended for cases where the
+     * OpenID server needs more control over how the arguments are
+     * parsed than that method provides.
      *
-     * >>> args = message.getArgs(ns_uri)
-     * >>> request.parseExtensionArgs(args)
+     * $args == $message->getArgs($ns_uri);
+     * $request->parseExtensionArgs($args);
      *
      * $args: The unqualified simple registration arguments
      *
@@ -386,6 +402,8 @@ class Auth_OpenID_SRegRequest extends Auth_OpenID_SRegBase {
  * inside of an OpenID C{id_res} response. This object will be created
  * by the OpenID server, added to the C{id_res} response object, and
  * then extracted from the C{id_res} message by the Consumer.
+ *
+ * @package OpenID
  */
 class Auth_OpenID_SRegResponse extends Auth_OpenID_SRegBase {
 
@@ -414,7 +432,6 @@ class Auth_OpenID_SRegResponse extends Auth_OpenID_SRegBase {
      * dictionary from unqualified simple registration field name to
      * string (unicode) value. For instance, the nickname should be
      * stored under the key 'nickname'.
-     *
      */
     function extractResponse($request, $data)
     {

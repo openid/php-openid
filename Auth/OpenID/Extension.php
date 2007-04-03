@@ -2,10 +2,21 @@
 
 /**
  * An interface for OpenID extensions.
+ *
+ * @package OpenID
  */
 
+/**
+ * Require the Message implementation.
+ */
 require_once 'Auth/OpenID/Message.php';
 
+/**
+ * A base class for accessing extension request and response data for
+ * the OpenID 2 protocol.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_Extension {
     /**
      * ns_uri: The namespace to which to add the arguments for this

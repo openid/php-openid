@@ -2,8 +2,13 @@
 
 /**
  * Nonce-related functionality.
+ *
+ * @package OpenID
  */
 
+/**
+ * Need CryptUtil to generate random strings.
+ */
 require_once 'Auth/OpenID/CryptUtil.php';
 
 /**

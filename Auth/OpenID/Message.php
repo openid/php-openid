@@ -2,10 +2,13 @@
 
 /**
  * Extension argument processing code
+ *
+ * @package OpenID
  */
 
-// import urllib
-
+/**
+ * Import tools needed to deal with messages.
+ */
 require_once 'Auth/OpenID.php';
 require_once 'Auth/OpenID/KVForm.php';
 require_once 'Auth/Yadis/XML.php';
@@ -104,6 +107,8 @@ function Auth_OpenID_removeNamespaceAlias($namespace_uri, $alias)
  * An Auth_OpenID_Mapping maintains a mapping from arbitrary keys to
  * arbitrary values.  (This is unlike an ordinary PHP array, whose
  * keys may be only simple scalars.)
+ *
+ * @package OpenID
  */
 class Auth_OpenID_Mapping {
     /**
@@ -202,6 +207,9 @@ class Auth_OpenID_Mapping {
         }
     }
 
+    /**
+     * @access private
+     */
     function _reflow()
     {
         // PHP is broken yet again.  Sort the arrays to remove the
@@ -250,6 +258,8 @@ class Auth_OpenID_Mapping {
 
 /**
  * Maintains a bijective map between namespace uris and aliases.
+ *
+ * @package OpenID
  */
 class Auth_OpenID_NamespaceMap {
     function Auth_OpenID_NamespaceMap()
@@ -376,6 +386,8 @@ class Auth_OpenID_NamespaceMap {
 /**
  * In the implementation of this object, null represents the global
  * namespace as well as a namespace with no key.
+ *
+ * @package OpenID
  */
 class Auth_OpenID_Message {
 
@@ -453,6 +465,9 @@ class Auth_OpenID_Message {
         }
     }
 
+    /**
+     * @access private
+     */
     function _fromOpenIDArgs($openid_args)
     {
         global $Auth_OpenID_registered_aliases;
@@ -688,6 +703,9 @@ class Auth_OpenID_Message {
         return Auth_OpenID::httpBuildQuery($args);
     }
 
+    /**
+     * @access private
+     */
     function _fixNS($namespace)
     {
         // Convert an input value into the internally used values of

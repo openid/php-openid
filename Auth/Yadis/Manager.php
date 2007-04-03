@@ -70,10 +70,14 @@ class Auth_Yadis_PHPSession {
  * for dumb objects that just need to have attributes set.  The idea
  * is that you'll subclass this and override $this->check($data) ->
  * bool to implement your own session data validation.
+ *
+ * @package OpenID
  */
 class Auth_Yadis_SessionLoader {
     /**
      * Override this.
+     *
+     * @access private
      */
     function check($data)
     {
@@ -87,6 +91,8 @@ class Auth_Yadis_SessionLoader {
      * $this->requiredKeys().  Returns null if $this->check($data)
      * evaluates to false.  Returns null if $this->newObject()
      * evaluates to false.
+     *
+     * @access private
      */
     function fromSession($data)
     {
@@ -124,6 +130,8 @@ class Auth_Yadis_SessionLoader {
      * Prepares the data array by making any necessary changes.
      * Returns an array whose keys and values will be used to update
      * the original data array before calling $this->newObject($data).
+     *
+     * @access private
      */
     function prepareForLoad($data)
     {
@@ -135,6 +143,8 @@ class Auth_Yadis_SessionLoader {
      * session data to construct it if necessary.  The object need
      * only be created; $this->fromSession() will take care of setting
      * the object's attributes.
+     *
+     * @access private
      */
     function newObject($data)
     {
@@ -146,6 +156,8 @@ class Auth_Yadis_SessionLoader {
      * of $obj.  If $this->prepareForSave($obj) returns an array, its keys
      * and values are used to update the $data array of attributes
      * from $obj.
+     *
+     * @access private
      */
     function toSession($obj)
     {
@@ -167,6 +179,8 @@ class Auth_Yadis_SessionLoader {
 
     /**
      * Override this.
+     *
+     * @access private
      */
     function prepareForSave($obj)
     {
@@ -176,6 +190,8 @@ class Auth_Yadis_SessionLoader {
 
 /**
  * A concrete loader implementation for Auth_OpenID_ServiceEndpoints.
+ *
+ * @package OpenID
  */
 class Auth_OpenID_ServiceEndpointLoader extends Auth_Yadis_SessionLoader {
     function newObject($data)
@@ -201,6 +217,8 @@ class Auth_OpenID_ServiceEndpointLoader extends Auth_Yadis_SessionLoader {
 
 /**
  * A concrete loader implementation for Auth_Yadis_Managers.
+ *
+ * @package OpenID
  */
 class Auth_Yadis_ManagerLoader extends Auth_Yadis_SessionLoader {
     function requiredKeys()

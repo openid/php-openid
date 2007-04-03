@@ -49,6 +49,9 @@ class Auth_OpenID_SQLiteStore extends Auth_OpenID_SQLStore {
             "INSERT INTO %s (server_url, timestamp, salt) VALUES (?, ?, ?)";
     }
 
+    /**
+     * @access private
+     */
     function _add_nonce($server_url, $timestamp, $salt)
     {
         // PECL SQLite extensions 1.0.3 and older (1.0.3 is the

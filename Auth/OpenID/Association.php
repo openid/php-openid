@@ -315,6 +315,8 @@ class Auth_OpenID_Association {
      * Given a {@link Auth_OpenID_Message}, return the key/value pairs
      * to be signed according to the signed list in the message.  If
      * the message lacks a signed list, return null.
+     *
+     * @access private
      */
     function _makePairs(&$message)
     {
@@ -472,14 +474,59 @@ function &Auth_OpenID_getEncryptedNegotiator()
     return $x;
 }
 
+/**
+ * A session negotiator controls the allowed and preferred association
+ * types and association session types. Both the {@link
+ * Auth_OpenID_Consumer} and {@link Auth_OpenID_Server} use
+ * negotiators when creating associations.
+ *
+ * You can create and use negotiators if you:
+
+ * - Do not want to do Diffie-Hellman key exchange because you use
+ * transport-layer encryption (e.g. SSL)
+ *
+ * - Want to use only SHA-256 associations
+ *
+ * - Do not want to support plain-text associations over a non-secure
+ * channel
+ *
+ * It is up to you to set a policy for what kinds of associations to
+ * accept. By default, the library will make any kind of association
+ * that is allowed in the OpenID 2.0 specification.
+ *
+ * Use of negotiators in the library
+ * =================================
+ *
+ * When a consumer makes an association request, it calls {@link
+ * getAllowedType} to get the preferred association type and
+ * association session type.
+ *
+ * The server gets a request for a particular association/session type
+ * and calls {@link isAllowed} to determine if it should create an
+ * association. If it is supported, negotiation is complete. If it is
+ * not, the server calls {@link getAllowedType} to get an allowed
+ * association type to return to the consumer.
+ *
+ * If the consumer gets an error response indicating that the
+ * requested association/session type is not supported by the server
+ * that contains an assocation/session type to try, it calls {@link
+ * isAllowed} to determine if it should try again with the given
+ * combination of association/session type.
+ *
+ * @package OpenID
+ */
 class Auth_OpenID_SessionNegotiator {
     function Auth_OpenID_SessionNegotiator($allowed_types)
     {
         $this->allowed_types = $allowed_types;
     }
 
-    // Set the allowed association types, checking to make sure each
-    // combination is valid.
+    /**
+     * Set the allowed association types, checking to make sure each
+     * combination is valid.
+     *
+     * @access private
+     */
     function setAllowedTypes($allowed_types)
     {
         foreach ($allowed_types as $pair) {
@@ -493,9 +540,13 @@ class Auth_OpenID_SessionNegotiator {
         return true;
     }
 
-    // Add an association type and session type to the allowed types
-    // list. The assocation/session pairs are tried in the order that
-    // they are added.
+    /**
+     * Add an association type and session type to the allowed types
+     * list. The assocation/session pairs are tried in the order that
+     * they are added.
+     *
+     * @access private
+     */
     function addAllowedType($assoc_type, $session_type = null)
     {
         if ($this->allowed_types === null) {
@@ -535,8 +586,10 @@ class Auth_OpenID_SessionNegotiator {
         return ($assoc_good && $matches);
     }
 
-    // Get a pair of assocation type and session type that are
-    // supported
+    /**
+     * Get a pair of assocation type and session type that are
+     * supported.
+     */
     function getAllowedType()
     {
         if (!$this->allowed_types) {

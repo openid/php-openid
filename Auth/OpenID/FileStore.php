@@ -12,7 +12,6 @@
  * @author JanRain, Inc. <openid@janrain.com>
  * @copyright 2005 Janrain, Inc.
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
- *
  */
 
 /**
@@ -372,6 +371,8 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
     /**
      * Remove expired entries from the database. This is potentially
      * expensive, so only run when it is acceptable to take time.
+     *
+     * @access private
      */
     function _allAssocs()
     {

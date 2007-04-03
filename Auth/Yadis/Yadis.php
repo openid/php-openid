@@ -40,7 +40,11 @@ define('Auth_Yadis_CONTENT_TYPE', 'application/xrds+xml');
  */
 define('Auth_Yadis_HEADER_NAME', 'X-XRDS-Location');
 
-// Contains the result of performing Yadis discovery on a URI
+/**
+ * Contains the result of performing Yadis discovery on a URI.
+ *
+ * @package OpenID
+ */
 class Auth_Yadis_DiscoveryResult {
 
     // The URI that was passed to the fetcher
