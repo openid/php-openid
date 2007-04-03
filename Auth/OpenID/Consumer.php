@@ -97,10 +97,7 @@
  * the library in immediate mode.  In immediate mode, there is an
  * extra response possible from the server, which is essentially the
  * server reporting that it doesn't have enough information to answer
- * the question yet.  In addition to saying that, the identity server
- * provides a URL to which the user can be sent to provide the needed
- * information and let the server finish handling the original
- * request.
+ * the question yet.
  *
  * USING THIS LIBRARY
  *
