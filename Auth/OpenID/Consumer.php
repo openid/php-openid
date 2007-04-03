@@ -288,7 +288,7 @@ class Auth_OpenID_Consumer {
                                 $session_key_prefix)
     {
         return new Auth_Yadis_Discovery($session, $openid_url,
-                                            $session_key_prefix);
+                                        $session_key_prefix);
     }
 
     /**
