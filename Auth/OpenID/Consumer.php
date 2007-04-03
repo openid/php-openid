@@ -1679,8 +1679,24 @@ class Auth_OpenID_AuthRequest {
     }
 
     /**
+     * Produce a {@link Auth_OpenID_Message} representing this
+     * request.
+     *
+     * @param string $realm The URL (or URL pattern) that identifies
+     * your web site to the user when she is authorizing it.
+     *
+     * @param string $return_to The URL that the OpenID provider will
+     * send the user back to after attempting to verify her identity.
+     *
      * Not specifying a return_to URL means that the user will not be
      * returned to the site issuing the request upon its completion.
+     *
+     * @param bool $immediate If true, the OpenID provider is to send
+     * back a response immediately, useful for behind-the-scenes
+     * authentication attempts.  Otherwise the OpenID provider may
+     * engage the user before providing a response.  This is the
+     * default case, as the user may need to provide credentials or
+     * approve the request before a positive response can be sent.
      */
     function getMessage($realm, $return_to=null, $immediate=false)
     {
