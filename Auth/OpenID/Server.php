@@ -11,11 +11,11 @@
  *  2. Make a decision about how to respond to this request.
  *  3. Format the response according to the protocol.
  * 
- * The first and last of these tasks may performed by the
- * 'decodeRequest' and 'encodeResponse' methods of the
- * Auth_OpenID_Server object.  Who gets to do the intermediate task --
- * deciding how to respond to the request -- will depend on what type
- * of request it is.
+ * The first and last of these tasks may performed by the {@link
+ * Auth_OpenID_Server::decodeRequest()} and {@link
+ * Auth_OpenID_Server::encodeResponse} methods.  Who gets to do the
+ * intermediate task -- deciding how to respond to the request -- will
+ * depend on what type of request it is.
  *
  * If it's a request to authenticate a user (a 'checkid_setup' or
  * 'checkid_immediate' request), you need to decide if you will assert
@@ -26,14 +26,14 @@
  * and verifying with the user that she does consent to releasing that
  * information to the party making the request.
  *
- * Examine the properties of the Auth_OpenID_CheckIDRequest object,
- * and if and when you've come to a decision, form a response by
- * calling {@link Auth_OpenID_CheckIDRequest::answer()}.
+ * Examine the properties of the {@link Auth_OpenID_CheckIDRequest}
+ * object, and if and when you've come to a decision, form a response
+ * by calling {@link Auth_OpenID_CheckIDRequest::answer()}.
  *
  * Other types of requests relate to establishing associations between
  * client and server and verifing the authenticity of previous
- * communications.  Auth_OpenID_Server contains all the logic and data
- * necessary to respond to such requests; just pass it to
+ * communications.  {@link Auth_OpenID_Server} contains all the logic
+ * and data necessary to respond to such requests; just pass it to
  * {@link Auth_OpenID_Server::handleRequest()}.
  *
  * OpenID Extensions
@@ -49,10 +49,11 @@
  *
  * Since extensions do not change the way OpenID authentication works,
  * code to handle extension requests may be completely separate from
- * the Auth_OpenID_Request class here.  But you'll likely want data
- * sent back by your extension to be signed.  {@link Auth_OpenID_ServerResponse}
- * provides methods with which you can add data to it which can be
- * signed with the other data in the OpenID signature.
+ * the {@link Auth_OpenID_Request} class here.  But you'll likely want
+ * data sent back by your extension to be signed.  {@link
+ * Auth_OpenID_ServerResponse} provides methods with which you can add
+ * data to it which can be signed with the other data in the OpenID
+ * signature.
  *
  * For example:
  *
@@ -68,9 +69,9 @@
  * store interface is defined in Interface.php.  Additionally, several
  * concrete store implementations are provided, so that most sites
  * won't need to implement a custom store.  For a store backed by flat
- * files on disk, see Auth_OpenID_FileStore.  For stores based on
- * MySQL, SQLite, or PostgreSQL, see the Auth_OpenID_SQLStore
- * subclasses.
+ * files on disk, see {@link Auth_OpenID_FileStore}.  For stores based
+ * on MySQL, SQLite, or PostgreSQL, see the {@link
+ * Auth_OpenID_SQLStore} subclasses.
  *
  * Upgrading
  *
