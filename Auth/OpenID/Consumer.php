@@ -291,13 +291,13 @@ class Auth_OpenID_Consumer {
      * Start the OpenID authentication process. See steps 1-2 in the
      * overview at the top of this file.
      *
-     * @param User_url: Identity URL given by the user. This method
-     * performs a textual transformation of the URL to try and make
-     * sure it is normalized. For example, a user_url of example.com
-     * will be normalized to http://example.com/ normalizing and
-     * resolving any redirects the server might issue.
+     * @param string $user_url Identity URL given by the user. This
+     * method performs a textual transformation of the URL to try and
+     * make sure it is normalized. For example, a user_url of
+     * example.com will be normalized to http://example.com/
+     * normalizing and resolving any redirects the server might issue.
      *
-     * @param bool anonymous True if the OpenID request is to be sent
+     * @param bool $anonymous True if the OpenID request is to be sent
      * to the server without any identifier information.  Use this
      * when you want to transport data but don't want to do OpenID
      * authentication with identifiers.
