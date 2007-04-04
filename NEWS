@@ -16,6 +16,7 @@ protocol.  Highlights include:
  * An improved HTML parser implementation
  * Library is now immune to being included inside functions and
    methods
+ * Fixes to avoid multibyte overloading problems
 
 
 Upgrading from earlier versions of this library
