@@ -169,9 +169,8 @@ if (isset($_SERVER['REQUEST_METHOD'])) {
 
 function detect_math($r, &$out)
 {
-    global $_Auth_OpenID_math_extensions;
     $out .= $r->h2('Math support');
-    $ext = Auth_OpenID_detectMathLibrary($_Auth_OpenID_math_extensions);
+    $ext = Auth_OpenID_detectMathLibrary(Auth_OpenID_math_extensions());
     if (!isset($ext['extension']) || !isset($ext['class'])) {
         $out .= $r->p(
             'Your PHP installation does not include big integer math ' .

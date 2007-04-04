@@ -80,9 +80,6 @@ foreach ($flags as $flag) {
     case '--no-curl':
         define('Auth_Yadis_CURL_OVERRIDE', true);
         break;
-    case '--math-lib':
-        $math_type[] = $value;
-        break;
     case '--thorough':
         define('Tests_Auth_OpenID_thorough', true);
         break;
@@ -93,8 +90,11 @@ foreach ($flags as $flag) {
 }
 
 // ******** Math library selection ***********
-
-if ($math_type) {
+// XXX FIXME
+//     case '--math-lib':
+//         $math_type[] = $value;
+//         break;
+if ($math_type && false) {
     if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
         print "--no-math and --math-lib are mutually exclusive\n";
         exit(1);
@@ -103,7 +103,7 @@ if ($math_type) {
     $new_extensions = array();
     foreach ($math_type as $lib) {
         $found = false;
-        foreach ($_Auth_OpenID_math_extensions as $ext) {
+        foreach (Auth_OpenID_math_extensions() as $ext) {
             if ($ext['extension'] == $lib) {
                 $new_extensions[] = $ext;
                 $found = true;
