@@ -251,7 +251,7 @@ function detect_random($r, &$out)
     }
 
     if ($f !== false) {
-        $dataok = (strlen($data) == $numbytes);
+        $dataok = (Auth_OpenID::bytes($data) == $numbytes);
         $ok = $dataok && !$size;
         $msg .= 'It seems to exist ';
         if ($dataok) {

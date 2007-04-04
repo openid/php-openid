@@ -14,6 +14,7 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
+require_once 'Auth/OpenID.php';
 require_once 'Auth/OpenID/BigMath.php';
 require_once 'Auth/OpenID/HMACSHA1.php';
 
@@ -123,7 +124,7 @@ class Auth_OpenID_DiffieHellman {
         $hash_dh_shared = $hash_func($dh_shared_str);
 
         $xsecret = "";
-        for ($i = 0; $i < strlen($secret); $i++) {
+        for ($i = 0; $i < Auth_OpenID::bytes($secret); $i++) {
             $xsecret .= chr(ord($secret[$i]) ^ ord($hash_dh_shared[$i]));
         }
 

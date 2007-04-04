@@ -14,6 +14,7 @@
  */
 
 require_once 'PHPUnit.php';
+require_once 'Auth/OpenID.php';
 require_once 'Auth/OpenID/CryptUtil.php';
 
 class Tests_Auth_OpenID_CryptUtil extends PHPUnit_TestCase {
@@ -22,7 +23,7 @@ class Tests_Auth_OpenID_CryptUtil extends PHPUnit_TestCase {
         $cases = array(1, 10, 255);
         foreach ($cases as $length) {
             $data = Auth_OpenID_CryptUtil::getBytes($length);
-            $this->assertEquals(strlen($data), $length);
+            $this->assertEquals(Auth_OpenID::bytes($data), $length);
         }
     }
 
@@ -46,8 +47,8 @@ class Tests_Auth_OpenID_CryptUtil extends PHPUnit_TestCase {
 
         $s = Auth_OpenID_CryptUtil::getBytes(32);
         $t = Auth_OpenID_CryptUtil::getBytes(32);
-        $this->assertEquals(strlen($s), 32);
-        $this->assertEquals(strlen($t), 32);
+        $this->assertEquals(Auth_OpenID::bytes($s), 32);
+        $this->assertEquals(Auth_OpenID::bytes($t), 32);
         $this->assertFalse($s == $t);
     }
 }

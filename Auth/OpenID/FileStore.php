@@ -560,8 +560,10 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
     function _filenameEscape($str)
     {
         $filename = "";
-        for ($i = 0; $i < strlen($str); $i++) {
-            $c = $str[$i];
+        $b = Auth_OpenID::toBytes($str);
+
+        for ($i = 0; $i < count($b); $i++) {
+            $c = $b[$i];
             if (Auth_OpenID_FileStore::_isFilenameSafe($c)) {
                 $filename .= $c;
             } else {

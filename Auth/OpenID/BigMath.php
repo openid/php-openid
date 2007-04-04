@@ -21,6 +21,11 @@
 require_once 'Auth/OpenID/CryptUtil.php';
 
 /**
+ * Need Auth_OpenID::bytes().
+ */
+require_once 'Auth/OpenID.php';
+
+/**
  * The superclass of all big-integer math implementations
  * @access private
  * @package OpenID
@@ -145,9 +150,9 @@ class Auth_OpenID_MathLibrary {
             list($duplicate, $nbytes) = $duplicate_cache[$rbytes];
         } else {
             if ($rbytes[0] == "\x00") {
-                $nbytes = strlen($rbytes) - 1;
+                $nbytes = Auth_OpenID::bytes($rbytes) - 1;
             } else {
-                $nbytes = strlen($rbytes);
+                $nbytes = Auth_OpenID::bytes($rbytes);
             }
 
             $mxrand = $this->pow(256, $nbytes);

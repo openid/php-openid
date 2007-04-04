@@ -491,6 +491,38 @@ class Auth_OpenID {
 
         return intval($value);
     }
+
+    /**
+     * Count the number of bytes in a string independently of
+     * multibyte support conditions.
+     *
+     * @param string $str The string of bytes to count.
+     * @return int The number of bytes in $str.
+     */
+    function bytes($str)
+    {
+        return strlen(bin2hex($str)) / 2;
+    }
+
+    /**
+     * Get the bytes in a string independently of multibyte support
+     * conditions.
+     */
+    function toBytes($str)
+    {
+        $hex = bin2hex($str);
+
+        if (!$hex) {
+            return array();
+        }
+
+        $b = array();
+        for ($i = 0; $i < strlen($hex); $i += 2) {
+            $b[] = chr(base_convert(substr($hex, $i, 2), 16, 10));
+        }
+
+        return $b;
+    }
 }
 
 ?>

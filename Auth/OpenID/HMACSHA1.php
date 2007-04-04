@@ -14,6 +14,8 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
+require_once 'Auth/OpenID.php';
+
 /**
  * SHA1_BLOCKSIZE is this module's SHA1 blocksize used by the fallback
  * implementation.
@@ -54,7 +56,7 @@ function Auth_OpenID_SHA1($text)
  */
 function Auth_OpenID_HMACSHA1($key, $text)
 {
-    if (strlen($key) > Auth_OpenID_SHA1_BLOCKSIZE) {
+    if (Auth_OpenID::bytes($key) > Auth_OpenID_SHA1_BLOCKSIZE) {
         $key = Auth_OpenID_SHA1($key, true);
     }
 

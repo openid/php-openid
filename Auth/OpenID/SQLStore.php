@@ -29,6 +29,11 @@ $__Auth_OpenID_PEAR_AVAILABLE = @include_once 'DB.php';
 require_once 'Auth/OpenID/Interface.php';
 
 /**
+ * @access private
+ */
+require_once 'Auth/OpenID.php';
+
+/**
  * This is the parent class for the SQL stores, which contains the
  * logic common to all of the SQL stores.
  *
@@ -494,7 +499,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
     function _octify($str)
     {
         $result = "";
-        for ($i = 0; $i < strlen($str); $i++) {
+        for ($i = 0; $i < Auth_OpenID::bytes($str); $i++) {
             $ch = substr($str, $i, 1);
             if ($ch == "\\") {
                 $result .= "\\\\\\\\";
