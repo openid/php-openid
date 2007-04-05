@@ -36,6 +36,10 @@ encounter errors about the wrong number of columns in the oid_nonces
 table.  To run the script, you'll need a python module supporting your
 database type: pysqlite2, psycopg, or MySQLdb.
 
+If you cannot run the Python script, you can re-create your store by
+dropping the tables in the store and calling createTables() on the
+store object.
+
 Consumers should now pass an additional parameter to
 Auth_OpenID_Consumer::complete() to defend against return_to URL
 tampering.
