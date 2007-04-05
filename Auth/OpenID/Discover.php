@@ -61,9 +61,9 @@ class Auth_OpenID_ServiceEndpoint {
     function supportsType($type_uri)
     {
         // Does this endpoint support this type?
-        return ((($type_uri == Auth_OpenID_OPENID2_NS) &&
-                 (in_array(Auth_OpenID_TYPE_2_0_IDP, $this->type_uris))) or
-                $this->usesExtension($type_uri));
+        return ((in_array($type_uri, $this->type_uris)) ||
+                (($type_uri == Auth_OpenID_TYPE_2_0) &&
+                 $this->isOPIdentifier()));
     }
 
     function compatibilityMode()
