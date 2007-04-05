@@ -247,7 +247,7 @@ div.errors {
 
 <h2>OpenID Example Server Configuration</h2>
 
-<?
+<?php
 if ($messages) {
     print "<div class=\"errors\">";
     foreach ($messages as $m) {
@@ -269,13 +269,13 @@ configuration for use with the OpenID server example.
 
   <p>
   The server URL is the URL that points to the "server.php" file.  It
-  looks like your server URL should be <code><? print build_url(); ?></code>.
+  looks like your server URL should be <code><?php print build_url(); ?></code>.
   </p>
 
   <span class="label"><label for="i_server_url">Server URL:</label></span>
   <span>
     <input type="text" id="i_server_url" size="35" name="server_url"
-     value="<? print $_SESSION['server_url'] ?>">
+     value="<?php print $_SESSION['server_url'] ?>">
   </span>
 </div>
 
@@ -292,7 +292,7 @@ configuration for use with the OpenID server example.
   </span>
   <span>
     <input type="text" id="i_include_path" size="35" name="include_path"
-     value="<? print $_SESSION['include_path'] ?>">
+     value="<?php print $_SESSION['include_path'] ?>">
   </span>
 </div>
 
@@ -308,64 +308,64 @@ configuration for use with the OpenID server example.
 
     <div>
       <input type="radio" name="store_type" value="Filesystem"
-       id="i_filesystem"<? if ($_SESSION['store_type'] == 'Filesystem') { print " CHECKED"; } ?>>
+       id="i_filesystem"<?php if ($_SESSION['store_type'] == 'Filesystem') { print " CHECKED"; } ?>>
       <label for="i_filesystem">Filesystem</label>
       <div>
         <label for="i_fs_path" class="field">Filesystem path:</label>
         <input type="text" name="fs_path" id="i_fs_path"
-         value="<? print $_SESSION['store_data']['fs_path']; ?>">
-        <? print $basedir_msg; ?>
+         value="<?php print $_SESSION['store_data']['fs_path']; ?>">
+        <?php print $basedir_msg; ?>
       </div>
     </div>
 
-<? if ($sqlite_found) { ?>
+<?php if ($sqlite_found) { ?>
     <div>
       <input type="radio" name="store_type" value="SQLite"
-       id="i_sqlite"<? if ($_SESSION['store_type'] == 'SQLite') { print " CHECKED"; } ?>>
+       id="i_sqlite"<?php if ($_SESSION['store_type'] == 'SQLite') { print " CHECKED"; } ?>>
       <label for="i_sqlite">SQLite</label>
       <div>
         <label for="i_sqlite_path" class="field">SQLite database path:</label>
-        <input type="text" value="<? print $_SESSION['store_data']['sqlite_path']; ?>"
+        <input type="text" value="<?php print $_SESSION['store_data']['sqlite_path']; ?>"
          name="sqlite_path" id="i_sqlite_path">
-        <? print $basedir_msg; ?>
+        <?php print $basedir_msg; ?>
       </div>
     </div>
-<? } ?>
+<?php } ?>
 
 
-<? if ($mysql_found || $pgsql_found) { ?>
+<?php if ($mysql_found || $pgsql_found) { ?>
     <div>
 
-<? if ($mysql_found) { ?>
+<?php if ($mysql_found) { ?>
       <input type="radio" name="store_type" value="MySQL"
-       id="i_mysql"<? if ($_SESSION['store_type'] == 'MySQL') { print " CHECKED"; } ?>>
+       id="i_mysql"<?php if ($_SESSION['store_type'] == 'MySQL') { print " CHECKED"; } ?>>
       <label for="i_mysql">MySQL</label>
-<? } ?>
+<?php } ?>
 
-<? if ($pgsql_found) { ?>
+<?php if ($pgsql_found) { ?>
       <input type="radio" name="store_type" value="PostgreSQL"
-       id="i_pgsql"<? if ($_SESSION['store_type'] == 'PostgreSQL') { print " CHECKED"; } ?>>
+       id="i_pgsql"<?php if ($_SESSION['store_type'] == 'PostgreSQL') { print " CHECKED"; } ?>>
       <label for="i_pgsql">PostgreSQL</label>
-<? } ?>
+<?php } ?>
 
       <div>
         <label for="i_m_host" class="field">Host:</label>
-        <input type="text" value="<? print $_SESSION['store_data']['host']; ?>" name="host" id="i_m_host">
+        <input type="text" value="<?php print $_SESSION['store_data']['host']; ?>" name="host" id="i_m_host">
       </div>
       <div>
         <label for="i_m_database" class="field">Database:</label>
-        <input value="<? print $_SESSION['store_data']['database']; ?>" type="text" name="database" id="i_m_database">
+        <input value="<?php print $_SESSION['store_data']['database']; ?>" type="text" name="database" id="i_m_database">
       </div>
       <div>
         <label for="i_m_username" class="field">Username:</label>
-        <input type="text" name="username" id="i_m_username" value="<? print $_SESSION['store_data']['username']; ?>">
+        <input type="text" name="username" id="i_m_username" value="<?php print $_SESSION['store_data']['username']; ?>">
       </div>
       <div>
         <label for="i_m_password" class="field">Password:</label>
-        <input type="password" name="password" id="i_m_password" value="<? print $_SESSION['store_data']['password']; ?>">
+        <input type="password" name="password" id="i_m_password" value="<?php print $_SESSION['store_data']['password']; ?>">
       </div>
     </div>
-<? } ?>
+<?php } ?>
 </div>
 </div>
 
@@ -373,7 +373,7 @@ configuration for use with the OpenID server example.
 </form>
 </body>
 </html>
-<?
+<?php
 }
 
 function init_session() {
@@ -423,7 +423,7 @@ function generate_config($download = false) {
 <h2>OpenID Example Server Configuration</h2>
 
 <p>
-Put the following text into <strong><? print dirname(__FILE__); print DIRECTORY_SEPARATOR; ?>config.php</strong>.
+Put the following text into <strong><?php print dirname(__FILE__); print DIRECTORY_SEPARATOR; ?>config.php</strong>.
 </p>
 
 <p>
@@ -435,19 +435,19 @@ Put the following text into <strong><? print dirname(__FILE__); print DIRECTORY_
 </p>
 
 <pre style="border: 1px solid gray; background: #eee; padding: 5px;">
-<?
+<?php
 print "&lt;?php\n";
 }
 ?>
-<? if ($_SESSION['include_path']) { ?>
+<?php if ($_SESSION['include_path']) { ?>
 /**
  * Set any extra include paths needed to use the library
  */
-set_include_path(get_include_path() . PATH_SEPARATOR . "<?
+set_include_path(get_include_path() . PATH_SEPARATOR . "<?php
 print $_SESSION['include_path'];
 ?>");
 
-<? } ?>
+<?php } ?>
 /**
  * The URL for the server.
  *
@@ -457,7 +457,7 @@ print $_SESSION['include_path'];
  *
  * This must be a full URL.
  */
-$server_url = "<?
+$server_url = "<?php
 print $_SESSION['server_url'];
 ?>";
 
@@ -469,7 +469,7 @@ print $_SESSION['server_url'];
  */
 function getOpenIDStore()
 {
-    <?
+    <?php
 
     switch ($_SESSION['store_type']) {
     case "Filesystem":
@@ -491,9 +491,9 @@ function getOpenIDStore()
 
     $dsn = array(
                  'phptype'  => 'mysql',
-                 'username' => '<? print $_SESSION['store_data']['username']; ?>',
-                 'password' => '<? print $_SESSION['store_data']['password']; ?>',
-                 'hostspec' => '<? print $_SESSION['store_data']['host']; ?>'
+                 'username' => '<?php print $_SESSION['store_data']['username']; ?>',
+                 'password' => '<?php print $_SESSION['store_data']['password']; ?>',
+                 'hostspec' => '<?php print $_SESSION['store_data']['host']; ?>'
                  );
 
     $db =& DB::connect($dsn);
@@ -502,14 +502,14 @@ function getOpenIDStore()
         return null;
     }
 
-    $db->query("USE <? print $_SESSION['store_data']['database']; ?>");
+    $db->query("USE <?php print $_SESSION['store_data']['database']; ?>");
         
     $s =& new Auth_OpenID_MySQLStore($db);
 
     $s->createTables();
 
     return $s;
-<?
+<?php
         break;
 
     case "PostgreSQL":
@@ -519,10 +519,10 @@ function getOpenIDStore()
 
     $dsn = array(
                  'phptype'  => 'pgsql',
-                 'username' => '<? print $_SESSION['store_data']['username']; ?>',
-                 'password' => '<? print $_SESSION['store_data']['password']; ?>',
-                 'hostspec' => '<? print $_SESSION['store_data']['host']; ?>',
-                 'database' => '<? print $_SESSION['store_data']['database']; ?>'
+                 'username' => '<?php print $_SESSION['store_data']['username']; ?>',
+                 'password' => '<?php print $_SESSION['store_data']['password']; ?>',
+                 'hostspec' => '<?php print $_SESSION['store_data']['host']; ?>',
+                 'database' => '<?php print $_SESSION['store_data']['database']; ?>'
                  );
 
     $db =& DB::connect($dsn);
@@ -536,21 +536,21 @@ function getOpenIDStore()
     $s->createTables();
 
     return $s;
-<?
+<?php
         break;
     }
 
     ?>
 }
 
-<?
+<?php
     print "?>";
     if (!$download) {
 ?>
 </pre>
 </body>
 </html>
-<?
+<?php
       }
     } // end function generate_config ()
 ?>
