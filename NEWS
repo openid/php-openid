@@ -54,8 +54,10 @@ preferred way to extract extension response parameters from the OpenID
 response.  Instead, see the Auth/OpenID/SReg.php module and the
 example consumer and server for detailed usage information on
 constructing Simple Registration requests and inspecting responses.
+extensionResponse() is still valid, but now takes a second parameter
+(bool) indicating whether extension args should be signed.
 
  - The Auth_OpenID_Server's response answer() method now takes
-addition parameters to support provider-driven identifier selection.
+additional parameters to support provider-driven identifier selection.
 See the example server and the documentation for
 Auth_OpenID_CheckIDRequest::answer.
