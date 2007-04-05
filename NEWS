@@ -1,6 +1,12 @@
 What's New in PHP OpenID 2.0
 ============================
 
+This library implements both the OpenID 1 and OpenID 2 protocols.  The
+API changes in this version of the library are minimal and mostly
+backwards-compatible with current RP and Server implementations.  If
+you're already using this library for OpenID 1, only a few small
+changes (see Summary below) will be needed once you upgrade.
+
 The big news here is compatibility with version 2.0 of the OpenID
 protocol.  Highlights include:
 
