@@ -2039,7 +2039,7 @@ class Auth_OpenID_CancelResponse extends Auth_OpenID_ConsumerResponse {
  * setup_url - A URL that can be used to send the user to the server
  * to set up for authentication. The user should be redirected in to
  * the setup_url, either in the current window or in a new browser
- * window.
+ * window.  Null in OpenID 2.
  *
  * status - Auth_OpenID_SETUP_NEEDED.
  *
