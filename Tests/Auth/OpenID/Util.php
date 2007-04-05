@@ -255,6 +255,34 @@ assert not should_raise and actual == expected, case
                     Auth_OpenID::appendArgs($url, $query));
         }
     }
+
+    function test_getQuery()
+    {
+        $queries = array(
+                         '' => array(),
+                         'single' => array(),
+                         'no&pairs' => array(),
+                         'x%3Dy' => array(),
+                         'single&real=value' => array('real' => 'value'),
+                         'x=y&m=x%3Dn' => array('x' => 'y', 'm' => 'x=n'),
+                         '&m=x%20y' => array('m' => 'x y'),
+                         'single&&m=x%20y&bogus' => array('m' => 'x y'),
+                         // Even with invalid encoding.  But don't do that.
+                         'too=many=equals&' => array('too' => 'many=equals')
+                         );
+
+        foreach ($queries as $s => $data) {
+            $query = Auth_OpenID::getQuery($s);
+
+            foreach ($data as $key => $value) {
+                $this->assertTrue($query[$key] === $value);
+            }
+
+            foreach ($query as $key => $value) {
+                $this->assertTrue($data[$key] === $value);
+            }
+        }
+    }
 }
 
 ?>
