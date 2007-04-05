@@ -103,20 +103,20 @@ class Tests_Auth_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
             $clean = array();
             $clean["key"] =
                 Tests_Auth_OpenID_HMACSHA1::_strConvert($case["key"]);
-            if (strlen($clean["key"]) != $case["key_len"]) {
+            if (Auth_OpenID::bytes($clean["key"]) != $case["key_len"]) {
                 trigger_error("Bad key length", E_USER_ERROR);
             }
 
             $clean["data"] =
                 Tests_Auth_OpenID_HMACSHA1::_strConvert($case["data"]);
-            if (strlen($clean["data"]) != $case["data_len"]) {
+            if (Auth_OpenID::bytes($clean["data"]) != $case["data_len"]) {
                 trigger_error("Bad data length", E_USER_ERROR);
             }
 
             $clean["digest"] =
                 Tests_Auth_OpenID_HMACSHA1::_strConvert($case["digest"]);
-            if (strlen($clean["digest"]) != 20) {
-                $l = strlen($clean["digest"]);
+            if (Auth_OpenID::bytes($clean["digest"]) != 20) {
+                $l = Auth_OpenID::bytes($clean["digest"]);
                 trigger_error("Bad digest length: $l", E_USER_ERROR);
             }
 
