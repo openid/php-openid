@@ -29,16 +29,23 @@ require_once 'Auth/OpenID/HMACSHA1.php';
 require_once 'Tests/Auth/OpenID/MemStore.php';
 require_once 'PHPUnit.php';
 
-class Auth_OpenID_TestConsumer extends Auth_OpenID_GenericConsumer {
-    /**
-     * Use a small (insecure) modulus for this test so that it runs quickly
-     */
-    /*
-    function _createDiffieHellman()
+class FastConsumerSession extends Auth_OpenID_DiffieHellmanSHA1ConsumerSession {
+    function FastConsumerSession($dh = null)
     {
-        return new Auth_OpenID_DiffieHellman('1235514290909');
+        if ($dh === null) {
+            $dh = new Auth_OpenID_DiffieHellman(100389557, 2);
+        }
+
+        $this->dh = $dh;
     }
-    */
+}
+
+function setConsumerSession(&$con)
+{
+    $con->session_types = array('DH-SHA1' => 'FastConsumerSession');
+}
+
+class Auth_OpenID_TestConsumer extends Auth_OpenID_GenericConsumer {
 }
 
 global $_Auth_OpenID_assocs;
@@ -181,6 +188,8 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
     {
         global $_Auth_OpenID_consumer_url,
             $_Auth_OpenID_server_url;
+
+        setConsumerSession($consumer);
 
         $endpoint = new Auth_OpenID_ServiceEndpoint();
         $endpoint->claimed_id = $user_url;
@@ -1915,22 +1924,6 @@ class DummyEndpoint {
     {
         return $this->use_compatibility;
     }
-}
-
-class FastConsumerSession extends Auth_OpenID_DiffieHellmanSHA1ConsumerSession {
-    function FastConsumerSession($dh = null)
-    {
-        if ($dh === null) {
-            $dh = new Auth_OpenID_DiffieHellman(100389557, 2);
-        }
-
-        $this->dh = $dh;
-    }
-}
-
-function setConsumerSession(&$con)
-{
-    $con->session_types = array('DH-SHA1' => 'FastConsumerSession');
 }
 
 class TestCreateAssociationRequest extends PHPUnit_TestCase {

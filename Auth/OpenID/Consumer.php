@@ -1536,7 +1536,12 @@ class Auth_OpenID_GenericConsumer {
     {
         if (array_key_exists($session_type, $this->session_types)) {
             $session_type_class = $this->session_types[$session_type];
-            $assoc_session = new $session_type_class();
+
+            if (is_callable($session_type_class)) {
+                $assoc_session = $session_type_class();
+            } else {
+                $assoc_session = new $session_type_class();
+            }
         } else {
             return null;
         }
