@@ -30,10 +30,11 @@ Upgrading from earlier versions of this library
 
 One of the additions to the OpenID protocol was a specified nonce
 format for one-way nonces.  As a result, the nonce table in the
-SQL-driven stores has changed.  You'll need to run
+SQL-driven stores has changed.  You'll need to run the Python script
 contrib/upgrade-store-1.1-to-2.0 to upgrade your store, or you'll
 encounter errors about the wrong number of columns in the oid_nonces
-table.
+table.  To run the script, you'll need a python module supporting your
+database type: pysqlite2, psycopg, or MySQLdb.
 
 Consumers should now pass an additional parameter to
 Auth_OpenID_Consumer::complete() to defend against return_to URL
@@ -45,7 +46,8 @@ Summary of API Changes
 
  - Auth_OpenID::fixArgs is now no longer necessary, and
 Auth_OpenID_Consumer::complete and Auth_OpenID_Server::decodeRequest
-no longer take query argument arrays.
+no longer take query argument arrays.  *You should no longer pass any
+parameters to these methods.*
 
  - Auth_OpenID_SuccessResponse::extensionResponse() is no longer the
 preferred way to extract extension response parameters from the OpenID
