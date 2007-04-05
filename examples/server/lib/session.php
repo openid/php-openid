@@ -31,7 +31,7 @@ function getServerURL()
     $path = $_SERVER['SCRIPT_NAME'];
     $host = $_SERVER['HTTP_HOST'];
     $port = $_SERVER['SERVER_PORT'];
-    $s = $_SERVER['HTTPS'] ? 's' : '';
+    $s = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] ? 's' : '';
     if (($s && $port == "443") || (!$s && $port == "80")) {
         $p = '';
     } else {
