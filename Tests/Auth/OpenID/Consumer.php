@@ -45,9 +45,6 @@ function setConsumerSession(&$con)
     $con->session_types = array('DH-SHA1' => 'FastConsumerSession');
 }
 
-class Auth_OpenID_TestConsumer extends Auth_OpenID_GenericConsumer {
-}
-
 global $_Auth_OpenID_assocs;
 $_Auth_OpenID_assocs = array(
                             array('another 20-byte key.', 'Snarky'),
@@ -189,7 +186,9 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
         global $_Auth_OpenID_consumer_url,
             $_Auth_OpenID_server_url;
 
-        setConsumerSession($consumer);
+        if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+            setConsumerSession($consumer);
+        }
 
         $endpoint = new Auth_OpenID_ServiceEndpoint();
         $endpoint->claimed_id = $user_url;
@@ -271,10 +270,10 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
 
         $user_page = sprintf($_Auth_OpenID_user_page_pat, $links);
         $fetcher = new Auth_OpenID_TestFetcher($user_url, $user_page,
-                                              $_Auth_OpenID_assocs[0][0],
-                                              $_Auth_OpenID_assocs[0][1]);
+                                               $_Auth_OpenID_assocs[0][0],
+                                               $_Auth_OpenID_assocs[0][1]);
 
-        $consumer = new Auth_OpenID_TestConsumer($store);
+        $consumer = new Auth_OpenID_GenericConsumer($store);
         $consumer->fetcher =& $fetcher;
 
         $expected_num_assocs = 0;
