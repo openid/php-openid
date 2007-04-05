@@ -42,7 +42,7 @@ class TestOpenID2SessionNegotiation extends PHPUnit_TestCase {
         $dumb = null;
         $this->consumer = new ErrorRaisingConsumer($dumb);
         $this->endpoint = new Auth_OpenID_ServiceEndpoint();
-        $this->endpoint->type_uris = array(Auth_OpenID_OPENID2_NS);
+        $this->endpoint->type_uris = array(Auth_OpenID_TYPE_2_0);
         $this->endpoint->server_url = 'bogus';
     }
 

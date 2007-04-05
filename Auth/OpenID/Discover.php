@@ -18,7 +18,7 @@ define('Auth_OpenID_TYPE_1_2', 'http://openid.net/signon/1.2');
 define('Auth_OpenID_TYPE_1_1', 'http://openid.net/signon/1.1');
 define('Auth_OpenID_TYPE_1_0', 'http://openid.net/signon/1.0');
 define('Auth_OpenID_TYPE_2_0_IDP', 'http://specs.openid.net/auth/2.0/server');
-define('Auth_OpenID_TYPE_2_0', 'http://openid.net/signon/2.0');
+define('Auth_OpenID_TYPE_2_0', 'http://specs.openid.net/auth/2.0/signon');
 
 function Auth_OpenID_getOpenIDTypeURIs()
 {

@@ -15,7 +15,7 @@ require_once 'Auth/Yadis/XML.php';
 
 // This doesn't REALLY belong here, but where is better?
 define('Auth_OpenID_IDENTIFIER_SELECT',
-       "http://openid.net/identifier_select/2.0");
+       "http://specs.openid.net/auth/2.0/identifier_select");
 
 // URI for Simple Registration extension, the only commonly deployed
 // OpenID 1.x extension, and so a special case
@@ -25,7 +25,7 @@ define('Auth_OpenID_SREG_URI', 'http://openid.net/sreg/1.0');
 define('Auth_OpenID_OPENID1_NS', 'http://openid.net/signon/1.0');
 
 // The OpenID 2.0 namespace URI
-define('Auth_OpenID_OPENID2_NS', 'http://openid.net/signon/2.0');
+define('Auth_OpenID_OPENID2_NS', 'http://specs.openid.net/auth/2.0');
 
 // The namespace consisting of pairs with keys that are prefixed with
 // "openid."  but not in another namespace.

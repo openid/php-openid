@@ -1770,7 +1770,7 @@ class IDPDrivenTest extends PHPUnit_TestCase {
         $this->consumer = new Auth_OpenID_GenericConsumer($this->store);
         $this->endpoint = new Auth_OpenID_ServiceEndpoint();
         $this->endpoint->server_url = "http://idp.unittest/";
-        $this->endpoint->type_uris = array('http://specs.openid.net/auth/2.0/server');
+        $this->endpoint->type_uris = array(Auth_OpenID_TYPE_2_0_IDP);
     }
 
     function test_idpDrivenBegin()
@@ -1866,7 +1866,7 @@ class TestDiscoveryVerification extends PHPUnit_TestCase {
     function test_theGoodStuff()
     {
         $endpoint = new Auth_OpenID_ServiceEndpoint();
-        $endpoint->type_uris = array(Auth_OpenID_OPENID2_NS);
+        $endpoint->type_uris = array(Auth_OpenID_TYPE_2_0);
         $endpoint->claimed_id = $this->identifier;
         $endpoint->server_url = $this->server_url;
         $endpoint->local_id = $this->identifier;
@@ -1880,7 +1880,7 @@ class TestDiscoveryVerification extends PHPUnit_TestCase {
     {
         // a set of things without the stuff
         $endpoint = new Auth_OpenID_ServiceEndpoint();
-        $endpoint->type_uris = array(Auth_OpenID_OPENID2_NS);
+        $endpoint->type_uris = array(Auth_OpenID_TYPE_2_0);
         $endpoint->claimed_id = $this->identifier;
         $endpoint->server_url = "http://the-MOON.unittest/";
         $endpoint->local_id = $this->identifier;
@@ -1896,7 +1896,7 @@ class TestDiscoveryVerification extends PHPUnit_TestCase {
     {
         // a set of things with the server stuff but other delegate
         $endpoint = new Auth_OpenID_ServiceEndpoint();
-        $endpoint->type_uris = array(Auth_OpenID_OPENID2_NS);
+        $endpoint->type_uris = array(Auth_OpenID_TYPE_2_0);
         $endpoint->claimed_id = $this->identifier;
         $endpoint->server_url = $this->server_url;
         $endpoint->local_id = "http://unittest/juan-carlos";

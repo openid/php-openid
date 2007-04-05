@@ -178,7 +178,7 @@ class _DiscoveryBase extends PHPUnit_TestCase {
             $this->assertFalse($s->compatibilityMode());
             $this->assertTrue($s->isOPIdentifier());
             $this->assertEquals($s->preferredNamespace(),
-                                Auth_OpenID_TYPE_2_0);
+                                Auth_OpenID_OPENID2_NS);
         } else {
             $this->assertEquals($claimed_id, $s->claimed_id);
             $this->assertEquals($local_id, $s->getLocalID());
