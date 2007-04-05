@@ -1770,7 +1770,7 @@ class IDPDrivenTest extends PHPUnit_TestCase {
         $this->consumer = new Auth_OpenID_GenericConsumer($this->store);
         $this->endpoint = new Auth_OpenID_ServiceEndpoint();
         $this->endpoint->server_url = "http://idp.unittest/";
-        $this->endpoint->type_uris = array('http://openid.net/server/2.0');
+        $this->endpoint->type_uris = array('http://specs.openid.net/auth/2.0/server');
     }
 
     function test_idpDrivenBegin()

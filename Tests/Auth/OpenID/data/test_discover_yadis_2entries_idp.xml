@@ -13,7 +13,7 @@
     </Service>
 
     <Service priority="20">
-      <Type>http://openid.net/server/2.0</Type>
+      <Type>http://specs.openid.net/auth/2.0/server</Type>
       <URI>http://www.livejournal.com/openid/server.bml</URI>
     </Service>
 

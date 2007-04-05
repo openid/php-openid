@@ -10,7 +10,7 @@
     </Service>
 
     <Service priority="20">
-      <Type>http://openid.net/server/2.0</Type>
+      <Type>http://specs.openid.net/auth/2.0/server</Type>
       <URI>http://www.myopenid.com/server_id</URI>
     </Service>
   </XRD>
