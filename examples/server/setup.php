@@ -414,6 +414,7 @@ function generate_config($download = false) {
         // Emit headers to force browser download.
         header("Content-type: text/plain");
         header("Content-disposition: attachment; filename=config.php");
+        print "<?php\n";
     } else {
 ?>
 <html>
@@ -435,6 +436,7 @@ Put the following text into <strong><? print dirname(__FILE__); print DIRECTORY_
 
 <pre style="border: 1px solid gray; background: #eee; padding: 5px;">
 <?
+print "&lt;?php\n";
 }
 ?>
 <? if ($_SESSION['include_path']) { ?>
@@ -542,6 +544,7 @@ function getOpenIDStore()
 }
 
 <?
+    print "?>";
     if (!$download) {
 ?>
 </pre>
