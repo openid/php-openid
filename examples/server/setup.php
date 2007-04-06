@@ -481,7 +481,9 @@ function getOpenIDStore()
     case "SQLite":
 
         print "require_once \"Auth/OpenID/SQLiteStore.php\";\n    ";
-        print "return new Auth_OpenID_SQLiteStore(\"".$_SESSION['store_data']['sqlite_path']."\");\n";
+        print "\$s = new Auth_OpenID_SQLiteStore(\"".$_SESSION['store_data']['sqlite_path']."\");\n    ";
+        print "\$s->createTables();\n    ";
+        print "return \$s;\n";
         break;
 
     case "MySQL":
