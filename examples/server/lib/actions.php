@@ -141,7 +141,8 @@ function action_trust()
 
 function action_idpage()
 {
-    return idpage_render(getLoggedInUser());
+    $identity = $_GET['user'];
+    return idpage_render($identity);
 }
 
 function action_idpXrds()
