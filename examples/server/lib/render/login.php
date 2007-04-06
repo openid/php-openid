@@ -6,8 +6,12 @@ require_once "lib/render.php";
 define('login_form_pat',
        '<div class="form">
   <p>
-    Enter your identity URL and password into this form to log in to
-    this server. This server must be configured to accept your identity URL.
+
+    Enter your username into this form to log in to this server.  It
+    can be anything; this is just for demonstration purposes.  For
+    example, entering USERNAME will give you the identity URL
+
+    <pre>%s</pre>
   </p>
 
   <form method="post" action="%s">
@@ -43,7 +47,7 @@ function login_render($errors=null, $input=null, $needed=null)
 
     $esc_input = htmlspecialchars($input, ENT_QUOTES);
     $login_url = buildURL('login', true);
-    $body = sprintf(login_form_pat, $login_url, $esc_input);
+    $body = sprintf(login_form_pat, idURL('USERNAME'), $login_url, $esc_input);
     if ($errors) {
         $body = loginError_render($errors) . $body;
     }
