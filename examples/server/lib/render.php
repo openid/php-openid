@@ -3,6 +3,8 @@
 define('page_template',
 '<html>
   <head>
+    <meta http-equiv="cache-control" content="no-cache"/>
+    <meta http-equiv="pragma" content="no-cache"/>
     <title>%s</title>
 %s
   </head>
