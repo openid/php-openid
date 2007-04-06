@@ -103,12 +103,12 @@ function check_session() {
             $messages[] = "Please enter a server URL.";
         }
 
-        if (!$_SESSION['store_type']) {
+        if (!isset($_SESSION['store_type'])) {
             $messages[] = "No store type chosen.";
         } else {
             switch ($_SESSION['store_type']) {
             case "Filesystem":
-                if (!$_SESSION['store_data']['fs_path']) {
+                if (!@$_SESSION['store_data']['fs_path']) {
                     $messages[] = "Please specify a filesystem store path.";
                 } else {
                   if (!check_open_basedir($_SESSION['store_data']['fs_path'])) {
@@ -119,7 +119,7 @@ function check_session() {
                 break;
 
             case "SQLite":
-                if (!$_SESSION['store_data']['sqlite_path']) {
+                if (!@$_SESSION['store_data']['sqlite_path']) {
                     $messages[] = "Please specify a SQLite database path.";
                 } else {
                   if (!check_open_basedir($_SESSION['store_data']['sqlite_path'])) {
@@ -313,7 +313,7 @@ configuration for use with the OpenID server example.
       <div>
         <label for="i_fs_path" class="field">Filesystem path:</label>
         <input type="text" name="fs_path" id="i_fs_path"
-         value="<?php print $_SESSION['store_data']['fs_path']; ?>">
+         value="<?php print @$_SESSION['store_data']['fs_path']; ?>">
         <?php print $basedir_msg; ?>
       </div>
     </div>
@@ -325,7 +325,7 @@ configuration for use with the OpenID server example.
       <label for="i_sqlite">SQLite</label>
       <div>
         <label for="i_sqlite_path" class="field">SQLite database path:</label>
-        <input type="text" value="<?php print $_SESSION['store_data']['sqlite_path']; ?>"
+        <input type="text" value="<?php print @$_SESSION['store_data']['sqlite_path']; ?>"
          name="sqlite_path" id="i_sqlite_path">
         <?php print $basedir_msg; ?>
       </div>
@@ -350,19 +350,19 @@ configuration for use with the OpenID server example.
 
       <div>
         <label for="i_m_host" class="field">Host:</label>
-        <input type="text" value="<?php print $_SESSION['store_data']['host']; ?>" name="host" id="i_m_host">
+        <input type="text" value="<?php print @$_SESSION['store_data']['host']; ?>" name="host" id="i_m_host">
       </div>
       <div>
         <label for="i_m_database" class="field">Database:</label>
-        <input value="<?php print $_SESSION['store_data']['database']; ?>" type="text" name="database" id="i_m_database">
+        <input value="<?php print @$_SESSION['store_data']['database']; ?>" type="text" name="database" id="i_m_database">
       </div>
       <div>
         <label for="i_m_username" class="field">Username:</label>
-        <input type="text" name="username" id="i_m_username" value="<?php print $_SESSION['store_data']['username']; ?>">
+        <input type="text" name="username" id="i_m_username" value="<?php print @$_SESSION['store_data']['username']; ?>">
       </div>
       <div>
         <label for="i_m_password" class="field">Password:</label>
-        <input type="password" name="password" id="i_m_password" value="<?php print $_SESSION['store_data']['password']; ?>">
+        <input type="password" name="password" id="i_m_password" value="<?php print @$_SESSION['store_data']['password']; ?>">
       </div>
     </div>
 <?php } ?>
