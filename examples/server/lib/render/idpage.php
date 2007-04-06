@@ -7,6 +7,7 @@ define('idpage_pat',
        '<html>
 <head>
   <link rel="openid2.provider openid.server" href="%s"/>
+  <meta http-equiv="X-XRDS-Location" content="%s" />
 </head>
 <body>
   This is the identity page for users of this server.
@@ -15,8 +16,16 @@ define('idpage_pat',
 
 function idpage_render($identity)
 {
-    $body = sprintf(idpage_pat, buildURL());
-    return array(array(), $body);
+    $xrdsurl = buildURL('userXrds')."?user=".urlencode($identity);
+
+    $headers = array(
+                     'X-XRDS-Location: '.$xrdsurl);
+
+
+    $body = sprintf(idpage_pat,
+                    $xrdsurl,
+                    buildURL());
+    return array($headers, $body);
 }
 
 ?>

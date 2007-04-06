@@ -7,6 +7,7 @@ require_once "lib/render.php";
 require_once "lib/render/login.php";
 require_once "lib/render/idpage.php";
 require_once "lib/render/idpXrds.php";
+require_once "lib/render/userXrds.php";
 
 require_once "Auth/OpenID.php";
 
@@ -146,6 +147,12 @@ function action_idpage()
 function action_idpXrds()
 {
     return idpXrds_render();
+}
+
+function action_userXrds()
+{
+    $identity = $_GET['user'];
+    return userXrds_render($identity);
 }
 
 ?>
