@@ -13,9 +13,6 @@ define('idpage_pat',
 </body>
 </html>');
 
-define('login_needed_pat',
-       'You must be logged in as %s to approve this request.');
-
 function idpage_render($identity)
 {
     $body = sprintf(idpage_pat, buildURL());
