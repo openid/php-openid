@@ -11,6 +11,9 @@ if (!$try_include) {
     header("Location: setup.php");
 }
 
+header('Cache-Control: no-cache');
+header('Pragma: no-cache');
+
 if (function_exists('getOpenIDStore')) {
     require_once 'lib/session.php';
     require_once 'lib/actions.php';
