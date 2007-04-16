@@ -27,7 +27,7 @@
  *   //   the fields in sreg_response were requested ]
  *   $sreg_resp = Auth_OpenID_SRegResponse::extractResponse(
  *                                  $sreg_req, $user_data);
- *   $sreg_resp->addToOpenIDResponse($openid_response);
+ *   $sreg_resp->toMessage($openid_response->fields);
  *
  * 3. The relying party uses {@link
  * Auth_OpenID_SRegResponse::fromSuccessResponse} to extract the data
@@ -465,7 +465,7 @@ class Auth_OpenID_SRegResponse extends Auth_OpenID_SRegBase {
      * Returns a simple registration response containing the data that
      * was supplied with the C{id_res} response.
      */
-    function fromSuccessResponse($success_response, $signed_only=true)
+    function fromSuccessResponse(&$success_response, $signed_only=true)
     {
         global $Auth_OpenID_sreg_data_fields;
 
@@ -491,18 +491,9 @@ class Auth_OpenID_SRegResponse extends Auth_OpenID_SRegBase {
         return $obj;
     }
 
-    /**
-     * Add the data fields contained in this simple registration
-     * response to the supplied message, in the appropriate namespace.
-     *
-     * response_message: The OpenID id_res response message that will
-     * be returned to the relying party
-     *
-     * Returns nothing; updates the response_message
-     */
-    function addToOpenIDResponse(&$response_message)
+    function getExtensionArgs()
     {
-        $response_message->updateArgs($this->ns_uri, $this->data);
+        return $this->data;
     }
 
     // Read-only dictionary interface
@@ -544,7 +535,7 @@ function Auth_OpenID_sendSRegFields(&$openid_request, $data, &$openid_response)
                                                    $openid_request->message);
     $sreg_response = Auth_OpenID_SRegResponse::extractResponse(
                                                    $sreg_request, $data);
-    $sreg_response->addToOpenIDResponse($openid_response->fields);
+    $sreg_response->toMessage($openid_response->fields);
 }
 
 ?>

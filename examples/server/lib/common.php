@@ -66,9 +66,17 @@ function doAuth($info, $trusted=null, $fail_cancels=false,
                            'language' => 'eu',
                            'timezone' => 'America/New_York');
 
-        Auth_OpenID_sendSRegFields($info, $sreg_data,
-                                   $response);
+        // Add the simple registration response values to the OpenID
+        // response message.
+        $sreg_request = Auth_OpenID_SRegRequest::fromOpenIDRequest(
+                                              $info->message);
 
+        $sreg_response = Auth_OpenID_SRegResponse::extractResponse(
+                                              $sreg_request, $sreg_data);
+
+        $sreg_response->toMessage($response->fields);
+
+        // Generate a response to send to the user agent.
         $webresponse =& $server->encodeResponse($response);
 
         $new_headers = array();

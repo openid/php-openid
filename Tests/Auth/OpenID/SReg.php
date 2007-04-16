@@ -576,23 +576,23 @@ class SRegResponseTest extends PHPUnit_TestCase {
 }
 
 class SendFieldsTest extends PHPUnit_TestCase {
-    function test()
+    function _test($uri)
     {
         // Create a request message with simple registration fields
         $sreg_req = Auth_OpenID_SRegRequest::build(array('nickname', 'email'),
                                                    array('fullname'));
-        $req_msg = new Auth_OpenID_Message();
+        $req_msg = new Auth_OpenID_Message($uri);
         $req_msg->updateArgs(Auth_OpenID_SREG_NS_URI,
                              $sreg_req->getExtensionArgs());
 
         $req = new Auth_OpenID_Request();
-        $req->message = $req_msg;
+        $req->message =& $req_msg;
         $req->namespace = $req_msg->getOpenIDNamespace();
 
         // -> send checkid_* request
 
         // Create an empty response message
-        $resp_msg = new Auth_OpenID_Message();
+        $resp_msg = new Auth_OpenID_Message($uri);
         $resp = new Auth_OpenID_ServerResponse($req);
         $resp->fields = $resp_msg;
 
@@ -618,6 +618,14 @@ class SendFieldsTest extends PHPUnit_TestCase {
                                   'email' => 'president@whitehouse.gov',
                                   'fullname' => 'Leonhard Euler'),
                             $sreg_data_resp);
+    }
+
+    function test()
+    {
+        foreach (array(Auth_OpenID_OPENID1_NS,
+                       Auth_OpenID_OPENID2_NS) as $uri) {
+            $this->_test($uri);
+        }
     }
 }
 
