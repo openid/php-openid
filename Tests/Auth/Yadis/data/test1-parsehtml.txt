@@ -96,6 +96,14 @@ None
 <html><head><body><meta http-equiv="X-XRDS-Location" content="found">
 
 None
+<!-- <meta> is inside comment -->
+<html>
+  <head>
+    <!--<meta http-equiv="X-XRDS-Location" content="found">-->
+  </head>
+</html>
+
+None
 <!-- <meta> is inside of <body> -->
 <html>
   <head>

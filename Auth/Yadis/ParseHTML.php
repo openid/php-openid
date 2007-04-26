@@ -30,6 +30,12 @@ class Auth_Yadis_ParseHTML {
     /**
      * @access private
      */
+    var $_removed_re =
+           "<!--.*?-->|<!\[CDATA\[.*?\]\]>|<script\b(?!:)[^>]*>.*?<\/script>";
+
+    /**
+     * @access private
+     */
     var $_tag_expr = "<%s%s(?:\s.*?)?%s>";
 
     /**
@@ -42,6 +48,10 @@ class Auth_Yadis_ParseHTML {
         $this->_attr_find = sprintf("/%s/%s",
                                     $this->_attr_find,
                                     $this->_re_flags);
+
+        $this->_removed_re = sprintf("/%s/%s",
+                                     $this->_removed_re,
+                                     $this->_re_flags);
 
         $this->_entity_replacements = array(
                                             'amp' => '&',
@@ -146,6 +156,10 @@ class Auth_Yadis_ParseHTML {
      */
     function getMetaTags($html_string)
     {
+        $html_string = preg_replace($this->_removed_re,
+                                    "",
+                                    $html_string);
+
         $key_tags = array($this->tagPattern('html', false, false),
                           $this->tagPattern('head', false, false),
                           $this->tagPattern('head', true, false),
