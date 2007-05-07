@@ -1415,8 +1415,7 @@ class Auth_OpenID_SigningEncoder extends Auth_OpenID_Encoder {
 }
 
 /**
- * Decode an incoming Auth_OpenID_WebResponse into an
- * Auth_OpenID_Request.
+ * Decode an incoming query into an Auth_OpenID_Request.
  *
  * @package OpenID
  */
