@@ -113,8 +113,8 @@
  * class using the store of choice (Auth_OpenID_FileStore or one of
  * the SQL-based stores).  If the application has a custom
  * session-management implementation, an object implementing the
- * {@link Auth_Yadis_Session} interface should be passed as the second
- * parameter.  Otherwise, the default uses $_SESSION.
+ * {@link Auth_Yadis_PHPSession} interface should be passed as the
+ * second parameter.  Otherwise, the default uses $_SESSION.
  *
  * Next, the application should call the Auth_OpenID_Consumer object's
  * 'begin' method.  This method takes the OpenID URL.  The 'begin'
@@ -246,7 +246,7 @@ class Auth_OpenID_Consumer {
      * Auth_OpenID_DumbStore} can be used.
      *
      * @param mixed $session An object which implements the interface
-     * of the {@link Auth_Yadis_Session} class.  Particularly, this
+     * of the {@link Auth_Yadis_PHPSession} class.  Particularly, this
      * object is expected to have these methods: get($key), set($key),
      * $value), and del($key).  This defaults to a session object
      * which wraps PHP's native session machinery.  You should only
