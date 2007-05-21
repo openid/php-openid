@@ -54,8 +54,18 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
         return strlen($data);
     }
 
+    function supportsSSL()
+    {
+        $v = curl_version();
+        return in_array('https', $v['protocols']);
+    }
+
     function get($url, $extra_headers = null)
     {
+        if ($this->isHTTPS($url) && !$this->supportsSSL()) {
+            return null;
+        }
+
         $stop = time() + $this->timeout;
         $off = $this->timeout;
 
@@ -129,6 +139,10 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
     function post($url, $body, $extra_headers = null)
     {
         $this->reset();
+
+        if ($this->isHTTPS($url) && !$this->supportsSSL()) {
+            return null;
+        }
 
         if (!$this->allowedURL($url)) {
             trigger_error(sprintf("Fetching URL not allowed: %s", $url),

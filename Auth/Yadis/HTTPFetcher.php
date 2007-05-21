@@ -48,6 +48,28 @@ class Auth_Yadis_HTTPFetcher {
     }
 
     /**
+     * Does this fetcher implementation (and runtime) support fetching
+     * HTTPS URLs?  May inspect the runtime environment.
+     *
+     * @return bool $support True if this fetcher supports HTTPS
+     * fetching; false if not.
+     */
+    function supportsSSL()
+    {
+        trigger_error("not implemented", E_USER_ERROR);
+    }
+
+    /**
+     * Is this an https URL?
+     *
+     * @access private
+     */
+    function isHTTPS($url)
+    {
+        return (bool)preg_match('/^https:\/\//i', $url);
+    }
+
+    /**
      * Is this an http or https URL?
      *
      * @access private
