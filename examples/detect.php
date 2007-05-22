@@ -97,7 +97,18 @@ class PlainText {
 class HTML {
     function start($title)
     {
-        return '<html><head><title>' . $title . '</title></head><body>' . "\n";
+        return '<html><head><title>' . $title . '</title>' .
+            $this->stylesheet().
+            '</head><body>' . "\n";
+    }
+
+    function stylesheet()
+    {
+        return "<style type='text/css'>\n".
+            "p {\n".
+            "  width: 50em;\n".
+            "}\n".
+            '</style>';
     }
 
     function tt($text)
@@ -321,7 +332,8 @@ function detect_stores($r, &$out)
 	$text = $r->b($text);
     }
     $text .= ' The library supports the MySQL, PostgreSQL, and SQLite ' .
-        'database engines, as well as filesystem-based storage.';
+        'database engines, as well as filesystem-based storage.  In ' .
+        'addition, PEAR DB is required to use databases.';
     $out .= $r->p($text);
 
     if (function_exists('posix_getpwuid') &&
@@ -397,9 +409,8 @@ function detect_fetcher($r, &$out)
         $out .= $r->p('This PHP installation has support for libcurl. Good.');
     } else {
         $out .= $r->p('This PHP installation does not have support for ' .
-                      'libcurl. CURL is not required, but some functionality, ' .
-		      'such as fetching HTTPS URLs, will be missing and ' .
-		      ' performance will not be as good.');
+                      'libcurl. CURL is not required but is recommended. '.
+                      'The OpenID library will use an fsockopen()-based fetcher.');
         $lnk = $r->link('http://us3.php.net/manual/en/ref.curl.php');
         $out .= $r->p('See ' . $lnk . ' about enabling the libcurl support ' .
                       'for PHP.');
@@ -442,6 +453,15 @@ function detect_fetcher($r, &$out)
         $ok = false;
         $out .= $r->p('Fetching URL ' . $lnk . ' failed!');
     }
+
+    if ($fetcher->supportsSSL()) {
+        $out .= $r->p('Your PHP installation appears to support SSL, so it ' .
+                      'will be able to process HTTPS identity URLs and server URLs.');
+    } else {
+        $out .= $r->p('Your PHP installation does not support SSL, so it ' .
+                      'will NOT be able to process HTTPS identity URLs and server URLs.');
+    }
+
     return $ok;
 }
 
