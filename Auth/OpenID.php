@@ -243,7 +243,7 @@ class Auth_OpenID {
             $pair = explode('=', $parts[$i]);
 
             if (count($pair) != 2) {
-                return null;
+                continue;
             }
 
             list($key, $value) = $pair;
