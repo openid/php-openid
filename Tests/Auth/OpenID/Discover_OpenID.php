@@ -119,12 +119,17 @@ class Tests_Auth_OpenID_Discover_FetchException extends PHPUnit_TestCase {
 
 // Tests for openid.consumer.discover.discover
 
-class _DiscoveryMockFetcher {
+class _DiscoveryMockFetcher extends Auth_Yadis_HTTPFetcher {
     function _DiscoveryMockFetcher(&$documents)
     {
         $this->redirect = null;
         $this->documents = &$documents;
         $this->fetchlog = array();
+    }
+
+    function supportsSSL()
+    {
+        return true;
     }
 
     function post($url, $body = null, $headers = null)
@@ -152,7 +157,7 @@ class _DiscoveryMockFetcher {
         }
 
         return new Auth_Yadis_HTTPResponse($final_url, $status,
-                                               array('content-type' => $ctype), $body);
+                                           array('content-type' => $ctype), $body);
     }
 }
 
@@ -450,7 +455,7 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
     }
 }
 
-class _MockFetcherForXRIProxy {
+class _MockFetcherForXRIProxy extends Auth_Yadis_HTTPFetcher {
 
     function _MockFetcherForXRIProxy($documents)
     {
@@ -475,7 +480,7 @@ class _MockFetcherForXRIProxy {
         $u = parse_url($url);
         $proxy_host = $u['host'];
         $xri = $u['path'];
-        $query = $u['query'];
+        $query = Auth_OpenID::arrayGet($u, 'query');
 
         if ((!$headers) && (!$query)) {
             trigger_error('Error in mock XRI fetcher: no headers or query');
@@ -536,5 +541,114 @@ function __serviceCheck_discover_cb($url, $fetcher)
     return array($url, array($__Tests_BOGUS_SERVICE));
 }
 
+class _FetcherWithSSL extends _DiscoveryMockFetcher {
+    function supportsSSL()
+    {
+        return true;
+    }
+}
+
+class _FetcherWithoutSSL extends _DiscoveryMockFetcher {
+    function supportsSSL()
+    {
+        return false;
+    }
+}
+
+class _NonFetcher extends _DiscoveryMockFetcher {
+    var $used = false;
+
+    function _NonFetcher()
+    {
+        $a = array();
+        parent::_DiscoveryMockFetcher($a);
+    }
+
+    function supportsSSL()
+    {
+        return false;
+    }
+
+    function get($url, $headers)
+    {
+        $this->used = true;
+    }
+}
+
+class Tests_Auth_OpenID_SSLSupport extends PHPUnit_TestCase {
+    function test_discoverDropSSL()
+    {
+        // In the absence of SSL support, the discovery process should
+        // drop endpoints whose server URLs are HTTPS.
+        $id_url = 'http://bogus/';
+
+        $d = array(
+                   $id_url => array('application/xrds+xml',
+                                    Tests_Auth_OpenID_readdata('test_discover_openid_ssl.xml'))
+                   );
+
+        $f =& new _FetcherWithoutSSL($d);
+
+        $result = Auth_OpenID_discover($id_url, $f);
+
+        list($url, $services) = $result;
+
+        $this->assertTrue($url == $id_url);
+        $this->assertTrue(count($services) == 1);
+
+        $e = $services[0];
+        $this->assertTrue($e->server_url == 'http://nossl.vroom.unittest/server');
+    }
+
+    function test_discoverRetainSSL()
+    {
+        // In the presence of SSL support, the discovery process
+        // should NOT drop endpoints whose server URLs are HTTPS.
+
+        // In the absence of SSL support, the discovery process should
+        // drop endpoints whose server URLs are HTTPS.
+        $id_url = 'http://bogus/';
+
+        $d = array(
+                   $id_url => array('application/xrds+xml',
+                                    Tests_Auth_OpenID_readdata('test_discover_openid_ssl.xml'))
+                   );
+
+        $f =& new _FetcherWithSSL($d);
+
+        $result = Auth_OpenID_discover($id_url, $f);
+
+        list($url, $services) = $result;
+
+        $this->assertTrue($url == $id_url);
+        $this->assertTrue(count($services) == 2);
+
+        $e = $services[0];
+        $this->assertTrue($e->server_url == 'http://nossl.vroom.unittest/server');
+
+        $e = $services[1];
+        $this->assertTrue($e->server_url == 'https://ssl.vroom.unittest/server');
+    }
+
+    function test_discoverSSL()
+    {
+        // The consumer code should not attempt to perform discovery
+        // on an HTTPS identity URL in the absence of SSL support.
+
+        $id_url = 'https://unsupported/';
+
+        $f =& new _NonFetcher();
+
+        $result = Auth_OpenID_discover($id_url, $f);
+
+        $this->assertTrue($result == array($id_url, array()));
+        $this->assertFalse($f->used);
+    }
+}
+
+global $Tests_Auth_OpenID_Discover_OpenID_other;
+$Tests_Auth_OpenID_Discover_OpenID_other = array(
+                                                 new Tests_Auth_OpenID_SSLSupport()
+                                                 );
 
 ?>

@@ -434,11 +434,34 @@ function Auth_OpenID_discoverXRI($iname, &$fetcher)
 
 function Auth_OpenID_discover($uri, &$fetcher)
 {
-    if (Auth_Yadis_identifierScheme($uri) == 'XRI') {
-        return Auth_OpenID_discoverXRI($uri, $fetcher);
-    } else {
-        return Auth_OpenID_discoverURI($uri, $fetcher);
+    // If the fetcher (i.e., PHP) doesn't support SSL, we can't do
+    // discovery on an HTTPS URL.
+    if ($fetcher->isHTTPS($uri) && !$fetcher->supportsSSL()) {
+        return array($uri, array());
     }
+
+    if (Auth_Yadis_identifierScheme($uri) == 'XRI') {
+        $result = Auth_OpenID_discoverXRI($uri, $fetcher);
+    } else {
+        $result = Auth_OpenID_discoverURI($uri, $fetcher);
+    }
+
+    // If the fetcher doesn't support SSL, we can't interact with
+    // HTTPS server URLs; remove those endpoints from the list.
+    if (!$fetcher->supportsSSL()) {
+        $http_endpoints = array();
+        list($new_uri, $endpoints) = $result;
+
+        foreach ($endpoints as $e) {
+            if (!$fetcher->isHTTPS($e->server_url)) {
+                $http_endpoints[] = $e;
+            }
+        }
+
+        $result = array($new_uri, $http_endpoints);
+    }
+
+    return $result;
 }
 
 ?>
