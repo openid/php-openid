@@ -90,6 +90,16 @@ the library code:
 
   define('Auth_OpenID_BUGGY_GMP', true);
 
+* Not all PHP installations support SSL.  You can find out if yours
+supports SSL by reading the "HTTP Fetching" section of the output of
+"examples/detect.php."  If your installation does not support SSL,
+then https:// identity URLs and server URLs will not be supported by
+the library.  An attempt to use such an identity URL will be
+equivalent to using an invalid OpenID.  To enable SSL support,
+recompile PHP with OpenSSL support or install the appropriate OpenSSL
+module for your platform.  If you are using CURL, CURL will need to be
+built with OpenSSL support.
+
 GETTING HELP
 ============
 
