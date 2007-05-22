@@ -26,6 +26,9 @@ require_once "Auth/Yadis/HTTPFetcher.php";
  * @package OpenID
  */
 class Auth_Yadis_PlainHTTPFetcher extends Auth_Yadis_HTTPFetcher {
+    /**
+     * Does this fetcher support SSL URLs?
+     */
     function supportsSSL()
     {
         return function_exists('openssl_open');

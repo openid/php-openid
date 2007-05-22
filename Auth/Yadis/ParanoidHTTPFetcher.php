@@ -54,6 +54,9 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
         return strlen($data);
     }
 
+    /**
+     * Does this fetcher support SSL URLs?
+     */
     function supportsSSL()
     {
         $v = curl_version();
