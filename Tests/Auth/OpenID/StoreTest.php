@@ -418,7 +418,15 @@ explicitly');
         }
 
         $store =& new Auth_OpenID_PostgreSQLStore($db);
+
+        $this->assertFalse($store->tableExists($store->nonces_table_name));
+        $this->assertFalse($store->tableExists($store->associations_table_name));
+
         $store->createTables();
+
+        $this->assertTrue($store->tableExists($store->nonces_table_name));
+        $this->assertTrue($store->tableExists($store->associations_table_name));
+
         $this->_testStore($store);
         $this->_testNonce($store);
 

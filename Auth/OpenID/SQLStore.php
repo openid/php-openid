@@ -161,8 +161,9 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
     function tableExists($table_name)
     {
         return !$this->isError(
-                      $this->connection->query("SELECT * FROM %s LIMIT 0",
-                                               $table_name));
+                      $this->connection->query(
+                          sprintf("SELECT * FROM %s LIMIT 0",
+                                  $table_name)));
     }
 
     /**
