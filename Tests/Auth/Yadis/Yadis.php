@@ -32,7 +32,7 @@ class Tests_Auth_Yadis_DiscoveryTest extends PHPUnit_TestCase {
         $this->assertTrue($y !== null);
 
         // Compare parts of returned Yadis object to expected URLs.
-        $this->assertEquals($this->redir_uri, $y->normalized_uri);
+        $this->assertEquals($this->redir_uri, $y->normalized_uri, "tried $this->input_url");
 
         if ($this->xrds_uri) {
             $this->assertEquals($this->xrds_uri, $y->xrds_uri);
@@ -71,7 +71,7 @@ class Tests_Auth_Yadis_Yadis extends PHPUnit_TestSuite {
 
     function Tests_Auth_Yadis_Yadis()
     {
-        $test_data = Tests_Auth_Yadis_readdata('manifest.txt');
+        $test_data = file_get_contents('http://www.openidenabled.com/resources/yadis-test/discover/manifest.txt');
 
         $test_cases = $this->parseTests($test_data);
 
