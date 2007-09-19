@@ -55,8 +55,8 @@ Follow these steps:
 
    # pear install package2.xml
 
-   If the PEAR installer isn't available, you can copy the Auth/ and
-   Services/ directories into your PHP include path.
+   If the PEAR installer isn't available, you can copy the Auth/
+   directory into your PHP include path.
 
 TESTING YOUR SETUP
 ==================
