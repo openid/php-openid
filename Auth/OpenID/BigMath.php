@@ -444,7 +444,9 @@ function &Auth_OpenID_getMathLib()
         $triedstr = implode(", ", $tried);
 
         define('Auth_OpenID_NO_MATH_SUPPORT', true);
-        return null;
+
+        $result = null;
+        return $result;
     }
 
     // Instantiate a new wrapper
