@@ -1067,14 +1067,11 @@ class Auth_OpenID_GenericConsumer {
 
         // Search the services resulting from discovery to find one
         // that matches the information from the assertion
-        $failure_messages = array();
 
         foreach ($services as $endpoint) {
             $result = $this->_verifyDiscoverySingle($endpoint, $to_match);
 
-            if (Auth_OpenID::isFailure($result)) {
-                $failure_messages->append($result);
-            } else {
+            if (!Auth_OpenID::isFailure($result)) {
                 // It matches, so discover verification has
                 // succeeded. Return this endpoint.
                 return $endpoint;

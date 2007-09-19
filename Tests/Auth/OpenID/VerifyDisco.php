@@ -163,6 +163,15 @@ class Tests_openID2NoEndpointDoesDisco_sentinel extends Auth_OpenID_GenericConsu
     }
 }
 
+class Tests_openID2NoEndpointDoesDisco_failure extends Auth_OpenID_GenericConsumer {
+    var $failure_message = 'A fake failure response message';
+
+    function _verifyDiscoverySingle($to_match)
+    {
+        return new Auth_OpenID_FailureResponse(null, $this->failure_message);
+    }
+}
+
 class Tests_openID2NoEndpointDoesDisco extends Tests_Auth_OpenID_VerifyDisco {
     var $consumer_class = 'Tests_openID2NoEndpointDoesDisco_sentinel';
 
@@ -200,6 +209,52 @@ class Tests_openID2MismatchedDoesDisco extends Tests_Auth_OpenID_VerifyDisco {
 
         $result = $this->consumer->_verifyDiscoveryResults($msg, $mismatched);
         $this->assertEquals($this->consumer->sentinel, $result);
+    }
+}
+
+class Tests_openID2MismatchedDoesDisco_failure extends PHPUnit_TestCase {
+    var $consumer_class = 'Tests_openID2NoEndpointDoesDisco_failure';
+
+    function setUp()
+    {
+        $this->store = new Tests_Auth_OpenID_MemStore();
+        $cl = $this->consumer_class;
+        $this->consumer = new $cl($this->store);
+        $this->return_to = "http://some.host/path";
+        $this->endpoint = new Auth_OpenID_ServiceEndpoint();
+
+        $this->consumer->discoverMethod = array($this, "_getServices");
+
+        $this->server_id = "sirod";
+        $this->server_url = "serlie";
+        $this->consumer_id = "consu";
+
+        $this->endpoint->claimed_id = $this->consumer_id;
+        $this->endpoint->server_url = $this->server_url;
+        $this->endpoint->local_id = $this->server_id;
+        $this->endpoint->type_uris = array(Auth_OpenID_TYPE_1_1);
+    }
+
+    function _getServices($claimed_id, $fetcher=null) {
+        return array(null, array($this->endpoint));
+    }
+
+    function test_openID2MismatchedDoesDisco_failure()
+    {
+        $mismatched = new Auth_OpenID_ServiceEndpoint();
+        $mismatched->identity = 'nothing special, but different';
+        $mismatched->local_id = 'green cheese';
+
+        $op_endpoint = 'Phone Home';
+
+        $msg = Auth_OpenID_Message::fromOpenIDArgs(
+            array('ns' => Auth_OpenID_OPENID2_NS,
+                  'identity' => 'sour grapes',
+                  'claimed_id' => 'monkeysoft',
+                  'op_endpoint' => $op_endpoint));
+
+        $result = $this->consumer->_verifyDiscoveryResults($msg, $mismatched);
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 }
 
@@ -247,7 +302,8 @@ class TestVerifyDiscoverySingle extends OpenIDTestMixin {
 global $Tests_Auth_OpenID_VerifyDisco_other;
 $Tests_Auth_OpenID_VerifyDisco_other = array(
                                              new Tests_openID2MismatchedDoesDisco(),
-                                             new Tests_openID2NoEndpointDoesDisco()
+                                             new Tests_openID2NoEndpointDoesDisco(),
+                                             new Tests_openID2MismatchedDoesDisco_failure(),
                                              );
 
 ?>
