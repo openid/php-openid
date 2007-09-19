@@ -20,9 +20,9 @@
  * consumers.  If you want to create an SQL-driven store, please see
  * then {@link Auth_OpenID_SQLStore} class.
  *
- * Change: Version 2.0 removed the storeNonce and getAuthKey methods,
- * and changed the behavior of the useNonce method to support one-way
- * nonces.
+ * Change: Version 2.0 removed the storeNonce, getAuthKey, and isDumb
+ * methods, and changed the behavior of the useNonce method to support
+ * one-way nonces.
  *
  * @package OpenID
  * @author JanRain, Inc. <openid@janrain.com>
