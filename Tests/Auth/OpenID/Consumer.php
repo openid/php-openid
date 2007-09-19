@@ -1889,6 +1889,7 @@ class TestDiscoveryVerification extends PHPUnit_TestCase {
                                  $this->message, $endpoint);
 
         $this->assertTrue(Auth_OpenID::isFailure($result));
+        $this->assertTrue(strpos($result->message, 'OP Endpoint mismatch') !== false);
     }
 
     function test_foreignDelegate()
@@ -1903,6 +1904,7 @@ class TestDiscoveryVerification extends PHPUnit_TestCase {
         $result = $this->consumer->_verifyDiscoveryResults(
                                  $this->message, $endpoint);
         $this->assertTrue(Auth_OpenID::isFailure($result));
+        $this->assertTrue(strpos($result->message, 'local_id mismatch') !== false);
     }
 
     function test_nothingDiscovered()
