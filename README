@@ -46,17 +46,7 @@ Follow these steps:
    - Install either the DOM or domxml PHP XML processing extension,
      but not both (they are incompatible).
 
-2. Use the PEAR installer to install the package.  To use the PEAR
-   installer, run this command from the package directory:
-
-   # pear install package.xml
-
-   If your PEAR version is sufficiently new, you can run this instead:
-
-   # pear install package2.xml
-
-   If the PEAR installer isn't available, you can copy the Auth/
-   directory into your PHP include path.
+2. Copy the Auth/ directory into your PHP include path.
 
 TESTING YOUR SETUP
 ==================
