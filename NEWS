@@ -24,6 +24,10 @@ protocol.  Highlights include:
    methods
  * Fixes to avoid multibyte overloading problems
 
+If you've written your own custom store or code that interacts
+directly with it, you'll need to review the change notes for
+Auth_OpenID_Interface in Auth/OpenID/Interface.php.
+
 
 Upgrading from earlier versions of this library
 -----------------------------------------------
