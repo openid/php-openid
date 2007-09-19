@@ -1742,21 +1742,25 @@ class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_TestCase {
 class IDPDrivenTest_Consumer1 extends Auth_OpenID_GenericConsumer {
     var $iverified = array();
     var $endpoint = null;
+    var $failure_cb = null;
+    var $check_endpoint = null;
 
     function _idResCheckNonce($message, $endpoint)
     {
         return true;
     }
 
-    function _verifyDiscoveryResults($identifier, $server_url)
+    function _verifyDiscoveryResults($identifier, $endpoint)
     {
+        call_user_func($this->failure_cb,
+                       $endpoint === $this->check_endpoint);
         $this->iverified[] = $this->endpoint;
         return $this->endpoint;
     }
 }
 
 class IDPDrivenTest_Consumer2 extends Auth_OpenID_GenericConsumer {
-    function verifyDiscoveryResults($identifier, $server_url)
+    function verifyDiscoveryResults($identifier, $endp)
     {
         return new Auth_OpenID_FailureResponse(null,
                                                "Bogus");
@@ -1783,6 +1787,8 @@ class IDPDrivenTest extends PHPUnit_TestCase {
         global $GOODSIG;
 
         $this->consumer = new IDPDrivenTest_Consumer1($this->store);
+        $this->consumer->failure_cb = array(&$this, "assertTrue");
+        $this->consumer->check_endpoint =& $this->endpoint;
 
         $identifier = '=directed_identifier';
         $message = Auth_OpenID_Message::fromPostArgs(array(
