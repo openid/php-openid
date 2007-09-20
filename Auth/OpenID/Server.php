@@ -107,25 +107,22 @@ define('AUTH_OPENID_HTTP_OK', 200);
 define('AUTH_OPENID_HTTP_REDIRECT', 302);
 define('AUTH_OPENID_HTTP_ERROR', 400);
 
-global $_Auth_OpenID_Request_Modes,
-    $_Auth_OpenID_Encode_Kvform,
-    $_Auth_OpenID_Encode_Url;
-
 /**
  * @access private
  */
+global $_Auth_OpenID_Request_Modes;
 $_Auth_OpenID_Request_Modes = array('checkid_setup',
                                     'checkid_immediate');
 
 /**
  * @access private
  */
-$_Auth_OpenID_Encode_Kvform = array('kfvorm');
+define(Auth_OpenID_ENCODE_KVFORM, 'kfvorm');
 
 /**
  * @access private
  */
-$_Auth_OpenID_Encode_Url = array('URL/redirect');
+define(Auth_OpenID_ENCODE_URL, 'URL/redirect');
 
 /**
  * @access private
@@ -226,18 +223,16 @@ class Auth_OpenID_ServerError {
     }
 
     /**
-     * Returns one of $_Auth_OpenID_Encode_Url,
-     * $_Auth_OpenID_Encode_Kvform, or null, depending on the type of
+     * Returns one of Auth_OpenID_ENCODE_URL,
+     * Auth_OpenID_ENCODE_KVFORM, or null, depending on the type of
      * encoding expected for this error's payload.
      */
     function whichEncoding()
     {
-        global $_Auth_OpenID_Encode_Url,
-            $_Auth_OpenID_Encode_Kvform,
-            $_Auth_OpenID_Request_Modes;
+        global $_Auth_OpenID_Request_Modes;
 
         if ($this->hasReturnTo()) {
-            return $_Auth_OpenID_Encode_Url;
+            return Auth_OpenID_ENCODE_URL;
         }
 
         if (!$this->message) {
@@ -249,7 +244,7 @@ class Auth_OpenID_ServerError {
 
         if ($mode) {
             if (!in_array($mode, $_Auth_OpenID_Request_Modes)) {
-                return $_Auth_OpenID_Encode_Kvform;
+                return Auth_OpenID_ENCODE_KVFORM;
             }
         }
         return null;
@@ -1137,14 +1132,12 @@ class Auth_OpenID_ServerResponse {
 
     function whichEncoding()
     {
-        global $_Auth_OpenID_Encode_Kvform,
-            $_Auth_OpenID_Request_Modes,
-            $_Auth_OpenID_Encode_Url;
+      global $_Auth_OpenID_Request_Modes;
 
         if (in_array($this->request->mode, $_Auth_OpenID_Request_Modes)) {
-            return $_Auth_OpenID_Encode_Url;
+            return Auth_OpenID_ENCODE_URL;
         } else {
-            return $_Auth_OpenID_Encode_Kvform;
+            return Auth_OpenID_ENCODE_KVFORM;
         }
     }
 
@@ -1359,18 +1352,15 @@ class Auth_OpenID_Encoder {
      */
     function encode(&$response)
     {
-        global $_Auth_OpenID_Encode_Kvform,
-            $_Auth_OpenID_Encode_Url;
-
         $cls = $this->responseFactory;
 
         $encode_as = $response->whichEncoding();
-        if ($encode_as == $_Auth_OpenID_Encode_Kvform) {
+        if ($encode_as == Auth_OpenID_ENCODE_KVFORM) {
             $wr = new $cls(null, null, $response->encodeToKVForm());
             if (is_a($response, 'Auth_OpenID_ServerError')) {
                 $wr->code = AUTH_OPENID_HTTP_ERROR;
             }
-        } else if ($encode_as == $_Auth_OpenID_Encode_Url) {
+        } else if ($encode_as == Auth_OpenID_ENCODE_URL) {
             $location = $response->encodeToURL();
             $wr = new $cls(AUTH_OPENID_HTTP_REDIRECT,
                            array('location' => $location));
