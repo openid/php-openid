@@ -127,6 +127,11 @@ define(Auth_OpenID_ENCODE_URL, 'URL/redirect');
 /**
  * @access private
  */
+define(Auth_OpenID_ENCODE_HTML_FORM, 'HTML form');
+
+/**
+ * @access private
+ */
 function Auth_OpenID_isError($obj, $cls = 'Auth_OpenID_ServerError')
 {
     return is_a($obj, $cls);
@@ -152,18 +157,24 @@ class Auth_OpenID_ServerError {
         $this->reference = $reference;
     }
 
+    function getReturnTo()
+    {
+        if ($this->message &&
+            $this->message->hasKey(Auth_OpenID_OPENID_NS, 'return_to')) {
+            return $this->message->getArg(Auth_OpenID_OPENID_NS,
+                                          'return_to');
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Returns the return_to URL for the request which caused this
      * error.
      */
     function hasReturnTo()
     {
-        if ($this->message) {
-            return $this->message->hasKey(Auth_OpenID_OPENID_NS,
-                                          'return_to');
-        } else {
-            return false;
-        }
+        return $this->getReturnTo() !== false;
     }
 
     /**
@@ -177,15 +188,7 @@ class Auth_OpenID_ServerError {
             return null;
         }
 
-        $return_to = $this->message->getArg(Auth_OpenID_OPENID_NS,
-                                            'return_to');
-        if (!$return_to) {
-            return null;
-        }
-
-        return Auth_OpenID::appendArgs($return_to,
-                            array('openid.mode' => 'error',
-                                  'openid.error' => $this->toString()));
+        return $this->toMessage()->toURL($this->getReturnTo());
     }
 
     /**
@@ -199,6 +202,11 @@ class Auth_OpenID_ServerError {
         return Auth_OpenID_KVForm::fromArray(
                                       array('mode' => 'error',
                                             'error' => $this->toString()));
+    }
+
+    function toFormMarkup()
+    {
+        return $this->toMessage()->toFormMarkup($this->getReturnTo());
     }
 
     function toMessage()
@@ -232,7 +240,13 @@ class Auth_OpenID_ServerError {
         global $_Auth_OpenID_Request_Modes;
 
         if ($this->hasReturnTo()) {
-            return Auth_OpenID_ENCODE_URL;
+            if ($this->message->isOpenID2() &&
+                (strlen($this->encodeToURL()) >
+                   Auth_OpenID_OPENID1_URL_LIMIT)) {
+                return Auth_OpenID_ENCODE_HTML_FORM;
+            } else {
+                return Auth_OpenID_ENCODE_URL;
+            }
         }
 
         if (!$this->message) {
@@ -1135,11 +1149,40 @@ class Auth_OpenID_ServerResponse {
       global $_Auth_OpenID_Request_Modes;
 
         if (in_array($this->request->mode, $_Auth_OpenID_Request_Modes)) {
-            return Auth_OpenID_ENCODE_URL;
+            if ($this->fields->isOpenID2() &&
+                (strlen($this->encodeToURL()) >
+                   Auth_OpenID_OPENID1_URL_LIMIT)) {
+                return Auth_OpenID_ENCODE_HTML_FORM;
+            } else {
+                return Auth_OpenID_ENCODE_URL;
+            }
         } else {
             return Auth_OpenID_ENCODE_KVFORM;
         }
     }
+
+    /*
+     * Returns the form markup for this response.
+     *
+     * @return str
+     */
+    function toFormMarkup()
+    {
+        return $this->fields->toFormMarkup(
+                 $this->fields->getArg(Auth_OpenID_OPENID_NS, 'return_to'));
+    }
+
+    /*
+     * Returns True if this response's encoding is ENCODE_HTML_FORM.
+     * Convenience method for server authors.
+     *
+     * @return bool
+     */
+    function renderAsForm()
+    {
+        return $this->whichEncoding() == Auth_OpenID_ENCODE_HTML_FORM;
+    }
+
 
     function encodeToURL()
     {
@@ -1364,6 +1407,9 @@ class Auth_OpenID_Encoder {
             $location = $response->encodeToURL();
             $wr = new $cls(AUTH_OPENID_HTTP_REDIRECT,
                            array('location' => $location));
+        } else if ($encode_as == Auth_OpenID_ENCODE_HTML_FORM) {
+          $wr = new $cls(AUTH_OPENID_HTTP_OK, array(),
+                         $response->toFormMarkup());
         } else {
             return new Auth_OpenID_EncodingError($response);
         }

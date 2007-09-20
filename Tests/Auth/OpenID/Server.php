@@ -89,6 +89,78 @@ class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_TestCase {
         $this->assertEquals($result_args, $expected_args);
     }
 
+    function test_browserWithReturnTo_OpenID2_GET()
+    {
+        $return_to = "http://rp.unittest/consumer";
+        // will be a ProtocolError raised by Decode or
+        // CheckIDRequest.answer
+        $args = Auth_OpenID_Message::fromPostArgs(array(
+            'openid.ns' => Auth_OpenID_OPENID2_NS,
+            'openid.mode' => 'monkeydance',
+            'openid.identity' => 'http://wagu.unittest/',
+            'openid.claimed_id' => 'http://wagu.unittest/',
+            'openid.return_to' => $return_to));
+
+        $e = new Auth_OpenID_ServerError($args, "plucky");
+        $this->assertTrue($e->hasReturnTo());
+        $expected_args = array('openid.ns' => Auth_OpenID_OPENID2_NS,
+                               'openid.mode' => 'error',
+                               'openid.error' => 'plucky');
+
+        list($rt_base, $result_args_s) = explode('?', $e->encodeToURL(), 2);
+        $result_args = Auth_OpenID::parse_str($result_args_s);
+
+        $this->assertEquals($result_args, $expected_args);
+    }
+
+    function test_browserWithReturnTo_OpenID2_POST()
+    {
+        $return_to = "http://rp.unittest/consumer" . str_repeat('x', Auth_OpenID_OPENID1_URL_LIMIT);
+        // will be a ProtocolError raised by Decode or
+        // CheckIDRequest.answer
+        $args = Auth_OpenID_Message::fromPostArgs(array(
+            'openid.ns' => Auth_OpenID_OPENID2_NS,
+            'openid.mode' => 'monkeydance',
+            'openid.identity' => 'http://wagu.unittest/',
+            'openid.claimed_id' => 'http://wagu.unittest/',
+            'openid.return_to' => $return_to));
+
+        $e = new Auth_OpenID_ServerError($args, "plucky");
+        $this->assertTrue($e->hasReturnTo());
+        $expected_args = array('openid.ns' => Auth_OpenID_OPENID2_NS,
+                               'openid.mode' => 'error',
+                               'openid.error' => 'plucky');
+
+        $this->assertTrue($e->whichEncoding() == Auth_OpenID_ENCODE_HTML_FORM);
+
+        $this->assertTrue($e->toFormMarkup() ==
+                          $e->toMessage()->toFormMarkup($args->getArg(Auth_OpenID_OPENID_NS, 'return_to')));
+    }
+
+    function test_browserWithReturnTo_OpenID1_exceeds_limit()
+    {
+        $return_to = "http://rp.unittest/consumer" . str_repeat('x', Auth_OpenID_OPENID1_URL_LIMIT);
+        // will be a ProtocolError raised by Decode or
+        // CheckIDRequest.answer
+        $args = Auth_OpenID_Message::fromPostArgs(array(
+            'openid.mode' => 'monkeydance',
+            'openid.identity' => 'http://wagu.unittest/',
+            'openid.return_to' => $return_to));
+
+        $this->assertTrue($args->isOpenID1());
+
+        $e = new Auth_OpenID_ServerError($args, "plucky");
+        $this->assertTrue($e->hasReturnTo());
+        $expected_args = array('openid.mode' => 'error',
+                               'openid.error' => 'plucky');
+
+        $this->assertTrue($e->whichEncoding() == Auth_OpenID_ENCODE_URL);
+
+        list($rt_base, $result_args_s) = explode('?', $e->encodeToURL(), 2);
+        $result_args = Auth_OpenID::parse_str($result_args_s);
+        $this->assertEquals($result_args, $expected_args);
+    }
+
     function test_noReturnTo()
     {
         // will be a ProtocolError raised by Decode or CheckIDRequest.answer
@@ -545,6 +617,89 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
         $this->store = new Tests_Auth_OpenID_MemStore();
         $this->server = new Auth_OpenID_Server($this->store,
                                                $this->op_endpoint);
+    }
+
+    function encode($thing) {
+        return $this->encoder->encode($thing);
+    }
+
+    function test_id_res_OpenID2_GET()
+    {
+        /* Check that when an OpenID 2 response does not exceed the
+         OpenID 1 message size, a GET response (i.e., redirect) is
+         issued. */
+        $request = new Auth_OpenID_CheckIDRequest(
+            'http://bombom.unittest/',
+            'http://burr.unittest/999',
+            'http://burr.unittest/',
+            false,
+            $this->server->op_endpoint);
+
+        $response = new Auth_OpenID_ServerResponse($request);
+        $response->fields = Auth_OpenID_Message::fromOpenIDArgs(array(
+            'ns' => Auth_OpenID_OPENID2_NS,
+            'mode' => 'id_res',
+            'identity' => $request->identity,
+            'claimed_id' => $request->identity,
+            'return_to' => $request->return_to));
+
+        $this->assertFalse($response->renderAsForm());
+        $this->assertTrue($response->whichEncoding() == Auth_OpenID_ENCODE_URL);
+        $webresponse = $this->encode($response);
+        $this->assertTrue(array_key_exists('location', $webresponse->headers));
+    }
+
+    function test_id_res_OpenID2_POST()
+    {
+        /* Check that when an OpenID 2 response exceeds the OpenID 1
+         message size, a POST response (i.e., an HTML form) is
+         returned. */
+        $request = new Auth_OpenID_CheckIDRequest(
+            'http://bombom.unittest/',
+            'http://burr.unittest/999',
+            'http://burr.unittest/',
+            false,
+            $this->server->op_endpoint);
+
+        $response = new Auth_OpenID_ServerResponse($request);
+        $response->fields = Auth_OpenID_Message::fromOpenIDArgs(array(
+            'ns' => Auth_OpenID_OPENID2_NS,
+            'mode' => 'id_res',
+            'identity' => $request->identity,
+            'claimed_id' => $request->identity,
+            'return_to' => str_repeat('x', Auth_OpenID_OPENID1_URL_LIMIT)));
+
+        $this->assertTrue($response->renderAsForm());
+        $this->assertTrue(strlen($response->encodeToURL()) > Auth_OpenID_OPENID1_URL_LIMIT);
+        $this->assertTrue($response->whichEncoding() == Auth_OpenID_ENCODE_HTML_FORM);
+        $webresponse = $this->encode($response);
+        $this->assertEquals($webresponse->body, $response->toFormMarkup());
+    }
+
+    function test_id_res_OpenID1_exceeds_limit()
+    {
+        /* Check that when an OpenID 1 response exceeds the OpenID 1
+        message size, a GET response is issued.  Technically, this
+        shouldn't be permitted by the library, but this test is in
+        place to preserve the status quo for OpenID 1. */
+        $request = new Auth_OpenID_CheckIDRequest(
+            'http://bombom.unittest/',
+            'http://burr.unittest/999',
+            'http://burr.unittest/',
+            false,
+            $this->server->op_endpoint);
+
+        $response = new Auth_OpenID_ServerResponse($request);
+        $response->fields = Auth_OpenID_Message::fromOpenIDArgs(array(
+            'mode' => 'id_res',
+            'identity' => $request->identity,
+            'return_to' => str_repeat('x', Auth_OpenID_OPENID1_URL_LIMIT)));
+
+        $this->assertFalse($response->renderAsForm());
+        $this->assertTrue(strlen($response->encodeToURL()) > Auth_OpenID_OPENID1_URL_LIMIT);
+        $this->assertTrue($response->whichEncoding() == Auth_OpenID_ENCODE_URL);
+        $webresponse = $this->encode($response);
+        $this->assertEquals($webresponse->headers['location'], $response->encodeToURL());
     }
 
     function test_id_res()
