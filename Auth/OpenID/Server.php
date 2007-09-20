@@ -1153,6 +1153,11 @@ class Auth_OpenID_ServerResponse {
         return $this->fields->toURL($this->request->return_to);
     }
 
+    function addExtension($extension_response)
+    {
+        $extension_response->toMessage($this->fields);
+    }
+
     function needsSigning()
     {
         return $this->fields->getArg(Auth_OpenID_OPENID_NS,

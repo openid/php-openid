@@ -176,38 +176,59 @@ class GetNSTest extends PHPUnit_TestCase {
     }
 }
 
-class SentinelFakeMessage {
-    var $args_sentinel = 'args_sentinel';
+global $__args_sentinel;
+global $__ns_sentinel;
+$__args_sentinel = 'args_sentinel';
+$__ns_sentinel = 'ns_sentinel';
 
+class SentinelFakeMessage {
     function SentinelFakeMessage(&$test_case)
     {
         $this->test_case =& $test_case;
+        $this->message = new Auth_OpenID_Message();
     }
 
     function getArgs($ns_uri)
     {
-        $this->test_case->assertEquals($ns_sentinel, $ns_uri);
-        return $this->args_sentinel;
+        global $__ns_sentinel, $__args_sentinel;
+        $this->test_case->assertEquals($__ns_sentinel, $ns_uri);
+        return $__args_sentinel;
     }
 }
 
-class TestingReq extends Auth_OpenID_SRegRequest {
-    var $ns_sentinel = 'ns_sentinel';
+// XXX Ugly hack.  Thanks, PHP.
+global $__TestingReq_TEST_CASE;
+$__TestingReq_TEST_CASE = "FLUB";
 
-    function fromOpenIDRequest($message, &$test_case)
+function __setTestCase(&$thing) {
+  global $__TestingReq_TEST_CASE;
+  $__TestingReq_TEST_CASE = $thing;
+}
+
+function &__getTestCase() {
+  global $__TestingReq_TEST_CASE;
+  return $__TestingReq_TEST_CASE;
+}
+
+class TestingReq extends Auth_OpenID_SRegRequest {
+    function fromOpenIDRequest(&$thing, &$test_case)
     {
-        parent::fromOpenIDRequest($message);
-        $this->test_case =& $test_case;
+        __setTestCase($test_case);
+        $obj = parent::fromOpenIDRequest($thing, 'TestingReq');
+        return $obj;
     }
 
     function _getSRegNS($unused)
     {
-        return $this->ns_sentinel;
+        global $__ns_sentinel;
+        return $__ns_sentinel;
     }
 
     function parseExtensionArgs($args)
     {
-        $this->test_case->assertEquals($args_sentinel, $args);
+        global $__args_sentinel;
+        $tc =& __getTestCase();
+        $tc->assertEquals($__args_sentinel, $args);
     }
 }
 
@@ -239,13 +260,16 @@ class SRegRequestTest extends PHPUnit_TestCase {
         $this->assertTrue(Auth_OpenID_SRegRequest::build(array('elvis')) === null);
     }
 
-    /*
     function test_fromOpenIDResponse()
     {
+        $openid_req = new Auth_OpenID_Request();
+
         $msg = new SentinelFakeMessage($this);
-        $req = TestingReq::fromOpenIDRequest($msg, $this);
+        $openid_req->message =& $msg;
+
+        $req = TestingReq::fromOpenIDRequest($openid_req, $this);
+        $this->assertTrue(is_a($req, 'TestingReq'));
     }
-    */
 
     function test_parseExtensionArgs_empty()
     {
@@ -607,7 +631,8 @@ class SendFieldsTest extends PHPUnit_TestCase {
                       'language' => 'en-us');
 
         // Put the requested data fields in the response message
-        Auth_OpenID_sendSRegFields($req, $data, $resp);
+        $sreg_resp = Auth_OpenID_SRegResponse::extractResponse($sreg_req, $data);
+        $resp->addExtension($sreg_resp);
 
         // <- send id_res response
 
