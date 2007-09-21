@@ -20,6 +20,7 @@
 require_once 'Auth/OpenID.php';
 require_once 'Auth/OpenID/Interface.php';
 require_once 'Auth/OpenID/HMACSHA1.php';
+require_once 'Auth/OpenID/Nonce.php';
 
 /**
  * This is a filesystem-based store for OpenID associations and
@@ -337,9 +338,15 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
      */
     function useNonce($server_url, $timestamp, $salt)
     {
+        global $Auth_OpenID_SKEW;
+
         if (!$this->active) {
             trigger_error("FileStore no longer active", E_USER_ERROR);
             return null;
+        }
+
+        if ( abs($timestamp - gmmktime()) > $Auth_OpenID_SKEW ) {
+            return False;
         }
 
         if ($server_url) {

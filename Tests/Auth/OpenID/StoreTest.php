@@ -302,13 +302,20 @@ explicitly');
             $nonce1 = Auth_OpenID_mkNonce();
 
             // A nonce is not by default
-            $this->_checkUseNonce($store, $nonce1, true, $url, 1);
+            $this->_checkUseNonce($store, $nonce1, true, $url, "blergx");
 
             // Once stored, cannot be stored again
             $this->_checkUseNonce($store, $nonce1, false, $url, 2);
 
             // And using again has the same effect
             $this->_checkUseNonce($store, $nonce1, false, $url, 3);
+
+            // Nonces from when the universe was an hour old should
+            // not pass these days.
+            $old_nonce = Auth_OpenID_mkNonce(3600);
+            $this->_checkUseNonce($store, $old_nonce, false, $url,
+                                  "Old nonce ($old_nonce) passed.");
+
         }
     }
 

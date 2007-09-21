@@ -27,6 +27,7 @@ $__Auth_OpenID_PEAR_AVAILABLE = @include_once 'DB.php';
  * @access private
  */
 require_once 'Auth/OpenID/Interface.php';
+require_once 'Auth/OpenID/Nonce.php';
 
 /**
  * @access private
@@ -487,6 +488,12 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
     function useNonce($server_url, $timestamp, $salt)
     {
+        global $Auth_OpenID_SKEW;
+
+        if ( abs($timestamp - gmmktime()) > $Auth_OpenID_SKEW ) {
+            return False;
+        }
+
         return $this->_add_nonce($server_url, $timestamp, $salt);
     }
 
