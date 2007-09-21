@@ -188,7 +188,8 @@ class Auth_OpenID_ServerError {
             return null;
         }
 
-        return $this->toMessage()->toURL($this->getReturnTo());
+        $msg = $this->toMessage();
+        return $msg->toURL($this->getReturnTo());
     }
 
     /**
@@ -206,7 +207,8 @@ class Auth_OpenID_ServerError {
 
     function toFormMarkup()
     {
-        return $this->toMessage()->toFormMarkup($this->getReturnTo());
+        $msg = $this->toMessage();
+        return $msg->toFormMarkup($this->getReturnTo());
     }
 
     function toMessage()
