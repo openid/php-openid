@@ -74,7 +74,7 @@ function Auth_OpenID_checkTimestamp($nonce_string,
     }
 
     if ($now === null) {
-        $now = time();
+        $now = gmmktime();
     }
 
     $stamp = $parts[0];
