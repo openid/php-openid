@@ -74,7 +74,7 @@ class Auth_OpenID_OpenIDStore {
      * If no handle is specified, the store may return any association
      * which matches the server URL. If multiple associations are
      * valid, the recommended return value for this method is the one
-     * that will remain valid for the longest duration.
+     * most recently issued.
      *
      * This method is allowed (and encouraged) to garbage collect
      * expired associations when found. This method must not return
