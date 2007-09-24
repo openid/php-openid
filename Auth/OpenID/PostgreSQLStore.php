@@ -61,6 +61,9 @@ class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
                   "INSERT INTO %s (server_url, timestamp, salt) VALUES ".
                   "(?, ?, ?)"
                   ;
+
+        $this->sql['clean_nonce'] =
+            "DELETE FROM %s WHERE timestamp < ?";
     }
 
     /**

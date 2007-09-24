@@ -35,6 +35,11 @@ require_once 'Auth/OpenID/Nonce.php';
 require_once 'Auth/OpenID.php';
 
 /**
+ * @access private
+ */
+require_once 'Auth/OpenID/Nonce.php';
+
+/**
  * This is the parent class for the SQL stores, which contains the
  * logic common to all of the SQL stores.
  *
@@ -250,7 +255,8 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
                               array(
                                     'value' => $this->nonces_table_name,
                                     'keys' => array('nonce_table',
-                                                    'add_nonce')
+                                                    'add_nonce',
+                                                    'clean_nonce')
                                     ),
                               array(
                                     'value' => $this->associations_table_name,
@@ -552,6 +558,17 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         }
 
         return $result;
+    }
+
+    function cleanupNonces()
+    {
+        global $Auth_OpenID_SKEW;
+        $v = time() - $Auth_OpenID_SKEW;
+
+        $this->connection->query($this->sql['clean_nonce'], array($v));
+        $num = $this->connection->affectedRows();
+        $this->connection->commit();
+        return $num;
     }
 }
 

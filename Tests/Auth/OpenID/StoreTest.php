@@ -491,6 +491,7 @@ explicitly');
 
         $this->_testStore($store);
         $this->_testNonce($store);
+        $this->_testNonceCleanup($store);
 
         $db->disconnect();
         unset($db);
@@ -555,6 +556,7 @@ explicitly');
             $this->assertTrue($store->createTables(), "Table creation failed");
             $this->_testStore($store);
             $this->_testNonce($store);
+            $this->_testNonceCleanup($store);
         }
 
         $db->disconnect();
@@ -612,6 +614,7 @@ explicitly');
         $store->createTables();
         $this->_testStore($store);
         $this->_testNonce($store);
+        $this->_testNonceCleanup($store);
 
         $db->query("DROP DATABASE $temp_db_name");
     }

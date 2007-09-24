@@ -47,6 +47,9 @@ class Auth_OpenID_SQLiteStore extends Auth_OpenID_SQLStore {
 
         $this->sql['add_nonce'] =
             "INSERT INTO %s (server_url, timestamp, salt) VALUES (?, ?, ?)";
+
+        $this->sql['clean_nonce'] =
+            "DELETE FROM %s WHERE timestamp < ?";
     }
 
     /**

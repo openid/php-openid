@@ -60,6 +60,9 @@ class Auth_OpenID_MySQLStore extends Auth_OpenID_SQLStore {
 
         $this->sql['get_expired'] =
             "SELECT server_url FROM %s WHERE issued + lifetime < ?";
+
+        $this->sql['clean_nonce'] =
+            "DELETE FROM %s WHERE timestamp < ?";
     }
 
     /**
