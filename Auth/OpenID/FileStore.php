@@ -126,13 +126,12 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
         $removed = 0;
         // Check all nonces for expiry
         foreach ($nonces as $nonce_fname) {
-            $parts = explode('-', $nonce_fname, 2);
+            $base = basename($nonce_fname);
+            $parts = explode('-', $base, 2);
             $timestamp = $parts[0];
             $timestamp = intval($timestamp, 16);
             if (abs($timestamp - $now) > $Auth_OpenID_SKEW) {
-                $filename = $this->nonce_dir . DIRECTORY_SEPARATOR .
-                    $nonce_fname;
-                Auth_OpenID_FileStore::_removeIfPresent($filename);
+                Auth_OpenID_FileStore::_removeIfPresent($nonce_fname);
                 $removed += 1;
             }
         }
@@ -255,16 +254,15 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
             // strip off the path to do the comparison
             $name = basename($filename);
             foreach ($association_files as $association_file) {
-                if (strpos($association_file, $name) === 0) {
+                $base = basename($association_file);
+                if (strpos($base, $name) === 0) {
                     $matching_files[] = $association_file;
                 }
             }
 
             $matching_associations = array();
             // read the matching files and sort by time issued
-            foreach ($matching_files as $name) {
-                $full_name = $this->association_dir . DIRECTORY_SEPARATOR .
-                    $name;
+            foreach ($matching_files as $full_name) {
                 $association = $this->_getAssociation($full_name);
                 if ($association !== null) {
                     $matching_associations[] = array($association->issued,
@@ -556,7 +554,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
         $files = array();
         while (false !== ($filename = readdir($handle))) {
             if (!in_array($filename, array('.', '..'))) {
-                $files[] = $filename;
+                $files[] = $dir . DIRECTORY_SEPARATOR . $filename;
             }
         }
         return $files;
