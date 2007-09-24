@@ -319,6 +319,60 @@ explicitly');
         }
     }
 
+    function _testNonceCleanup(&$store) {
+        global $Auth_OpenID_SKEW;
+
+        $server_url = 'http://www.myopenid.com/openid';
+
+        $now = time();
+
+        $old_nonce1 = Auth_OpenID_mkNonce($now - 20000);
+        $old_nonce2 = Auth_OpenID_mkNonce($now - 10000);
+        $recent_nonce = Auth_OpenID_mkNonce($now - 600);
+
+        global $Auth_OpenID_SKEW;
+        $orig_skew = $Auth_OpenID_SKEW;
+
+        $Auth_OpenID_SKEW = 0;
+        $store->cleanupNonces();
+        // Set SKEW high so stores will keep our nonces.
+        $Auth_OpenID_SKEW = 100000;
+
+        $params = Auth_OpenID_splitNonce($old_nonce1);
+        array_unshift($params, $server_url);
+        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
+
+        $params = Auth_OpenID_splitNonce($old_nonce2);
+        array_unshift($params, $server_url);
+        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
+
+        $params = Auth_OpenID_splitNonce($recent_nonce);
+        array_unshift($params, $server_url);
+        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
+
+        $Auth_OpenID_SKEW = 3600;
+        $cleaned = $store->cleanupNonces();
+        $this->assertEquals(2, $cleaned); // , "Cleaned %r nonces." % (cleaned,)
+
+        $Auth_OpenID_SKEW = 100000;
+        // A roundabout method of checking that the old nonces were
+        // cleaned is to see if we're allowed to add them again.
+
+        $params = Auth_OpenID_splitNonce($old_nonce1);
+        array_unshift($params, $server_url);
+        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
+        $params = Auth_OpenID_splitNonce($old_nonce2);
+        array_unshift($params, $server_url);
+        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
+
+        // The recent nonce wasn't cleaned, so it should still fail.
+        $params = Auth_OpenID_splitNonce($recent_nonce);
+        array_unshift($params, $server_url);
+        $this->assertFalse(call_user_func_array(array($store, 'useNonce'), $params));
+
+        $Auth_OpenID_SKEW = $orig_skew;
+    }
+
     function test_memstore()
     {
         require_once 'Tests/Auth/OpenID/MemStore.php';
@@ -343,6 +397,7 @@ explicitly');
         $store = new Auth_OpenID_FileStore($temp_dir);
         $this->_testStore($store);
         $this->_testNonce($store);
+        $this->_testNonceCleanup($store);
         $store->destroy();
     }
 

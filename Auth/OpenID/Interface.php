@@ -47,6 +47,24 @@ class Auth_OpenID_OpenIDStore {
                       "not implemented", E_USER_ERROR);
     }
 
+    /*
+     * Run garbage collection on expired nonces.
+     *
+     * Discards any nonce from storage that is old enough that its
+     * timestamp would not pass useNonce().
+     *
+     * This method is not called in the normal operation of the
+     * library.  It provides a way for store admins to keep their
+     * storage from filling up with expired data.
+     *
+     * @return the number of nonces expired
+     */
+    function cleanupNonces()
+    {
+        trigger_error("Auth_OpenID_OpenIDStore::cleanupNonces ".
+                      "not implemented", E_USER_ERROR);
+    }
+
     /**
      * This method returns an Association object from storage that
      * matches the server URL and, if specified, handle. It returns

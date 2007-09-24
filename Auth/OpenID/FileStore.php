@@ -116,6 +116,29 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
         }
     }
 
+    function cleanupNonces()
+    {
+        global $Auth_OpenID_SKEW;
+
+        $nonces = Auth_OpenID_FileStore::_listdir($this->nonce_dir);
+        $now = time();
+
+        $removed = 0;
+        // Check all nonces for expiry
+        foreach ($nonces as $nonce_fname) {
+            $parts = explode('-', $nonce_fname, 2);
+            $timestamp = $parts[0];
+            $timestamp = intval($timestamp, 16);
+            if (abs($timestamp - $now) > $Auth_OpenID_SKEW) {
+                $filename = $this->nonce_dir . DIRECTORY_SEPARATOR .
+                    $nonce_fname;
+                Auth_OpenID_FileStore::_removeIfPresent($filename);
+                $removed += 1;
+            }
+        }
+        return $removed;
+    }
+
     /**
      * Create a unique filename for a given server url and
      * handle. This implementation does not assume anything about the
