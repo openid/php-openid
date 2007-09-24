@@ -48,7 +48,7 @@ class Auth_OpenID_OpenIDStore {
     }
 
     /*
-     * Run garbage collection on expired nonces.
+     * Remove expired nonces from the store.
      *
      * Discards any nonce from storage that is old enough that its
      * timestamp would not pass useNonce().
