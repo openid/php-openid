@@ -4,6 +4,7 @@
  * In-memory OpenID store implementation for testing only
  */
 require_once "Auth/OpenID/Interface.php";
+require_once 'Auth/OpenID/Nonce.php';
 
 class ServerAssocs {
     function ServerAssocs()
@@ -114,8 +115,15 @@ class Tests_Auth_OpenID_MemStore {
 
     function useNonce($server_url, $timestamp, $salt)
     {
-        $nonce = sprintf("%s%s%s", $server_url, $timestamp, $salt);
-        if (in_array($nonce, $this->nonces)) {
+        global $Auth_OpenID_SKEW;
+
+        if (abs($timestamp - mktime()) > $Auth_OpenID_SKEW) {
+            return false;
+        }
+
+        $anonce = array($server_url, intval($timestamp), $salt);
+
+        if (in_array($anonce, $this->nonces)) {
             return false;
         } else {
             array_push($this->nonces, $anonce);
