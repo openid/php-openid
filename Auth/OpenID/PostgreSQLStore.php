@@ -54,9 +54,6 @@ class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
         $this->sql['remove_assoc'] =
             "DELETE FROM %s WHERE server_url = ? AND handle = ?";
 
-        $this->sql['get_expired'] =
-            "SELECT server_url FROM %s WHERE issued + lifetime < ?";
-
         $this->sql['add_nonce'] =
                   "INSERT INTO %s (server_url, timestamp, salt) VALUES ".
                   "(?, ?, ?)"

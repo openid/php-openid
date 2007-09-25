@@ -231,8 +231,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
                                    'set_assoc',
                                    'get_assoc',
                                    'get_assocs',
-                                   'remove_assoc',
-                                   'get_expired',
+                                   'remove_assoc'
                                    );
 
         foreach ($required_sql_keys as $key) {
@@ -265,7 +264,6 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
                                                     'get_assoc',
                                                     'get_assocs',
                                                     'remove_assoc',
-                                                    'get_expired',
                                                     'clean_assoc')
                                     )
                               );
@@ -406,20 +404,6 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         }
 
         return true;
-    }
-
-    function getExpired()
-    {
-        $sql = $this->sql['get_expired'];
-        $result = $this->connection->getAll($sql, array(time()));
-
-        $expired = array();
-
-        foreach ($result as $row) {
-            $expired[] = $row['server_url'];
-        }
-
-        return $expired;
     }
 
     function getAssociation($server_url, $handle = null)

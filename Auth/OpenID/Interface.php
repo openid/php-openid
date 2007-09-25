@@ -179,15 +179,6 @@ class Auth_OpenID_OpenIDStore {
     }
 
     /**
-     * Return all server URLs that have expired associations.
-     */
-    function getExpired()
-    {
-        trigger_error("Auth_OpenID_OpenIDStore::getExpired ".
-                      "not implemented", E_USER_ERROR);
-    }
-
-    /**
      * Removes all entries from the store; implementation is optional.
      */
     function reset()

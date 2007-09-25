@@ -463,18 +463,6 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
         }
     }
 
-    function getExpired()
-    {
-        $urls = array();
-        foreach ($this->_allAssocs() as $pair) {
-            list($_, $assoc) = $pair;
-            if ($assoc->getExpiresIn() <= 0) {
-                $urls[] = $assoc->server_url;
-            }
-        }
-        return $urls;
-    }
-
     /**
      * @access private
      */
