@@ -64,6 +64,9 @@ class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
 
         $this->sql['clean_nonce'] =
             "DELETE FROM %s WHERE timestamp < ?";
+
+        $this->sql['clean_assoc'] =
+            "DELETE FROM %s WHERE issued + lifetime < ?";
     }
 
     /**

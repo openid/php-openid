@@ -122,10 +122,8 @@ class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
      *
      * OpenIDStore -> NoneType
      */
-    function _testStore($store)
+    function _testStore(&$store)
     {
-        $this->assertTrue($store->getExpired() === array());
-
         // Association functions
         $now = time();
 
@@ -281,14 +279,32 @@ explicitly');
 
         $this->_checkRetrieve($store, $server_url2, null,
                               $assoc2, "(29)");
+
+        // test expired associations
+        // assoc 1: server 1, valid
+        // assoc 2: server 1, expired
+        // assoc 3: server 2, expired
+        // assoc 4: server 3, valid
+        $assocValid1 = $this->genAssoc($now, -3600, 7200);
+        $assocValid2 = $this->genAssoc($now, -5);
+        $assocExpired1 = $this->genAssoc($now, -7200, 3600);
+        $assocExpired2 = $this->genAssoc($now, -7200, 3600);
+
+        $store->cleanupAssociations();
+        $store->storeAssociation($server_url . '1', $assocValid1);
+        $store->storeAssociation($server_url . '1', $assocExpired1);
+        $store->storeAssociation($server_url . '2', $assocExpired2);
+        $store->storeAssociation($server_url . '3', $assocValid2);
+
+        $cleaned = $store->cleanupAssociations();
+        $this->assertEquals(2, $cleaned);
     }
 
     function _checkUseNonce(&$store, $nonce, $expected, $server_url, $msg=null)
     {
         list($stamp, $salt) = Auth_OpenID_splitNonce($nonce);
         $actual = $store->useNonce($server_url, $stamp, $salt);
-        $val = ($actual && $expected) || (!$actual && !$expected);
-        $this->assertTrue($val, "_checkUseNonce failed: $msg");
+        $this->assertEquals(intval($expected), intval($actual), "_checkUseNonce failed: $server_url, $msg");
     }
 
     function _testNonce(&$store)
@@ -340,15 +356,15 @@ explicitly');
 
         $params = Auth_OpenID_splitNonce($old_nonce1);
         array_unshift($params, $server_url);
-        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
+        $this->assertTrue(call_user_func_array(array(&$store, 'useNonce'), $params));
 
         $params = Auth_OpenID_splitNonce($old_nonce2);
         array_unshift($params, $server_url);
-        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
+        $this->assertTrue(call_user_func_array(array(&$store, 'useNonce'), $params));
 
         $params = Auth_OpenID_splitNonce($recent_nonce);
         array_unshift($params, $server_url);
-        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
+        $this->assertTrue(call_user_func_array(array(&$store, 'useNonce'), $params));
 
         $Auth_OpenID_SKEW = 3600;
         $cleaned = $store->cleanupNonces();
@@ -360,15 +376,15 @@ explicitly');
 
         $params = Auth_OpenID_splitNonce($old_nonce1);
         array_unshift($params, $server_url);
-        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
+        $this->assertTrue(call_user_func_array(array(&$store, 'useNonce'), $params));
         $params = Auth_OpenID_splitNonce($old_nonce2);
         array_unshift($params, $server_url);
-        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
+        $this->assertTrue(call_user_func_array(array(&$store, 'useNonce'), $params));
 
         // The recent nonce wasn't cleaned, so it should still fail.
         $params = Auth_OpenID_splitNonce($recent_nonce);
         array_unshift($params, $server_url);
-        $this->assertFalse(call_user_func_array(array($store, 'useNonce'), $params));
+        $this->assertFalse(call_user_func_array(array(&$store, 'useNonce'), $params));
 
         $Auth_OpenID_SKEW = $orig_skew;
     }
@@ -377,8 +393,9 @@ explicitly');
     {
         require_once 'Tests/Auth/OpenID/MemStore.php';
         $store = new Tests_Auth_OpenID_MemStore();
-        $this->_testStore(&$store);
-        $this->_testNonce(&$store);
+        $this->_testStore($store);
+        $this->_testNonce($store);
+        $this->_testNonceCleanup($store);
     }
 
     function test_filestore()

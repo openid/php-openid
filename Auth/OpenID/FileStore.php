@@ -612,6 +612,19 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
     {
         return @unlink($filename);
     }
+
+    function cleanupAssociations()
+    {
+        $removed = 0;
+        foreach ($this->_allAssocs() as $pair) {
+            list($assoc_filename, $assoc) = $pair;
+            if ($assoc->getExpiresIn() == 0) {
+                $this->_removeIfPresent($assoc_filename);
+                $removed += 1;
+            }
+        }
+        return $removed;
+    }
 }
 
 ?>

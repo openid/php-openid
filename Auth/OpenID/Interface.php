@@ -65,6 +65,34 @@ class Auth_OpenID_OpenIDStore {
                       "not implemented", E_USER_ERROR);
     }
 
+    /*
+     * Remove expired associations from the store.
+     *
+     * This method is not called in the normal operation of the
+     * library.  It provides a way for store admins to keep their
+     * storage from filling up with expired data.
+     *
+     * @return the number of associations expired.
+     */
+    function cleanupAssociations()
+    {
+        trigger_error("Auth_OpenID_OpenIDStore::cleanupAssociations ".
+                      "not implemented", E_USER_ERROR);
+    }
+
+    /*
+     * Shortcut for cleanupNonces(), cleanupAssociations().
+     *
+     * This method is not called in the normal operation of the
+     * library.  It provides a way for store admins to keep their
+     * storage from filling up with expired data.
+     */
+    function cleanup()
+    {
+        return array($this->cleanupNonces(),
+                     $this->cleanupAssociations());
+    }
+
     /**
      * This method returns an Association object from storage that
      * matches the server URL and, if specified, handle. It returns

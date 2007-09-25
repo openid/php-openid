@@ -265,7 +265,8 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
                                                     'get_assoc',
                                                     'get_assocs',
                                                     'remove_assoc',
-                                                    'get_expired')
+                                                    'get_expired',
+                                                    'clean_assoc')
                                     )
                               );
 
@@ -566,6 +567,15 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         $v = time() - $Auth_OpenID_SKEW;
 
         $this->connection->query($this->sql['clean_nonce'], array($v));
+        $num = $this->connection->affectedRows();
+        $this->connection->commit();
+        return $num;
+    }
+
+    function cleanupAssociations()
+    {
+        $this->connection->query($this->sql['clean_assoc'],
+                                 array(time()));
         $num = $this->connection->affectedRows();
         $this->connection->commit();
         return $num;

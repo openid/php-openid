@@ -4,129 +4,163 @@
  * In-memory OpenID store implementation for testing only
  */
 require_once "Auth/OpenID/Interface.php";
-require_once 'Auth/OpenID/Nonce.php';
 
-class Tests_Auth_OpenID_MemStore extends Auth_OpenID_OpenIDStore {
-    var $assocs = null;
-    var $nonces = null;
-
-    function Tests_Auth_OpenID_MemStore()
+class ServerAssocs {
+    function ServerAssocs()
     {
         $this->assocs = array();
-        $this->nonces = array();
     }
 
-    function getKey($server_url, $handle)
+    function set($assoc)
     {
-        return serialize(array($server_url, $handle));
+        $this->assocs[$assoc->handle] = $assoc;
     }
 
-    function getBest($assoc_list)
+    function get($handle)
+    {
+        return Auth_OpenID::arrayGet($this->assocs, $handle);
+    }
+
+    function remove($handle)
+    {
+        if (array_key_exists($handle, $this->assocs)) {
+            unset($this->assocs[$handle]);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /*
+     * Returns association with the oldest issued date.
+     *
+     * or null if there are no associations.
+     */
+    function best()
     {
         $best = null;
-        foreach ($assoc_list as $assoc) {
-            if (($best === null) ||
-                ($best->issued < $assoc->issued)) {
+        foreach ($this->assocs as $handle => $assoc) {
+            if (($best === null) || ($best->issued < $assoc->issued)) {
                 $best = $assoc;
             }
         }
         return $best;
     }
 
-    function getExpired()
+    /*
+     * Remove expired associations.
+     *
+     * @return (removed associations, remaining associations)
+     */
+    function cleanup()
     {
-        $expired = array();
-        foreach ($this->assocs as $url => $assocs) {
-            $best = $this->getBest($assocs);
-            if (($best === null) ||
-                ($best->getExpiresIn() == 0)) {
-                $expired[] = $server_url;
+        $remove = array();
+        foreach ($this->assocs as $handle => $assoc) {
+            if ($assoc->getExpiresIn() == 0) {
+                $remove[] = $handle;
             }
         }
 
-        return $expired;
+        foreach ($remove as $handle) {
+            unset($this->assocs[$handle]);
+        }
+
+        return array(count($remove), count($this->assocs));
+    }
+}
+
+/*
+ * In-process memory store.
+ *
+ * Use for single long-running processes.  No persistence supplied.
+ */
+class Tests_Auth_OpenID_MemStore {
+    function Tests_Auth_OpenID_MemStore()
+    {
+        $this->server_assocs = array();
+        $this->nonces = array();
     }
 
-    function getAssocPairs()
+    function &_getServerAssocs($server_url)
     {
-        $pairs = array();
-        foreach ($this->assocs as $key => $assoc) {
-            list($assoc_url, $_) = unserialize($key);
-            $pairs[] = array($assoc_url, $assoc);
+        if (!array_key_exists($server_url, $this->server_assocs)) {
+            $this->server_assocs[$server_url] =& new ServerAssocs();
         }
-        return $pairs;
+
+        return $this->server_assocs[$server_url];
     }
 
-    function getServerAssocs($server_url)
+    function storeAssociation($server_url, $assoc)
     {
-        $matches = array();
-        foreach ($this->getAssocPairs() as $pair) {
-            list($assoc_url, $assoc) = $pair;
-            if ($assoc_url == $server_url) {
-                $matches[] = $assoc;
-            }
-        }
-        return $matches;
+        $assocs =& $this->_getServerAssocs($server_url);
+        $assocs->set($assoc);
     }
 
     function getAssociation($server_url, $handle=null)
     {
-        $assocs = $this->getServerAssocs($server_url);
+        $assocs =& $this->_getServerAssocs($server_url);
         if ($handle === null) {
-            $best = null;
-            foreach ($assocs as $assoc) {
-                if (!isset($best) ||
-                    $best->issued < $assoc->issued) {
-
-                    $best = $assoc;
-                }
-            }
-            return $best;
+            return $assocs->best();
         } else {
-            foreach ($assocs as $assoc) {
-                if ($assoc->handle == $handle) {
-                    return $assoc;
-                }
-            }
-            return null;
+            return $assocs->get($handle);
         }
-    }
-
-    function storeAssociation($server_url, &$association)
-    {
-        $key = $this->getKey($server_url, $association->handle);
-        $this->assocs[$key] = $association;
     }
 
     function removeAssociation($server_url, $handle)
     {
-        $key = $this->getKey($server_url, $handle);
-        $present = isset($this->assocs[$key]);
-        unset($this->assocs[$key]);
-        return $present;
+        $assocs =& $this->_getServerAssocs($server_url);
+        return $assocs->remove($handle);
     }
 
     function useNonce($server_url, $timestamp, $salt)
     {
-        global $Auth_OpenID_SKEW;
-
         $nonce = sprintf("%s%s%s", $server_url, $timestamp, $salt);
-
-        if ( abs($timestamp - gmmktime()) > $Auth_OpenID_SKEW ) {
-            return False;
-        }
-
         if (in_array($nonce, $this->nonces)) {
             return false;
         } else {
-            $this->nonces[] = $nonce;
+            array_push($this->nonces, $anonce);
             return true;
         }
     }
 
-    function reset()
+    function cleanupNonces()
     {
-        $this->assocs = array();
-        $this->nonces = array();
+        global $Auth_OpenID_SKEW;
+
+        $now = time();
+        $expired = array();
+        foreach ($this->nonces as $anonce) {
+            if (abs($anonce[1] - $now) > $Auth_OpenID_SKEW) {
+                // removing items while iterating over the set could
+                // be bad.
+                $expired[] = $anonce;
+            }
+        }
+
+        foreach ($expired as $anonce) {
+            unset($this->nonces[array_search($anonce, $this->nonces)]);
+        }
+
+        return count($expired);
+    }
+
+    function cleanupAssociations()
+    {
+        $remove_urls = array();
+        $removed_assocs = 0;
+        foreach ($this->server_assocs as $server_url => $assocs) {
+            list($removed, $remaining) = $assocs->cleanup();
+            $removed_assocs += $removed;
+            if (!$remaining) {
+                $remove_urls[] = $server_url;
+            }
+        }
+
+        // Remove entries from server_assocs that had none remaining.
+        foreach ($remove_urls as $server_url) {
+            unset($this->server_assocs[$server_url]);
+        }
+
+        return $removed_assocs;
     }
 }
