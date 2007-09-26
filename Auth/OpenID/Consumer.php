@@ -637,29 +637,62 @@ class Auth_OpenID_GenericConsumer {
             }
         }
 
-        if ($mode == 'cancel') {
-            return new Auth_OpenID_CancelResponse($endpoint);
-        } else if ($mode == 'error') {
-            $error = $message->getArg(Auth_OpenID_OPENID_NS, 'error');
-            $contact = $message->getArg(Auth_OpenID_OPENID_NS, 'contact');
-            $reference = $message->getArg(Auth_OpenID_OPENID_NS, 'reference');
+        $mode_methods = array(
+                              'cancel' => '_complete_cancel',
+                              'error' => '_complete_error',
+                              'setup_needed' => '_complete_setup_needed',
+                              'id_res' => '_complete_id_res',
+                              );
 
-            return new Auth_OpenID_FailureResponse($endpoint, $error,
-                                                   $contact, $reference);
-        } else if ($message->isOpenID2() && ($mode == 'setup_needed')) {
-            return new Auth_OpenID_SetupNeededResponse($endpoint);
+        $method = Auth_OpenID::arrayGet($mode_methods, $mode,
+                                        '_completeInvalid');
 
-        } else if ($mode == 'id_res') {
-            if ($this->_checkSetupNeeded($message)) {
-                return SetupNeededResponse($endpoint,
-                                           $result->user_setup_url);
-            } else {
-                return $this->_doIdRes($message, $endpoint);
-            }
+        return call_user_func_array(array(&$this, $method),
+                                    array($message, $endpoint));
+    }
+
+    function _completeInvalid($message, &$endpoint)
+    {
+        $mode = $message->getArg(Auth_OpenID_OPENID_NS, 'mode',
+                                 '<No mode set>');
+
+        return new Auth_OpenID_FailureResponse($endpoint,
+                    sprintf("Invalid openid.mode '%s'", $mode));
+    }
+
+    function _complete_cancel($message, &$endpoint)
+    {
+        return new Auth_OpenID_CancelResponse($endpoint);
+    }
+
+    function _complete_error($message, &$endpoint)
+    {
+        $error = $message->getArg(Auth_OpenID_OPENID_NS, 'error');
+        $contact = $message->getArg(Auth_OpenID_OPENID_NS, 'contact');
+        $reference = $message->getArg(Auth_OpenID_OPENID_NS, 'reference');
+
+        return new Auth_OpenID_FailureResponse($endpoint, $error,
+                                               $contact, $reference);
+    }
+
+    function _complete_setup_needed($message, &$endpoint)
+    {
+        if (!$message->isOpenID2()) {
+            return $this->_completeInvalid($message, $endpoint);
+        }
+
+        return new Auth_OpenID_SetupNeededResponse($endpoint);
+    }
+
+    function _complete_id_res($message, &$endpoint)
+    {
+        $user_setup_url = $message->getArg(Auth_OpenID_OPENID1_NS,
+                                           'user_setup_url');
+
+        if ($this->_checkSetupNeeded($message)) {
+            return SetupNeededResponse($endpoint, $user_setup_url);
         } else {
-            return new Auth_OpenID_FailureResponse($endpoint,
-                                           sprintf("Invalid openid.mode '%s'",
-                                                   $mode));
+            return $this->_doIdRes($message, $endpoint);
         }
     }
 
