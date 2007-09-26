@@ -123,6 +123,45 @@ class Auth_OpenID_ServiceEndpoint {
         }
     }
 
+    /*
+     * Parse the given document as XRDS looking for OpenID services.
+     *
+     * @return array of Auth_OpenID_ServiceEndpoint or null if the
+     * document cannot be parsed.
+     */
+    function fromXRDS($uri, $xrds_text)
+    {
+        $xrds =& Auth_Yadis_XRDS::parseXRDS($xrds_text);
+
+        if ($xrds) {
+            $yadis_services =
+              $xrds->services(array('filter_MatchesAnyOpenIDType'));
+            return Auth_OpenID_makeOpenIDEndpoints($uri, $yadis_services);
+        }
+
+        return null;
+    }
+
+    /*
+     * Create endpoints from a DiscoveryResult.
+     *
+     * @param discoveryResult Auth_Yadis_DiscoveryResult
+     * @return array of Auth_OpenID_ServiceEndpoint or null if
+     * endpoints cannot be created.
+     */
+    function fromDiscoveryResult($discoveryResult)
+    {
+        if ($discoveryResult->isXRDS()) {
+            return Auth_OpenID_ServiceEndpoint::fromXRDS(
+                                     $discoveryResult->normalized_uri,
+                                     $discoveryResult->response_text);
+        } else {
+            return Auth_OpenID_ServiceEndpoint::fromHTML(
+                                     $discoveryResult->normalized_uri,
+                                     $discoveryResult->response_text);
+        }
+    }
+
     function fromHTML($uri, $html)
     {
         $discovery_types = array(
