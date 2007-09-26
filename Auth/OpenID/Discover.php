@@ -385,14 +385,11 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
         return array($uri, array());
     }
 
-    $xrds =& Auth_Yadis_XRDS::parseXRDS($response->response_text);
+    $openid_services = Auth_OpenID_ServiceEndpoint::fromXRDS(
+                                         $yadis_url,
+                                         $response->response_text);
 
-    if ($xrds) {
-        $yadis_services =
-            $xrds->services(array('filter_MatchesAnyOpenIDType'));
-    }
-
-    if (!$yadis_services) {
+    if (!$openid_services) {
         if ($response->isXRDS()) {
             return Auth_OpenID_discoverWithoutYadis($uri,
                                                     $fetcher);
@@ -403,9 +400,6 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
         $openid_services = Auth_OpenID_ServiceEndpoint::fromHTML(
                                         $yadis_url,
                                         $response->response_text);
-    } else {
-        $openid_services = Auth_OpenID_makeOpenIDEndpoints($yadis_url,
-                                                           $yadis_services);
     }
 
     $openid_services = Auth_OpenID_getOPOrUserServices($openid_services);
