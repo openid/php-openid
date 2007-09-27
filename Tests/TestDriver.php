@@ -129,6 +129,7 @@ $_tests = array(
                                        'Nonce',
                                        'OpenID_Yadis',
                                        'Parse',
+                                       'RPVerify',
                                        'Server',
                                        'SReg',
                                        'StoreTest',

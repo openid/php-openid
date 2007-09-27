@@ -19,6 +19,8 @@ define('Auth_OpenID_TYPE_1_1', 'http://openid.net/signon/1.1');
 define('Auth_OpenID_TYPE_1_0', 'http://openid.net/signon/1.0');
 define('Auth_OpenID_TYPE_2_0_IDP', 'http://specs.openid.net/auth/2.0/server');
 define('Auth_OpenID_TYPE_2_0', 'http://specs.openid.net/auth/2.0/signon');
+define('Auth_OpenID_RP_RETURN_TO_URL_TYPE',
+       'http://specs.openid.net/auth/2.0/return_to');
 
 function Auth_OpenID_getOpenIDTypeURIs()
 {
@@ -26,7 +28,8 @@ function Auth_OpenID_getOpenIDTypeURIs()
                  Auth_OpenID_TYPE_2_0,
                  Auth_OpenID_TYPE_1_2,
                  Auth_OpenID_TYPE_1_1,
-                 Auth_OpenID_TYPE_1_0);
+                 Auth_OpenID_TYPE_1_0,
+                 Auth_OpenID_RP_RETURN_TO_URL_TYPE);
 }
 
 /**
@@ -56,6 +59,29 @@ class Auth_OpenID_ServiceEndpoint {
         } else {
             return Auth_OpenID_OPENID1_NS;
         }
+    }
+
+    /*
+     * Query this endpoint to see if it has any of the given type
+     * URIs. This is useful for implementing other endpoint classes
+     * that e.g. need to check for the presence of multiple versions
+     * of a single protocol.
+     *
+     * @param $type_uris The URIs that you wish to check
+     *
+     * @return all types that are in both in type_uris and
+     * $this->type_uris
+     */
+    function matchTypes($type_uris)
+    {
+        $result = array();
+        foreach ($type_uris as $test_uri) {
+            if ($this->supportsType($test_uri)) {
+                $result[] = $test_uri;
+            }
+        }
+
+        return $result;
     }
 
     function supportsType($type_uri)
@@ -367,7 +393,9 @@ function Auth_OpenID_makeOpenIDEndpoints($uri, $yadis_services)
     return $s;
 }
 
-function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
+function Auth_OpenID_discoverWithYadis($uri, &$fetcher,
+              $endpoint_filter='Auth_OpenID_getOPOrUserServices',
+              $discover_function=null)
 {
     // Discover OpenID services for a URI. Tries Yadis and falls back
     // on old-style <link rel='...'> discovery if Yadis fails.
@@ -376,8 +404,15 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
     // came back for that URI at all.  I don't think falling back to
     // OpenID 1.0 discovery on the same URL will help, so don't bother
     // to catch it.
+    if ($discover_function === null) {
+        $discover_function = array('Auth_Yadis_Yadis', 'discover');
+    }
+
     $openid_services = array();
-    $response = Auth_Yadis_Yadis::discover($uri, $fetcher);
+
+    $response = call_user_func_array($discover_function,
+                                     array($uri, &$fetcher));
+
     $yadis_url = $response->normalized_uri;
     $yadis_services = array();
 
@@ -402,7 +437,9 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher)
                                         $response->response_text);
     }
 
-    $openid_services = Auth_OpenID_getOPOrUserServices($openid_services);
+    $openid_services = call_user_func_array($endpoint_filter,
+                                            array(&$openid_services));
+
     return array($yadis_url, $openid_services);
 }
 
@@ -421,8 +458,7 @@ function Auth_OpenID_discoverURI($uri, &$fetcher)
     }
 
     $uri = Auth_OpenID::normalizeUrl($uri);
-    return Auth_OpenID_discoverWithYadis($uri,
-                                         $fetcher);
+    return Auth_OpenID_discoverWithYadis($uri, $fetcher);
 }
 
 function Auth_OpenID_discoverWithoutYadis($uri, &$fetcher)

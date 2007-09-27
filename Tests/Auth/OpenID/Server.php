@@ -133,8 +133,10 @@ class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_TestCase {
 
         $this->assertTrue($e->whichEncoding() == Auth_OpenID_ENCODE_HTML_FORM);
 
+        $msg = $e->toMessage();
+
         $this->assertTrue($e->toFormMarkup() ==
-                          $e->toMessage()->toFormMarkup($args->getArg(Auth_OpenID_OPENID_NS, 'return_to')));
+                          $msg->toFormMarkup($args->getArg(Auth_OpenID_OPENID_NS, 'return_to')));
     }
 
     function test_browserWithReturnTo_OpenID1_exceeds_limit()
