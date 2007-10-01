@@ -709,6 +709,12 @@ class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
  */
 class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
     /**
+     * Return-to verification callback.  Default is
+     * Auth_OpenID_verifyReturnTo from TrustRoot.php.
+     */
+    var $verifyReturnTo = 'Auth_OpenID_verifyReturnTo';
+
+    /**
      * The mode of this request.
      */
     var $mode = "checkid_setup"; // or "checkid_immediate"
@@ -783,6 +789,26 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
                 ($this->claimed_id == $other->claimed_id) &&
                 ($this->return_to == $other->return_to) &&
                 ($this->trust_root == $other->trust_root));
+    }
+
+    /*
+     * Does the relying party publish the return_to URL for this
+     * response under the realm? It is up to the provider to set a
+     * policy for what kinds of realms should be allowed. This
+     * return_to URL verification reduces vulnerability to data-theft
+     * attacks based on open proxies, corss-site-scripting, or open
+     * redirectors.
+     *
+     * This check should only be performed after making sure that the
+     * return_to URL matches the realm.
+     *
+     * @return true if the realm publishes a document with the
+     * return_to URL listed, false if not or if discovery fails
+     */
+    function returnToVerified()
+    {
+        return call_user_func_array($this->verifyReturnTo,
+                                    array($this->trust_root, $this->return_to));
     }
 
     function fromMessage(&$message, $server)

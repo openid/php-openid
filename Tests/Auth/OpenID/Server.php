@@ -982,6 +982,37 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
         $this->assertTrue($this->request->trustRootValid());
     }
 
+    function _verify($trust_root, $return_to, $value)
+    {
+        $this->assertEquals($this->request->trust_root, $trust_root);
+        $this->assertEquals($this->request->return_to, $return_to);
+        return $value;
+    }
+
+    function _verifyTrue($trust_root, $return_to)
+    {
+        return $this->_verify($trust_root, $return_to, true);
+    }
+
+    function _verifyFalse($trust_root, $return_to)
+    {
+        return $this->_verify($trust_root, $return_to, false);
+    }
+
+    /*
+     * Make sure that verifyReturnTo is calling
+     * Auth_OpenID_verifyReturnTo
+     */
+    function test_returnToVerified_callsVerify()
+    {
+        // Ensure that True and False are passed through unchanged
+        $this->request->verifyReturnTo = array(&$this, '_verifyTrue');
+        $this->assertEquals(true, $this->request->returnToVerified());
+
+        $this->request->verifyReturnTo = array(&$this, '_verifyFalse');
+        $this->assertEquals(false, $this->request->returnToVerified());
+    }
+
     function test_answerToInvalidRoot()
     {
         $this->request->trust_root = "http://foo.unittest/17";
