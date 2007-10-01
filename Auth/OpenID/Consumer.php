@@ -1319,6 +1319,26 @@ class Auth_OpenID_GenericConsumer {
         return false;
     }
 
+    /*
+     * Adapt a POST response to a Message.
+     *
+     * @param $response Result of a POST to an OpenID endpoint.
+     */
+    function _httpResponseToMessage($response, $server_url)
+    {
+        // Should this function be named Message.fromHTTPResponse instead?
+        $response_message = Auth_OpenID_Message::fromKVForm($response->body);
+
+        if ($response->status == 400) {
+            return Auth_OpenID_ServerErrorContainer::fromMessage(
+                        $response_message);
+        } else if ($response->status != 200) {
+            return null;
+        }
+
+        return $response_message;
+    }
+
     /**
      * @access private
      */
@@ -1331,16 +1351,7 @@ class Auth_OpenID_GenericConsumer {
             return null;
         }
 
-        $response_message = Auth_OpenID_Message::fromKVForm($resp->body);
-
-        if ($resp->status == 400) {
-            return Auth_OpenID_ServerErrorContainer::fromMessage(
-                                                     $response_message);
-        } else if ($resp->status != 200) {
-            return null;
-        }
-
-        return $response_message;
+        return $this->_httpResponseToMessage($resp, $server_url);
     }
 
     /**

@@ -2104,6 +2104,45 @@ if (!defined('Auth_OpenID_NO_MATH_SUPPORT') &&
     }
 }
 
+class Tests_Auth_OpenID_KVPost extends PHPUnit_TestCase {
+    function setUp()
+    {
+        $this->server_url = 'http://unittest/bogus';
+    }
+
+    function test_200()
+    {
+        $response = new Auth_Yadis_HTTPResponse();
+        $response->status = 200;
+        $response->body = "foo:bar\nbaz:quux\n";
+        $r = Auth_OpenID_GenericConsumer::_httpResponseToMessage($response, $this->server_url);
+        $expected_msg = Auth_OpenID_Message::fromOpenIDArgs(array('foo' => 'bar', 'baz' => 'quux'));
+        $this->assertEquals($expected_msg, $r);
+    }
+
+    function test_400()
+    {
+        $response = new Auth_Yadis_HTTPResponse();
+        $response->status = 400;
+        $response->body = "error:bonk\nerror_code:7\n";
+        $result = Auth_OpenID_GenericConsumer::_httpResponseToMessage($response, $this->server_url);
+
+        $this->assertTrue(is_a($result, 'Auth_OpenID_ServerErrorContainer'));
+        $this->assertEquals($result->error_text, 'bonk');
+        $this->assertEquals($result->error_code, '7');
+    }
+
+    function test_500()
+    {
+        // 500 as an example of any non-200, non-400 code.
+        $response = new Auth_Yadis_HTTPResponse();
+        $response->status = 500;
+        $response->body = "foo:bar\nbaz:quux\n";
+        $result = Auth_OpenID_GenericConsumer::_httpResponseToMessage($response, $this->server_url);
+        $this->assertTrue($result === null);
+    }
+}
+
 // Add other test cases to be run.
 global $Tests_Auth_OpenID_Consumer_other;
 $Tests_Auth_OpenID_Consumer_other = array(
@@ -2123,6 +2162,7 @@ $Tests_Auth_OpenID_Consumer_other = array(
                                           new TestReturnToArgs(),
                                           new IDPDrivenTest(),
                                           new TestDiscoveryVerification(),
+                                          new Tests_Auth_OpenID_KVPost(),
                                           );
 
 if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
