@@ -1379,6 +1379,45 @@ class Auth_OpenID_GenericConsumer {
         return $assoc;
     }
 
+    /*
+     * Handle ServerErrors resulting from association requests.
+     *
+     * @return $result If server replied with an C{unsupported-type}
+     * error, return a tuple of supported C{association_type},
+     * C{session_type}.  Otherwise logs the error and returns null.
+     */
+    function _extractSupportedAssociationType(&$server_error, &$endpoint,
+                                              $assoc_type)
+    {
+        // Any error message whose code is not 'unsupported-type'
+        // should be considered a total failure.
+        if (($server_error->error_code != 'unsupported-type') ||
+            ($server_error->message->isOpenID1())) {
+            return null;
+        }
+
+        // The server didn't like the association/session type that we
+        // sent, and it sent us back a message that might tell us how
+        // to handle it.
+
+        // Extract the session_type and assoc_type from the error
+        // message
+        $assoc_type = $server_error->message->getArg(Auth_OpenID_OPENID_NS,
+                                                     'assoc_type');
+
+        $session_type = $server_error->message->getArg(Auth_OpenID_OPENID_NS,
+                                                       'session_type');
+
+        if (($assoc_type === null) || ($session_type === null)) {
+            return null;
+        } else if (!$this->negotiator->isAllowed($assoc_type,
+                                                 $session_type)) {
+            return null;
+        } else {
+          return array($assoc_type, $session_type);
+        }
+    }
+
     /**
      * @access private
      */
@@ -1397,42 +1436,12 @@ class Auth_OpenID_GenericConsumer {
         if (is_a($assoc, 'Auth_OpenID_ServerErrorContainer')) {
             $why = $assoc;
 
-            // Any error message whose code is not 'unsupported-type'
-            // should be considered a total failure.
-            if (($why->error_code != 'unsupported-type') ||
-                ($why->message->isOpenID1())) {
-                // oidutil.log(
-                //    'Server error when requesting an association from %r: %s'
-                //     % (endpoint.server_url, why.error_text))
-                return null;
-            }
+            $supportedTypes = $this->_extractSupportedAssociationType(
+                                     $why, $endpoint, $assoc_type);
 
-            // The server didn't like the association/session type
-            // that we sent, and it sent us back a message that
-            // might tell us how to handle it.
-            // oidutil.log(
-            //     'Unsupported association type %s: %s' % (assoc_type,
-            //                                              why.error_text,))
+            if ($supportedTypes !== null) {
+                list($assoc_type, $session_type) = $supportedTypes;
 
-            // Extract the session_type and assoc_type from the
-            // error message
-            $assoc_type = $why->message->getArg(Auth_OpenID_OPENID_NS,
-                                                'assoc_type');
-
-            $session_type = $why->message->getArg(Auth_OpenID_OPENID_NS,
-                                                  'session_type');
-
-            if (($assoc_type === null) || ($session_type === null)) {
-                // oidutil.log('Server responded with unsupported association '
-                //             'session but did not supply a fallback.')
-                return null;
-            } else if (!$this->negotiator->isAllowed($assoc_type,
-                                                     $session_type)) {
-                // fmt = ('Server sent unsupported session/association type: '
-                //        'session_type=%s, assoc_type=%s')
-                // oidutil.log(fmt % (session_type, assoc_type))
-                return null;
-            } else {
                 // Attempt to create an association from the assoc_type
                 // and session_type that the server told us it
                 // supported.
@@ -1450,10 +1459,12 @@ class Auth_OpenID_GenericConsumer {
                 } else {
                     return $assoc;
                 }
+            } else {
+                return null;
             }
+        } else {
+            return $assoc;
         }
-
-        return $assoc;
     }
 
     /**
