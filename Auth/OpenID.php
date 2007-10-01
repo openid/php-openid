@@ -448,8 +448,7 @@ class Auth_OpenID {
         if (($parsed['scheme'] == '') ||
             ($parsed['host'] == '')) {
             if ($parsed['path'] == '' &&
-                $parsed['query'] == '' &&
-                $parsed['fragment'] == '') {
+                $parsed['query'] == '') {
                 return null;
             }
 
@@ -461,15 +460,13 @@ class Auth_OpenID {
 
         $tail = array_map(array('Auth_OpenID', 'quoteMinimal'),
                           array($parsed['path'],
-                                $parsed['query'],
-                                $parsed['fragment']));
+                                $parsed['query']));
         if ($tail[0] == '') {
             $tail[0] = '/';
         }
 
         $url = Auth_OpenID::urlunparse($parsed['scheme'], $parsed['host'],
-                                       $parsed['port'], $tail[0], $tail[1],
-                                       $tail[2]);
+                                       $parsed['port'], $tail[0], $tail[1]);
 
         assert(is_string($url));
 

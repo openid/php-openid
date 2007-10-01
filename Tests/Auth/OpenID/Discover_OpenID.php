@@ -279,6 +279,33 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
                              false);
     }
 
+    /*
+     * Ensure that the Claimed Identifier does not have a fragment if
+     * one is supplied in the User Input.
+     */
+    function test_html1Fragment()
+    {
+        $data = Tests_Auth_OpenID_readdata('openid.html');
+        $content_type = 'text/html';
+        $expected_services = 1;
+
+        $this->fetcher->documents[$this->id_url] = array($content_type, $data);
+        $expected_id = $this->id_url;
+        $this->id_url = $this->id_url . '#fragment';
+        list($id_url, $services) = Auth_OpenID_discover($this->id_url, $this->fetcher);
+        $this->assertEquals($expected_services, count($services));
+        $this->assertEquals($expected_id, $id_url);
+
+        $this->_checkService(
+            $services[0],
+            "http://www.myopenid.com/server",
+            $expected_id,
+            'http://smoker.myopenid.com/',
+            null,
+            array('1.1'),
+            false);
+    }
+
     function test_html2()
     {
         $services = $this->_discover('text/html',
