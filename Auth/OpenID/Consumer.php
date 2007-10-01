@@ -1098,6 +1098,11 @@ class Auth_OpenID_GenericConsumer {
                       $to_match->claimed_id));
         }
 
+        return $this->_verifyDiscoveryServices($services, $to_match);
+    }
+
+    function _verifyDiscoveryServices(&$services, &$to_match)
+    {
         // Search the services resulting from discovery to find one
         // that matches the information from the assertion
 
