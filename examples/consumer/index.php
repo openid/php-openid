@@ -51,7 +51,7 @@
       <form method="get" action="try_auth.php">
         Identity&nbsp;URL:
         <input type="hidden" name="action" value="verify" />
-        <input type="text" name="openid_url" value="" />
+        <input type="text" name="openid_identifier" value="" />
         <input type="submit" value="Verify" />
       </form>
     </div>
