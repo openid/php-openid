@@ -381,7 +381,7 @@ class Auth_OpenID {
         }
 
         if (!$path) {
-            $path = '/';
+            $path = '';
         }
 
         $result = $scheme . "://" . $host;
@@ -520,6 +520,16 @@ class Auth_OpenID {
 
         return $b;
     }
-}
 
+    function urldefrag($url)
+    {
+        $parts = explode("#", $url, 2);
+
+        if (count($parts) == 1) {
+            return array($parts[0], "");
+        } else {
+            return $parts;
+        }
+    }
+}
 ?>

@@ -74,6 +74,29 @@ class Tests_Auth_OpenID_Util extends PHPUnit_TestCase {
         }
     }
 
+    function test_urldefrag()
+    {
+        $cases = array(
+                       array('http://foo.com', 'http://foo.com'),
+                       array('http://foo.com/', 'http://foo.com/'),
+                       array('http://foo.com/path', 'http://foo.com/path'),
+                       array('http://foo.com/path?query', 'http://foo.com/path?query'),
+                       array('http://foo.com/path?query=v', 'http://foo.com/path?query=v'),
+                       array('http://foo.com/?query=v', 'http://foo.com/?query=v'),
+                       );
+
+        foreach ($cases as $pair) {
+            list($orig, $after) = $pair;
+            list($base, $frag) = Auth_OpenID::urldefrag($orig); 
+            $this->assertEquals($after, $base);
+            $this->assertEquals($frag, '');
+
+            list($base, $frag) = Auth_OpenID::urldefrag($orig . "#fragment");
+            $this->assertEquals($after, $base);
+            $this->assertEquals('fragment', $frag);
+        }
+    }
+
     function test_normalizeUrl()
     {
         $this->assertEquals("http://foo.com/",
