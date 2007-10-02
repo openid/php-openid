@@ -117,17 +117,17 @@ $_Auth_OpenID_Request_Modes = array('checkid_setup',
 /**
  * @access private
  */
-define(Auth_OpenID_ENCODE_KVFORM, 'kfvorm');
+define('Auth_OpenID_ENCODE_KVFORM', 'kfvorm');
 
 /**
  * @access private
  */
-define(Auth_OpenID_ENCODE_URL, 'URL/redirect');
+define('Auth_OpenID_ENCODE_URL', 'URL/redirect');
 
 /**
  * @access private
  */
-define(Auth_OpenID_ENCODE_HTML_FORM, 'HTML form');
+define('Auth_OpenID_ENCODE_HTML_FORM', 'HTML form');
 
 /**
  * @access private
