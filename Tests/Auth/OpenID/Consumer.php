@@ -1842,6 +1842,16 @@ class IDPDrivenTest extends PHPUnit_TestCase {
     }
 }
 
+global $__test_otherServer_text;
+$__test_otherServer_text = "__test_otherServer";
+class TestDiscoveryVerification_test_otherServer extends Auth_OpenID_GenericConsumer {
+    function _discoverAndVerify($to_match)
+    {
+        global $__test_otherServer_text;
+        return new Auth_OpenID_FailureResponse(null, $__test_otherServer_text);
+    }
+}
+
 class TestDiscoveryVerification extends PHPUnit_TestCase {
     var $services = array();
 
@@ -1885,6 +1895,13 @@ class TestDiscoveryVerification extends PHPUnit_TestCase {
 
     function test_otherServer()
     {
+        global $__test_otherServer_text;
+
+        // setup
+        $this->consumer = new TestDiscoveryVerification_test_otherServer($this->store);
+        $this->consumer->discoverMethod = array($this,
+                                                'discoveryFunc');
+
         // a set of things without the stuff
         $endpoint = new Auth_OpenID_ServiceEndpoint();
         $endpoint->type_uris = array(Auth_OpenID_TYPE_2_0);
@@ -1897,11 +1914,18 @@ class TestDiscoveryVerification extends PHPUnit_TestCase {
                                  $this->message, $endpoint);
 
         $this->assertTrue(Auth_OpenID::isFailure($result));
-        $this->assertTrue(strpos($result->message, 'OP Endpoint mismatch') !== false);
+        $this->assertTrue(strpos($result->message, $__test_otherServer_text) !== false);
     }
 
     function test_foreignDelegate()
     {
+        global $__test_otherServer_text;
+
+        // setup
+        $this->consumer = new TestDiscoveryVerification_test_otherServer($this->store);
+        $this->consumer->discoverMethod = array($this,
+                                                'discoveryFunc');
+
         // a set of things with the server stuff but other delegate
         $endpoint = new Auth_OpenID_ServiceEndpoint();
         $endpoint->type_uris = array(Auth_OpenID_TYPE_2_0);
@@ -1912,7 +1936,7 @@ class TestDiscoveryVerification extends PHPUnit_TestCase {
         $result = $this->consumer->_verifyDiscoveryResults(
                                  $this->message, $endpoint);
         $this->assertTrue(Auth_OpenID::isFailure($result));
-        $this->assertTrue(strpos($result->message, 'local_id mismatch') !== false);
+        $this->assertTrue(strpos($result->message, $__test_otherServer_text) !== false);
     }
 
     function test_nothingDiscovered()

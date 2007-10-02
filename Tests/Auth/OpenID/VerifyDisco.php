@@ -7,6 +7,14 @@ require_once "Tests/Auth/OpenID/MemStore.php";
 require_once "Auth/OpenID/Message.php";
 require_once "Auth/OpenID/Consumer.php";
 
+class Tests_Auth_OpenID_VerifyDisco_1 extends Auth_OpenID_GenericConsumer {
+    function _discoverAndVerify($to_match)
+    {
+        $this->test_case->assertEquals($this->endpoint->claimed_id, $to_match->claimed_id);
+        return new Auth_OpenID_FailureResponse(null, $this->text);
+    }
+}
+
 class Tests_Auth_OpenID_VerifyDisco extends OpenIDTestMixin {
     var $consumer_class = 'Auth_OpenID_GenericConsumer';
 
@@ -105,11 +113,17 @@ class Tests_Auth_OpenID_VerifyDisco extends OpenIDTestMixin {
 
     function test_openid2UsePreDiscoveredWrongType()
     {
+        $this->consumer =& new Tests_Auth_OpenID_VerifyDisco_1($this->store);
+        $this->consumer->test_case =& $this;
+        $this->consumer->text = "verify failed";
+
         $endpoint = new Auth_OpenID_ServiceEndpoint();
         $endpoint->local_id = 'my identity';
         $endpoint->claimed_id = 'i am sam';
         $endpoint->server_url = 'Phone Home';
         $endpoint->type_uris = array(Auth_OpenID_TYPE_1_1);
+
+        $this->consumer->endpoint =& $endpoint;
 
         $msg = Auth_OpenID_Message::fromOpenIDArgs(
               array('ns' => Auth_OpenID_OPENID2_NS,
@@ -117,8 +131,9 @@ class Tests_Auth_OpenID_VerifyDisco extends OpenIDTestMixin {
                     'claimed_id' => $endpoint->claimed_id,
                     'op_endpoint' => $endpoint->server_url));
 
-        $this->failUnlessProtocolError(
-           $this->consumer->_verifyDiscoveryResults($msg, $endpoint));
+        $result = $this->consumer->_verifyDiscoveryResults($msg, $endpoint);
+        $this->failUnlessProtocolError($result);
+        $this->assertTrue($result->message == "verify failed");
     }
 
     function test_openid1UsePreDiscovered()

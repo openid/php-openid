@@ -1067,12 +1067,6 @@ class Auth_OpenID_GenericConsumer {
                                                 $to_match->server_url);
         }
 
-        // Fragments do not influence discovery, so we can't compare a
-        // claimed identifier with a fragment to discovered
-        // information.
-        list($defragged_claimed_id, $_) =
-            Auth_OpenID::urldefrag($to_match->claimed_id);
-
         if (!$endpoint) {
             // The claimed ID doesn't match, so we have to do
             // discovery again. This covers not using sessions, OP
@@ -1080,20 +1074,20 @@ class Auth_OpenID_GenericConsumer {
             // the original request.
             // oidutil.log('No pre-discovered information supplied.')
             return $this->_discoverAndVerify($to_match);
-        } else if ($defragged_claimed_id != $endpoint->claimed_id) {
-            // oidutil.log('Mismatched pre-discovered session data. '
-            //             'Claimed ID in session=%s, in assertion=%s' %
-            //             (endpoint.claimed_id, to_match.claimed_id))
-            return $this->_discoverAndVerify($to_match);
-        }
+        } else {
 
-        // The claimed ID matches, so we use the endpoint that we
-        // discovered in initiation. This should be the most common
-        // case.
-        $result = $this->_verifyDiscoverySingle($endpoint, $to_match);
+            // The claimed ID matches, so we use the endpoint that we
+            // discovered in initiation. This should be the most
+            // common case.
+            $result = $this->_verifyDiscoverySingle($endpoint, $to_match);
 
-        if (Auth_OpenID::isFailure($result)) {
-            return $result;
+            if (Auth_OpenID::isFailure($result)) {
+                $endpoint = $this->_discoverAndVerify($to_match);
+
+                if (Auth_OpenID::isFailure($endpoint)) {
+                    return $endpoint;
+                }
+            }
         }
 
         // The endpoint we return should have the claimed ID from the
