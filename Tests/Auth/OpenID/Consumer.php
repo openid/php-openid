@@ -615,10 +615,12 @@ class Tests_Auth_OpenID_Consumer_CheckNonceTest extends _TestIdRes {
     function test_openid1Success()
     {
         // use consumer-generated nonce
+        $nonce_value = Auth_OpenID_mkNonce();
         $this->return_to = sprintf('http://rt.unittest/?nonce=%s',
-                                   Auth_OpenID_mkNonce());
+                                   $nonce_value);
         $this->response = Auth_OpenID_Message::fromOpenIDArgs(
                             array('return_to' => $this->return_to));
+        $this->response->setArg(Auth_OpenID_BARE_NS, 'nonce', $nonce_value);
 
         $result = $this->consumer->_idResCheckNonce($this->response, $this->endpoint);
         $this->assertFalse(Auth_OpenID::isFailure($result));

@@ -1144,37 +1144,19 @@ class Auth_OpenID_GenericConsumer {
                   $to_match->claimed_id));
     }
 
-    /**
-     * @access private
+    /*
+     * Extract the nonce from an OpenID 1 response.  Return the nonce
+     * from the BARE_NS since we independently check the return_to
+     * arguments are the same as those in the response message.
+     *
+     * See the openid1_nonce_query_arg_name class variable
+     *
+     * @returns $nonce The nonce as a string or null
      */
     function _idResGetNonceOpenID1($message, $endpoint)
     {
-        $return_to = $message->getArg(Auth_OpenID_OPENID1_NS,
-                                      'return_to');
-        if ($return_to === null) {
-            return null;
-        }
-
-        $parsed_url = parse_url($return_to);
-
-        if (!array_key_exists('query', $parsed_url)) {
-            return null;
-        }
-
-        $query = $parsed_url['query'];
-        $pairs = Auth_OpenID::parse_str($query);
-
-        if ($pairs === null) {
-            return null;
-        }
-
-        foreach ($pairs as $k => $v) {
-            if ($k == $this->openid1_nonce_query_arg_name) {
-                return $v;
-            }
-        }
-
-        return null;
+        return $message->getArg(Auth_OpenID_BARE_NS,
+                                $this->openid1_nonce_query_arg_name);
     }
 
     /**
