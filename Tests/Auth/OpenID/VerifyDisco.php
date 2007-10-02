@@ -150,6 +150,33 @@ class Tests_Auth_OpenID_VerifyDisco extends OpenIDTestMixin {
         $this->failUnlessProtocolError(
             $this->consumer->_verifyDiscoveryResults($msg, $endpoint));
     }
+
+    function test_openid2Fragment()
+    {
+        $claimed_id = "http://unittest.invalid/";
+        $claimed_id_frag = $claimed_id . "#fragment";
+
+        $endpoint = new Auth_OpenID_ServiceEndpoint();
+        $endpoint->local_id = 'my identity';
+        $endpoint->claimed_id = $claimed_id;
+        $endpoint->server_url = 'Phone Home';
+        $endpoint->type_uris = array(Auth_OpenID_TYPE_2_0);
+
+        $msg = Auth_OpenID_Message::fromOpenIDArgs(
+                    array('ns' => Auth_OpenID_OPENID2_NS,
+                          'identity' => $endpoint->local_id,
+                          'claimed_id' => $claimed_id_frag,
+                          'op_endpoint' => $endpoint->server_url));
+        $result = $this->consumer->_verifyDiscoveryResults($msg, $endpoint);
+
+        $this->assertEquals($result->local_id, $endpoint->local_id);
+        $this->assertEquals($result->server_url, $endpoint->server_url);
+
+        $this->assertEquals($result->type_uris, $endpoint->type_uris);
+
+        $this->assertEquals($result->claimed_id, $claimed_id_frag);
+    }
+
 }
 
 // XXX: test the implementation of _discoverAndVerify
@@ -178,7 +205,9 @@ class Tests_openID2NoEndpointDoesDisco extends Tests_Auth_OpenID_VerifyDisco {
     function test_openID2NoEndpointDoesDisco()
     {
         $op_endpoint = 'Phone Home';
-        $sentinel = 'thing';
+        $this->consumer->sentinel = new Auth_OpenID_ServiceEndpoint();
+        $this->consumer->sentinel->claimed_id = 'monkeysoft';
+
         $msg = Auth_OpenID_Message::fromOpenIDArgs(
             array('ns' => Auth_OpenID_OPENID2_NS,
                   'identity' => 'sour grapes',
@@ -198,6 +227,10 @@ class Tests_openID2MismatchedDoesDisco extends Tests_Auth_OpenID_VerifyDisco {
         $mismatched = new Auth_OpenID_ServiceEndpoint();
         $mismatched->identity = 'nothing special, but different';
         $mismatched->local_id = 'green cheese';
+
+        $sentinel = new Auth_OpenID_ServiceEndpoint();
+        $sentinel->claimed_id = 'monkeysoft';
+        $this->consumer->sentinel = $sentinel;
 
         $op_endpoint = 'Phone Home';
 

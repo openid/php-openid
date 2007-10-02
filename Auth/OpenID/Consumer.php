@@ -986,10 +986,16 @@ class Auth_OpenID_GenericConsumer {
             }
         }
 
-        if ($to_match->claimed_id != $endpoint->claimed_id) {
+        // Fragments do not influence discovery, so we can't compare a
+        // claimed identifier with a fragment to discovered
+        // information.
+        list($defragged_claimed_id, $_) =
+            Auth_OpenID::urldefrag($to_match->claimed_id);
+
+        if ($defragged_claimed_id != $endpoint->claimed_id) {
             return new Auth_OpenID_FailureResponse($endpoint,
               sprintf('Claimed ID does not match (different subjects!), ' .
-                      'Expected %s, got %s', $to_match->claimed_id,
+                      'Expected %s, got %s', $defragged_claimed_id,
                       $endpoint->claimed_id));
         }
 
@@ -1045,42 +1051,58 @@ class Auth_OpenID_GenericConsumer {
             ($to_match->local_id !== null)) {
             return new Auth_OpenID_FailureResponse($endpoint,
               'openid.identity is present without openid.claimed_id');
-        } else if (($to_match->claimed_id !== null) &&
-                   ($to_match->local_id === null)) {
+        }
+
+        if (($to_match->claimed_id !== null) &&
+            ($to_match->local_id === null)) {
             return new Auth_OpenID_FailureResponse($endpoint,
               'openid.claimed_id is present without openid.identity');
-        } else if ($to_match->claimed_id === null) {
+        }
+
+        if ($to_match->claimed_id === null) {
             // This is a response without identifiers, so there's
             // really no checking that we can do, so return an
             // endpoint that's for the specified `openid.op_endpoint'
             return Auth_OpenID_ServiceEndpoint::fromOPEndpointURL(
                                                 $to_match->server_url);
-        } else if (!$endpoint) {
+        }
+
+        // Fragments do not influence discovery, so we can't compare a
+        // claimed identifier with a fragment to discovered
+        // information.
+        list($defragged_claimed_id, $_) =
+            Auth_OpenID::urldefrag($to_match->claimed_id);
+
+        if (!$endpoint) {
             // The claimed ID doesn't match, so we have to do
             // discovery again. This covers not using sessions, OP
             // identifier endpoints and responses that didn't match
             // the original request.
             // oidutil.log('No pre-discovered information supplied.')
             return $this->_discoverAndVerify($to_match);
-        } else if ($to_match->claimed_id != $endpoint->claimed_id) {
+        } else if ($defragged_claimed_id != $endpoint->claimed_id) {
             // oidutil.log('Mismatched pre-discovered session data. '
             //             'Claimed ID in session=%s, in assertion=%s' %
             //             (endpoint.claimed_id, to_match.claimed_id))
             return $this->_discoverAndVerify($to_match);
-        } else {
-            // The claimed ID matches, so we use the endpoint that we
-            // discovered in initiation. This should be the most
-            // common case.
-            $result = $this->_verifyDiscoverySingle($endpoint, $to_match);
-
-            if (Auth_OpenID::isFailure($result)) {
-                return $result;
-            }
-
-            return $endpoint;
         }
 
-        // Never reached.
+        // The claimed ID matches, so we use the endpoint that we
+        // discovered in initiation. This should be the most common
+        // case.
+        $result = $this->_verifyDiscoverySingle($endpoint, $to_match);
+
+        if (Auth_OpenID::isFailure($result)) {
+            return $result;
+        }
+
+        // The endpoint we return should have the claimed ID from the
+        // message we just verified, fragment and all.
+        if ($endpoint->claimed_id != $to_match->claimed_id) {
+            $endpoint->claimed_id = $to_match->claimed_id;
+        }
+
+        return $endpoint;
     }
 
     /**
@@ -1092,6 +1114,7 @@ class Auth_OpenID_GenericConsumer {
         list($unused, $services) = call_user_func($this->discoverMethod,
                                                   $to_match->claimed_id,
                                                   $this->fetcher);
+
         if (!$services) {
             return new Auth_OpenID_FailureResponse(null,
               sprintf("No OpenID information found at %s",
