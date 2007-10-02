@@ -1058,6 +1058,19 @@ class TestReturnToArgs extends PHPUnit_TestCase {
         $this->consumer = new Auth_OpenID_GenericConsumer($store);
     }
 
+    function test_returnToArgsUnexpectedArg()
+    {
+        $query = array(
+            'openid.mode' => 'id_res',
+            'openid.return_to' => 'http://example.com/',
+            'foo' => 'bar');
+
+        // no return value, success is assumed if there are no
+        // exceptions.
+        $this->assertTrue(Auth_OpenID::isFailure(
+                 $this->consumer->_verifyReturnToArgs($query)));
+    }
+
     function test_returnToArgsOkay()
     {
         $query = array(

@@ -873,6 +873,17 @@ class Auth_OpenID_GenericConsumer {
             }
         }
 
+        // Make sure all non-OpenID arguments in the response are also
+        // in the signed return_to.
+        $bare_args = $message->getArgs(Auth_OpenID_BARE_NS);
+        foreach ($bare_args as $key => $value) {
+            if (Auth_OpenID::arrayGet($q, $key) != $value) {
+                return new Auth_OpenID_FailureResponse(
+                  sprintf("Parameter %s = %s not in return_to URL",
+                          $key, $value));
+            }
+        }
+
         return true;
     }
 
