@@ -878,7 +878,7 @@ class Auth_OpenID_GenericConsumer {
         $bare_args = $message->getArgs(Auth_OpenID_BARE_NS);
         foreach ($bare_args as $key => $value) {
             if (Auth_OpenID::arrayGet($q, $key) != $value) {
-                return new Auth_OpenID_FailureResponse(
+                return new Auth_OpenID_FailureResponse(null,
                   sprintf("Parameter %s = %s not in return_to URL",
                           $key, $value));
             }
