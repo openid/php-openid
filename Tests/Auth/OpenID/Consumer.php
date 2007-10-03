@@ -920,6 +920,20 @@ class Tests_Auth_OpenID_Complete extends _TestIdRes {
         $this->assertEquals($r->status, Auth_OpenID_FAILURE);
         $this->assertEquals($r->identity_url, $this->consumer_id);
     }
+}
+
+class _VerifiedError extends Auth_OpenID_FailureResponse {
+}
+
+class Consumer_idResURLMismatch extends Auth_OpenID_GenericConsumer {
+    function _discoverAndVerify($to_match)
+    {
+        return new _VerifiedError(null, 'verified error');
+    }
+}
+
+class Tests_idResURLMismatch extends _TestIdRes {
+    var $consumer_class = 'Consumer_idResURLMismatch';
 
     function test_idResURLMismatch()
     {
@@ -932,9 +946,7 @@ class Tests_Auth_OpenID_Complete extends _TestIdRes {
 
         $message = Auth_OpenID_Message::fromPostArgs($query);
         $r = $this->consumer->complete($message, $this->endpoint);
-        $this->assertEquals($r->status, Auth_OpenID_FAILURE);
-        $this->assertEquals($r->identity_url, $this->consumer_id);
-        $this->assertTrue(strpos($r->message, 'local_id') !== false);
+        $this->assertTrue(is_a($r, '_VerifiedError'));
     }
 }
 
@@ -1578,6 +1590,17 @@ class Tests_Auth_OpenID_DiscoFailure extends PHPUnit_TestCase {
     }
 }
 
+class Consumer_completeEmptySession extends Auth_OpenID_GenericConsumer {
+    var $test_case = null;
+    var $text = "failed complete";
+
+    function complete($message, $endpoint, $return_to=null)
+    {
+        $this->test_case->assertTrue($endpoint === null);
+        return new Auth_OpenID_FailureResponse($endpoint, $this->text);
+    }
+}
+
 class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_TestCase {
     function setUp()
     {
@@ -1622,8 +1645,12 @@ class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_TestCase {
 
     function test_completeEmptySession()
     {
+        $this->consumer->consumer = new Consumer_completeEmptySession($this->store);
+        $this->consumer->consumer->test_case =& $this;
+
         $response = $this->consumer->complete(array());
-        $this->assertEquals($response->status, Auth_OpenID_FAILURE);
+        $this->assertTrue(Auth_OpenID::isFailure($response));
+        $this->assertEquals($this->consumer->consumer->text, $response->message);
         $this->assertTrue($response->identity_url === null);
     }
 
@@ -2202,6 +2229,7 @@ $Tests_Auth_OpenID_Consumer_other = array(
                                           new IDPDrivenTest(),
                                           new TestDiscoveryVerification(),
                                           new Tests_Auth_OpenID_KVPost(),
+                                          new Tests_idResURLMismatch(),
                                           );
 
 if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {

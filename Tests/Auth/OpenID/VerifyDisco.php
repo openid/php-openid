@@ -15,7 +15,17 @@ class Tests_Auth_OpenID_VerifyDisco_1 extends Auth_OpenID_GenericConsumer {
     }
 }
 
-class Tests_Auth_OpenID_VerifyDisco extends OpenIDTestMixin {
+class __VerifiedError extends Auth_OpenID_FailureResponse {
+}
+
+class VerifyDisco_Consumer_verifiedError extends Auth_OpenID_GenericConsumer {
+    function _discoverAndVerify($to_match)
+    {
+        return new __VerifiedError(null, 'verified error');
+    }
+}
+
+class _DiscoverAndVerify extends OpenIDTestMixin {
     var $consumer_class = 'Auth_OpenID_GenericConsumer';
 
     function setUp()
@@ -40,7 +50,9 @@ class Tests_Auth_OpenID_VerifyDisco extends OpenIDTestMixin {
     {
         $this->assertTrue(Auth_OpenID::isFailure($thing));
     }
+}
 
+class Tests_Auth_OpenID_VerifyDisco extends _DiscoverAndVerify {
     function test_openID1NoLocalID()
     {
         $endpoint = new Auth_OpenID_ServiceEndpoint();
@@ -151,21 +163,6 @@ class Tests_Auth_OpenID_VerifyDisco extends OpenIDTestMixin {
         $this->assertTrue($result == $endpoint);
     }
 
-    function test_openid1UsePreDiscoveredWrongType()
-    {
-        $endpoint = new Auth_OpenID_ServiceEndpoint();
-        $endpoint->local_id = 'my identity';
-        $endpoint->claimed_id = 'i am sam';
-        $endpoint->server_url = 'Phone Home';
-        $endpoint->type_uris = array(Auth_OpenID_TYPE_2_0);
-
-        $msg = Auth_OpenID_Message::fromOpenIDArgs(
-            array('ns' => Auth_OpenID_OPENID1_NS,
-                  'identity' => $endpoint->local_id));
-        $this->failUnlessProtocolError(
-            $this->consumer->_verifyDiscoveryResults($msg, $endpoint));
-    }
-
     function test_openid2Fragment()
     {
         $claimed_id = "http://unittest.invalid/";
@@ -192,6 +189,27 @@ class Tests_Auth_OpenID_VerifyDisco extends OpenIDTestMixin {
         $this->assertEquals($result->claimed_id, $claimed_id_frag);
     }
 
+}
+
+class Tests_openid1UsePreDiscoveredWrongType extends _DiscoverAndVerify {
+    var $consumer_class = 'VerifyDisco_Consumer_verifiedError';
+
+    function test_openid1UsePreDiscoveredWrongType()
+    {
+        $endpoint = new Auth_OpenID_ServiceEndpoint();
+        $endpoint->local_id = 'my identity';
+        $endpoint->claimed_id = 'i am sam';
+        $endpoint->server_url = 'Phone Home';
+        $endpoint->type_uris = array(Auth_OpenID_TYPE_2_0);
+
+        $msg = Auth_OpenID_Message::fromOpenIDArgs(
+            array('ns' => Auth_OpenID_OPENID1_NS,
+                  'identity' => $endpoint->local_id));
+
+        $result = $this->consumer->_verifyDiscoveryResults($msg, $endpoint);
+        $this->failUnlessProtocolError($result);
+        $this->assertTrue(is_a($result, '__VerifiedError'));
+    }
 }
 
 // XXX: test the implementation of _discoverAndVerify
@@ -352,6 +370,7 @@ $Tests_Auth_OpenID_VerifyDisco_other = array(
                                              new Tests_openID2MismatchedDoesDisco(),
                                              new Tests_openID2NoEndpointDoesDisco(),
                                              new Tests_openID2MismatchedDoesDisco_failure(),
+                                             new Tests_openid1UsePreDiscoveredWrongType(),
                                              );
 
 ?>

@@ -399,7 +399,7 @@ class Auth_OpenID_Consumer {
      * indicated by the status attribute, which will be one of
      * SUCCESS, CANCEL, FAILURE, or SETUP_NEEDED.
      */
-    function complete($query=null)
+    function complete($query=null, $return_to=null)
     {
         if ($query === null) {
             $query = Auth_OpenID::getQuery();
@@ -410,14 +410,9 @@ class Auth_OpenID_Consumer {
         $endpoint =
             $loader->fromSession($endpoint_data);
 
-        if ($endpoint === null) {
-            $response = new Auth_OpenID_FailureResponse(null,
-                                                   'No session state found');
-        } else {
-            $message = Auth_OpenID_Message::fromPostArgs($query);
-            $response = $this->consumer->complete($message, $endpoint);
-            $this->session->del($this->_token_key);
-        }
+        $message = Auth_OpenID_Message::fromPostArgs($query);
+        $response = $this->consumer->complete($message, $endpoint, $return_to);
+        $this->session->del($this->_token_key);
 
         if (in_array($response->status, array(Auth_OpenID_SUCCESS,
                                               Auth_OpenID_CANCEL))) {
@@ -575,6 +570,13 @@ class Auth_OpenID_GenericConsumer {
     var $openid1_nonce_query_arg_name = 'janrain_nonce';
 
     /**
+     * Another query parameter that gets added to the return_to for
+     * OpenID 1; if the user's session state is lost, use this claimed
+     * identifier to do discovery when verifying the response.
+     */
+    var $openid1_return_to_identifier_name = 'openid1_claimed_id';
+
+    /**
      * This method initializes a new {@link Auth_OpenID_Consumer}
      * instance to access the library.
      *
@@ -615,6 +617,12 @@ class Auth_OpenID_GenericConsumer {
         $r = new Auth_OpenID_AuthRequest($service_endpoint, $assoc);
         $r->return_to_args[$this->openid1_nonce_query_arg_name] =
             Auth_OpenID_mkNonce();
+
+        if ($r->message->isOpenID1()) {
+            $r->return_to_args[$this->openid1_return_to_identifier_name] =
+                $r->endpoint->claimed_id;
+        }
+
         return $r;
     }
 
@@ -946,12 +954,17 @@ class Auth_OpenID_GenericConsumer {
      */
     function _verifyDiscoveryResultsOpenID1($message, $endpoint)
     {
-        if ($endpoint === null) {
+        $claimed_id = $message->getArg(Auth_OpenID_BARE_NS,
+                                $this->openid1_return_to_identifier_name);
+
+        if (($endpoint === null) && ($claimed_id === null)) {
             return new Auth_OpenID_FailureResponse($endpoint,
               'When using OpenID 1, the claimed ID must be supplied, ' .
               'either by passing it through as a return_to parameter ' .
               'or by using a session, and supplied to the GenericConsumer ' .
               'as the argument to complete()');
+        } else if (($endpoint !== null) && ($claimed_id === null)) {
+            $claimed_id = $endpoint->claimed_id;
         }
 
         $to_match = new Auth_OpenID_ServiceEndpoint();
@@ -960,7 +973,7 @@ class Auth_OpenID_GenericConsumer {
                                                'identity');
 
         // Restore delegate information from the initiation phase
-        $to_match->claimed_id = $endpoint->claimed_id;
+        $to_match->claimed_id = $claimed_id;
 
         if ($to_match->local_id === null) {
             return new Auth_OpenID_FailureResponse($endpoint,
@@ -970,16 +983,28 @@ class Auth_OpenID_GenericConsumer {
         $to_match_1_0 = $to_match->copy();
         $to_match_1_0->type_uris = array(Auth_OpenID_TYPE_1_0);
 
-        $result = $this->_verifyDiscoverySingle($endpoint, $to_match);
+        if ($endpoint !== null) {
+            $result = $this->_verifyDiscoverySingle($endpoint, $to_match);
 
-        if (is_a($result, 'Auth_OpenID_TypeURIMismatch')) {
-            $result = $this->_verifyDiscoverySingle($endpoint, $to_match_1_0);
+            if (is_a($result, 'Auth_OpenID_TypeURIMismatch')) {
+                $this->_verifyDiscoverySingle($endpoint, $to_match_1_0);
+            } else if (Auth_OpenID::isFailure($result)) {
+                // oidutil.log("Error attempting to use stored
+                //             discovery information: " + str(e))
+                //             oidutil.log("Attempting discovery to
+                //             verify endpoint")
+            } else {
+                return $endpoint;
+            }
         }
 
-        if (Auth_OpenID::isFailure($result)) {
-            return $result;
+        // Endpoint is either bad (failed verification) or None
+        $result = $this->_discoverAndVerify($to_match);
+
+        if (is_a($result, 'Auth_OpenID_TypeURIMismatch')) {
+            return $this->_discoverAndVerify($to_match_1_0);
         } else {
-            return $endpoint;
+            return $result;
         }
     }
 
