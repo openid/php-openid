@@ -531,5 +531,25 @@ class Auth_OpenID {
             return $parts;
         }
     }
+
+    function filter($callback, &$sequence)
+    {
+        $result = array();
+
+        foreach ($sequence as $item) {
+            if (call_user_func_array($callback, array($item))) {
+                $result[] = $item;
+            }
+        }
+
+        return $result;
+    }
+
+    function update(&$dest, &$src)
+    {
+        foreach ($src as $k => $v) {
+            $dest[$k] = $v;
+        }
+    }
 }
 ?>

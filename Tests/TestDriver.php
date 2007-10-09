@@ -117,6 +117,7 @@ $_tests = array(
                                        'Association',
                                        'AssociationResponse',
                                        'AuthRequest',
+                                       'AX',
                                        'BigMath',
                                        'Consumer',
                                        'CryptUtil',
