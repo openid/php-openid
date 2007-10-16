@@ -160,6 +160,34 @@ class ParseAXValuesTest extends PHPUnit_TestCase {
                                           'count.foo' => '1'));
     }
 
+    function test_invalidCountValue()
+    {
+        $msg = new Auth_OpenID_AX_FetchRequest();
+
+        $result = $msg->parseExtensionArgs(
+                    array('type.foo' => 'urn:foo',
+                          'count.foo' => 'bogus'));
+
+        $this->assertTrue(Auth_OpenID_AX::isError($result));
+    }
+
+    function test_requestUnlimitedValues()
+    {
+        $msg = new Auth_OpenID_AX_FetchRequest();
+
+        $result = $msg->parseExtensionArgs(
+               array('mode' => 'fetch_request',
+                     'required' => 'foo',
+                     'type.foo' => 'urn:foo',
+                     'count.foo' => Auth_OpenID_AX_UNLIMITED_VALUES));
+
+        $attrs = $msg->iterAttrs();
+        $foo = $attrs[0];
+
+        $this->assertTrue($foo->count == Auth_OpenID_AX_UNLIMITED_VALUES);
+        $this->assertTrue($foo->wantsUnlimitedValues());
+    }
+
     function test_countPresentAndIsZero()
     {
         $this->failUnlessAXValues(

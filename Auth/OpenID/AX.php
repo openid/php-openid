@@ -11,6 +11,10 @@ require_once "Auth/OpenID/Message.php";
 define('Auth_OpenID_AX_NS_URI',
        'http://openid.net/srv/ax/1.0');
 
+// Use this as the 'count' value for an attribute in a FetchRequest to
+// ask for as many values as the OP can provide.
+define('Auth_OpenID_AX_UNLIMITED_VALUES', 'unlimited');
+
 class Auth_OpenID_AX {
     function isError($thing)
     {
@@ -149,6 +153,18 @@ class Auth_OpenID_AX_AttrInfo {
 
         return new Auth_OpenID_AX_AttrInfo($type_uri, $count, $required,
                                            $alias);
+    }
+
+    /*
+     * When processing a request for this attribute, the OP should
+     * call this method to determine whether all available attribute
+     * values were requested.  If self.count == UNLIMITED_VALUES, this
+     * returns True.  Otherwise this returns False, in which case
+     * self.count is an integer.
+    */
+    function wantsUnlimitedValues()
+    {
+        return $this->count === Auth_OpenID_AX_UNLIMITED_VALUES;
     }
 }
 
@@ -364,6 +380,10 @@ class Auth_OpenID_AX_FetchRequest extends Auth_OpenID_AX_Message {
                 $count_s = Auth_OpenID::arrayGet($ax_args, 'count.' . $alias);
                 if ($count_s) {
                     $count = Auth_OpenID::intval($count_s);
+                    if (($count === false) &&
+                        ($count_s === Auth_OpenID_AX_UNLIMITED_VALUES)) {
+                        $count = $count_s;
+                    }
                 } else {
                     $count = 1;
                 }
@@ -559,15 +579,18 @@ class Auth_OpenID_AX_KeyValueMessage extends Auth_OpenID_AX_Message {
             list($type_uri, $alias) = $pair;
 
             if (array_key_exists('count.' . $alias, $ax_args)) {
-                $count_s = $ax_args['count.' . $alias];
+
+                $count_key = 'count.' . $alias;
+                $count_s = $ax_args[$count_key];
 
                 $count = Auth_OpenID::intval($count_s);
 
                 if ($count === false) {
                     return new Auth_OpenID_AX_Error(
                       sprintf("Integer value expected for %s, got %s",
-                              'count.' . $alias, $count_s)
-                      );
+                              'count. %s' . $alias, $count_s,
+                              Auth_OpenID_AX_UNLIMITED_VALUES)
+                                                    );
                 }
 
                 $values = array();
