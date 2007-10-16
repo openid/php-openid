@@ -435,13 +435,16 @@ class Auth_Yadis_Discovery {
      * Clean up Yadis-related services in the session and return the
      * most-recently-attempted service from the manager, if one
      * exists.
+     *
+     * @param $force True if the manager should be deleted regardless
+     * of whether it's a manager for $this->url.
      */
-    function cleanup()
+    function cleanup($force=false)
     {
-        $manager = $this->getManager();
+        $manager = $this->getManager($force);
         if ($manager) {
             $service = $manager->current();
-            $this->destroyManager();
+            $this->destroyManager($force);
         } else {
             $service = null;
         }
@@ -460,8 +463,11 @@ class Auth_Yadis_Discovery {
 
     /**
      * @access private
+     *
+     * @param $force True if the manager should be returned regardless
+     * of whether it's a manager for $this->url.
      */
-    function &getManager()
+    function &getManager($force=false)
     {
         // Extract the YadisServiceManager for this object's URL and
         // suffix from the session.
@@ -474,7 +480,7 @@ class Auth_Yadis_Discovery {
             $manager = $loader->fromSession(unserialize($manager_str));
         }
 
-        if ($manager && $manager->forURL($this->url)) {
+        if ($manager && ($manager->forURL($this->url) || $force)) {
             return $manager;
         } else {
             $unused = null;
@@ -508,10 +514,13 @@ class Auth_Yadis_Discovery {
 
     /**
      * @access private
+     *
+     * @param $force True if the manager should be deleted regardless
+     * of whether it's a manager for $this->url.
      */
-    function destroyManager()
+    function destroyManager($force=false)
     {
-        if ($this->getManager() !== null) {
+        if ($this->getManager($force) !== null) {
             $key = $this->getSessionKey();
             $this->session->del($key);
         }

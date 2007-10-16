@@ -420,7 +420,7 @@ class Auth_OpenID_Consumer {
                 $disco = $this->getDiscoveryObject($this->session,
                                                    $response->identity_url,
                                                    $this->session_key_prefix);
-                $disco->cleanup();
+                $disco->cleanup(true);
             }
         }
 

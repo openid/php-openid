@@ -29,6 +29,21 @@ require_once 'Auth/OpenID/HMACSHA1.php';
 require_once 'Tests/Auth/OpenID/MemStore.php';
 require_once 'PHPUnit.php';
 
+/*
+ * Convenience function to create a SuccessResponse with the given
+ * arguments, all signed.
+ */
+function mkSuccess($endpoint, $q)
+{
+    $signed_list = array();
+    foreach (array_keys($q) as $k) {
+        $signed_list[] = 'openid.' . $k;
+    }
+    return new Auth_OpenID_SuccessResponse($endpoint,
+                                           Auth_OpenID_Message::fromOpenIDArgs($q),
+                                           $signed_list);
+}
+
 class FastConsumerSession extends Auth_OpenID_DiffieHellmanSHA1ConsumerSession {
     function FastConsumerSession($dh = null)
     {
@@ -1667,7 +1682,10 @@ class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_TestCase {
 
         // All responses should have the same identity URL, and the
         // session should be cleaned out
-        $this->assertTrue($resp->identity_url == $this->claimed_id);
+        if ($this->endpoint->claimed_id != Auth_OpenID_IDENTIFIER_SELECT) {
+            $this->assertTrue($resp->identity_url == $this->claimed_id);
+        }
+
         $this->assertFalse(in_array($this->consumer->_token_key,
                                     $_SESSION)); // this->session->data));
 
@@ -1686,6 +1704,27 @@ class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_TestCase {
         // completed.
         $this->assertFalse($this->session->contents());
         return $resp;
+    }
+
+    /*
+     * Be sure that the session gets cleaned up when the response is
+     * successful and has a different URL than the one in the request.
+     */
+    function test_successDifferentURL()
+    {
+        // Set up a request endpoint describing an IDP URL
+        $this->identity_url = 'http://idp.url/';
+        $this->endpoint->claimed_id = $this->endpoint->local_id = Auth_OpenID_IDENTIFIER_SELECT;
+
+        // Use a response endpoint with a different URL (asserted by
+        // the IDP)
+        $resp_endpoint = new Auth_OpenID_ServiceEndpoint();
+        $resp_endpoint->claimed_id = "http://user.url/";
+
+        $resp = $this->_doRespDisco(
+            true,
+            mkSuccess($resp_endpoint, array()));
+        $this->assertTrue($this->discovery->getManager(true) === null);
     }
 
     function test_noDiscoCompleteSuccessWithToken()
