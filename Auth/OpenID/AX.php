@@ -19,6 +19,24 @@ class Auth_OpenID_AX {
 }
 
 /*
+ * Check an alias for invalid characters; raise AXError if any are
+ * found.  Return None if the alias is valid.
+ */
+function Auth_OpenID_AX_checkAlias($alias)
+{
+  if (strpos($alias, ',') !== false) {
+      return new Auth_OpenID_AX_Error(sprintf(
+                   "Alias %s must not contain comma", $alias));
+  }
+  if (strpos($alias, '.') !== false) {
+      return new Auth_OpenID_AX_Error(sprintf(
+                   "Alias %s must not contain period", $alias));
+  }
+
+  return true;
+}
+
+/*
  * Results from data that does not meet the attribute exchange 1.0
  * specification
  */
@@ -82,8 +100,8 @@ class Auth_OpenID_AX_Message extends Auth_OpenID_Extension {
  * request the attribute.
  */
 class Auth_OpenID_AX_AttrInfo {
-    function Auth_OpenID_AX_AttrInfo($type_uri, $count=1, $required=false,
-                                     $alias=null)
+    function Auth_OpenID_AX_AttrInfo($type_uri, $count, $required,
+                                     $alias)
     {
         /*
          * required: Whether the attribute will be marked as required
@@ -116,6 +134,21 @@ class Auth_OpenID_AX_AttrInfo {
          * alias, the request will fail to be generated.
          */
         $this->alias = $alias;
+    }
+
+    function make($type_uri, $count=1, $required=false,
+                  $alias=null)
+    {
+        if ($alias !== null) {
+            $result = Auth_OpenID_AX_checkAlias($alias);
+
+            if (Auth_OpenID_AX::isError($result)) {
+                return $result;
+            }
+        }
+
+        return new Auth_OpenID_AX_AttrInfo($type_uri, $count, $required,
+                                           $alias);
     }
 }
 
@@ -341,8 +374,14 @@ class Auth_OpenID_AX_FetchRequest extends Auth_OpenID_AX_Message {
                               'count.' . $alias, $count_s));
                 }
 
-                $this->add(new Auth_OpenID_AX_AttrInfo($type_uri, $count,
-                                                       false, $alias));
+                $attrinfo = Auth_OpenID_AX_AttrInfo::make($type_uri, $count,
+                                                          false, $alias);
+
+                if (Auth_OpenID_AX::isError($attrinfo)) {
+                    return $attrinfo;
+                }
+
+                $this->add($attrinfo);
             }
         }
 
@@ -498,6 +537,13 @@ class Auth_OpenID_AX_KeyValueMessage extends Auth_OpenID_AX_Message {
             if (strpos($key, 'type.') === 0) {
                 $type_uri = $value;
                 $alias = substr($key, 5);
+
+                $result = Auth_OpenID_AX_checkAlias($alias);
+
+                if (Auth_OpenID_AX::isError($result)) {
+                    return $result;
+                }
+
                 $alias = $aliases->addAlias($type_uri, $alias);
 
                 if ($alias === null) {

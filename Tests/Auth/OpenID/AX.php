@@ -50,7 +50,7 @@ class AttrInfoTest extends PHPUnit_TestCase {
     function test_construct()
     {
         $type_uri = 'a uri';
-        $ainfo = new Auth_OpenID_AX_AttrInfo($type_uri);
+        $ainfo = Auth_OpenID_AX_AttrInfo::make($type_uri);
 
         $this->assertEquals($type_uri, $ainfo->type_uri);
         $this->assertEquals(1, $ainfo->count);
@@ -124,6 +124,29 @@ class ParseAXValuesTest extends PHPUnit_TestCase {
     function test_emptyIsValid()
     {
         $this->failUnlessAXValues(array(), array());
+    }
+
+    function test_invalidAlias()
+    {
+        $types = array(
+                       'Auth_OpenID_AX_KeyValueMessage',
+                       'Auth_OpenID_AX_FetchRequest'
+                       );
+
+        $inputs = array(
+                        array('type.a.b' =>  'urn:foo',
+                              'count.a.b' => '1'),
+                        array('type.a,b' => 'urn:foo',
+                              'count.a,b' => '1'),
+                        );
+
+        foreach ($types as $typ) {
+            foreach ($inputs as $input) {
+                $msg = new $typ();
+                $result = $msg->parseExtensionArgs($input);
+                $this->assertTrue(Auth_OpenID_AX::isError($result));
+            }
+        }
     }
 
     function test_missingValueForAliasExplodes()
@@ -212,7 +235,7 @@ class FetchRequestTest extends PHPUnit_TestCase {
         // Not yet added:
         $this->assertFalse(in_array($uri, $this->msg->iterTypes()));
 
-        $attr = new Auth_OpenID_AX_AttrInfo($uri);
+        $attr = Auth_OpenID_AX_AttrInfo::make($uri);
         $this->msg->add($attr);
 
         // Present after adding
@@ -223,7 +246,7 @@ class FetchRequestTest extends PHPUnit_TestCase {
     {
         $uri = 'lightning://storm';
 
-        $attr = new Auth_OpenID_AX_AttrInfo($uri);
+        $attr = Auth_OpenID_AX_AttrInfo::make($uri);
         $this->msg->add($attr);
         $this->assertTrue(Auth_OpenID_AX::isError($this->msg->add($attr)));
     }
@@ -238,7 +261,7 @@ class FetchRequestTest extends PHPUnit_TestCase {
 
     function test_getExtensionArgs_noAlias()
     {
-        $attr = new Auth_OpenID_AX_AttrInfo('type://of.transportation');
+        $attr = Auth_OpenID_AX_AttrInfo::make('type://of.transportation');
 
         $this->msg->add($attr);
         $ax_args = $this->msg->getExtensionArgs();
@@ -265,9 +288,9 @@ class FetchRequestTest extends PHPUnit_TestCase {
 
     function test_getExtensionArgs_alias_if_available()
     {
-        $attr = new Auth_OpenID_AX_AttrInfo(
-                                            'type://of.transportation', 1, false,
-                                            'transport');
+        $attr = Auth_OpenID_AX_AttrInfo::make(
+                                              'type://of.transportation', 1, false,
+                                              'transport');
 
         $this->msg->add($attr);
         $this->failUnlessExtensionArgs(array(
@@ -277,7 +300,7 @@ class FetchRequestTest extends PHPUnit_TestCase {
 
     function test_getExtensionArgs_alias_req()
     {
-        $attr = new Auth_OpenID_AX_AttrInfo(
+        $attr = Auth_OpenID_AX_AttrInfo::make(
             'type://of.transportation',
             1, true, 'transport');
 
@@ -424,7 +447,7 @@ class FetchResponseTest extends PHPUnit_TestCase {
             'mode' => 'fetch_response',
                                );
         $req = new Auth_OpenID_AX_FetchRequest();
-        $req->add(new Auth_OpenID_AX_AttrInfo('http://not.found/'));
+        $req->add(Auth_OpenID_AX_AttrInfo::make('http://not.found/'));
         $this->assertEquals($expected_args, $this->msg->getExtensionArgs($req));
     }
 
@@ -436,7 +459,7 @@ class FetchResponseTest extends PHPUnit_TestCase {
             'value.' . $this->alias_a => $this->value_a,
                                );
         $req = new Auth_OpenID_AX_FetchRequest();
-        $req->add(new Auth_OpenID_AX_AttrInfo($this->type_a, 1, false, $this->alias_a));
+        $req->add(Auth_OpenID_AX_AttrInfo::make($this->type_a, 1, false, $this->alias_a));
         $this->msg->addValue($this->type_a, $this->value_a);
 
         $result = $this->msg->getExtensionArgs($req);
