@@ -188,6 +188,21 @@ class ParseAXValuesTest extends PHPUnit_TestCase {
         $this->assertTrue($foo->wantsUnlimitedValues());
     }
 
+    function test_longAlias()
+    {
+        // Spec minimum length is 32 characters.  This is a silly test
+        // for this library, but it's here for completeness.
+        $alias = str_repeat('x', Auth_OpenID_AX_MINIMUM_SUPPORTED_ALIAS_LENGTH);
+
+        $msg = new Auth_OpenID_AX_KeyValueMessage();
+        $result = $msg->parseExtensionArgs(
+                                 array('type.' . $alias => 'urn:foo',
+                                       'count.' . $alias => '1',
+                                       'value.'.$alias.'.1' => 'first')
+                                 );
+        $this->assertFalse(Auth_OpenID_AX::isError($result));
+    }
+
     function test_countPresentAndIsZero()
     {
         $this->failUnlessAXValues(

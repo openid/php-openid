@@ -15,6 +15,10 @@ define('Auth_OpenID_AX_NS_URI',
 // ask for as many values as the OP can provide.
 define('Auth_OpenID_AX_UNLIMITED_VALUES', 'unlimited');
 
+// Minimum supported alias length in characters.  Here for
+// completeness.
+define('Auth_OpenID_AX_MINIMUM_SUPPORTED_ALIAS_LENGTH', 32);
+
 class Auth_OpenID_AX {
     function isError($thing)
     {
