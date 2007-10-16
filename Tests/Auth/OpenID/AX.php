@@ -449,6 +449,66 @@ class FetchRequestTest extends PHPUnit_TestCase {
         $this->msg->parseExtensionArgs($extension_args);
         $this->assertEquals($extension_args_norm, $this->msg->getExtensionArgs());
     }
+
+    function test_openidNoRealm()
+    {
+        $openid_req_msg = Auth_OpenID_Message::fromOpenIDArgs(array(
+            'mode' => 'checkid_setup',
+            'ns' => Auth_OpenID_OPENID2_NS,
+            'ns.ax' => Auth_OpenID_AX_NS_URI,
+            'ax.update_url' => 'http://different.site/path',
+            'ax.mode' => 'fetch_request',
+            ));
+
+        $result = Auth_OpenID_AX_FetchRequest::fromOpenIDRequest(
+                                                     $openid_req_msg);
+        $this->assertTrue(Auth_OpenID_AX::isError($result));
+    }
+
+    function test_openidUpdateURLVerificationError()
+    {
+        $openid_req_msg = Auth_OpenID_Message::fromOpenIDArgs(array(
+            'mode' => 'checkid_setup',
+            'ns' => Auth_OpenID_OPENID2_NS,
+            'realm' => 'http://example.com/realm',
+            'ns.ax' => Auth_OpenID_AX_NS_URI,
+            'ax.update_url' => 'http://different.site/path',
+            'ax.mode' => 'fetch_request',
+            ));
+
+        $result = Auth_OpenID_AX_FetchRequest::fromOpenIDRequest($openid_req_msg);
+        $this->assertTrue(Auth_OpenID_AX::isError($result));
+    }
+
+    function test_openidUpdateURLVerificationSuccess()
+    {
+        $openid_req_msg = Auth_OpenID_Message::fromOpenIDArgs(array(
+            'mode' => 'checkid_setup',
+            'ns' => Auth_OpenID_OPENID2_NS,
+            'realm' => 'http://example.com/realm',
+            'ns.ax' => Auth_OpenID_AX_NS_URI,
+            'ax.update_url' => 'http://example.com/realm/update_path',
+            'ax.mode' => 'fetch_request',
+            ));
+
+        $fr = Auth_OpenID_AX_FetchRequest::fromOpenIDRequest($openid_req_msg);
+        $this->assertFalse(Auth_OpenID_AX::isError($fr));
+    }
+
+    function test_openidUpdateURLVerificationSuccessReturnTo()
+    {
+        $openid_req_msg = Auth_OpenID_Message::fromOpenIDArgs(array(
+            'mode' => 'checkid_setup',
+            'ns' => Auth_OpenID_OPENID2_NS,
+            'return_to' => 'http://example.com/realm',
+            'ns.ax' => Auth_OpenID_AX_NS_URI,
+            'ax.update_url' => 'http://example.com/realm/update_path',
+            'ax.mode' => 'fetch_request',
+            ));
+
+        $fr = Auth_OpenID_AX_FetchRequest::fromOpenIDRequest($openid_req_msg);
+        $this->assertFalse(Auth_OpenID_AX::isError($fr));
+    }
 }
 
 class FetchResponseTest extends PHPUnit_TestCase {
