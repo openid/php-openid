@@ -537,7 +537,7 @@ class Auth_OpenID_AX_KeyValueMessage extends Auth_OpenID_AX_Message {
     }
 
     /*
-     * Parse attribiute exchange key/value arguments into this object.
+     * Parse attribute exchange key/value arguments into this object.
      *
      * @param ax_args: The attribute exchange fetch_response
      * arguments, with namespacing removed.
