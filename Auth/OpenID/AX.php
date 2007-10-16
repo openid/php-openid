@@ -524,16 +524,11 @@ class Auth_OpenID_AX_KeyValueMessage extends Auth_OpenID_AX_Message {
             $alias = $aliases->add($type_uri);
 
             $ax_args['type.' . $alias] = $type_uri;
+            $ax_args['count.' . $alias] = strval(count($values));
 
-            if (count($values) == 1) {
-                $ax_args['value.' . $alias] = $values[0];
-            } else {
-                $ax_args['count.' . $alias] = strval(count($values));
-
-                foreach ($values as $i => $value) {
-                    $key = sprintf('value.%s.%d', $alias, $i + 1);
-                    $ax_args[$key] = $value;
-                }
+            foreach ($values as $i => $value) {
+              $key = sprintf('value.%s.%d', $alias, $i + 1);
+              $ax_args[$key] = $value;
             }
         }
 
@@ -739,6 +734,8 @@ class Auth_OpenID_AX_FetchResponse extends Auth_OpenID_AX_KeyValueMessage {
     {
         $aliases = new Auth_OpenID_NamespaceMap();
 
+        $zero_value_types = array();
+
         if ($request !== null) {
             // Validate the data in the context of the request (the
             // same attributes should be present in each, and the
@@ -775,12 +772,11 @@ class Auth_OpenID_AX_FetchResponse extends Auth_OpenID_AX_KeyValueMessage {
                     $values = $this->data[$attr_info->type_uri];
                 } else {
                     $values = array();
+                    $zero_value_types[] = $attr_info;
                 }
 
-                if ($attr_info->count < count($values)) {
-                    // raise AXError(
-                    // 'More than the number of requested values were '
-                    // 'specified for %r' % (attr_info.type_uri,))
+                if (($attr_info->count != Auth_OpenID_AX_UNLIMITED_VALUES) &&
+                    ($attr_info->count < count($values))) {
                     return new Auth_OpenID_AX_Error(
                       sprintf("More than the number of requested values " .
                               "were specified for %s",
@@ -795,6 +791,14 @@ class Auth_OpenID_AX_FetchResponse extends Auth_OpenID_AX_KeyValueMessage {
         // Add the KV args into the response with the args that are
         // unique to the fetch_response
         $ax_args = $this->_newArgs();
+
+        // For each requested attribute, put its type/alias and count
+        // into the response even if no data were returned.
+        foreach ($zero_value_types as $attr_info) {
+            $alias = $aliases->getAlias($attr_info->type_uri);
+            $kv_args['type.' . $alias] = $attr_info->type_uri;
+            $kv_args['count.' . $alias] = '0';
+        }
 
         $update_url = null;
         if ($request) {

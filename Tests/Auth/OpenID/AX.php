@@ -487,8 +487,13 @@ class FetchResponseTest extends PHPUnit_TestCase {
 
     function test_getExtensionArgs_empty_request_some()
     {
+        $uri = 'http://not.found/';
+        $alias = 'ext0';
+
         $expected_args = array(
             'mode' => 'fetch_response',
+            'type.' . $alias => $uri,
+            'count.' . $alias => '0'
                                );
         $req = new Auth_OpenID_AX_FetchRequest();
         $req->add(Auth_OpenID_AX_AttrInfo::make('http://not.found/'));
@@ -503,6 +508,8 @@ class FetchResponseTest extends PHPUnit_TestCase {
         $expected_args = array(
             'mode' => 'fetch_response',
             'update_url' => $this->request_update_url,
+            'type.' . $alias => $uri,
+            'count.' . $alias => '0'
                                );
         $req = new Auth_OpenID_AX_FetchRequest($this->request_update_url);
         $req->add(Auth_OpenID_AX_AttrInfo::make($uri));
@@ -514,8 +521,10 @@ class FetchResponseTest extends PHPUnit_TestCase {
         $expected_args = array(
             'mode' => 'fetch_response',
             'type.' . $this->alias_a => $this->type_a,
-            'value.' . $this->alias_a => $this->value_a,
+            'value.' . $this->alias_a . '.1' => $this->value_a,
+            'count.' . $this->alias_a => '1'
                                );
+
         $req = new Auth_OpenID_AX_FetchRequest();
         $req->add(Auth_OpenID_AX_AttrInfo::make($this->type_a, 1, false, $this->alias_a));
         $this->msg->addValue($this->type_a, $this->value_a);
