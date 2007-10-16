@@ -458,6 +458,7 @@ class FetchResponseTest extends PHPUnit_TestCase {
         $this->value_a = 'monkeys';
         $this->type_a = 'http://phone.home/';
         $this->alias_a = 'robocop';
+        $this->request_update_url = 'http://update.bogus/';
     }
 
     function test_construct()
@@ -491,6 +492,20 @@ class FetchResponseTest extends PHPUnit_TestCase {
                                );
         $req = new Auth_OpenID_AX_FetchRequest();
         $req->add(Auth_OpenID_AX_AttrInfo::make('http://not.found/'));
+        $this->assertEquals($expected_args, $this->msg->getExtensionArgs($req));
+    }
+
+    function test_updateUrlInResponse()
+    {
+        $uri = 'http://not.found/';
+        $alias = 'ext0';
+
+        $expected_args = array(
+            'mode' => 'fetch_response',
+            'update_url' => $this->request_update_url,
+                               );
+        $req = new Auth_OpenID_AX_FetchRequest($this->request_update_url);
+        $req->add(Auth_OpenID_AX_AttrInfo::make($uri));
         $this->assertEquals($expected_args, $this->msg->getExtensionArgs($req));
     }
 

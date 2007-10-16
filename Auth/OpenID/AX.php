@@ -796,8 +796,15 @@ class Auth_OpenID_AX_FetchResponse extends Auth_OpenID_AX_KeyValueMessage {
         // unique to the fetch_response
         $ax_args = $this->_newArgs();
 
-        if ($this->update_url) {
-            $ax_args['update_url'] = $this->update_url;
+        $update_url = null;
+        if ($request) {
+            $update_url = $request->update_url;
+        } else {
+            $update_url = $this->update_url;
+        }
+
+        if ($update_url) {
+            $ax_args['update_url'] = $update_url;
         }
 
         Auth_OpenID::update(&$ax_args, $kv_args);
