@@ -873,7 +873,14 @@ class Auth_OpenID_Message {
             $ns = null;
         } else {
             list($alias, $key) = $parts;
-            $ns = $this->namespaces->getNamespaceURI($alias);
+
+            if ($alias == 'ns') {
+              // Return the namespace URI for a namespace alias
+              // parameter.
+              return $this->namespaces->getNamespaceURI($key);
+            } else {
+              $ns = $this->namespaces->getNamespaceURI($alias);
+            }
         }
 
         if ($ns === null) {

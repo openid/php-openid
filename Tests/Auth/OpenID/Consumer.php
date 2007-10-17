@@ -1391,18 +1391,23 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuth extends _TestIdRes {
     {
         $query = Auth_OpenID_Message::fromOpenIDArgs(array(
             'mode'=> 'id_res',
+            'ns' => Auth_OpenID_OPENID2_NS,
             'sig'=> 'rabbits',
             'identity'=> '=example',
             'assoc_handle'=> 'munchkins',
-            'signed'=> 'identity,mode',
+            'ns.sreg' => 'urn:sreg',
+            'sreg.email' => 'bogus@example.com',
+            'signed'=> 'identity,mode,ns.sreg,sreg.email',
             'foo'=> 'bar'));
 
         $expected = Auth_OpenID_Message::fromOpenIDArgs(array(
             'mode'=> 'check_authentication',
             'sig'=> 'rabbits',
             'assoc_handle'=> 'munchkins',
+            'ns.sreg' => 'urn:sreg',
+            'sreg.email' => 'bogus@example.com',
             'identity'=> '=example',
-            'signed'=> 'identity,mode'
+            'signed'=> 'identity,mode,ns.sreg,sreg.email'
             ));
 
         $args = $this->consumer->_createCheckAuthRequest($query);
@@ -1524,7 +1529,8 @@ class Tests_Auth_OpenID_SuccessResponse extends PHPUnit_TestCase {
 
         $signed_list = array('openid.sreg.nickname',
                              'openid.unittest.one',
-                             'openid.sreg.dob');
+                             'openid.sreg.dob',
+                             'openid.ns.sreg');
 
         $msg = Auth_OpenID_Message::fromOpenIDArgs($args);
         $resp = new Auth_OpenID_SuccessResponse($this->endpoint, $msg, $signed_list);

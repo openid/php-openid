@@ -1322,13 +1322,12 @@ class Auth_OpenID_GenericConsumer {
                     continue;
                 }
 
-                if (!$message->hasKey(Auth_OpenID_OPENID_NS,
-                                      $k)) {
+                $value = $message->getAliasedArg($k);
+                if ($value === null) {
                     return null;
                 }
 
-                $val = $message->getAliasedArg($k);
-                $check_args[$k] = $val;
+                $check_args[$k] = $value;
             }
         }
 
