@@ -15,28 +15,6 @@ function getOpenIDURL() {
     return $_GET['openid_identifier'];
 }
 
-function getScheme() {
-    $scheme = 'http';
-    if (isset($_SERVER['HTTPS']) and $_SERVER['HTTPS'] == 'on') {
-        $scheme .= 's';
-    }
-    return $scheme;
-}
-
-function getReturnTo() {
-    return sprintf("%s://%s:%s%s/finish_auth.php",
-                   getScheme(), $_SERVER['SERVER_NAME'],
-                   $_SERVER['SERVER_PORT'],
-                   dirname($_SERVER['PHP_SELF']));
-}
-
-function getTrustRoot() {
-    return sprintf("%s://%s:%s%s/",
-                   getScheme(), $_SERVER['SERVER_NAME'],
-                   $_SERVER['SERVER_PORT'],
-                   dirname($_SERVER['PHP_SELF']));
-}
-
 function run() {
     $openid = getOpenIDURL();
     $consumer = getConsumer();
