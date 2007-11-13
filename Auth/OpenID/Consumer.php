@@ -399,7 +399,7 @@ class Auth_OpenID_Consumer {
      * indicated by the status attribute, which will be one of
      * SUCCESS, CANCEL, FAILURE, or SETUP_NEEDED.
      */
-    function complete($query=null, $return_to=null)
+    function complete($return_to, $query=null)
     {
         if ($query === null) {
             $query = Auth_OpenID::getQuery();
@@ -633,7 +633,7 @@ class Auth_OpenID_GenericConsumer {
      *
      * @access private
      */
-    function complete($message, $endpoint, $return_to = null)
+    function complete($message, $endpoint, $return_to)
     {
         $mode = $message->getArg(Auth_OpenID_OPENID_NS, 'mode',
                                  '<no mode set>');
@@ -729,8 +729,7 @@ class Auth_OpenID_GenericConsumer {
             return $result;
         }
 
-        if (($return_to !== null) &&
-            (!$this->_checkReturnTo($message, $return_to))) {
+        if (!$this->_checkReturnTo($message, $return_to)) {
             return new Auth_OpenID_FailureResponse(null,
             sprintf("return_to does not match return URL. Expected %s, got %s",
                     $return_to,
@@ -847,7 +846,7 @@ class Auth_OpenID_GenericConsumer {
         // XXX: this should be checked by _idResCheckForFields
         if (!$return_to) {
             return new Auth_OpenID_FailureResponse(null,
-                         "no openid.return_to in query");
+                           "Response has no return_to");
         }
 
         $parsed_url = parse_url($return_to);

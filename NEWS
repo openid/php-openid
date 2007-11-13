@@ -69,3 +69,14 @@ extensionResponse() is still valid, but now takes a second parameter
 additional parameters to support provider-driven identifier selection.
 See the example server and the documentation for
 Auth_OpenID_CheckIDRequest::answer.
+
+ - Auth_OpenID_Consumer::complete() now takes two args:
+
+   - $return_to, a required string that is the return URL passed to
+     Auth_OpenID_AuthRequest::redirectURL()
+
+   - $query, an optional array (or null if absent) denoting the query
+     parameters of the OpenID response.  If null, the response data
+     will be extracted from the PHP request environment.  Library
+     users SHOULD NOT ever pass anything for $query unless they're
+     testing the library.

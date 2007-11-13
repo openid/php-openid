@@ -139,6 +139,8 @@ class Auth_OpenID {
     {
         if ($query_str !== null) {
             $str = $query_str;
+        } else if (!array_key_exists('REQUEST_METHOD', $_SERVER)) {
+            $str = "";
         } else if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             $str = $_SERVER['QUERY_STRING'];
         } else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
