@@ -117,9 +117,7 @@ class TestOpenID2SessionNegotiation extends PHPUnit_TestCase {
      */
     function testNotAllowed()
     {
-        $allowed_types = array(
-                               array('assoc_bogus', 'session_bogus')
-                               );
+        $allowed_types = array();
 
         $negotiator = new Auth_OpenID_SessionNegotiator($allowed_types);
         $this->consumer->negotiator = $negotiator;
@@ -252,9 +250,7 @@ class TestOpenID1SessionNegotiation extends PHPUnit_TestCase {
 
     function testNotAllowed()
     {
-        $allowed_types = array(
-                               array('assoc_bogus', 'session_bogus')
-                               );
+        $allowed_types = array();
 
         $negotiator = new Auth_OpenID_SessionNegotiator($allowed_types);
         $this->consumer->negotiator = $negotiator;
@@ -305,8 +301,8 @@ class TestNegotiatorBehaviors extends PHPUnit_TestCase {
     function setUp()
     {
         $this->allowed_types = array(
-                                     array('assoc1', 'session1'),
-                                     array('assoc2', 'session2')
+                                     array('HMAC-SHA1', 'no-encryption'),
+                                     array('HMAC-SHA256', 'no-encryption')
                                      );
 
         $this->n = new Auth_OpenID_SessionNegotiator($this->allowed_types);
