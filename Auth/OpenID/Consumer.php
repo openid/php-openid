@@ -638,13 +638,6 @@ class Auth_OpenID_GenericConsumer {
         $mode = $message->getArg(Auth_OpenID_OPENID_NS, 'mode',
                                  '<no mode set>');
 
-        if ($return_to !== null) {
-            if (!$this->_checkReturnTo($message, $return_to)) {
-                return new Auth_OpenID_FailureResponse($endpoint,
-                             "openid.return_to does not match return URL");
-            }
-        }
-
         $mode_methods = array(
                               'cancel' => '_complete_cancel',
                               'error' => '_complete_error',
@@ -656,10 +649,10 @@ class Auth_OpenID_GenericConsumer {
                                         '_completeInvalid');
 
         return call_user_func_array(array(&$this, $method),
-                                    array($message, $endpoint));
+                                    array($message, $endpoint, $return_to));
     }
 
-    function _completeInvalid($message, &$endpoint)
+    function _completeInvalid($message, &$endpoint, $unused)
     {
         $mode = $message->getArg(Auth_OpenID_OPENID_NS, 'mode',
                                  '<No mode set>');
@@ -668,12 +661,12 @@ class Auth_OpenID_GenericConsumer {
                     sprintf("Invalid openid.mode '%s'", $mode));
     }
 
-    function _complete_cancel($message, &$endpoint)
+    function _complete_cancel($message, &$endpoint, $unused)
     {
         return new Auth_OpenID_CancelResponse($endpoint);
     }
 
-    function _complete_error($message, &$endpoint)
+    function _complete_error($message, &$endpoint, $unused)
     {
         $error = $message->getArg(Auth_OpenID_OPENID_NS, 'error');
         $contact = $message->getArg(Auth_OpenID_OPENID_NS, 'contact');
@@ -683,7 +676,7 @@ class Auth_OpenID_GenericConsumer {
                                                $contact, $reference);
     }
 
-    function _complete_setup_needed($message, &$endpoint)
+    function _complete_setup_needed($message, &$endpoint, $unused)
     {
         if (!$message->isOpenID2()) {
             return $this->_completeInvalid($message, $endpoint);
@@ -692,7 +685,7 @@ class Auth_OpenID_GenericConsumer {
         return new Auth_OpenID_SetupNeededResponse($endpoint);
     }
 
-    function _complete_id_res($message, &$endpoint)
+    function _complete_id_res($message, &$endpoint, $return_to)
     {
         $user_setup_url = $message->getArg(Auth_OpenID_OPENID1_NS,
                                            'user_setup_url');
@@ -700,7 +693,7 @@ class Auth_OpenID_GenericConsumer {
         if ($this->_checkSetupNeeded($message)) {
             return SetupNeededResponse($endpoint, $user_setup_url);
         } else {
-            return $this->_doIdRes($message, $endpoint);
+            return $this->_doIdRes($message, $endpoint, $return_to);
         }
     }
 
@@ -726,24 +719,22 @@ class Auth_OpenID_GenericConsumer {
     /**
      * @access private
      */
-    function _doIdRes($message, $endpoint)
+    function _doIdRes($message, $endpoint, $return_to)
     {
-        $signed_list_str = $message->getArg(Auth_OpenID_OPENID_NS,
-                                            'signed');
-
-        if ($signed_list_str === null) {
-            return new Auth_OpenID_FailureResponse($endpoint,
-                                   "Response missing signed list");
-        }
-
-        $signed_list = explode(',', $signed_list_str);
-
         // Checks for presence of appropriate fields (and checks
         // signed list fields)
-        $result = $this->_idResCheckForFields($message, $signed_list);
+        $result = $this->_idResCheckForFields($message);
 
         if (Auth_OpenID::isFailure($result)) {
             return $result;
+        }
+
+        if (($return_to !== null) &&
+            (!$this->_checkReturnTo($message, $return_to))) {
+            return new Auth_OpenID_FailureResponse(null,
+            sprintf("return_to does not match return URL. Expected %s, got %s",
+                    $return_to,
+                    $message->getArg(Auth_OpenID_OPENID_NS, 'return_to')));
         }
 
         // Verify discovery information:
@@ -770,6 +761,10 @@ class Auth_OpenID_GenericConsumer {
         if (Auth_OpenID::isFailure($result)) {
             return $result;
         }
+
+        $signed_list_str = $message->getArg(Auth_OpenID_OPENID_NS, 'signed',
+                                            Auth_OpenID_NO_DEFAULT);
+        $signed_list = explode(',', $signed_list_str);
 
         $signed_fields = Auth_OpenID::addPrefix($signed_list, "openid.");
 
@@ -1230,9 +1225,9 @@ class Auth_OpenID_GenericConsumer {
     /**
      * @access private
      */
-    function _idResCheckForFields($message, $signed_list)
+    function _idResCheckForFields($message)
     {
-        $basic_fields = array('return_to', 'assoc_handle', 'sig');
+        $basic_fields = array('return_to', 'assoc_handle', 'sig', 'signed');
         $basic_sig_fields = array('return_to', 'identity');
 
         $require_fields = array(
@@ -1258,6 +1253,11 @@ class Auth_OpenID_GenericConsumer {
                              "Missing required field '".$field."'");
             }
         }
+
+        $signed_list_str = $message->getArg(Auth_OpenID_OPENID_NS,
+                                            'signed',
+                                            Auth_OpenID_NO_DEFAULT);
+        $signed_list = explode(',', $signed_list_str);
 
         foreach ($require_sigs[$message->getOpenIDNamespace()] as $field) {
             // Field is present and not in signed list
