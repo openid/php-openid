@@ -9,7 +9,7 @@ function run() {
     // Complete the authentication process using the server's
     // response.
     $return_to = getReturnTo();
-    $response = $consumer->complete(null, $return_to);
+    $response = $consumer->complete($return_to);
 
     // Check the response status.
     if ($response->status == Auth_OpenID_CANCEL) {
