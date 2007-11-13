@@ -753,9 +753,6 @@ class Auth_OpenID_GenericConsumer {
             return $result;
         }
 
-        $response_identity = $message->getArg(Auth_OpenID_OPENID_NS,
-                                              'identity');
-
         $result = $this->_idResCheckNonce($message, $endpoint);
 
         if (Auth_OpenID::isFailure($result)) {
