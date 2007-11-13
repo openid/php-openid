@@ -43,7 +43,8 @@ function Auth_Yadis_getXrefRE()
 function Auth_Yadis_identifierScheme($identifier)
 {
     if (Auth_Yadis_startswith($identifier, 'xri://') ||
-        (in_array($identifier[0], Auth_Yadis_getXRIAuthorities()))) {
+        ($identifier &&
+          in_array($identifier[0], Auth_Yadis_getXRIAuthorities()))) {
         return "XRI";
     } else {
         return "URI";

@@ -21,6 +21,9 @@ class Tests_Auth_Yadis_XriDiscoveryTestCase extends PHPUnit_TestCase {
                Auth_Yadis_identifierScheme('=john.smith'), 'XRI');
 
         $this->assertEquals(
+               Auth_Yadis_identifierScheme(''), 'URI');
+
+        $this->assertEquals(
                Auth_Yadis_identifierScheme('@smiths/john'), 'XRI');
 
         $this->assertEquals(
