@@ -3,7 +3,7 @@ Trust root parsing checking
 ========================================
 
 ----------------------------------------
-14: Does not parse
+15: Does not parse
 ----------------------------------------
 baz.org
 *.foo.com
@@ -15,14 +15,16 @@ foo.*.com
 http://foo.*.com
 http://www.*
 http://*foo.com/
+http://foo.com/invalid#fragment
 
  
  	
 5
 
 ----------------------------------------
-12: Insane
+16: Insane
 ----------------------------------------
+http:///
 http://*/
 https://*/
 http://*.com
@@ -34,15 +36,20 @@ http://*.foo.notatld/
 https://*.foo.notatld/
 http://*.museum/
 https://*.museum/
-http://kink.fm/should/be/sane
+http://www.schtuffcom/
+http://it/
+http://..it/
+http://.it/
 
 ----------------------------------------
-14: Sane
+18: Sane
 ----------------------------------------
+http://*.schtuff.com./
 http://*.schtuff.com/
 http://*.foo.schtuff.com/
 http://*.schtuff.com
 http://www.schtuff.com/
+http://www.schtuff.com./
 http://www.schutff.com
 http://*.this.that.schtuff.com/
 http://*.foo.com/path
@@ -52,6 +59,8 @@ http://x.foo.com/path?action=%3D
 http://localhost:8081/
 http://localhost:8082/?action=openid
 https://foo.com/
+http://kink.fm/should/be/sane
+http://beta.lingu.no/
 http://goathack.livejournal.org:8020/openid/login.bml
 
 ========================================
@@ -59,7 +68,7 @@ return_to matching
 ========================================
 
 ----------------------------------------
-31: matches
+42: matches
 ----------------------------------------
 http://*/                             http://cnn.com/
 http://*/                             http://livejournal.com/
@@ -90,8 +99,19 @@ http://goathack.livejournal.org:8020/ http://goathack.livejournal.org:8020/openi
 https://foo.com                       https://foo.com
 http://Foo.com                        http://foo.com
 http://foo.com                        http://Foo.com
+http://foo.com:80/                    http://foo.com/
 http://foo.com/?x=y                   http://foo.com/?x=y&a=b
+http://foo.com/x                      http://foo.com/x?y
+http://mylid.net/j3h.                 http://mylid.net/j3h.?x=y
 http://j3h.us                         http://j3h.us?ride=unicycle
+https://www.filmclans.com:443/mattmartin/FilmClans https://www.filmclans.com/mattmartin/FilmClans/Logon.aspx?nonce=BVjqSOee
+http://foo.com:80                     http://foo.com
+http://foo.com                        http://foo.com:80
+http://foo.com                        http://foo.com/
+http://foo.com/                       http://foo.com
+http://foo.com/                       http://foo.com:80
+http://foo.com:80/                    http://foo.com:80/stuff
+http://foo.com:80/                    http://foo.com/stuff
 
 ----------------------------------------
 24: does not match
@@ -111,8 +131,6 @@ http://*.foo.com                      http://www.bar.com
 http://*.bar.co.uk                    http://xxx.co.uk
 https://foo.com                       http://foo.com
 http://foo.com                        https://foo.com
-http://foo.com:80                     http://foo.com
-http://foo.com                        http://foo.com:80
 http://foo.com:81                     http://foo.com:80
 http://*:80                           http://foo.com:81
 http://foo.com/?a=b                   http://foo.com/?x=y
@@ -120,3 +138,5 @@ http://foo.com/?a=b                   http://foo.com/?x=y&a=b
 http://foo.com/?a=b                   http://foo.com/
 http://*.oo.com/                      http://foo.com/
 http://foo.com/*                      http://foo.com/anything
+http://foo.com                        http://foo.com:443
+https://foo.com                       https://foo.com:80
