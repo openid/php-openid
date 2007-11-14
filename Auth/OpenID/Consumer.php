@@ -652,6 +652,9 @@ class Auth_OpenID_GenericConsumer {
                                     array($message, $endpoint, $return_to));
     }
 
+    /**
+     * @access private
+     */
     function _completeInvalid($message, &$endpoint, $unused)
     {
         $mode = $message->getArg(Auth_OpenID_OPENID_NS, 'mode',
@@ -661,11 +664,17 @@ class Auth_OpenID_GenericConsumer {
                     sprintf("Invalid openid.mode '%s'", $mode));
     }
 
+    /**
+     * @access private
+     */
     function _complete_cancel($message, &$endpoint, $unused)
     {
         return new Auth_OpenID_CancelResponse($endpoint);
     }
 
+    /**
+     * @access private
+     */
     function _complete_error($message, &$endpoint, $unused)
     {
         $error = $message->getArg(Auth_OpenID_OPENID_NS, 'error');
@@ -676,6 +685,9 @@ class Auth_OpenID_GenericConsumer {
                                                $contact, $reference);
     }
 
+    /**
+     * @access private
+     */
     function _complete_setup_needed($message, &$endpoint, $unused)
     {
         if (!$message->isOpenID2()) {
@@ -685,6 +697,9 @@ class Auth_OpenID_GenericConsumer {
         return new Auth_OpenID_SetupNeededResponse($endpoint);
     }
 
+    /**
+     * @access private
+     */
     function _complete_id_res($message, &$endpoint, $return_to)
     {
         $user_setup_url = $message->getArg(Auth_OpenID_OPENID1_NS,
@@ -1145,6 +1160,9 @@ class Auth_OpenID_GenericConsumer {
         return $this->_verifyDiscoveryServices($services, $to_match);
     }
 
+    /**
+     * @access private
+     */
     function _verifyDiscoveryServices(&$services, &$to_match)
     {
         // Search the services resulting from discovery to find one
@@ -1165,7 +1183,7 @@ class Auth_OpenID_GenericConsumer {
                   $to_match->claimed_id));
     }
 
-    /*
+    /**
      * Extract the nonce from an OpenID 1 response.  Return the nonce
      * from the BARE_NS since we independently check the return_to
      * arguments are the same as those in the response message.
@@ -1173,6 +1191,8 @@ class Auth_OpenID_GenericConsumer {
      * See the openid1_nonce_query_arg_name class variable
      *
      * @returns $nonce The nonce as a string or null
+     *
+     * @access private
      */
     function _idResGetNonceOpenID1($message, $endpoint)
     {
@@ -1354,10 +1374,12 @@ class Auth_OpenID_GenericConsumer {
         return false;
     }
 
-    /*
+    /**
      * Adapt a POST response to a Message.
      *
      * @param $response Result of a POST to an OpenID endpoint.
+     *
+     * @access private
      */
     function _httpResponseToMessage($response, $server_url)
     {
@@ -1414,12 +1436,14 @@ class Auth_OpenID_GenericConsumer {
         return $assoc;
     }
 
-    /*
+    /**
      * Handle ServerErrors resulting from association requests.
      *
      * @return $result If server replied with an C{unsupported-type}
      * error, return a tuple of supported C{association_type},
      * C{session_type}.  Otherwise logs the error and returns null.
+     *
+     * @access private
      */
     function _extractSupportedAssociationType(&$server_error, &$endpoint,
                                               $assoc_type)
