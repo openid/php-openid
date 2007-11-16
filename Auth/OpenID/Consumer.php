@@ -993,8 +993,11 @@ class Auth_OpenID_GenericConsumer {
             $result = $this->_verifyDiscoverySingle($endpoint, $to_match);
 
             if (is_a($result, 'Auth_OpenID_TypeURIMismatch')) {
-                $this->_verifyDiscoverySingle($endpoint, $to_match_1_0);
-            } else if (Auth_OpenID::isFailure($result)) {
+                $result = $this->_verifyDiscoverySingle($endpoint,
+                                                        $to_match_1_0);
+            }
+
+            if (Auth_OpenID::isFailure($result)) {
                 // oidutil.log("Error attempting to use stored
                 //             discovery information: " + str(e))
                 //             oidutil.log("Attempting discovery to
