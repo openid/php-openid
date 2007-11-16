@@ -377,14 +377,6 @@ class Auth_OpenID_CheckAuthRequest extends Auth_OpenID_Request {
         $signed_list = $message->getArg(Auth_OpenID_OPENID_NS, 'signed');
         $signed_list = explode(",", $signed_list);
 
-        foreach ($signed_list as $field) {
-            if (!$message->hasKey(Auth_OpenID_OPENID_NS, $field)) {
-                return new Auth_OpenID_ServerError($message,
-                             sprintf("Couldn't find signed field %s in query",
-                                     $field));
-            }
-        }
-
         $signed = $message;
         if ($signed->hasKey(Auth_OpenID_OPENID_NS, 'mode')) {
             $signed->setArg(Auth_OpenID_OPENID_NS, 'mode', 'id_res');
