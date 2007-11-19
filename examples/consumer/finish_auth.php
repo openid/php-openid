@@ -22,7 +22,7 @@ function run() {
         // This means the authentication succeeded; extract the
         // identity URL and Simple Registration data (if it was
         // returned).
-        $openid = $response->identity_url;
+        $openid = $response->getDisplayIdentifier();
         $esc_identity = htmlspecialchars($openid, ENT_QUOTES);
 
         $success = sprintf('You have successfully verified ' .
