@@ -1950,6 +1950,14 @@ class Auth_OpenID_ConsumerResponse {
             $this->identity_url = $endpoint->claimed_id;
         }
     }
+
+    function getDisplayIdentifier()
+    {
+        if ($this->endpoint !== null) {
+            return $this->endpoint->getDisplayIdentifier();
+        }
+        return null;
+    }
 }
 
 /**

@@ -44,6 +44,15 @@ class Auth_OpenID_ServiceEndpoint {
         $this->local_id = null;
         $this->canonicalID = null;
         $this->used_yadis = false; // whether this came from an XRDS
+        $this->display_identifier = null;
+    }
+
+    function getDisplayIdentifier()
+    {
+        if ($this->display_identifier) {
+            return $this->display_identifier;
+        }
+        return $this->claimed_id;
     }
 
     function usesExtension($extension_uri)
@@ -496,6 +505,7 @@ function Auth_OpenID_discoverXRI($iname, &$fetcher)
     for ($i = 0; $i < count($openid_services); $i++) {
         $openid_services[$i]->canonicalID = $canonicalID;
         $openid_services[$i]->claimed_id = $canonicalID;
+        $openid_services[$i]->display_identifier = $iname;
     }
 
     // FIXME: returned xri should probably be in some normal form

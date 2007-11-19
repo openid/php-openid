@@ -171,7 +171,8 @@ class _DiscoveryBase extends PHPUnit_TestCase {
                            $local_id=null,
                            $canonical_id=null,
                            $types=null,
-                           $used_yadis=false)
+                           $used_yadis=false,
+			   $display_identifier=null)
     {
         $this->assertEquals($server_url, $s->server_url);
         if ($types == array('2.0 OP')) {
@@ -209,6 +210,16 @@ class _DiscoveryBase extends PHPUnit_TestCase {
 
         $this->assertEquals($type_uris, $s->type_uris);
         $this->assertEquals($canonical_id, $s->canonicalID);
+
+        if ($s->canonicalID) {
+	  $this->assertTrue($s->getDisplayIdentifier() != $claimed_id);
+	  $this->assertTrue($s->getDisplayIdentifier() !== null);
+	  $this->assertEquals($display_identifier, $s->getDisplayIdentifier());
+	  $this->assertEquals($s->claimed_id, $s->canonicalID);
+	}
+
+        $this->assertEquals($s->display_identifier ? $s->display_identifier : $s->claimed_id,
+			    $s->getDisplayIdentifier());
     }
 
     function setUp()
@@ -276,7 +287,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
                              'http://smoker.myopenid.com/',
                              null,
                              array('1.1'),
-                             false);
+                             false,
+			     $this->id_url);
     }
 
     /*
@@ -303,7 +315,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
             'http://smoker.myopenid.com/',
             null,
             array('1.1'),
-            false);
+            false,
+	    $this->id_url);
     }
 
     function test_html2()
@@ -318,7 +331,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
                              'http://smoker.myopenid.com/',
                              null,
                              array('2.0'),
-                             false);
+                             false,
+			     $this->id_url);
     }
 
     function test_html1And2()
@@ -340,7 +354,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
                 'http://smoker.myopenid.com/',
                 null,
                 array($t),
-                false);
+                false,
+		$this->id_url);
         }
     }
 
@@ -371,7 +386,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
                              'http://smoker.myopenid.com/',
                              null,
                              array('1.1'),
-                             false);
+                             false,
+			     $this->id_url);
     }
 
     function test_yadis1NoDelegate()
@@ -387,7 +403,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
                              $this->id_url,
                              null,
                              array('1.0'),
-                             true);
+                             true,
+			     $this->id_url);
     }
 
     function test_yadis2NoLocalID()
@@ -403,7 +420,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
                              $this->id_url,
                              null,
                              array('2.0'),
-                             true);
+                             true,
+			     $this->id_url);
     }
 
     function test_yadis2()
@@ -418,7 +436,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
                              'http://smoker.myopenid.com/',
                              null,
                              array('2.0'),
-                             true);
+                             true,
+			     $this->id_url);
     }
 
     function test_yadis2OP()
@@ -433,7 +452,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
                              null,
                              null,
                              array('2.0 OP'),
-                             true);
+                             true,
+			     $this->id_url);
     }
 
     function test_yadis2OPDelegate()
@@ -448,7 +468,8 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
                              "http://www.myopenid.com/server",
                              null, null, null,
                              array('2.0 OP'),
-                             true);
+                             true,
+			     $this->id_url);
     }
 
     function test_yadis2BadLocalID()
@@ -529,6 +550,55 @@ class _MockFetcherForXRIProxy extends Auth_Yadis_HTTPFetcher {
         return new Auth_Yadis_HTTPResponse($url, $status,
                                                array('content-type' => $ctype),
                                                $body);
+    }
+}
+
+class TestXRIDiscovery extends _DiscoveryBase {
+    var $fetcherClass = '_MockFetcherForXRIProxy';
+
+    function setUp() {
+        parent::setUp();
+      
+	$this->fetcher->documents = array('=smoker' => array('application/xrds+xml',
+							     Tests_Auth_OpenID_readdata('yadis_2entries_delegate.xml')),
+					  '=smoker*bad' => array('application/xrds+xml',
+								 Tests_Auth_OpenID_readdata('yadis_another_delegate.xml')));
+    }
+
+    function test_xri() {
+        list($user_xri, $services) = Auth_OpenID_discoverXRI('=smoker');
+
+	$this->_checkService(
+			     $services[0],
+			     "http://www.myopenid.com/server",
+			     Auth_Yadis_XRI("=!1000"),
+			     'http://smoker.myopenid.com/',
+			     Auth_Yadis_XRI("=!1000"),
+			     array('1.0'),
+			     true,
+			     '=smoker');
+
+	$this->_checkService(
+			     $services[1],
+			     "http://www.livejournal.com/openid/server.bml",
+			     Auth_Yadis_XRI("=!1000"),
+			     'http://frank.livejournal.com/',
+			     Auth_Yadis_XRI("=!1000"),
+			     array('1.0'),
+			     true,
+			     '=smoker');
+    }
+
+    function test_xriNoCanonicalID() {
+        list($user_xri, $services) = Auth_OpenID_discoverXRI('=smoker*bad');
+	$this->assertFalse($services);
+    }
+
+    function test_useCanonicalID() {
+        $endpoint = new Auth_OpenID_ServiceEndpoint();
+	$endpoint->claimed_id = Auth_Yadis_XRI("=!1000");
+	$endpoint->canonicalID = Auth_Yadis_XRI("=!1000");
+	$htis->assertEquals($endpoint->getLocalID(), Auth_Yadis_XRI("=!1000"));
     }
 }
 
