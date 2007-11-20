@@ -37,6 +37,13 @@ function run() {
         $auth_request->addExtension($sreg_request);
     }
 
+    $policy_uris = $_GET['policies'];
+
+    $pape_request = new Auth_OpenID_PAPE_Request($policy_uris);
+    if ($pape_request) {
+        $auth_request->addExtension($pape_request);
+    }
+
     // Redirect the user to the OpenID server for authentication.
     // Store the token for this authentication so we can verify the
     // response.

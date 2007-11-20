@@ -1,3 +1,8 @@
+<?php
+require_once "common.php";
+
+global $pape_policy_uris;
+?>
 <html>
   <head><title>PHP OpenID Authentication Example</title></head>
   <style type="text/css">
@@ -52,6 +57,15 @@
         Identity&nbsp;URL:
         <input type="hidden" name="action" value="verify" />
         <input type="text" name="openid_identifier" value="" />
+
+        <p>Optionally, request these PAPE policies:</p>
+        <p>
+        <?php foreach ($pape_policy_uris as $i => $uri) {
+          print "<input type=\"checkbox\" name=\"policies[]\" value=\"$uri\" />";
+          print "$uri<br/>";
+        } ?>
+        </p>
+
         <input type="submit" value="Verify" />
       </form>
     </div>

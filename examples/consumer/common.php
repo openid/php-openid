@@ -27,9 +27,21 @@ function doIncludes() {
      * Require the Simple Registration extension API.
      */
     require_once "Auth/OpenID/SReg.php";
+
+    /**
+     * Require the PAPE extension module.
+     */
+    require_once "Auth/OpenID/PAPE.php";
 }
 
 doIncludes();
+
+global $pape_policy_uris;
+$pape_policy_uris = array(
+			  PAPE_AUTH_MULTI_FACTOR_PHYSICAL,
+			  PAPE_AUTH_MULTI_FACTOR,
+			  PAPE_AUTH_PHISHING_RESISTANT
+			  );
 
 function &getStore() {
     /**
