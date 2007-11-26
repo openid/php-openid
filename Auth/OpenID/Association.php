@@ -423,7 +423,7 @@ function Auth_OpenID_getDefaultAssociationOrder()
 {
     $order = array();
 
-    if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+    if (!Auth_OpenID_noMathSupport()) {
         $order[] = array('HMAC-SHA1', 'DH-SHA1');
 
         if (Auth_OpenID_HMACSHA256_SUPPORTED) {

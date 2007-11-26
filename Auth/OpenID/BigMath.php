@@ -427,7 +427,7 @@ function &Auth_OpenID_getMathLib()
         return $lib;
     }
 
-    if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+    if (Auth_OpenID_noMathSupport()) {
         $null = null;
         return $null;
     }
@@ -443,7 +443,7 @@ function &Auth_OpenID_getMathLib()
         }
         $triedstr = implode(", ", $tried);
 
-        define('Auth_OpenID_NO_MATH_SUPPORT', true);
+        Auth_OpenID_setNoMathSupport();
 
         $result = null;
         return $result;
@@ -454,6 +454,18 @@ function &Auth_OpenID_getMathLib()
     $lib = new $class();
 
     return $lib;
+}
+
+function Auth_OpenID_setNoMathSupport()
+{
+    if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+        define('Auth_OpenID_NO_MATH_SUPPORT', true);
+    }
+}
+
+function Auth_OpenID_noMathSupport()
+{
+    return defined('Auth_OpenID_NO_MATH_SUPPORT');
 }
 
 ?>

@@ -194,8 +194,9 @@ function detect_math($r, &$out)
         $out .= $r->ol(array(
             'Install the ' . $gmp_lnk . ' PHP extension',
             'Install the ' . $bc_lnk . ' PHP extension',
-            'If your site is low-security, define ' .
-            'Auth_OpenID_NO_MATH_SUPPORT. The library will function, but ' .
+            'If your site is low-security, call ' .
+            'Auth_OpenID_setNoMathSupport(), defined in Auth/OpenID/BigMath.php. ',
+	    'The library will function, but ' .
             'the security of your OpenID server will depend on the ' .
             'security of the network links involved. If you are only ' .
             'using consumer support, you should still be able to operate ' .
