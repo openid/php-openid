@@ -44,9 +44,12 @@ If you cannot run the Python script, you can re-create your store by
 dropping the tables in the store and calling createTables() on the
 store object.
 
-Consumers should now pass an additional parameter to
+Consumers should now pass the consumer return_to URL to
 Auth_OpenID_Consumer::complete() to defend against return_to URL
-tampering.
+tampering.  This has REPLACED the old parameter, $query.  $query is
+now a second optional parameter.  It is STRONGLY RECOMMENDED that you
+never override $query, since the OpenID library uses its own logic to
+sidestep PHP's broken request-processing code.
 
 
 Summary of API Changes

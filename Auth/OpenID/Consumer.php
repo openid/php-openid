@@ -401,6 +401,14 @@ class Auth_OpenID_Consumer {
      */
     function complete($return_to, $query=null)
     {
+        if ($return_to && !is_string($return_to)) {
+            // This is ugly, but we need to complain loudly when
+            // someone uses the API incorrectly.
+            trigger_error("return_to must be a string; see NEWS file " .
+                          "for upgrading notes.",
+                          E_USER_ERROR);
+        }
+
         if ($query === null) {
             $query = Auth_OpenID::getQuery();
         }
