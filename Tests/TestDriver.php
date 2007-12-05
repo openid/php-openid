@@ -129,6 +129,7 @@ $_tests = array(
                                        'Negotiation',
                                        'Nonce',
                                        'OpenID_Yadis',
+                                       'PAPE',
                                        'Parse',
                                        'RPVerify',
                                        'Server',

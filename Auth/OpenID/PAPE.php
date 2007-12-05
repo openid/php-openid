@@ -84,6 +84,11 @@ class Auth_OpenID_PAPE_Request extends Auth_OpenID_Extension {
     {
         $obj = new Auth_OpenID_PAPE_Request();
         $args = $request->message->getArgs(Auth_OpenID_PAPE_NS_URI);
+
+        if ($args === null || $args === array()) {
+            return null;
+        }
+
         $obj->parseExtensionArgs($args);
         return $obj;
     }
@@ -112,7 +117,7 @@ class Auth_OpenID_PAPE_Request extends Auth_OpenID_Extension {
         // max_auth_age is base-10 integer number of seconds
         $max_auth_age_str = Auth_OpenID::arrayGet($args, 'max_auth_age');
         if ($max_auth_age_str) {
-            $this->max_auth_age = intval($max_auth_age_str);
+            $this->max_auth_age = Auth_OpenID::intval($max_auth_age_str);
         } else {
             $this->max_auth_age = null;
         }
@@ -201,7 +206,13 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
         // PAPE requires that the args be signed.
         $args = $success_response->getSignedNS(Auth_OpenID_PAPE_NS_URI);
 
-        if ($obj->parseExtensionArgs($args) === false) {
+        if ($args === null || $args === array()) {
+            return null;
+        }
+
+        $result = $obj->parseExtensionArgs($args);
+
+        if ($result === false) {
             return null;
         } else {
             return $obj;
@@ -229,8 +240,17 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
         }
 
         $nist_level_str = Auth_OpenID::arrayGet($args, 'nist_auth_level');
-        if ($nist_level_str) {
-            $nist_level = intval($nist_level_str);
+        if ($nist_level_str !== null) {
+            $nist_level = Auth_OpenID::intval($nist_level_str);
+
+            if ($nist_level === false) {
+                if ($strict) {
+                    return false;
+                } else {
+                    $nist_level = null;
+                }
+            }
+
             if (0 <= $nist_level && $nist_level < 5) {
                 $this->nist_auth_level = $nist_level;
             } else if ($strict) {
@@ -239,8 +259,8 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
         }
 
         $auth_age_str = Auth_OpenID::arrayGet($args, 'auth_age');
-        if ($auth_age_str) {
-            $auth_age = intval($auth_age_str);
+        if ($auth_age_str !== null) {
+            $auth_age = Auth_OpenID::intval($auth_age_str);
             if ($auth_age === false) {
                 if ($strict) {
                     return false;
@@ -263,7 +283,7 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
                          );
 
         if ($this->nist_auth_level !== null) {
-            if (!in_array($this->nist_auth_level, range(0, 4))) {
+            if (!in_array($this->nist_auth_level, range(0, 4), true)) {
                 return false;
             }
             $ns_args['nist_auth_level'] = strval($this->nist_auth_level);
@@ -274,8 +294,14 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
                 return false;
             }
 
+            $result = Auth_OpenID::intval($this->auth_age);
+
+            if ($result === false) {
+                return false;
+            }
+
             $ns_args['auth_age'] =
-              strval(Auth_OpenID::intval($this->auth_age));
+                strval($result);
         }
 
         return $ns_args;
