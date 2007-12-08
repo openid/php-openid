@@ -117,7 +117,7 @@ class Tests_Auth_OpenID_MemStore {
     {
         global $Auth_OpenID_SKEW;
 
-        if (abs($timestamp - mktime()) > $Auth_OpenID_SKEW) {
+        if (abs($timestamp - time()) > $Auth_OpenID_SKEW) {
             return false;
         }
 
