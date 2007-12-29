@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 bad_files=$(./admin/findphp |
-      xargs -l1 grep -H -m 1 "<?php" -c |
+      xargs -L 1 grep -H -m 1 "<?php" -c |
       grep ":0" |
       awk -F: '{ print $1 }')
 

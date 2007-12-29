@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-HERE=$(readlink --canonicalize $(dirname "$0"))
+# Get the absolute path containing this script
+cd $(dirname "$0")
+HERE=$PWD
 
 test_import () {
     ./admin/checkimports
