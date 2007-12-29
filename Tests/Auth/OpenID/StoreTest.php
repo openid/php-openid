@@ -39,7 +39,6 @@ function _Auth_OpenID_mkdtemp()
     return Auth_OpenID_FileStore::_mkdtemp($dir);
 }
 
-
 /**
  * This is the host where the SQL stores' databases should be created
  * and destroyed.
@@ -542,7 +541,7 @@ explicitly');
 
     function test_sqlitestore()
     {
-        // If the postgres extension isn't loaded or loadable, succeed
+        // If the sqlite extension isn't loaded or loadable, succeed
         // because we can't run the test.
         if (!(extension_loaded('sqlite') ||
               @dl('sqlite.so') ||
