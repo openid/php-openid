@@ -564,7 +564,7 @@ explicitly');
             return null;
         }
 
-        $dsn = sprintf("sqlite:///%s/file.db", $temp_dir);
+        $dsn = 'sqlite:///' . urlencode($temp_dir) . '/php_openid_storetest.db';
         $db =& DB::connect($dsn);
 
         if (PEAR::isError($db)) {
