@@ -410,7 +410,6 @@ class Auth_Yadis_Discovery {
         $manager = $this->getManager();
         if (!$manager || (!$manager->services)) {
             $this->destroyManager();
-            $http_response = array();
 
             list($yadis_url, $services) = call_user_func($discover_cb,
                                                          $this->url,
