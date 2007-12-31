@@ -580,7 +580,7 @@ explicitly');
         $db->disconnect();
         unset($db);
         unset($store);
-        unlink($temp_dir . '/file.db');
+        unlink($temp_dir . '/php_openid_storetest.db');
         rmdir($temp_dir);
     }
 
