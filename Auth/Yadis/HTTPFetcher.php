@@ -85,7 +85,7 @@ class Auth_Yadis_HTTPFetcher {
     function _findRedirect($headers)
     {
         foreach ($headers as $line) {
-            if (stripos($line, "Location: ") === 0) {
+            if (strpos(strtolower($line), "location: ") === 0) {
                 $parts = explode(" ", $line, 2);
                 return $parts[1];
             }
