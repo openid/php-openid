@@ -45,6 +45,11 @@ class Tests_Auth_OpenID_Link extends PHPUnit_TestCase {
                 continue;
             }
 
+            if (count($parsed) <= $i) {
+                $i++;
+                continue;
+            }
+
             $act_link = $parsed[$i];
 
             $increment = true;
