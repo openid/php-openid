@@ -806,7 +806,7 @@ class Auth_OpenID_AX_FetchResponse extends Auth_OpenID_AX_KeyValueMessage {
      * arguments that represent this fetch_response, or
      * Auth_OpenID_AX_Error on error.
      */
-    function getExtensionArgs(&$request)
+    function getExtensionArgs($request=null)
     {
         $aliases = new Auth_OpenID_NamespaceMap();
 
