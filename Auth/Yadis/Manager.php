@@ -361,7 +361,7 @@ class Auth_Yadis_Manager {
  *
  * High-level usage pattern is to call .getNextService(discover) in
  * order to find the next available service for this user for this
- * session. Once a request completes, call .finish() to clean up the
+ * session. Once a request completes, call .cleanup() to clean up the
  * session state.
  *
  * @package OpenID
