@@ -356,7 +356,7 @@ function Auth_OpenID_getAllowedReturnURLs($relying_party_url, &$fetcher,
 
     list($rp_url_after_redirects, $endpoints) =
       Auth_OpenID_discoverWithYadis($relying_party_url,
-                                    &$fetcher,
+                                    $fetcher,
                                     'Auth_OpenID_extractReturnURL',
                                     $discover_function);
 
