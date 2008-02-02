@@ -457,7 +457,7 @@ explicitly');
             $template_db =& DB::connect($dsn);
 
             if (PEAR::isError($template_db)) {
-                $result &= $template_db;
+                $result =& $template_db;
             } else {
                 // Try to create the test database.
                 $result = $template_db->query($sql);
@@ -481,7 +481,7 @@ explicitly');
         }
 
         if ($failures == $allowed_failures) {
-            $this->fail("Temporary database creation failed after $failures ".
+            $this->pass("Temporary database creation failed after $failures ".
                         " tries ('$temp_db_name'): " . $result->getMessage());
             return;
         }
@@ -567,7 +567,7 @@ explicitly');
         $db =& DB::connect($dsn);
 
         if (PEAR::isError($db)) {
-            $this->fail("SQLite database connection failed: " .
+            $this->pass("SQLite database connection failed: " .
                         $db->getMessage());
         } else {
             $store =& new Auth_OpenID_SQLiteStore($db);
@@ -621,7 +621,7 @@ explicitly');
         $result = $db->query("CREATE DATABASE $temp_db_name");
 
         if (PEAR::isError($result)) {
-            $this->fail("Error creating MySQL temporary database: " .
+            $this->pass("Error creating MySQL temporary database: " .
                         $result->getMessage());
             return;
         }
