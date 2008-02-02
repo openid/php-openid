@@ -94,6 +94,14 @@ class Auth_OpenID_OpenIDStore {
     }
 
     /**
+     * Report whether this storage supports cleanup
+     */
+    function supportsCleanup()
+    {
+        return true;
+    }
+
+    /**
      * This method returns an Association object from storage that
      * matches the server URL and, if specified, handle. It returns
      * null if no such association is found or if the matching

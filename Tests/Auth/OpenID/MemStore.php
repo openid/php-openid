@@ -75,7 +75,7 @@ class ServerAssocs {
  *
  * Use for single long-running processes.  No persistence supplied.
  */
-class Tests_Auth_OpenID_MemStore {
+class Tests_Auth_OpenID_MemStore extends Auth_OpenID_OpenIDStore {
     function Tests_Auth_OpenID_MemStore()
     {
         $this->server_assocs = array();

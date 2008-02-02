@@ -47,6 +47,12 @@ global $_Auth_OpenID_db_test_host;
 $_Auth_OpenID_db_test_host = 'dbtest';
 
 /**
+ * This is the host where the Memcache stores should save data
+ */
+global $_Auth_OpenID_memcache_test_host;
+$_Auth_OpenID_memcache_test_host = 'localhost';
+
+/**
  * Generate a sufficently unique database name so many hosts can run
  * SQL store tests on the server at the same time and not step on each
  * other.
@@ -291,6 +297,10 @@ explicitly');
         $assocExpired1 = $this->genAssoc($now, -7200, 3600);
         $assocExpired2 = $this->genAssoc($now, -7200, 3600);
 
+        if (!$store->supportsCleanup()) {
+            return;
+        }
+        
         $store->cleanupAssociations();
         $store->storeAssociation($server_url . '1', $assocValid1);
         $store->storeAssociation($server_url . '1', $assocExpired1);
@@ -337,8 +347,10 @@ explicitly');
     }
 
     function _testNonceCleanup(&$store) {
-        global $Auth_OpenID_SKEW;
-
+        if (!$store->supportsCleanup()) {
+        	return;
+        }
+        
         $server_url = 'http://www.myopenid.com/openid';
 
         $now = time();
@@ -417,6 +429,37 @@ explicitly');
         $this->_testNonce($store);
         $this->_testNonceCleanup($store);
         $store->destroy();
+    }
+
+    function test_memcachedstore()
+    {
+        // If the memcache extension isn't loaded or loadable, succeed
+        // because we can't run the test.
+        if (!(extension_loaded('memcache') ||
+              @dl('memcache.so') ||
+              @dl('php_memcache.dll'))) {
+            print "Warning: not testing Memcache store";
+            $this->pass();
+            return;
+        }
+
+        global $_Auth_OpenID_memcache_test_host;
+
+        $memcached = new Memcache();
+        if (!$memcached->connect($_Auth_OpenID_memcache_test_host)) {
+        	$this->fail("Couldn't connect to Memcache server at '".
+                        $_Auth_OpenID_memcache_test_host);
+        }
+
+        require_once 'Auth/OpenID/MemcachedStore.php';
+
+        $store = new Auth_OpenID_MemcachedStore($memcached);
+
+        $this->_testStore($store);
+        $this->_testNonce($store);
+        $this->_testNonceCleanup($store);
+        
+        $memcached->close();
     }
 
     function test_postgresqlstore()
