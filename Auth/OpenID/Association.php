@@ -82,9 +82,9 @@ class Auth_OpenID_Association {
      * generated for this association.
      *
      * @param assoc_type This is the type of association this
-     * instance represents.  The only valid value of this field at
-     * this time is 'HMAC-SHA1', but new types may be defined in the
-     * future.
+     * instance represents.  The only valid values of this field at
+     * this time is 'HMAC-SHA1' and 'HMAC-SHA256', but new types may
+     * be defined in the future.
      *
      * @return association An {@link Auth_OpenID_Association}
      * instance.
@@ -119,9 +119,9 @@ class Auth_OpenID_Association {
      * association was issued.
      *
      * @param string $assoc_type This is the type of association this
-     * instance represents.  The only valid value of this field at
-     * this time is 'HMAC-SHA1', but new types may be defined in the
-     * future.
+     * instance represents.  The only valid values of this field at
+     * this time is 'HMAC-SHA1' and 'HMAC-SHA256', but new types may
+     * be defined in the future.
      */
     function Auth_OpenID_Association(
         $handle, $secret, $issued, $lifetime, $assoc_type)
@@ -258,6 +258,10 @@ class Auth_OpenID_Association {
     function sign($pairs)
     {
         $kv = Auth_OpenID_KVForm::fromArray($pairs);
+        if(Auth_OpenID_HMACSHA256_SUPPORTED
+            && $this->assoc_type == 'HMAC-SHA256')
+            return Auth_OpenID_HMACSHA256($this->secret, $kv);
+        /* Invalid association types should be caught at constructor */
         return Auth_OpenID_HMACSHA1($this->secret, $kv);
     }
 
