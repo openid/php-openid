@@ -459,7 +459,7 @@ explicitly');
         $this->_testStore($store);
         $this->_testNonce($store);
         $this->_testNonceCleanup($store);
-        
+
         $memcached->close();
     }
 
