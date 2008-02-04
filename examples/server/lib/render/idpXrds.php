@@ -12,7 +12,6 @@ define('xrds_pat', '<?xml version="1.0" encoding="UTF-8"?>
   <XRD>
     <Service priority="0">
       <Type>%s</Type>
-      <Type>%s</Type>
       <URI>%s</URI>
     </Service>
   </XRD>
@@ -24,8 +23,7 @@ function idpXrds_render()
     $headers = array('Content-type: application/xrds+xml');
 
     $body = sprintf(xrds_pat,
-                    Auth_OpenID_TYPE_2_0,
-                    Auth_OpenID_TYPE_1_1,
+                    Auth_OpenID_TYPE_2_0_IDP,
                     buildURL());
 
     return array($headers, $body);
