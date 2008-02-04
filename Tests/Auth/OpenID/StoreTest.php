@@ -438,7 +438,7 @@ explicitly');
         if (!(extension_loaded('memcache') ||
               @dl('memcache.so') ||
               @dl('php_memcache.dll'))) {
-            print "Warning: not testing Memcache store";
+            print "(skipping memcache store tests)";
             $this->pass();
             return;
         }
