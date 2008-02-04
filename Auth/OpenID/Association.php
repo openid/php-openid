@@ -64,6 +64,11 @@ class Auth_OpenID_Association {
                             'assoc_type'
                             );
 
+    var $_macs = array(
+                       'HMAC-SHA1' => 'Auth_OpenID_HMACSHA1',
+                       'HMAC-SHA256' => 'Auth_OpenID_HMACSHA256'
+                       );
+
     /**
      * This is an alternate constructor (factory method) used by the
      * OpenID consumer library to create associations.  OpenID store
@@ -258,11 +263,11 @@ class Auth_OpenID_Association {
     function sign($pairs)
     {
         $kv = Auth_OpenID_KVForm::fromArray($pairs);
-        if(Auth_OpenID_HMACSHA256_SUPPORTED
-            && $this->assoc_type == 'HMAC-SHA256')
-            return Auth_OpenID_HMACSHA256($this->secret, $kv);
+
         /* Invalid association types should be caught at constructor */
-        return Auth_OpenID_HMACSHA1($this->secret, $kv);
+        $callback = $this->_macs[$this->assoc_type];
+
+        return call_user_func_array($callback, array($this->secret, $kv));
     }
 
     /**
