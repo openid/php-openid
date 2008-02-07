@@ -2218,6 +2218,43 @@ class TestCreateAssociationRequest extends PHPUnit_TestCase {
                             $args->toPostArgs());
     }
 
+    function test_noEncryptionSendsTypeHMACSHA256()
+    {
+        $session_type = 'no-encryption';
+        $this->assoc_type = 'HMAC-SHA256';
+
+        list($session, $args) = $this->consumer->_createAssociateRequest(
+                           $this->endpoint, $this->assoc_type, $session_type);
+
+        $this->assertTrue(is_a($session, 'Auth_OpenID_PlainTextConsumerSession'));
+
+        $expected = Auth_OpenID_Message::fromOpenIDArgs(
+                                                        array('ns' => Auth_OpenID_OPENID2_NS,
+                                                              'session_type'=>$session_type,
+                                                              'mode'=>'associate',
+                                                              'assoc_type'=>$this->assoc_type));
+
+        $this->assertEquals($expected->toPostArgs(),
+                            $args->toPostArgs());
+
+        $response = Auth_OpenID_Message::fromOpenIDArgs(
+                                                        array('ns' => Auth_OpenID_OPENID2_NS,
+                                                              'session_type'=>$session_type,
+                                                              'assoc_type'=>$this->assoc_type,
+                                                              'expires_in' => '10000000000',
+                                                              'mac_key' => 'ZM9v',
+                                                              'assoc_handle' => 'turnme'
+                                                              )
+                                                        );
+
+        $assoc = $this->consumer->_extractAssociation($response, $session);
+
+        $this->assertTrue($assoc !== null);
+        $this->assertTrue(is_a($assoc, 'Auth_OpenID_Association'));
+        $this->assertTrue($assoc->assoc_type = $this->assoc_type);
+        $this->assertTrue($assoc->session_type = $session_type);
+    }
+
     function test_noEncryptionCompatibility()
     {
         $this->endpoint->use_compatibility = true;

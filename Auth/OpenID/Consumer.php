@@ -518,7 +518,7 @@ class Auth_OpenID_DiffieHellmanSHA256ConsumerSession extends
  */
 class Auth_OpenID_PlainTextConsumerSession {
     var $session_type = 'no-encryption';
-    var $allowed_assoc_types =  array('HMAC-SHA1');
+    var $allowed_assoc_types =  array('HMAC-SHA1', 'HMAC-SHA256');
 
     function getRequest()
     {
