@@ -90,27 +90,6 @@ class Auth_OpenID_DiffieHellman {
         return $this->public;
     }
 
-    /**
-     * Generate the arguments for an OpenID Diffie-Hellman association
-     * request
-     */
-    function getAssocArgs()
-    {
-        $cpub = $this->lib->longToBase64($this->getPublicKey());
-        $args = array(
-                      'openid.dh_consumer_public' => $cpub,
-                      'openid.session_type' => 'DH-SHA1'
-                      );
-
-        if ($this->lib->cmp($this->mod, Auth_OpenID_getDefaultMod()) ||
-            $this->lib->cmp($this->gen, Auth_OpenID_getDefaultGen())) {
-            $args['openid.dh_modulus'] = $this->lib->longToBase64($this->mod);
-            $args['openid.dh_gen'] = $this->lib->longToBase64($this->gen);
-        }
-
-        return $args;
-    }
-
     function usingDefaultValues()
     {
         return ($this->mod == Auth_OpenID_getDefaultMod() &&
