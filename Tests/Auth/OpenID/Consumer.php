@@ -2220,6 +2220,11 @@ class TestCreateAssociationRequest extends PHPUnit_TestCase {
 
     function test_noEncryptionSendsTypeHMACSHA256()
     {
+        if (!Auth_OpenID_HMACSHA256_SUPPORTED) {
+            $this->pass();
+            return;
+        }
+
         $session_type = 'no-encryption';
         $this->assoc_type = 'HMAC-SHA256';
 
