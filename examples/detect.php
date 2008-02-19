@@ -2,7 +2,7 @@
 
 $path_extra = dirname(dirname(__FILE__));
 $path = ini_get('include_path');
-$path = $path_extra . ':' . $path;
+$path = $path_extra . PATH_SEPARATOR . $path;
 ini_set('include_path', $path);
 
 define('IS_WINDOWS', strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
