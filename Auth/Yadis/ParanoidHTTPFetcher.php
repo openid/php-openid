@@ -154,7 +154,10 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
 
         $c = curl_init();
 
-        curl_setopt($c, CURLOPT_NOSIGNAL, true);
+        if (defined('CURLOPT_NOSIGNAL')) {
+            curl_setopt($c, CURLOPT_NOSIGNAL, true);
+        }
+
         curl_setopt($c, CURLOPT_POST, true);
         curl_setopt($c, CURLOPT_POSTFIELDS, $body);
         curl_setopt($c, CURLOPT_TIMEOUT, $this->timeout);
