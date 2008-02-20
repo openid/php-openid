@@ -470,7 +470,7 @@ explicitly');
         if (!(extension_loaded('pgsql') ||
               @dl('pgsql.so') ||
               @dl('php_pgsql.dll'))) {
-            print "Warning: not testing PostGreSQL store";
+            print "(not testing PostGreSQL store)";
             $this->pass();
             return;
         }
@@ -590,7 +590,7 @@ explicitly');
         if (!(extension_loaded('sqlite') ||
               @dl('sqlite.so') ||
               @dl('php_sqlite.dll'))) {
-            print "Warning: not testing SQLite store";
+            print "(not testing SQLite store)";
             $this->pass();
             return;
         }
@@ -634,7 +634,7 @@ explicitly');
         // because we can't run the test.
         if (!(extension_loaded('mysql') ||
               @dl('mysql.' . PHP_SHLIB_SUFFIX))) {
-            print "Warning: not testing MySQL store";
+            print "(not testing MySQL store)";
             $this->pass();
             return;
         }
