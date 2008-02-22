@@ -42,7 +42,8 @@ class Auth_OpenID_MySQLStore extends Auth_OpenID_SQLStore {
             ") ENGINE=InnoDB";
 
         $this->sql['set_assoc'] =
-            "REPLACE INTO %s VALUES (?, ?, !, ?, ?, ?)";
+            "REPLACE INTO %s (server_url, handle, secret, issued,\n".
+            "  lifetime, assoc_type) VALUES (?, ?, !, ?, ?, ?)";
 
         $this->sql['get_assocs'] =
             "SELECT handle, secret, issued, lifetime, assoc_type FROM %s ".
