@@ -3,6 +3,14 @@ found
 <html><head><meta http-equiv="X-XRDS-Location" content="found"></head></html>
 
 found
+<!-- minimal well-formed success case, xhtml closing, whitespace -->
+<html><head><meta http-equiv="X-XRDS-Location" content="found" /></head></html>
+
+found
+<!-- minimal well-formed success case, xhtml closing, no whitespace -->
+<html><head><meta http-equiv="X-XRDS-Location" content="found"/></head></html>
+
+found
 <!-- minimal success case -->
 <html><head><meta http-equiv="X-XRDS-Location" content="found">
 

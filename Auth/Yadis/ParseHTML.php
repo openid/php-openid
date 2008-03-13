@@ -41,7 +41,7 @@ class Auth_Yadis_ParseHTML {
     /**
      * @access private
      */
-    var $_attr_find = '\b([-\w]+)=(".*?"|\'.*?\'|.+?)[\s>]';
+    var $_attr_find = '\b([-\w]+)=(".*?"|\'.*?\'|.+?)[\/\s>]';
 
     function Auth_Yadis_ParseHTML()
     {
