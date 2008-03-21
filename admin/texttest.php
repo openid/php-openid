@@ -118,7 +118,7 @@ if ($math_type && false) {
 
 // ******** End math library selection **********
 
-$suites = loadSuite($argv);
+$suites = loadSuite($args);
 
 $totals = array(
     'run' => 0,
