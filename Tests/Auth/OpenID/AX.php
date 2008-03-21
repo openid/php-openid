@@ -459,9 +459,10 @@ class FetchRequestTest extends PHPUnit_TestCase {
             'ax.update_url' => 'http://different.site/path',
             'ax.mode' => 'fetch_request',
             ));
-
+		$openid_req = new Auth_OpenID_Request();
+		$openid_req->message =& $openid_req_msg;
         $result = Auth_OpenID_AX_FetchRequest::fromOpenIDRequest(
-                                                     $openid_req_msg);
+                                                     $openid_req);
         $this->assertTrue(Auth_OpenID_AX::isError($result));
     }
 
@@ -475,8 +476,9 @@ class FetchRequestTest extends PHPUnit_TestCase {
             'ax.update_url' => 'http://different.site/path',
             'ax.mode' => 'fetch_request',
             ));
-
-        $result = Auth_OpenID_AX_FetchRequest::fromOpenIDRequest($openid_req_msg);
+		$openid_req = new Auth_OpenID_Request();
+		$openid_req->message =& $openid_req_msg;
+        $result = Auth_OpenID_AX_FetchRequest::fromOpenIDRequest($openid_req);
         $this->assertTrue(Auth_OpenID_AX::isError($result));
     }
 
@@ -490,8 +492,9 @@ class FetchRequestTest extends PHPUnit_TestCase {
             'ax.update_url' => 'http://example.com/realm/update_path',
             'ax.mode' => 'fetch_request',
             ));
-
-        $fr = Auth_OpenID_AX_FetchRequest::fromOpenIDRequest($openid_req_msg);
+		$openid_req = new Auth_OpenID_Request();
+		$openid_req->message =& $openid_req_msg;
+        $fr = Auth_OpenID_AX_FetchRequest::fromOpenIDRequest($openid_req);
         $this->assertFalse(Auth_OpenID_AX::isError($fr));
     }
 
@@ -505,8 +508,9 @@ class FetchRequestTest extends PHPUnit_TestCase {
             'ax.update_url' => 'http://example.com/realm/update_path',
             'ax.mode' => 'fetch_request',
             ));
-
-        $fr = Auth_OpenID_AX_FetchRequest::fromOpenIDRequest($openid_req_msg);
+		$openid_req = new Auth_OpenID_Request();
+		$openid_req->message =& $openid_req_msg;
+        $fr = Auth_OpenID_AX_FetchRequest::fromOpenIDRequest($openid_req);
         $this->assertFalse(Auth_OpenID_AX::isError($fr));
     }
 }

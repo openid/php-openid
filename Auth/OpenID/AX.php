@@ -379,17 +379,18 @@ class Auth_OpenID_AX_FetchRequest extends Auth_OpenID_AX_Message {
     /**
      * Extract a FetchRequest from an OpenID message
      *
-     * @param message: The OpenID message containing the attribute
+     * @param request: The OpenID request containing the attribute
      * fetch request
      *
      * @returns mixed An Auth_OpenID_AX_Error or the
-     * Auth_OpenID_AX_FetchRequest extracted from the message if
+     * Auth_OpenID_AX_FetchRequest extracted from the request message if
      * successful
      */
-    function &fromOpenIDRequest($message)
+    function &fromOpenIDRequest($request)
     {
+    	$m = $request->message;
         $obj = new Auth_OpenID_AX_FetchRequest();
-        $ax_args = $message->getArgs($obj->ns_uri);
+        $ax_args = $m->getArgs($obj->ns_uri);
 
         $result = $obj->parseExtensionArgs($ax_args);
 
@@ -400,8 +401,8 @@ class Auth_OpenID_AX_FetchRequest extends Auth_OpenID_AX_Message {
         if ($obj->update_url) {
             // Update URL must match the openid.realm of the
             // underlying OpenID 2 message.
-            $realm = $message->getArg(Auth_OpenID_OPENID_NS, 'realm',
-                        $message->getArg(
+            $realm = $m->getArg(Auth_OpenID_OPENID_NS, 'realm',
+                        $m->getArg(
                                   Auth_OpenID_OPENID_NS,
                                   'return_to'));
 
