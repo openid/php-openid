@@ -573,5 +573,19 @@ class Auth_OpenID {
             $dest[$k] = $v;
         }
     }
+
+    /**
+     * Wrap PHP's standard error_log functionality.  Use this to
+     * perform all logging. It will interpolate any additional
+     * arguments into the format string before logging.
+     *
+     * @param string $format_string The sprintf format for the message
+     */
+    function log($format_string)
+    {
+        $args = func_get_args();
+        $message = call_user_func_array('sprintf', $args);
+        error_log($message);
+    }
 }
 ?>
