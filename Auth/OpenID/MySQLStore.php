@@ -28,7 +28,7 @@ class Auth_OpenID_MySQLStore extends Auth_OpenID_SQLStore {
             "  timestamp INTEGER,\n".
             "  salt CHAR(40),\n".
             "  UNIQUE (server_url(255), timestamp, salt)\n".
-            ") TYPE=InnoDB";
+            ") ENGINE=InnoDB";
 
         $this->sql['assoc_table'] =
             "CREATE TABLE %s (\n".
@@ -39,7 +39,7 @@ class Auth_OpenID_MySQLStore extends Auth_OpenID_SQLStore {
             "  lifetime INTEGER,\n".
             "  assoc_type VARCHAR(64),\n".
             "  PRIMARY KEY (server_url(255), handle)\n".
-            ") TYPE=InnoDB";
+            ") ENGINE=InnoDB";
 
         $this->sql['set_assoc'] =
             "REPLACE INTO %s VALUES (?, ?, !, ?, ?, ?)";
