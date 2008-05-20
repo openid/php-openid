@@ -23,8 +23,8 @@ function idpage_render($identity)
 
 
     $body = sprintf(idpage_pat,
-                    $xrdsurl,
-                    buildURL());
+                    buildURL(),
+                    $xrdsurl);
     return array($headers, $body);
 }
 
