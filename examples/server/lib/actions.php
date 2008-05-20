@@ -64,6 +64,11 @@ function action_default()
 
     $webresponse =& $server->encodeResponse($response);
 
+    if ($webresponse->code != AUTH_OPENID_HTTP_OK) {
+        header(sprintf("HTTP/1.1 %d ", $webresponse->code),
+               true, $webresponse->code);
+    }
+
     foreach ($webresponse->headers as $k => $v) {
         header("$k: $v");
     }
