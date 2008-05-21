@@ -203,11 +203,14 @@ class Auth_OpenID {
         if (is_dir($dir_name) || @mkdir($dir_name)) {
             return true;
         } else {
-            if (Auth_OpenID::ensureDir(dirname($dir_name))) {
-                return is_dir($dir_name) || @mkdir($dir_name);
-            } else {
-                return false;
+            $parent_dir = dirname($dir_name);
+
+            // Terminal case; there is no parent directory to create.
+            if ($parent_dir == $dir_name) {
+                return true;
             }
+
+            return (Auth_OpenID::ensureDir($parent_dir) && @mkdir($dir_name));
         }
     }
 
