@@ -73,9 +73,7 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
 
     function get($url, $extra_headers = null)
     {
-        if ($this->isHTTPS($url) && !$this->supportsSSL()) {
-            Auth_OpenID::log("HTTPS URL unsupported fetching %s",
-                             $url);
+        if (!$this->canFetchURL($url)) {
             return null;
         }
 
@@ -167,19 +165,11 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
 
     function post($url, $body, $extra_headers = null)
     {
+        if (!$this->canFetchURL($url)) {
+            return null;
+        }
+
         $this->reset();
-
-        if ($this->isHTTPS($url) && !$this->supportsSSL()) {
-            Auth_OpenID::log("HTTPS URL unsupported fetching %s",
-                             $url);
-            return null;
-        }
-
-        if (!$this->allowedURL($url)) {
-            Auth_OpenID::log("Fetching URL not allowed: %s",
-                             $url);
-            return null;
-        }
 
         $c = curl_init();
 

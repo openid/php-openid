@@ -13,6 +13,11 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
+/**
+ * Require logging functionality
+ */
+require_once "Auth/OpenID.php";
+
 class Auth_Yadis_HTTPResponse {
     function Auth_Yadis_HTTPResponse($final_url = null, $status = null,
                                          $headers = null, $body = null)
@@ -35,6 +40,30 @@ class Auth_Yadis_HTTPResponse {
 class Auth_Yadis_HTTPFetcher {
 
     var $timeout = 20; // timeout in seconds.
+
+    /**
+     * Return whether a URL can be fetched.  Returns false if the URL
+     * scheme is not allowed or is not supported by this fetcher
+     * implementation; returns true otherwise.
+     *
+     * @return bool
+     */
+    function canFetchURL($url)
+    {
+        if ($this->isHTTPS($url) && !$this->supportsSSL()) {
+            Auth_OpenID::log("HTTPS URL unsupported fetching %s",
+                             $url);
+            return false;
+        }
+
+        if (!$this->allowedURL($url)) {
+            Auth_OpenID::log("URL fetching not allowed for '%s'",
+                             $url);
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Return whether a URL should be allowed. Override this method to

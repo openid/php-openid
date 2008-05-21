@@ -36,11 +36,7 @@ class Auth_Yadis_PlainHTTPFetcher extends Auth_Yadis_HTTPFetcher {
 
     function get($url, $extra_headers = null)
     {
-        if ($this->isHTTPS($url) && !$this->supportsSSL()) {
-            return null;
-        }
-
-        if (!$this->allowedURL($url)) {
+        if (!$this->canFetchURL($url)) {
             return null;
         }
 
@@ -147,11 +143,7 @@ class Auth_Yadis_PlainHTTPFetcher extends Auth_Yadis_HTTPFetcher {
 
     function post($url, $body, $extra_headers = null)
     {
-        if ($this->isHTTPS($url) && !$this->supportsSSL()) {
-            return null;
-        }
-
-        if (!$this->allowedURL($url)) {
+        if (!$this->canFetchURL($url)) {
             return null;
         }
 
