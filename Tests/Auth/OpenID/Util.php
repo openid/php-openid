@@ -123,6 +123,15 @@ class Tests_Auth_OpenID_Util extends PHPUnit_TestCase {
         $this->assertEquals("https://foo.com/bar" ,
                             Auth_OpenID::normalizeUrl("https://foo.com/bar"));
 
+        $this->assertEquals("http://foo.com/bar" ,
+                            Auth_OpenID::normalizeUrl("HTtp://foo.com/bar"));
+
+        $this->assertEquals("http://foo.com/bar" ,
+             Auth_OpenID::normalizeUrl("HTtp://foo.com/bar#fraggle"));
+
+        $this->assertEquals("http://foo.com/bAr/" ,
+             Auth_OpenID::normalizeUrl("HTtp://fOo.com/bAr/.#fraggle"));
+
         if (0) {
             $this->assertEquals("http://foo.com/%E8%8D%89",
                            Auth_OpenID::normalizeUrl("foo.com/\u8349"));

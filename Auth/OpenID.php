@@ -23,6 +23,7 @@
 require_once "Auth/Yadis/PlainHTTPFetcher.php";
 require_once "Auth/Yadis/ParanoidHTTPFetcher.php";
 require_once "Auth/OpenID/BigMath.php";
+require_once "Auth/OpenID/URINorm.php";
 
 /**
  * Status code returned by the server when the only option is to show
@@ -437,62 +438,28 @@ class Auth_OpenID {
      */
     function normalizeUrl($url)
     {
-        if ($url === null) {
+        @$parsed = parse_url($url);
+
+        if (!$parsed) {
             return null;
         }
 
-        assert(is_string($url));
-
-        $old_url = $url;
-        $url = trim($url);
-
-        if (strpos($url, "://") === false) {
-            $url = "http://" . $url;
-        }
-
-        $parsed = @parse_url($url);
-
-        if ($parsed === false) {
-            return null;
-        }
-
-        $defaults = array(
-                          'scheme' => '',
-                          'host' => '',
-                          'path' => '',
-                          'query' => '',
-                          'fragment' => '',
-                          'port' => ''
-                          );
-
-        $parsed = array_merge($defaults, $parsed);
-
-        if (($parsed['scheme'] == '') ||
-            ($parsed['host'] == '')) {
-            if ($parsed['path'] == '' &&
-                $parsed['query'] == '') {
+        if (isset($parsed['scheme']) &&
+            isset($parsed['host'])) {
+            $scheme = strtolower($parsed['scheme']);
+            if (!in_array($scheme, array('http', 'https'))) {
                 return null;
             }
-
-            $url = 'http://' + $url;
-            $parsed = parse_url($url);
-
-            $parsed = array_merge($defaults, $parsed);
+        } else {
+            $url = 'http://' . $url;
         }
 
-        $tail = array_map(array('Auth_OpenID', 'quoteMinimal'),
-                          array($parsed['path'],
-                                $parsed['query']));
-        if ($tail[0] == '') {
-            $tail[0] = '/';
+        $normalized = Auth_OpenID_urinorm($url);
+        if ($normalized === null) {
+            return null;
         }
-
-        $url = Auth_OpenID::urlunparse($parsed['scheme'], $parsed['host'],
-                                       $parsed['port'], $tail[0], $tail[1]);
-
-        assert(is_string($url));
-
-        return $url;
+        list($defragged, $frag) = Auth_OpenID::urldefrag($normalized);
+        return $defragged;
     }
 
     /**

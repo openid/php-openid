@@ -454,18 +454,6 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher,
 
 function Auth_OpenID_discoverURI($uri, &$fetcher)
 {
-    $parsed = parse_url($uri);
-
-    if ($parsed && isset($parsed['scheme']) &&
-        isset($parsed['host'])) {
-        if (!in_array($parsed['scheme'], array('http', 'https'))) {
-            // raise DiscoveryFailure('URI scheme is not HTTP or HTTPS', None)
-            return array($uri, array());
-        }
-    } else {
-        $uri = 'http://' . $uri;
-    }
-
     $uri = Auth_OpenID::normalizeUrl($uri);
     return Auth_OpenID_discoverWithYadis($uri, $fetcher);
 }
