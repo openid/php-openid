@@ -48,7 +48,8 @@
     details on how to run the examples, see
     <literal>examples/README</literal>.  If you want to create your
     own OpenID data storage class, please see the {@link Auth_OpenID_OpenIDStore}
-    class.
+     class.  For information on integrating OpenID relying party support into your site, see
+    the class documentation for {@link Consumer.php}.
 
    </para>
 
