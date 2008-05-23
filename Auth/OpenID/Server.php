@@ -205,10 +205,16 @@ class Auth_OpenID_ServerError {
                                             'error' => $this->toString()));
     }
 
-    function toFormMarkup()
+    function toFormMarkup($form_tag_attrs=null)
     {
         $msg = $this->toMessage();
-        return $msg->toFormMarkup($this->getReturnTo());
+        return $msg->toFormMarkup($this->getReturnTo(), $form_tag_attrs);
+    }
+
+    function toHTML($form_tag_attrs=null)
+    {
+        return Auth_OpenID::autoSubmitHTML(
+                      $this->toFormMarkup($form_tag_attrs));
     }
 
     function toMessage()
@@ -1190,6 +1196,15 @@ class Auth_OpenID_ServerResponse {
     {
         return $this->fields->toFormMarkup(
                  $this->fields->getArg(Auth_OpenID_OPENID_NS, 'return_to'));
+    }
+
+    /*
+     * Returns an HTML document containing the form markup for this
+     * response that autosubmits with javascript.
+     */
+    function toHTML()
+    {
+        return Auth_OpenID::autoSubmitHTML($this->toFormMarkup());
     }
 
     /*

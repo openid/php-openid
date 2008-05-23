@@ -557,5 +557,14 @@ class Auth_OpenID {
         $message = call_user_func_array('sprintf', $args);
         error_log($message);
     }
+
+    function autoSubmitHTML($form)
+    {
+        return("<html>".
+               "<body onload='document.forms[0].submit();'>".
+               $form .
+               "</body>".
+               "</html>");
+    }
 }
 ?>

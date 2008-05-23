@@ -1632,6 +1632,28 @@ class Tests_Auth_OpenID_Consumer_TestFetchAssoc extends PHPUnit_TestCase {
     }
 }
 
+class Tests_Auth_OpenID_AuthRequestHTMLMarkup extends PHPUnit_TestCase {
+    function setUp()
+    {
+        $this->endpoint = new Auth_OpenID_ServiceEndpoint();
+        $this->endpoint->claimed_id = 'identity_url';
+
+        $this->request = new Auth_OpenID_AuthRequest($this->endpoint, null);
+    }
+
+    function test_htmlMarkup()
+    {
+        $html = $this->request->htmlMarkup('http://realm.com/',
+                                           'http://realm.com/return_to');
+        $this->assertTrue(substr($html,"<html>") !== false);
+        $this->assertTrue(substr($html,"</html>") !== false);
+        $this->assertTrue(substr($html,"<body onload") !== false);
+        $this->assertTrue(substr($html,"</body>") !== false);
+        $this->assertTrue(substr($html,"<form") !== false);
+        $this->assertTrue(substr($html,"</form>") !== false);
+    }
+}
+
 class Tests_Auth_OpenID_SuccessResponse extends PHPUnit_TestCase {
     function setUp()
     {
@@ -2448,6 +2470,7 @@ class Tests_Auth_OpenID_KVPost extends PHPUnit_TestCase {
 global $Tests_Auth_OpenID_Consumer_other;
 $Tests_Auth_OpenID_Consumer_other = array(
                                           // new Tests_Auth_OpenID_Consumer_TestSetupNeeded(),
+                                          new Tests_Auth_OpenID_AuthRequestHTMLMarkup(),
                                           new Tests_Auth_OpenID_Consumer_TestCheckAuth(),
                                           new Tests_Auth_OpenID_Consumer_TestCheckAuthTriggered(),
                                           new Tests_Auth_OpenID_Consumer_TestFetchAssoc(),

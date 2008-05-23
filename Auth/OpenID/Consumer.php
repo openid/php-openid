@@ -1935,6 +1935,24 @@ class Auth_OpenID_AuthRequest {
                                       $form_tag_attrs);
     }
 
+    /**
+     * Get a complete html document that will autosubmit the request
+     * to the IDP.
+     *
+     * Wraps formMarkup.  See the documentation for that function.
+     */
+    function htmlMarkup($realm, $return_to=null, $immediate=false,
+                        $form_tag_attrs=null)
+    {
+        $form = $this->formMarkup($realm, $return_to, $immediate, 
+                                  $form_tag_attrs);
+
+        if (Auth_OpenID::isFailure($form)) {
+            return $form;
+        }
+        return Auth_OpenID::autoSubmitHTML($form);
+    }
+
     function shouldSendRedirect()
     {
         return $this->endpoint->compatibilityMode();
