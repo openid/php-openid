@@ -1533,29 +1533,23 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuth extends _TestIdRes {
 
     function test_signedList()
     {
+        $signed = 'identity,mode,ns.sreg,sreg.email';
         $query = Auth_OpenID_Message::fromOpenIDArgs(array(
             'mode'=> 'id_res',
-            'ns' => Auth_OpenID_OPENID2_NS,
             'sig'=> 'rabbits',
             'identity'=> '=example',
             'assoc_handle'=> 'munchkins',
             'ns.sreg' => 'urn:sreg',
             'sreg.email' => 'bogus@example.com',
-            'signed'=> 'identity,mode,ns.sreg,sreg.email',
+            'signed'=> $signed,
             'foo'=> 'bar'));
 
-        $expected = Auth_OpenID_Message::fromOpenIDArgs(array(
-            'mode'=> 'check_authentication',
-            'sig'=> 'rabbits',
-            'assoc_handle'=> 'munchkins',
-            'ns.sreg' => 'urn:sreg',
-            'sreg.email' => 'bogus@example.com',
-            'identity'=> '=example',
-            'signed'=> 'identity,mode,ns.sreg,sreg.email'
-            ));
-
         $args = $this->consumer->_createCheckAuthRequest($query);
-        $this->assertEquals($args->toPostArgs(), $expected->toPostArgs());
+        $this->assertTrue($args->isOpenID1());
+        $signed_list = explode(',',$signed);
+        foreach ($signed_list as $k) {
+            $this->assertTrue($args->getAliasedArg($k));
+        }
     }
 }
 
