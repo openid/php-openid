@@ -8,6 +8,10 @@ test_import () {
     ./admin/checkimports
 }
 
+test_syntax () {
+    ./admin/syntaxcheck
+}
+
 test_tabs () {
     /usr/bin/env bash "$HERE/notabs"
 }
@@ -40,7 +44,7 @@ test_php () {
     fi
 }
 
-tests="tabs longlines nobadbraces nobadcase opentag docblocks php import"
+tests="syntax tabs longlines nobadbraces nobadcase opentag docblocks php import"
 
 failures=
 
