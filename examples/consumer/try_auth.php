@@ -65,7 +65,7 @@ function run() {
     } else {
         // Generate form markup and render it.
         $form_id = 'openid_message';
-        $form_html = $auth_request->formMarkup(getTrustRoot(), getReturnTo(),
+        $form_html = $auth_request->htmlMarkup(getTrustRoot(), getReturnTo(),
                                                false, array('id' => $form_id));
 
         // Display an error if the form markup couldn't be generated;
@@ -73,15 +73,7 @@ function run() {
         if (Auth_OpenID::isFailure($form_html)) {
             displayError("Could not redirect to server: " . $form_html->message);
         } else {
-            $page_contents = array(
-               "<html><head><title>",
-               "OpenID transaction in progress",
-               "</title></head>",
-               "<body onload='document.getElementById(\"".$form_id."\").submit()'>",
-               $form_html,
-               "</body></html>");
-
-            print implode("\n", $page_contents);
+            print $form_html;
         }
     }
 }
