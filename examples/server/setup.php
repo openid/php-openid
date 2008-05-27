@@ -8,7 +8,7 @@
  *
  * @package OpenID.Examples
  * @author JanRain, Inc. <openid@janrain.com>
- * @copyright 2005 Janrain, Inc.
+ * @copyright 2005-2008 Janrain, Inc.
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  */
 
