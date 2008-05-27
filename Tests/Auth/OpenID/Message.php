@@ -324,6 +324,7 @@ class Tests_Auth_OpenID_OpenID1Message extends MessageTest {
     {
         $this->assertEquals($this->msg->getOpenIDNamespace(),
                                Auth_OpenID_OPENID1_NS);
+        $this->assertTrue($this->msg->namespaces->isImplicit(Auth_OpenID_OPENID1_NS));
     }
 
     function test_getKeyOpenID()
@@ -545,12 +546,68 @@ class Tests_Auth_OpenID_OpenID1Message extends MessageTest {
     }
 }
 
-class Tests_Auth_OpenID_OpenID1ExplicitMessage extends Tests_Auth_OpenID_OpenID1Message {
+class Tests_Auth_OpenID_OpenID1ExplicitMessage extends MessageTest {
     function setUp()
     {
         $this->msg = Auth_OpenID_Message::fromPostArgs(array('openid.mode' => 'error',
                                                              'openid.error' => 'unit test',
                                                              'openid.ns' => Auth_OpenID_OPENID1_NS));
+    }
+
+    function test_isOpenID1()
+    {
+        $this->assertTrue($this->msg->isOpenID1());
+        $this->assertFalse($this->msg->namespaces->isImplicit(Auth_OpenID_OPENID1_NS));
+    }
+
+    function test_isOpenID2()
+    {
+        $this->assertFalse($this->msg->isOpenID2());
+    }
+
+    function test_toPostArgs()
+    {
+        $this->assertEquals($this->msg->toPostArgs(),
+                               array('openid.mode' => 'error',
+                                     'openid.error' => 'unit test',
+                                     'openid.ns' => Auth_OpenID_OPENID1_NS));
+    }
+
+    function test_toArgs()
+    {
+        $this->assertEquals($this->msg->toArgs(),
+                               array('mode' => 'error',
+                                     'error' => 'unit test',
+                                     'ns' => Auth_OpenID_OPENID1_NS));
+    }
+
+    function test_toKVForm()
+    {
+        $this->assertEquals($this->msg->toKVForm(),
+                            "error:unit test\nmode:error\nns:".
+                            Auth_OpenID_OPENID1_NS."\n");
+    }
+
+    function test_toURLEncoded()
+    {
+        $this->assertEquals($this->msg->toURLEncoded(),
+                               'openid.error=unit+test&openid.mode=error&openid.ns=http%3A%2F%2Fopenid.net%2Fsignon%2F1.0');
+    }
+
+    function test_toURL()
+    {
+        $base_url = 'http://base.url/';
+        $actual = $this->msg->toURL($base_url);
+        $actual_base = substr($actual, 0, strlen($base_url));
+        $this->assertEquals($actual_base, $base_url);
+        $this->assertEquals($actual[strlen($base_url)], '?');
+        $query = substr($actual, strlen($base_url) + 1);
+
+        $parsed = Auth_OpenID::parse_str($query);
+
+        $this->assertEquals($parsed, array('openid.mode' => 'error',
+                                           'openid.error' => 'unit test',
+                                           'openid.ns' => Auth_OpenID_OPENID1_NS));
     }
 }
 

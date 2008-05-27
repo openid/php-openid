@@ -75,7 +75,8 @@ class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_TestCase {
         $this->assertTrue($e->hasReturnTo());
         $expected_args = array(
             'openid.mode' => 'error',
-            'openid.error' => 'plucky');
+            'openid.error' => 'plucky',
+            'openid.ns' => Auth_OpenID_OPENID1_NS);
 
         $encoded = $e->encodeToURL();
         if (Auth_OpenID_isError($encoded)) {
@@ -154,7 +155,8 @@ class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_TestCase {
         $e = new Auth_OpenID_ServerError($args, "plucky");
         $this->assertTrue($e->hasReturnTo());
         $expected_args = array('openid.mode' => 'error',
-                               'openid.error' => 'plucky');
+                               'openid.error' => 'plucky',
+                               'openid.ns' => Auth_OpenID_OPENID1_NS);
 
         $this->assertTrue($e->whichEncoding() == Auth_OpenID_ENCODE_URL);
 
@@ -1249,7 +1251,7 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
         $answer = $this->request->answer(false, $server_url);
 
         $this->assertEquals($answer->request, $this->request);
-        $this->assertEquals(count($answer->fields->toPostArgs()), 2);
+        $this->assertEquals(count($answer->fields->toPostArgs()), 3);
 	$this->assertEquals($answer->fields->getOpenIDNamespace(),
 			    Auth_OpenID_OPENID1_NS);
         $this->assertEquals($answer->fields->getArg(Auth_OpenID_OPENID_NS, 'mode'),

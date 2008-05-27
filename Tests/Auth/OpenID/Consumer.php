@@ -227,7 +227,8 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
         $expected = array(
                           'openid.mode' => $mode,
                           'openid.identity' => $delegate_url,
-                          'openid.trust_root' => $trust_root
+                          'openid.trust_root' => $trust_root,
+                          'openid.ns' => Auth_OpenID_OPENID1_NS
                           );
 
         if ($consumer->_use_assocs) {
