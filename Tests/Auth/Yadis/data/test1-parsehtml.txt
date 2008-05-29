@@ -27,6 +27,10 @@ found
 <head><meta http-equiv="X-XRDS-Location" content="found">
 
 found
+<!-- javascript in head -->
+<html><head><script type="text/javascript>document.write("<body>");</script><META http-equiv="X-XRDS-Location" content="found">
+
+found
 <!-- case folding for tag names -->
 <html><head><META http-equiv="X-XRDS-Location" content="found">
 
