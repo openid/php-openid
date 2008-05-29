@@ -237,7 +237,7 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
     function parseExtensionArgs($args, $strict=false)
     {
         $policies_str = Auth_OpenID::arrayGet($args, 'auth_policies');
-        if ($policies_str and $policies_str != "none") {
+        if ($policies_str && $policies_str != "none") {
             $this->auth_policies = explode(" ", $policies_str);
         }
 
