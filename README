@@ -120,6 +120,10 @@ hesitate to send it to us.  Post your patch to the development list at
 
   http://lists.openidenabled.com/mailman/listinfo/dev
 
+For more detailed information on how to contribute, see
+
+  http://openidenabled.com/contribute/
+
 To run the test suite included with this package, install PHPUnit 1.x
 and run
 
