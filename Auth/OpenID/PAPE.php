@@ -237,7 +237,7 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
     function parseExtensionArgs($args, $strict=false)
     {
         $policies_str = Auth_OpenID::arrayGet($args, 'auth_policies');
-        if ($policies_str) {
+        if ($policies_str and $policies_str != "none") {
             $this->auth_policies = explode(" ", $policies_str);
         }
 
@@ -272,10 +272,12 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
 
     function getExtensionArgs()
     {
-        $ns_args = array(
-                         'auth_policies' =>
-                           implode(' ', $this->auth_policies)
-                         );
+        $ns_args = array();
+        if (count($this->auth_policies) > 0) {
+            $ns_args['auth_policies'] = implode(' ', $this->auth_policies);
+        } else {
+            $ns_args['auth_policies'] = 'none';
+        }
 
         if ($this->nist_auth_level !== null) {
             if (!in_array($this->nist_auth_level, range(0, 4), true)) {

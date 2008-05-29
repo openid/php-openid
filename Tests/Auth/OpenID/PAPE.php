@@ -139,7 +139,7 @@ class PapeResponseTestCase extends PHPUnit_TestCase {
   }
 
   function test_getExtensionArgs() {
-    $this->assertEquals(array('auth_policies' => ''), $this->req->getExtensionArgs());
+    $this->assertEquals(array('auth_policies' => 'none'), $this->req->getExtensionArgs());
     $this->req->addPolicyURI('http://uri');
     $this->assertEquals(array('auth_policies' => 'http://uri'), $this->req->getExtensionArgs());
     $this->req->addPolicyURI('http://zig');
