@@ -114,13 +114,15 @@ class PapeResponseTestCase extends PHPUnit_TestCase {
 
   function test_construct() {
     $this->assertEquals(array(), $this->req->auth_policies);
-    $this->assertEquals(null, $this->req->auth_age);
+    $this->assertEquals(null, $this->req->auth_time);
     $this->assertEquals('pape', $this->req->ns_alias);
     $this->assertEquals(null, $this->req->nist_auth_level);
 
-    $req2 = new Auth_OpenID_PAPE_Response(array(PAPE_AUTH_MULTI_FACTOR), 1000, 3);
+    $req2 = new Auth_OpenID_PAPE_Response(array(PAPE_AUTH_MULTI_FACTOR), 
+                                          '2001-01-01T04:05:23Z',
+                                          3);
     $this->assertEquals(array(PAPE_AUTH_MULTI_FACTOR), $req2->auth_policies);
-    $this->assertEquals(1000, $req2->auth_age);
+    $this->assertEquals('2001-01-01T04:05:23Z', $req2->auth_time);
     $this->assertEquals(3, $req2->nist_auth_level);
   }
 
@@ -142,16 +144,16 @@ class PapeResponseTestCase extends PHPUnit_TestCase {
     $this->assertEquals(array('auth_policies' => 'http://uri'), $this->req->getExtensionArgs());
     $this->req->addPolicyURI('http://zig');
     $this->assertEquals(array('auth_policies' => 'http://uri http://zig'), $this->req->getExtensionArgs());
-    $this->req->auth_age = 789;
-    $this->assertEquals(array('auth_policies' => 'http://uri http://zig', 'auth_age' => '789'), $this->req->getExtensionArgs());
+    $this->req->auth_time = '2008-03-02T12:34:56Z';
+    $this->assertEquals(array('auth_policies' => 'http://uri http://zig', 'auth_time' => '2008-03-02T12:34:56Z'), $this->req->getExtensionArgs());
     $this->req->nist_auth_level = 3;
-    $this->assertEquals(array('auth_policies' => 'http://uri http://zig', 'auth_age' => '789', 'nist_auth_level' => '3'), $this->req->getExtensionArgs());
+    $this->assertEquals(array('auth_policies' => 'http://uri http://zig', 'auth_time' => '2008-03-02T12:34:56Z', 'nist_auth_level' => '3'), $this->req->getExtensionArgs());
   }
 
   function test_getExtensionArgs_error_auth_age() {
-    $this->req->auth_age = "older than the sun";
+    $this->req->auth_time = "foo2008-03-02T12:34:56Z";
     $this->assertEquals(false, $this->req->getExtensionArgs());
-    $this->req->auth_age = -10;
+    $this->req->auth_time = "2008-03-02T12:34:56Zbar";
     $this->assertEquals(false, $this->req->getExtensionArgs());
   }
 
@@ -166,48 +168,48 @@ class PapeResponseTestCase extends PHPUnit_TestCase {
 
   function test_parseExtensionArgs() {
     $args = array('auth_policies' => 'http://foo http://bar',
-                  'auth_age' => '9');
+                  'auth_time' => '2008-03-02T12:34:56Z');
     $this->req->parseExtensionArgs($args);
-    $this->assertEquals(9, $this->req->auth_age);
+    $this->assertEquals('2008-03-02T12:34:56Z', $this->req->auth_time);
     $this->assertEquals(array('http://foo','http://bar'), $this->req->auth_policies);
   }
 
   function test_parseExtensionArgs_empty() {
     $this->req->parseExtensionArgs(array());
-    $this->assertEquals(null, $this->req->auth_age);
+    $this->assertEquals(null, $this->req->auth_time);
     $this->assertEquals(array(), $this->req->auth_policies);
   }
   
   function test_parseExtensionArgs_strict_bogus1() {
     $args = array('auth_policies' => 'http://foo http://bar',
-                  'auth_age' => 'not too old');
+                  'auth_time' => 'yesterday');
     $this->assertEquals(false, $this->req->parseExtensionArgs($args, true));
   }
 
   function test_parseExtensionArgs_strict_bogus2() {
     $args = array('auth_policies' => 'http://foo http://bar',
-                  'auth_age' => '63',
+                  'auth_time' => '63',
                   'nist_auth_level' => 'some');
     $this->assertEquals(false, $this->req->parseExtensionArgs($args, true));
   }
 
   function test_parseExtensionArgs_strict_good() {
     $args = array('auth_policies' => 'http://foo http://bar',
-                  'auth_age' => '0',
+                  'auth_time' => '2008-03-02T12:34:56Z',
                   'nist_auth_level' => '0');
     $this->req->parseExtensionArgs($args, true);
     $this->assertEquals(array('http://foo','http://bar'), $this->req->auth_policies);
-    $this->assertEquals(0, $this->req->auth_age);
+    $this->assertEquals('2008-03-02T12:34:56Z', $this->req->auth_time);
     $this->assertEquals(0, $this->req->nist_auth_level);
   }
 
   function test_parseExtensionArgs_nostrict_bogus() {
     $args = array('auth_policies' => 'http://foo http://bar',
-                  'auth_age' => 'old',
+                  'auth_time' => 'the other day',
                   'nist_auth_level' => 'some');
     $this->req->parseExtensionArgs($args);
     $this->assertEquals(array('http://foo','http://bar'), $this->req->auth_policies);
-    $this->assertEquals(null, $this->req->auth_age);
+    $this->assertEquals(null, $this->req->auth_time);
     $this->assertEquals(null, $this->req->nist_auth_level);
   }
 
@@ -217,16 +219,16 @@ class PapeResponseTestCase extends PHPUnit_TestCase {
           'ns' => Auth_OpenID_OPENID2_NS,
           'ns.pape' => Auth_OpenID_PAPE_NS_URI,
           'auth_policies' => implode(' ', array(PAPE_AUTH_MULTI_FACTOR, PAPE_AUTH_PHISHING_RESISTANT)),
-          'auth_age' => '5476'
+          'auth_time' => '2008-03-02T12:34:56Z'
           ));
     $signed_stuff = array(
           'auth_policies' => implode(' ', array(PAPE_AUTH_MULTI_FACTOR, PAPE_AUTH_PHISHING_RESISTANT)),
-          'auth_age' => '5476'
+          'auth_time' => '2008-03-02T12:34:56Z'
         );
     $oid_req = new PAPE_DummySuccessResponse($openid_req_msg, $signed_stuff);
     $req = Auth_OpenID_PAPE_Response::fromSuccessResponse($oid_req);
     $this->assertEquals(array(PAPE_AUTH_MULTI_FACTOR, PAPE_AUTH_PHISHING_RESISTANT), $req->auth_policies);
-    $this->assertEquals(5476, $req->auth_age);
+    $this->assertEquals('2008-03-02T12:34:56Z', $req->auth_time);
   }
 }
 
