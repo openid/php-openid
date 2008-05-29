@@ -388,7 +388,7 @@ class Auth_OpenID_AX_FetchRequest extends Auth_OpenID_AX_Message {
      */
     function &fromOpenIDRequest($request)
     {
-    	$m = $request->message;
+        $m = $request->message;
         $obj = new Auth_OpenID_AX_FetchRequest();
         $ax_args = $m->getArgs($obj->ns_uri);
 
