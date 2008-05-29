@@ -18,6 +18,8 @@
  */
 require_once "Auth/OpenID.php";
 
+define('Auth_OpenID_FETCHER_MAX_RESPONSE_KB', 1024);
+
 class Auth_Yadis_HTTPResponse {
     function Auth_Yadis_HTTPResponse($final_url = null, $status = null,
                                          $headers = null, $body = null)
