@@ -120,7 +120,7 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
             curl_setopt($c, CURLOPT_TIMEOUT, $off);
             curl_setopt($c, CURLOPT_URL, $url);
             curl_setopt($c, CURLOPT_RANGE, 
-                        "0-${1024*Auth_OpenID_FETCHER_MAX_RESPONSE_KB}");
+                        "0-".(1024 * Auth_OpenID_FETCHER_MAX_RESPONSE_KB));
 
             curl_exec($c);
 
