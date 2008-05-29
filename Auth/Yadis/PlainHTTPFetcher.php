@@ -19,6 +19,8 @@
  */
 require_once "Auth/Yadis/HTTPFetcher.php";
 
+define('Auth_OpenID_FETCHER_MAX_RESPONSE_KB', 1024);
+
 /**
  * This class implements a plain, hand-built socket-based fetcher
  * which will be used in the event that CURL is unavailable.
@@ -101,8 +103,11 @@ class Auth_Yadis_PlainHTTPFetcher extends Auth_Yadis_HTTPFetcher {
             fputs($sock, implode("\r\n", $headers) . "\r\n\r\n");
 
             $data = "";
-            while (!feof($sock)) {
+            $kilobytes = 0;
+            while (!feof($sock) &&
+                   $kilobytes < Auth_OpenID_FETCHER_MAX_RESPONSE_KB ) {
                 $data .= fgets($sock, 1024);
+                $kilobytes += 1;
             }
 
             fclose($sock);
