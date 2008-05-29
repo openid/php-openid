@@ -68,7 +68,8 @@ function &getConsumer() {
      * earlier.
      */
     $store = getStore();
-    return new Auth_OpenID_Consumer($store);
+    $consumer =& new Auth_OpenID_Consumer($store);
+    return $consumer;
 }
 
 function getScheme() {
