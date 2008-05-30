@@ -18,6 +18,11 @@
  */
 
 /**
+ * The library version string
+ */
+define('Auth_OpenID_VERSION', '2.0.2');
+
+/**
  * Require the fetcher code.
  */
 require_once "Auth/Yadis/PlainHTTPFetcher.php";
