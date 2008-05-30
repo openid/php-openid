@@ -117,6 +117,9 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
                 curl_setopt($c, CURLOPT_HTTPHEADER, $extra_headers);
             }
 
+            $cv = curl_version();
+            curl_setopt($c, CURLOPT_USERAGENT,
+                        Auth_OpenID_USER_AGENT.' curl '.$cv['version']);
             curl_setopt($c, CURLOPT_TIMEOUT, $off);
             curl_setopt($c, CURLOPT_URL, $url);
             curl_setopt($c, CURLOPT_RANGE, 

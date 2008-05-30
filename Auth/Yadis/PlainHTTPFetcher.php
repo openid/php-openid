@@ -69,7 +69,7 @@ class Auth_Yadis_PlainHTTPFetcher extends Auth_Yadis_HTTPFetcher {
                 $host = 'ssl://' . $host;
             }
 
-            $user_agent = "PHP Yadis Library Fetcher";
+            $user_agent = Auth_OpenID_USER_AGENT;
 
             $headers = array(
                              "GET ".$parts['path'].
