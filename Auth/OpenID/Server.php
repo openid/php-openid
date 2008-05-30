@@ -661,7 +661,8 @@ class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
         $response->fields->updateArgs(Auth_OpenID_OPENID_NS,
            $this->session->answer($assoc->secret));
 
-        if ($this->session->session_type != 'no-encryption') {
+        if (! ($this->session->session_type == 'no-encryption' 
+            && $this->namespace == Auth_OpenID_OPENID1_NS)) {
             $response->fields->setArg(Auth_OpenID_OPENID_NS,
                                       'session_type',
                                       $this->session->session_type);
