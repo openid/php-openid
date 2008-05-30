@@ -27,6 +27,38 @@ class _SimpleMockFetcher {
     }
 }
 
+class Tests_Auth_OpenID_ServiceEndpoint extends PHPUnit_TestCase {
+    function setUp() {
+        $this->endpoint = new Auth_OpenID_ServiceEndpoint();
+    }
+
+    function test_getDisplayIdentifier_noFragment() {
+        $urls = array("http://foo.bar.com/something",
+                      "http://foo.bar.com/something?else=what&nothing=0",
+                      "https://smoker.myopenid.com/"
+                      );
+
+        foreach ($urls as $url) {
+            $this->endpoint->claimed_id = $url;
+            $this->assertEquals($url, $this->endpoint->getDisplayIdentifier());
+        }
+    }
+
+    function test_getDisplayIdentifier_withFragment() {
+        $urls = array("http://foo.bar.com/something#fragged",
+                      "http://foo.bar.com/something?else=what&nothing=0#ow",
+                      "https://smoker.myopenid.com/#myentirelife"
+                      );
+
+        foreach ($urls as $url) {
+            $this->endpoint->claimed_id = $url;
+            $split = explode('#', $url);
+            $this->assertEquals($split[0], 
+                                $this->endpoint->getDisplayIdentifier());
+        }
+    }
+}
+
 class Tests_Auth_OpenID_DiscoveryFailure extends PHPUnit_TestCase {
 
     function Tests_Auth_OpenID_DiscoveryFailure($responses)

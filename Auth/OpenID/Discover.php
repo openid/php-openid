@@ -52,7 +52,20 @@ class Auth_OpenID_ServiceEndpoint {
         if ($this->display_identifier) {
             return $this->display_identifier;
         }
-        return $this->claimed_id;
+        if (! $this->claimed_id) {
+          return $this->claimed_id;
+        }
+        $parsed = parse_url($this->claimed_id);
+        $scheme = $parsed['scheme'];
+        $host = $parsed['host'];
+        $path = $parsed['path'];
+        if (array_key_exists('query', $parsed)) {
+            $query = $parsed['query'];
+            $no_frag = "$scheme://$host$path?$query";
+        } else {
+            $no_frag = "$scheme://$host$path";
+        }
+        return $no_frag;
     }
 
     function usesExtension($extension_uri)
