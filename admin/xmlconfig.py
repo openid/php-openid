@@ -28,10 +28,10 @@ package_description = 'An implementation of the OpenID single sign-on authentica
 package_summary = 'PHP OpenID'
 
 # License string.
-license_name = 'LGPL'
+license_name = 'Apache'
 
 # License URI.
-license_uri = 'http://www.gnu.org/copyleft/lesser.txt'
+license_uri = 'http://www.apache.org/licenses/LICENSE-2.0'
 
 # Director(ies) containing package source, relative to the admin/
 # directory.  All .php files in these directories will be included in
