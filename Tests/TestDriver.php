@@ -98,8 +98,9 @@ function loadTests($test_dir, $test_names)
 
 function global_require_once($name)
 {
-    $f = @include_once $name;
+    $f = include_once $name;
     if (!$f) {
+        print("global require once skipping $name\n");
         return false;
     }
     foreach (get_defined_vars() as $k => $v) {
