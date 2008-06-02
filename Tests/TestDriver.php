@@ -68,33 +68,40 @@ function loadTests($test_dir, $test_names)
 
     foreach ($test_names as $filename) {
         $filename = $test_dir . $filename . '.php';
-        $class_name = str_replace('/', '_', $filename);
-        $class_name = basename($class_name, '.php');
         if (!global_require_once($filename)) {
             continue;
         }
-        $test = new $class_name($class_name);
 
-        if (is_a($test, 'PHPUnit_TestCase')) {
-            $s = new PHPUnit_TestSuite();
-            $s->setName($class_name);
-            $s->addTestSuite($class_name);
-            $test = $s;
+        $class_name = str_replace('/', '_', $filename);
+        $class_name = basename($class_name, '.php');
 
-            $tc_array_name = $class_name . '_other';
-            if (array_key_exists($tc_array_name, $GLOBALS) &&
-                is_array($GLOBALS[$tc_array_name])) {
-                foreach ($GLOBALS[$tc_array_name] as $tc) {
-                    $test->addTestSuite(get_class($tc));
-                }
-            }
-        }
-
-        $suites[] = $test;
+        $suites[] = makeSuite($class_name);
     }
 
     return $suites;
 }
+
+function makeSuite($class_name) {
+    $test = new $class_name($class_name);
+
+    if (is_a($test, 'PHPUnit_TestCase')) {
+        $s = new PHPUnit_TestSuite();
+        $s->setName($class_name);
+        $s->addTestSuite($class_name);
+        $test = $s;
+
+        $tc_array_name = $class_name . '_other';
+        if (array_key_exists($tc_array_name, $GLOBALS) &&
+            is_array($GLOBALS[$tc_array_name])) {
+            foreach ($GLOBALS[$tc_array_name] as $tc) {
+                $test->addTestSuite(get_class($tc));
+            }
+        }
+    }
+
+    return $test;
+}
+
 
 function global_require_once($name)
 {
