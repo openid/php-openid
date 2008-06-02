@@ -8,9 +8,9 @@ require_once "Auth/OpenID/Message.php";
 require_once "Auth/OpenID/Consumer.php";
 
 class Tests_Auth_OpenID_VerifyDisco_1 extends Auth_OpenID_GenericConsumer {
-    function _discoverAndVerify($to_match)
+    function _discoverAndVerify($claimed_id, $to_match_endpoints)
     {
-        $this->test_case->assertEquals($this->endpoint->claimed_id, $to_match->claimed_id);
+        $this->test_case->assertEquals($this->endpoint->claimed_id, $claimed_id);
         return new Auth_OpenID_FailureResponse(null, $this->text);
     }
 }
@@ -49,6 +49,53 @@ class _DiscoverAndVerify extends OpenIDTestMixin {
     function failUnlessProtocolError($thing)
     {
         $this->assertTrue(Auth_OpenID::isFailure($thing));
+    }
+}
+
+class _Tests_discoveryOverride {
+    function _Tests_discoveryOverride($endpoint)
+    {
+        $this->endpoint = $endpoint;
+    }
+
+    function discover($unused_url)
+    {
+        return array($this->endpoint->claimed_id, array($this->endpoint));
+    }
+}
+class Tests_openID1Fallback1_0 extends _DiscoverAndVerify {
+    function test_openID1Fallback1_0()
+    {
+        $claimed_id = 'http://claimed.id/';
+        $resp_msg = Auth_OpenID_Message::fromOpenIDArgs(
+            array('ns' => Auth_OpenID_OPENID1_NS,
+                  'identity' => $claimed_id));
+        $resp_msg->setArg(Auth_OpenID_BARE_NS, 'openid1_claimed_id', 
+                          $claimed_id);
+        $expected_endpoint = new Auth_OpenID_ServiceEndpoint();
+        $expected_endpoint->type_uris = array(Auth_OpenID_TYPE_1_0);
+        $expected_endpoint->local_id = null;
+        $expected_endpoint->claimed_id = $claimed_id;
+
+        $discovery_override = new _Tests_discoveryOverride($expected_endpoint);
+        $this->consumer->discoverMethod = array($discovery_override, 'discover');
+
+        $actual_endpoint = $this->consumer->_verifyDiscoveryResults(
+            $resp_msg, null);
+
+        $this->assertTrue(is_a($actual_endpoint, "Auth_OpenID_ServiceEndpoint"));
+        
+        $this->assertEquals($expected_endpoint->local_id, 
+                            $actual_endpoint->local_id);
+        $this->assertEquals($expected_endpoint->server_url,
+                            $actual_endpoint->server_url);
+
+        $this->assertEquals($expected_endpoint->type_uris, 
+                            $actual_endpoint->type_uris);
+
+        $this->assertEquals($expected_endpoint->claimed_id, 
+                            $actual_endpoint->claimed_id);
+        
     }
 }
 
@@ -371,6 +418,7 @@ $Tests_Auth_OpenID_VerifyDisco_other = array(
                                              new Tests_openID2NoEndpointDoesDisco(),
                                              new Tests_openID2MismatchedDoesDisco_failure(),
                                              new Tests_openid1UsePreDiscoveredWrongType(),
+                                             new Tests_openID1Fallback1_0(),
                                              );
 
 ?>

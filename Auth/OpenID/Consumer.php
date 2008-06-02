@@ -1016,13 +1016,8 @@ class Auth_OpenID_GenericConsumer {
         }
 
         // Endpoint is either bad (failed verification) or None
-        $result = $this->_discoverAndVerify($to_match);
-
-        if (is_a($result, 'Auth_OpenID_TypeURIMismatch')) {
-            return $this->_discoverAndVerify($to_match_1_0);
-        } else {
-            return $result;
-        }
+        return $this->_discoverAndVerify($to_match->claimed_id,
+                                         array($to_match, $to_match_1_0));
     }
 
     /**
@@ -1126,7 +1121,8 @@ class Auth_OpenID_GenericConsumer {
             // identifier endpoints and responses that didn't match
             // the original request.
             // oidutil.log('No pre-discovered information supplied.')
-            return $this->_discoverAndVerify($to_match);
+            return $this->_discoverAndVerify($to_match->claimed_id,
+                                             array($to_match));
         } else {
 
             // The claimed ID matches, so we use the endpoint that we
@@ -1135,8 +1131,8 @@ class Auth_OpenID_GenericConsumer {
             $result = $this->_verifyDiscoverySingle($endpoint, $to_match);
 
             if (Auth_OpenID::isFailure($result)) {
-                $endpoint = $this->_discoverAndVerify($to_match);
-
+                $endpoint = $this->_discoverAndVerify($to_match->claimed_id,
+                                                      array($to_match));
                 if (Auth_OpenID::isFailure($endpoint)) {
                     return $endpoint;
                 }
@@ -1155,43 +1151,48 @@ class Auth_OpenID_GenericConsumer {
     /**
      * @access private
      */
-    function _discoverAndVerify($to_match)
+    function _discoverAndVerify($claimed_id, $to_match_endpoints)
     {
-        // oidutil.log('Performing discovery on %s' % (to_match.claimed_id,))
+        // oidutil.log('Performing discovery on %s' % (claimed_id,))
         list($unused, $services) = call_user_func($this->discoverMethod,
-                                                  $to_match->claimed_id,
+                                                  $claimed_id,
                                                   $this->fetcher);
 
         if (!$services) {
             return new Auth_OpenID_FailureResponse(null,
               sprintf("No OpenID information found at %s",
-                      $to_match->claimed_id));
+                      $claimed_id));
         }
 
-        return $this->_verifyDiscoveryServices($services, $to_match);
+        return $this->_verifyDiscoveryServices($claimed_id, $services,
+                                               $to_match_endpoints);
     }
 
     /**
      * @access private
      */
-    function _verifyDiscoveryServices(&$services, &$to_match)
+    function _verifyDiscoveryServices($claimed_id, 
+                                      &$services, &$to_match_endpoints)
     {
         // Search the services resulting from discovery to find one
         // that matches the information from the assertion
 
         foreach ($services as $endpoint) {
-            $result = $this->_verifyDiscoverySingle($endpoint, $to_match);
+            foreach ($to_match_endpoints as $to_match_endpoint) {
+                $result = $this->_verifyDiscoverySingle($endpoint, 
+                                                        $to_match_endpoint);
 
-            if (!Auth_OpenID::isFailure($result)) {
-                // It matches, so discover verification has
-                // succeeded. Return this endpoint.
-                return $endpoint;
+                if (!Auth_OpenID::isFailure($result)) {
+                    // It matches, so discover verification has
+                    // succeeded. Return this endpoint.
+                    return $endpoint;
+                }
             }
         }
 
         return new Auth_OpenID_FailureResponse(null,
           sprintf('No matching endpoint found after discovering %s',
-                  $to_match->claimed_id));
+                  $claimed_id));
     }
 
     /**
