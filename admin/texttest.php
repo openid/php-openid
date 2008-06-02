@@ -46,7 +46,8 @@ $longopts = array('no-math',
                   'no-curl',
                   'math-lib=',
                   'insecure-rand',
-                  'thorough');
+                  'thorough',
+                  'extra-tests=');
 
 $con  = new Console_Getopt;
 $args = $con->readPHPArgv();
@@ -61,6 +62,7 @@ if (PEAR::isError($options)) {
 list($flags, $tests_to_run) = $options;
 
 $math_type = array();
+$extra_test_modules = array();
 $thorough = false;
 foreach ($flags as $flag) {
     list($option, $value) = $flag;
@@ -79,6 +81,9 @@ foreach ($flags as $flag) {
         break;
     case '--thorough':
         define('Tests_Auth_OpenID_thorough', true);
+        break;
+    case '--extra-tests':
+        $extra_test_modules[] = $value;
         break;
     default:
         print "Unrecognized option: $option\n";
@@ -118,7 +123,18 @@ if ($math_type && false) {
 
 // ******** End math library selection **********
 
-$suites = loadSuite($args);
+$suites = loadSuite($tests_to_run);
+
+// ******** Load additional test suites ********
+foreach ($extra_test_modules as $filename) {
+    if (!global_require_once($filename)) {
+        continue;
+    }
+    $module_name = basename($filename, '.php');
+    $class_name = "Tests_Auth_OpenID_${module_name}_Test";
+    $suites[] = makeSuite($class_name);
+}
+    
 
 $totals = array(
     'run' => 0,
