@@ -152,29 +152,20 @@ $_tests = array(
                       )
                 );
 
-function selectTests($names)
+function selectTests($package, $names)
 {
     global $_tests;
     $lnames = array_map('strtolower', $names);
     $include = array();
     $exclude = array();
-    foreach ($_tests as $package) {
-        foreach ($package['files'] as $t) {
-            $l = strtolower($t);
-            if (in_array($l, $lnames)) {
-                $include[] = $t;
-            }
-
-            if (in_array("/$l", $lnames)) {
-                $exclude[] = $t;
-            }
+    foreach ($package['files'] as $t) {
+        $l = strtolower($t);
+        if (in_array($l, $lnames)) {
+            $include[] = $t;
         }
-    }
 
-    if (!count($include)) {
-        $include = array();
-        foreach ($_tests as $package) {
-            $include = array_merge($include, $package['files']);
+        if (in_array("/$l", $lnames)) {
+            $exclude[] = $t;
         }
     }
 
@@ -185,16 +176,13 @@ function selectTests($names)
 function loadSuite($names=null)
 {
     global $_tests;
-    if ($names === null) {
-        $names = array();
-        foreach ($_tests as $package) {
-            $names = array_merge($names, $package['files']);
-        }
-    }
-    $selected = selectTests($names);
-
     $result = array();
     foreach ($_tests as $package) {
+        if (!$names) {
+            $selected = $package['files'];
+        } else {
+            $selected = selectTests($package, $names);
+        }
         $result = array_merge($result, loadTests($package['dir'], $selected));
     }
 
