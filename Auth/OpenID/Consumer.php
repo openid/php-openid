@@ -1962,6 +1962,23 @@ class Auth_OpenID_ConsumerResponse {
         }
     }
 
+    /**
+     * Return the display identifier for this response.
+     *
+     * The display identifier is related to the Claimed Identifier, but the
+     * two are not always identical.  The display identifier is something the
+     * user should recognize as what they entered, whereas the response's
+     * claimed identifier (in the identity_url attribute) may have extra
+     * information for better persistence.
+     *
+     * URLs will be stripped of their fragments for display.  XRIs will
+     * display the human-readable identifier (i-name) instead of the
+     * persistent identifier (i-number).
+     *
+     * Use the display identifier in your user interface.  Use
+     * identity_url for querying your database or authorization server.
+     *
+     */
     function getDisplayIdentifier()
     {
         if ($this->endpoint !== null) {
