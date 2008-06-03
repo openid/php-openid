@@ -1543,7 +1543,7 @@ class Auth_OpenID_Decoder {
     {
         $mode = $message->getArg(Auth_OpenID_OPENID_NS, 'mode');
         return new Auth_OpenID_ServerError($message,
-                       sprintf("No decoder for mode %s", $mode));
+                       sprintf("Unrecognized OpenID mode %s", $mode));
     }
 }
 
