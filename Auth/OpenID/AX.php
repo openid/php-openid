@@ -922,13 +922,16 @@ class Auth_OpenID_AX_FetchResponse extends Auth_OpenID_AX_KeyValueMessage {
      * @return $response A FetchResponse containing the data from the
      * OpenID message
      */
-    function &fromSuccessResponse($success_response, $signed=true)
+    function fromSuccessResponse($success_response, $signed=true)
     {
         $obj = new Auth_OpenID_AX_FetchResponse();
         if ($signed) {
             $ax_args = $success_response->getSignedNS($obj->ns_uri);
         } else {
             $ax_args = $success_response->message->getArgs($obj->ns_uri);
+        }
+        if ($ax_args === null || sizeof($ax_args) == 0) {
+            return null;
         }
 
         return $obj->parseExtensionArgs($ax_args);

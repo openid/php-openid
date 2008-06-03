@@ -7,6 +7,8 @@
 require_once "PHPUnit.php";
 require_once "Auth/OpenID/AX.php";
 require_once "Auth/OpenID/Message.php";
+require_once "Auth/OpenID/Consumer.php";
+require_once "Auth/OpenID/Server.php";
 
 class BogusAXMessage extends Auth_OpenID_AX_Message {
     var $mode = 'bogus';
@@ -515,6 +517,12 @@ class FetchRequestTest extends PHPUnit_TestCase {
     }
 }
 
+class FauxEndpoint {
+    function FauxEndpoint() {
+        $this->claimed_id = 'http://some.url/';
+    }
+}
+
 class FetchResponseTest extends PHPUnit_TestCase {
     function setUp()
     {
@@ -626,6 +634,23 @@ class FetchResponseTest extends PHPUnit_TestCase {
     function test_get()
     {
       $this->assertTrue(Auth_OpenID_AX::isError($this->msg->get($this->type_a)));
+    }
+
+    function test_fromSuccessResponseWithoutExtension()
+    {
+        $args = array( 
+                      'mode' => 'id_res',
+                      'ns' => Auth_OpenID_OPENID2_NS 
+                     );
+        $sf = array();
+        foreach (array_keys($args) as $k) {
+            array_push($sf, $k);
+        }
+        $msg = Auth_OpenID_Message::fromOpenIDArgs($args);
+        $e = new FauxEndpoint();
+        $resp = new Auth_OpenID_SuccessResponse($e, $msg, $sf);
+        $ax_resp = Auth_OpenID_AX_FetchResponse::fromSuccessResponse($resp);
+        $this->assertTrue($ax_resp === null);
     }
 }
 
