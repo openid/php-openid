@@ -70,7 +70,7 @@ function _Auth_OpenID_getTmpDbName()
  *
  * @package OpenID
  */
-class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_Store extends PHPUnit_TestCase {
 
     /**
      * Prepares for the SQL store tests.
@@ -403,7 +403,7 @@ explicitly');
  *
  * @package OpenID
  */
-class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_StoreTest {
+class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_Store {
     function test_memstore()
     {
         require_once 'Tests/Auth/OpenID/MemStore.php';
@@ -652,4 +652,54 @@ class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_StoreTest {
     }
 }
 
+/**
+ * This is the host that the store test will use
+ */
+global $_Auth_OpenID_memcache_test_host;
+$_Auth_OpenID_memcache_test_host = 'localhost';
+
+class Tests_Auth_OpenID_MemcachedStore_Test extends Tests_Auth_OpenID_Store {
+    function test_memcache()
+    {
+        // If the memcache extension isn't loaded or loadable, succeed
+        // because we can't run the test.
+        if (!(extension_loaded('memcache') ||
+              @dl('memcache.so') ||
+              @dl('php_memcache.dll'))) {
+            print "(skipping memcache store tests)";
+            $this->pass();
+            return;
+        }
+        require_once 'Auth/OpenID/MemcachedStore.php';
+
+        global $_Auth_OpenID_memcache_test_host;
+
+        $memcached = new Memcache();
+        if (!$memcached->connect($_Auth_OpenID_memcache_test_host)) {
+            print "(skipping memcache store tests - couldn't connect)";
+            $this->pass();
+        } else {
+            $store = new Auth_OpenID_MemcachedStore($memcached);
+
+            $this->_testStore($store);
+            $this->_testNonce($store);
+            $this->_testNonceCleanup($store);
+
+            $memcached->close();
+        }
+    }
+}
+
+class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestSuite {
+    function getName()
+    {
+        return "Tests_Auth_OpenID_StoreTest";
+    }
+
+      function Tests_Auth_OpenID_StoreTest()
+    {
+        $this->addTestSuite('Tests_Auth_OpenID_Included_StoreTest');
+        $this->addTestSuite('Tests_Auth_OpenID_MemcachedStore_Test');
+    }
+}
 ?>

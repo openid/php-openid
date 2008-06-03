@@ -37,7 +37,6 @@ test_docblocks () {
 }
 
 test_php () {
-    TEXTTEST_ARGS="--extra-tests=contrib/MemcachedStore.php"
     if uname -a | grep -i cygwin >/dev/null 2>/dev/null ; then
         /usr/bin/env php "$(dirname "$0")/texttest.php" --insecure-rand \
             $TEXTTEST_ARGS

@@ -10,8 +10,9 @@
  *
  * @package OpenID
  * @author Artemy Tregubenko <me@arty.name>
- * @copyright Open Web Technologies <http://openwebtech.ru/>
- * @license http://www.gnu.org/copyleft/lesser.html LGPL
+ * @copyright 2008 JanRain, Inc.
+ * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
+ * Contributed by Open Web Technologies <http://openwebtech.ru/>
  */
 
 /**
@@ -201,45 +202,6 @@ class Auth_OpenID_MemcachedStore extends Auth_OpenID_OpenIDStore {
     function supportsCleanup()
     {
         return false;
-    }
-}
-
-if (@require_once('Tests/Auth/OpenID/StoreTest.php')) {
-    /**
-     * This is the host that the store test will use
-     */
-    global $_Auth_OpenID_memcache_test_host;
-    $_Auth_OpenID_memcache_test_host = 'localhost';
-
-    class Tests_Auth_OpenID_MemcachedStore_Test extends Tests_Auth_OpenID_StoreTest {
-        function test_memcache()
-        {
-            // If the memcache extension isn't loaded or loadable, succeed
-            // because we can't run the test.
-            if (!(extension_loaded('memcache') ||
-                  @dl('memcache.so') ||
-                  @dl('php_memcache.dll'))) {
-                print "(skipping memcache store tests)";
-                $this->pass();
-                return;
-            }
-
-            global $_Auth_OpenID_memcache_test_host;
-
-            $memcached = new Memcache();
-            if (!$memcached->connect($_Auth_OpenID_memcache_test_host)) {
-                print "(skipping memcache store tests - couldn't connect)";
-                $this->pass();
-            } else {
-                $store = new Auth_OpenID_MemcachedStore($memcached);
-
-                $this->_testStore($store);
-                $this->_testNonce($store);
-                $this->_testNonceCleanup($store);
-
-                $memcached->close();
-            }
-        }
     }
 }
 
