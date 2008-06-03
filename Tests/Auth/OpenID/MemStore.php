@@ -172,3 +172,5 @@ class Tests_Auth_OpenID_MemStore extends Auth_OpenID_OpenIDStore {
         return $removed_assocs;
     }
 }
+
+?>

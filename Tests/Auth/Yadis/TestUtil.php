@@ -26,3 +26,5 @@ function Tests_Auth_Yadis_readlines($name)
 {
     return Tests_Auth_Yadis_datafile($name, 'file');
 }
+
+?>
