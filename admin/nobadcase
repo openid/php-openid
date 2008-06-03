@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-bad=$(./admin/findphp | xargs egrep -n '\b(TRUE|FALSE|NULL)\b')
+bad=$(./admin/findphp | xargs egrep -n "^[^\'\"]*\b(TRUE|FALSE|NULL)\b")
 
 if [ ! -z "$bad" ]
     then
