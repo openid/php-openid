@@ -652,6 +652,54 @@ class FetchResponseTest extends PHPUnit_TestCase {
         $ax_resp = Auth_OpenID_AX_FetchResponse::fromSuccessResponse($resp);
         $this->assertTrue($ax_resp === null);
     }
+
+    function test_fromSuccessResponseWithoutData()
+    {
+        $args = array( 
+                      'mode' => 'id_res',
+                      'ns' => Auth_OpenID_OPENID2_NS,
+                      'ns.ax' => Auth_OpenID_AX_NS_URI,
+                      'ax.mode' => 'fetch_response',
+                     );
+        $sf = array();
+        foreach (array_keys($args) as $k) {
+            array_push($sf, $k);
+        }
+        $msg = Auth_OpenID_Message::fromOpenIDArgs($args);
+        $e = new FauxEndpoint();
+        $resp = new Auth_OpenID_SuccessResponse($e, $msg, $sf);
+        $ax_resp = Auth_OpenID_AX_FetchResponse::fromSuccessResponse($resp);
+        $this->assertTrue($ax_resp === null);
+    }
+
+    function test_fromSuccessResponse()
+    {
+        $name = "ziggy";
+        $value = "stardust";
+        $uri = "http://david.bowie.name/";
+        $args = array( 
+                      'mode' => 'id_res',
+                      'ns' => Auth_OpenID_OPENID2_NS,
+                      'ns.ax' => Auth_OpenID_AX_NS_URI,
+                      'ax.mode' => 'fetch_response',
+                      'ax.update_url' => 'http://example.com/realm/update_path',
+                      'ax.type.'.$name => $uri,
+                      'ax.count.'.$name => '1',
+                      'ax.value.'.$name.'.1' => $value,
+                     );
+        $sf = array();
+        foreach (array_keys($args) as $k) {
+            array_push($sf, $k);
+        }
+        $msg = Auth_OpenID_Message::fromOpenIDArgs($args);
+        $e = new FauxEndpoint();
+        $resp = new Auth_OpenID_SuccessResponse($e, $msg, $sf);
+        $ax_resp = Auth_OpenID_AX_FetchResponse::fromSuccessResponse($resp, false);
+        $this->assertFalse($ax_resp === null);
+        $this->assertTrue(is_a($ax_resp, 'Auth_OpenID_AX_FetchResponse'));
+        $values = $ax_resp->get($uri);
+        $this->assertEquals(array($value), $values);
+    }
 }
 
 class StoreRequestTest extends PHPUnit_TestCase {

@@ -934,7 +934,12 @@ class Auth_OpenID_AX_FetchResponse extends Auth_OpenID_AX_KeyValueMessage {
             return null;
         }
 
-        return $obj->parseExtensionArgs($ax_args);
+        $result = $obj->parseExtensionArgs($ax_args);
+        if (Auth_OpenID_AX::isError($result)) {
+            #XXX log me
+            return null;
+        }
+        return $obj;
     }
 }
 
