@@ -1331,7 +1331,11 @@ class TestReturnToArgs extends PHPUnit_TestCase {
                                  array($return_to . "?another=arg#fragment",
                                        array(array(
                                                    array(Auth_OpenID_BARE_NS, 'another'),
-                                                   'arg')))
+                                                   'arg'))),
+                                 array("HTTP://some.url/path",array()),
+                                 array("http://some.URL/path",array()),
+                                 array("http://some.url:80/path",array()),
+                                 array("http://some.url/./path",array())
                                  );
 
         $endpoint = null;

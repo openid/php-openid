@@ -169,6 +169,7 @@ require_once "Auth/OpenID/DiffieHellman.php";
 require_once "Auth/OpenID/KVForm.php";
 require_once "Auth/OpenID/Nonce.php";
 require_once "Auth/OpenID/Discover.php";
+require_once "Auth/OpenID/URINorm.php";
 require_once "Auth/Yadis/Manager.php";
 require_once "Auth/Yadis/XRI.php";
 
@@ -814,8 +815,8 @@ class Auth_OpenID_GenericConsumer {
         $msg_return_to = $message->getArg(Auth_OpenID_OPENID_NS,
                                           'return_to');
 
-        $return_to_parts = parse_url($return_to);
-        $msg_return_to_parts = parse_url($msg_return_to);
+        $return_to_parts = parse_url(Auth_OpenID_urinorm($return_to));
+        $msg_return_to_parts = parse_url(Auth_OpenID_urinorm($msg_return_to));
 
         // If port is absent from both, add it so it's equal in the
         // check below.
