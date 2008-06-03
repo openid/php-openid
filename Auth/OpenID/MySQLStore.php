@@ -24,20 +24,20 @@ class Auth_OpenID_MySQLStore extends Auth_OpenID_SQLStore {
     {
         $this->sql['nonce_table'] =
             "CREATE TABLE %s (\n".
-            "  server_url VARCHAR(2047),\n".
-            "  timestamp INTEGER,\n".
-            "  salt CHAR(40),\n".
+            "  server_url VARCHAR(2047) NOT NULL,\n".
+            "  timestamp INTEGER NOT NULL,\n".
+            "  salt CHAR(40) NOT NULL,\n".
             "  UNIQUE (server_url(255), timestamp, salt)\n".
             ") ENGINE=InnoDB";
 
         $this->sql['assoc_table'] =
             "CREATE TABLE %s (\n".
-            "  server_url BLOB,\n".
-            "  handle VARCHAR(255),\n".
-            "  secret BLOB,\n".
-            "  issued INTEGER,\n".
-            "  lifetime INTEGER,\n".
-            "  assoc_type VARCHAR(64),\n".
+            "  server_url BLOB NOT NULL,\n".
+            "  handle VARCHAR(255) NOT NULL,\n".
+            "  secret BLOB NOT NULL,\n".
+            "  issued INTEGER NOT NULL,\n".
+            "  lifetime INTEGER NOT NULL,\n".
+            "  assoc_type VARCHAR(64) NOT NULL,\n".
             "  PRIMARY KEY (server_url(255), handle)\n".
             ") ENGINE=InnoDB";
 
