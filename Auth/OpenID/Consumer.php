@@ -389,6 +389,13 @@ class Auth_OpenID_Consumer {
      * request. It is called in step 4 of the flow described in the
      * consumer overview.
      *
+     * @param string $current_url The URL used to invoke the application.
+     * Extract the URL from your application's web
+     * request framework and specify it here to have it checked
+     * against the openid.current_url value in the response.  If
+     * the current_url URL check fails, the status of the
+     * completion will be FAILURE.
+     *
      * @param array $query An array of the query parameters (key =>
      * value pairs) for this HTTP request.  Defaults to null.  If
      * null, the GET or POST data are automatically gotten from the
@@ -400,12 +407,12 @@ class Auth_OpenID_Consumer {
      * indicated by the status attribute, which will be one of
      * SUCCESS, CANCEL, FAILURE, or SETUP_NEEDED.
      */
-    function complete($return_to, $query=null)
+    function complete($current_url, $query=null)
     {
-        if ($return_to && !is_string($return_to)) {
+        if ($current_url && !is_string($current_url)) {
             // This is ugly, but we need to complain loudly when
             // someone uses the API incorrectly.
-            trigger_error("return_to must be a string; see NEWS file " .
+            trigger_error("current_url must be a string; see NEWS file " .
                           "for upgrading notes.",
                           E_USER_ERROR);
         }
@@ -420,7 +427,8 @@ class Auth_OpenID_Consumer {
             $loader->fromSession($endpoint_data);
 
         $message = Auth_OpenID_Message::fromPostArgs($query);
-        $response = $this->consumer->complete($message, $endpoint, $return_to);
+        $response = $this->consumer->complete($message, $endpoint, 
+                                              $current_url);
         $this->session->del($this->_token_key);
 
         if (in_array($response->status, array(Auth_OpenID_SUCCESS,
