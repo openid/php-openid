@@ -1719,6 +1719,49 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
                                                  "dh_server_public"));
     }
 
+    function test_plaintextV2()
+    {
+        // The main difference between this and the v1 test is that
+        // the session_typ is always returned in v2.
+        $args = array('openid.mode' => 'associate',
+                      'openid.ns' => Auth_OpenID_OPENID2_NS,
+                      'openid.assoc_type' => 'HMAC-SHA1',
+                      'openid.session_type' => 'no-encryption');
+
+        $this->request = Auth_OpenID_AssociateRequest::fromMessage(
+            Auth_OpenID_Message::fromPostArgs($args));
+        $this->assertFalse($this->request->message->isOpenID1());
+
+        $this->assoc = $this->signatory->createAssociation(false,
+                                                           'HMAC-SHA1');
+        $response = $this->request->answer($this->assoc);
+
+        $this->assertEquals(
+                     $response->fields->getArg(Auth_OpenID_OPENID_NS, "assoc_type"),
+                     "HMAC-SHA1");
+
+        $this->assertEquals(
+                     $response->fields->getArg(Auth_OpenID_OPENID_NS, "assoc_handle"),
+                     $this->assoc->handle);
+
+        $this->assertEquals(
+            $response->fields->getArg(Auth_OpenID_OPENID_NS, "expires_in"),
+            sprintf("%d", $this->signatory->SECRET_LIFETIME));
+
+        $this->assertEquals(
+            $response->fields->getArg(Auth_OpenID_OPENID_NS, "mac_key"),
+            base64_encode($this->assoc->secret));
+
+        $session_type = $response->fields->getArg(Auth_OpenID_OPENID_NS,
+                                                  "session_type");
+        $this->assertEquals('no-encryption', $session_type);
+
+        $this->assertFalse($response->fields->getArg(Auth_OpenID_OPENID_NS,
+                                                 "enc_mac_key"));
+        $this->assertFalse($response->fields->getArg(Auth_OpenID_OPENID_NS,
+                                                 "dh_server_public"));
+    }
+
     function test_protoError()
     {
         $s1_session = new Auth_OpenID_DiffieHellmanSHA1ConsumerSession();
