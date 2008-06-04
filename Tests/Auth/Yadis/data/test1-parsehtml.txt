@@ -28,7 +28,7 @@ found
 
 found
 <!-- javascript in head -->
-<html><head><script type="text/javascript>document.write("<body>");</script><META http-equiv="X-XRDS-Location" content="found">
+<html><head><script type="text/javascript">document.write("<body>");</script><META http-equiv="X-XRDS-Location" content="found">
 
 found
 <!-- case folding for tag names -->
