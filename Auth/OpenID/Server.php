@@ -1192,9 +1192,10 @@ class Auth_OpenID_ServerResponse {
      *
      * @return str
      */
-    function toFormMarkup()
+    function toFormMarkup($form_tag_attrs=null)
     {
-        return $this->fields->toFormMarkup($this->request->return_to);
+        return $this->fields->toFormMarkup($this->request->return_to,
+                                           $form_tag_attrs);
     }
 
     /*
