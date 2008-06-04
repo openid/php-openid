@@ -30,6 +30,10 @@ found
 <!-- javascript in head -->
 <html><head><script type="text/javascript">document.write("<body>");</script><META http-equiv="X-XRDS-Location" content="found">
 
+EOF
+<!-- javascript in head -->
+<html><head><script type="text/javascript">document.write("<body>");<META http-equiv="X-XRDS-Location" content="found">
+
 found
 <!-- case folding for tag names -->
 <html><head><META http-equiv="X-XRDS-Location" content="found">
