@@ -606,7 +606,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
 
         $result = $this->decoder->decode($args);
         if (!Auth_OpenID_isError($result)) {
-            $this->fail(sprintf("Expected Auth_OpenID_Error",
+            $this->fail(sprintf("Expected Auth_OpenID_Error. Got %s",
                                 gettype($result)));
         }
     }
