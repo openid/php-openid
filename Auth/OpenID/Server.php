@@ -1563,6 +1563,12 @@ class Auth_OpenID_Decoder {
     function defaultDecoder($message)
     {
         $mode = $message->getArg(Auth_OpenID_OPENID_NS, 'mode');
+
+        if (Auth_OpenID::isFailure($mode)) {
+            return new Auth_OpenID_ServerError($message,
+                                               $mode->message);
+        }
+
         return new Auth_OpenID_ServerError($message,
                        sprintf("Unrecognized OpenID mode %s", $mode));
     }
