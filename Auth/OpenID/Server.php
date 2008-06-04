@@ -1194,8 +1194,7 @@ class Auth_OpenID_ServerResponse {
      */
     function toFormMarkup()
     {
-        return $this->fields->toFormMarkup(
-                 $this->fields->getArg(Auth_OpenID_OPENID_NS, 'return_to'));
+        return $this->fields->toFormMarkup($this->request->return_to);
     }
 
     /*

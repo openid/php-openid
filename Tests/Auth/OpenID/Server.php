@@ -774,6 +774,23 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
         $this->assertTrue(array_key_exists('location', $webresponse->headers));
     }
 
+    function test_cancelToForm()
+    {
+        $request = new Auth_OpenID_CheckIDRequest(
+            'http://bombom.unittest/',
+            'http://burr.unittest/999',
+            'http://burr.unittest/',
+            false, null,
+            $this->server);
+        
+        $response = new Auth_OpenID_ServerResponse($request);
+        $response->fields = Auth_OpenID_Message::fromOpenIDArgs(array('mode' => 'cancel'));
+        
+        $form = $response->toFormMarkup();
+        $pos = strpos($form, 'http://burr.unittest/999');
+        $this->assertTrue($pos !== false, var_export($pos, true));
+    }
+
     function test_assocReply()
     {
         if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
