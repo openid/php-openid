@@ -1111,6 +1111,36 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
         $this->_expectAnswer($answer, $selected_id);
     }
 
+    function test_fromMessageWithoutTrustRoot()
+    {
+        $msg = new Auth_OpenID_Message(Auth_OpenID_OPENID2_NS);;
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'mode', 'checkid_setup');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'return_to',
+                     'http://real_trust_root/foo');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'assoc_handle', 'bogus');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'identity', 'george');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'claimed_id', 'george');
+
+        $result = Auth_OpenID_CheckIDRequest::fromMessage(
+                       $msg, $this->server->op_endpoint);
+
+        $this->assertEquals($result->trust_root,
+                            'http://real_trust_root/foo');
+    }
+
+    function test_fromMessageWithoutTrustRootOrReturnTo()
+    {
+        $msg = new Auth_OpenID_Message(Auth_OpenID_OPENID2_NS);
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'mode', 'checkid_setup');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'assoc_handle', 'bogus');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'identity', 'george');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'claimed_id', 'george');
+
+        $result = Auth_OpenID_CheckIDRequest::fromMessage(
+                       $msg, $this->server);
+        $this->assertTrue(is_a($result, 'Auth_OpenID_ServerError'));
+    }
+
     function test_answerAllowWithDelegatedIdentityOpenID2()
     {
         // Answer an IDENTIFIER_SELECT case with a delegated
