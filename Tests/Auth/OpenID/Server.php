@@ -610,6 +610,23 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
                                 gettype($result)));
         }
     }
+
+    function test_invalidns()
+    {
+        $args = array('openid.ns' => 'Tuesday',
+                      'openid.mode' => 'associate');
+
+        $result = $this->decoder->decode($args);
+
+        $this->assertTrue(is_a($result, 'Auth_OpenID_ServerError'));
+
+        // Assert that the ProtocolError does have a Message attached
+        // to it, even though the request wasn't a well-formed Message.
+        $this->assertTrue($result->message);
+
+        // The error message contains the bad openid.ns.
+        $this->assertTrue(strpos($result->text, 'Tuesday') != -1);
+    }
 }
 
 class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {

@@ -1522,6 +1522,23 @@ class Auth_OpenID_Decoder {
 
         $message = Auth_OpenID_Message::fromPostArgs($query);
 
+        if ($message === null) {
+            /*
+             * It's useful to have a Message attached to a
+             * ProtocolError, so we override the bad ns value to build
+             * a Message out of it.  Kinda kludgy, since it's made of
+             * lies, but the parts that aren't lies are more useful
+             * than a 'None'.
+             */
+            $old_ns = $query['openid.ns'];
+
+            $query['openid.ns'] = Auth_OpenID_OPENID2_NS;
+            $message = Auth_OpenID_Message::fromPostArgs($query);
+            return new Auth_OpenID_ServerError(
+                  $message,
+                  sprintf("Invalid OpenID namespace URI: %s", $old_ns));
+        }
+
         $mode = $message->getArg(Auth_OpenID_OPENID_NS, 'mode');
         if (!$mode) {
             return new Auth_OpenID_ServerError($message,
