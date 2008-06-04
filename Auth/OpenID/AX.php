@@ -930,7 +930,8 @@ class Auth_OpenID_AX_FetchResponse extends Auth_OpenID_AX_KeyValueMessage {
         } else {
             $ax_args = $success_response->message->getArgs($obj->ns_uri);
         }
-        if ($ax_args === null || sizeof($ax_args) == 0) {
+        if ($ax_args === null || Auth_OpenID::isFailure($ax_args) ||
+              sizeof($ax_args) == 0) {
             return null;
         }
 

@@ -226,7 +226,7 @@ class Auth_OpenID_SRegRequest extends Auth_OpenID_SRegBase {
         $obj->ns_uri = $obj->_getSRegNS($m);
         $args = $m->getArgs($obj->ns_uri);
 
-        if ($args === null) {
+        if ($args === null || Auth_OpenID::isFailure($args)) {
             return null;
         }
 
@@ -484,7 +484,7 @@ class Auth_OpenID_SRegResponse extends Auth_OpenID_SRegBase {
             $args = $success_response->message->getArgs($obj->ns_uri);
         }
 
-        if ($args === null) {
+        if ($args === null || Auth_OpenID::isFailure($args)) {
             return null;
         }
 

@@ -17,9 +17,8 @@ class MessageTest extends PHPUnit_TestCase {
         if ($expected === null) {
             $this->assertEquals(
                 $this->msg->getArg($ns, $key, $a_default), $a_default);
-            $this->assertEquals(
-                $this->msg->getArg($ns, $key, Auth_OpenID_NO_DEFAULT),
-                null);
+            $result = $this->msg->getArg($ns, $key, Auth_OpenID_NO_DEFAULT);
+            $this->assertTrue(Auth_OpenID::isFailure($result));
         } else {
             $this->assertEquals(
                 $this->msg->getArg($ns, $key, $a_default), $expected);
@@ -69,7 +68,11 @@ class Tests_Auth_OpenID_EmptyMessage extends MessageTest {
 
     function test_getKeyOpenID()
     {
-        $this->assertEquals($this->msg->getKey(Auth_OpenID_OPENID_NS, 'foo'), null);
+        $key = $this->msg->getKey(Auth_OpenID_OPENID_NS, 'foo');
+        $this->assertTrue(Auth_OpenID::isFailure($key));
+        $this->msg->setOpenIDNamespace();
+        $key = $this->msg->getKey(Auth_OpenID_OPENID_NS, 'foo');
+        $this->assertEquals('openid.foo', $key);
     }
 
     function test_getKeyBARE()
@@ -121,12 +124,14 @@ class Tests_Auth_OpenID_EmptyMessage extends MessageTest {
 
     function test_getArg()
     {
-        $this->assertEquals($this->msg->getArg(Auth_OpenID_OPENID_NS, 'foo'), null);
+        $result = $this->msg->getArg(Auth_OpenID_OPENID_NS, 'foo');
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function test_getArgs()
     {
-        $this->assertEquals($this->msg->getArgs(Auth_OpenID_OPENID_NS), array());
+        $result = $this->msg->getArgs(Auth_OpenID_OPENID_NS);
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function test_getArgsBARE()
@@ -151,8 +156,9 @@ class Tests_Auth_OpenID_EmptyMessage extends MessageTest {
 
     function test_updateArgs()
     {
-        $this->assertEquals($this->msg->updateArgs(Auth_OpenID_OPENID_NS,
-                                                      array('does not' => 'matter')), false);
+        $result= $this->msg->updateArgs(Auth_OpenID_OPENID_NS,
+                                        array('does not' => 'matter'));
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function _test_updateArgsNS($ns)
@@ -188,8 +194,9 @@ class Tests_Auth_OpenID_EmptyMessage extends MessageTest {
 
     function test_setArg()
     {
-        $this->assertEquals($this->msg->setArg(Auth_OpenID_OPENID_NS,
-                                                  'does not', 'matter'), false);
+        $result = $this->msg->setArg(Auth_OpenID_OPENID_NS,
+                                     'does not', 'matter');
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function _test_setArgNS($ns)
@@ -223,8 +230,8 @@ class Tests_Auth_OpenID_EmptyMessage extends MessageTest {
 
     function test_delArg()
     {
-        $this->assertEquals($this->msg->delArg(Auth_OpenID_OPENID_NS,
-                                               'does not'), false);
+        $result = $this->msg->delArg(Auth_OpenID_OPENID_NS, 'does not');
+        $this->assertTrue(Auth_OpenID::isFailure($result));
     }
 
     function _test_delArgNS($ns)

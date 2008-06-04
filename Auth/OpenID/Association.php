@@ -330,7 +330,7 @@ class Auth_OpenID_Association {
     function _makePairs(&$message)
     {
         $signed = $message->getArg(Auth_OpenID_OPENID_NS, 'signed');
-        if (!$signed) {
+        if (!$signed || Auth_OpenID::isFailure($signed)) {
             // raise ValueError('Message has no signed list: %s' % (message,))
             return null;
         }
@@ -369,7 +369,7 @@ class Auth_OpenID_Association {
         $sig = $message->getArg(Auth_OpenID_OPENID_NS,
                                 'sig');
 
-        if (!$sig) {
+        if (!$sig || Auth_OpenID::isFailure($sig)) {
             return false;
         }
 

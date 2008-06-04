@@ -303,8 +303,9 @@ class TestInvalidFields extends Tests_Auth_OpenID_AssociationResponse {
     {
         // Invalid value for expires_in should cause failure
         $this->assoc_response->setArg(Auth_OpenID_OPENID_NS, 'expires_in', 'forever');
-        $this->assertTrue($this->consumer->_extractAssociation(
-                             $this->assoc_response, $this->assoc_session) === null);
+        $assoc = $this->consumer->_extractAssociation($this->assoc_response,
+                                                      $this->assoc_session);
+        $this->assertTrue(Auth_OpenID::isFailure($assoc));
     }
 }
 

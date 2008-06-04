@@ -792,6 +792,9 @@ class Auth_OpenID_GenericConsumer {
 
         $signed_list_str = $message->getArg(Auth_OpenID_OPENID_NS, 'signed',
                                             Auth_OpenID_NO_DEFAULT);
+        if (Auth_OpenID::isFailure($signed_list_str)) {
+            return $signed_list_str;
+        }
         $signed_list = explode(',', $signed_list_str);
 
         $signed_fields = Auth_OpenID::addPrefix($signed_list, "openid.");
@@ -822,6 +825,10 @@ class Auth_OpenID_GenericConsumer {
         // message.
         $msg_return_to = $message->getArg(Auth_OpenID_OPENID_NS,
                                           'return_to');
+        if (Auth_OpenID::isFailure($return_to)) {
+            // XXX log me
+            return false;
+        }
 
         $return_to_parts = parse_url(Auth_OpenID_urinorm($return_to));
         $msg_return_to_parts = parse_url(Auth_OpenID_urinorm($msg_return_to));
@@ -875,6 +882,9 @@ class Auth_OpenID_GenericConsumer {
         $message = Auth_OpenID_Message::fromPostArgs($query);
         $return_to = $message->getArg(Auth_OpenID_OPENID_NS, 'return_to');
 
+        if (Auth_OpenID::isFailure($return_to)) {
+            return $return_to;
+        }
         // XXX: this should be checked by _idResCheckForFields
         if (!$return_to) {
             return new Auth_OpenID_FailureResponse(null,
@@ -925,6 +935,9 @@ class Auth_OpenID_GenericConsumer {
     {
         $assoc_handle = $message->getArg(Auth_OpenID_OPENID_NS,
                                          'assoc_handle');
+        if (Auth_OpenID::isFailure($assoc_handle)) {
+            return $assoc_handle;
+        }
 
         $assoc = $this->store->getAssociation($server_url, $assoc_handle);
 
@@ -1294,6 +1307,9 @@ class Auth_OpenID_GenericConsumer {
         $signed_list_str = $message->getArg(Auth_OpenID_OPENID_NS,
                                             'signed',
                                             Auth_OpenID_NO_DEFAULT);
+        if (Auth_OpenID::isFailure($signed_list_str)) {
+            return $signed_list_str;
+        }
         $signed_list = explode(',', $signed_list_str);
 
         foreach ($require_sigs[$message->getOpenIDNamespace()] as $field) {
@@ -1554,18 +1570,16 @@ class Auth_OpenID_GenericConsumer {
                          Auth_OpenID_OPENID_NS, 'assoc_type',
                          Auth_OpenID_NO_DEFAULT);
 
-        if ($assoc_type === null) {
-            return new Auth_OpenID_FailureResponse(null,
-              'assoc_type missing from association response');
+        if (Auth_OpenID::isFailure($assoc_type)) {
+            return $assoc_type;
         }
 
         $assoc_handle = $assoc_response->getArg(
                            Auth_OpenID_OPENID_NS, 'assoc_handle',
                            Auth_OpenID_NO_DEFAULT);
 
-        if ($assoc_handle === null) {
-            return new Auth_OpenID_FailureResponse(null,
-              'assoc_handle missing from association response');
+        if (Auth_OpenID::isFailure($assoc_handle)) {
+            return $assoc_handle;
         }
 
         // expires_in is a base-10 string. The Python parsing will
@@ -1576,14 +1590,16 @@ class Auth_OpenID_GenericConsumer {
                              Auth_OpenID_OPENID_NS, 'expires_in',
                              Auth_OpenID_NO_DEFAULT);
 
-        if ($expires_in_str === null) {
-            return new Auth_OpenID_FailureResponse(null,
-              'expires_in missing from association response');
+        if (Auth_OpenID::isFailure($expires_in_str)) {
+            return $expires_in_str;
         }
 
         $expires_in = Auth_OpenID::intval($expires_in_str);
         if ($expires_in === false) {
-            return null;
+            
+            $err = sprintf("Could not parse expires_in from association ".
+                           "response %s", print_r($assoc_response, true));
+            return new Auth_OpenID_FailureResponse(null, $err);
         }
 
         // OpenID 1 has funny association session behaviour.
@@ -1594,9 +1610,8 @@ class Auth_OpenID_GenericConsumer {
                                Auth_OpenID_OPENID2_NS, 'session_type',
                                Auth_OpenID_NO_DEFAULT);
 
-            if ($session_type === null) {
-                return new Auth_OpenID_FailureResponse(null,
-                  'session_type missing from association response');
+            if (Auth_OpenID::isFailure($session_type)) {
+                return $session_type;
             }
         }
 
@@ -1772,7 +1787,7 @@ class Auth_OpenID_AuthRequest {
      */
     function addExtensionArg($namespace, $key, $value)
     {
-        $this->message->setArg($namespace, $key, $value);
+        return $this->message->setArg($namespace, $key, $value);
     }
 
     /**
@@ -2065,6 +2080,9 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
         $args = array();
 
         $msg_args = $this->message->getArgs($ns_uri);
+        if (Auth_OpenID::isFailure($msg_args)) {
+            return null;
+        }
 
         foreach ($msg_args as $key => $value) {
             if (!$this->isSigned($ns_uri, $key)) {
