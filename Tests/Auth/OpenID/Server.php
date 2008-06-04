@@ -180,6 +180,14 @@ class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_TestCase {
         $expected = "error:waffles\nmode:error\n";
         $this->assertEquals($e->encodeToKVForm(), $expected);
     }
+
+    function test_noMessage()
+    {
+        $e = new Auth_OpenID_ServerError();
+        $this->assertFalse($e->hasReturnTo());
+        $this->assertEquals($e->whichEncoding(), null);
+        $this->assertEquals($e->getReturnTo(), null);
+    }
 }
 
 class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {

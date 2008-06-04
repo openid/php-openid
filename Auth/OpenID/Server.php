@@ -164,7 +164,7 @@ class Auth_OpenID_ServerError {
             return $this->message->getArg(Auth_OpenID_OPENID_NS,
                                           'return_to');
         } else {
-            return false;
+            return null;
         }
     }
 
@@ -174,7 +174,7 @@ class Auth_OpenID_ServerError {
      */
     function hasReturnTo()
     {
-        return $this->getReturnTo() !== false;
+        return $this->getReturnTo() !== null;
     }
 
     /**
