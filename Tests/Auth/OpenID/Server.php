@@ -987,6 +987,38 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
             $this->server);
     }
 
+    function test_fromMessageClaimedIDWithoutIdentityOpenID2()
+    {
+        $name = 'https://example.myopenid.com';
+        
+        $msg = new Auth_OpenID_Message(Auth_OpenID_OPENID2_NS);
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'mode', 'checkid_setup');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'return_to',
+                     'http://invalid:8000/rt');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'claimed_id', $name);
+
+        $result = Auth_OpenID_CheckIDRequest::fromMessage(
+                       $msg, $this->server);
+
+        $this->assertTrue(is_a($result, 'Auth_OpenID_ServerError'));
+    }
+
+    function test_fromMessageIdentityWithoutClaimedIDOpenID2()
+    {
+        $name = 'https://example.myopenid.com';
+        
+        $msg = new Auth_OpenID_Message(Auth_OpenID_OPENID2_NS);
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'mode', 'checkid_setup');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'return_to',
+                     'http://invalid:8000/rt');
+        $msg->setArg(Auth_OpenID_OPENID_NS, 'identity', $name);
+
+        $result = Auth_OpenID_CheckIDRequest::fromMessage(
+                       $msg, $this->server);
+
+        $this->assertTrue(is_a($result, 'Auth_OpenID_ServerError'));
+    }
+
     function test_trustRootInvalid()
     {
         $this->request->trust_root = "http://foo.unittest/17";

@@ -836,23 +836,22 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
 
         $identity = $message->getArg(Auth_OpenID_OPENID_NS,
                                      'identity');
-
-        if ($identity && $message->isOpenID2()) {
-            $claimed_id = $message->getArg(Auth_OpenID_OPENID_NS,
-                                           'claimed_id');
-            if (!$claimed_id) {
-                return new Auth_OpenID_ServerError($message,
-                  "OpenID 2.0 message contained openid.identity " .
-                  "but not claimed_id");
+        $claimed_id = $message->getArg(Auth_OpenID_OPENID_NS, 'claimed_id');
+        if ($message->isOpenID1()) {
+            if ($identity === null) {
+                $s = "OpenID 1 message did not contain openid.identity";
+                return new Auth_OpenID_ServerError($message, $s);
             }
         } else {
-            $claimed_id = null;
-        }
-
-        if (($identity === null) &&
-            ($namespace == Auth_OpenID_OPENID1_NS)) {
-            return new Auth_OpenID_ServerError($message,
-              "OpenID 1 message did not contain openid.identity");
+            if ($identity && !$claimed_id) {
+                $s = "OpenID 2.0 message contained openid.identity but not " .
+                  "claimed_id";
+                return new Auth_OpenID_ServerError($message, $s);
+            } else if ($claimed_id && !$identity) {
+                $s = "OpenID 2.0 message contained openid.claimed_id " .
+                  "but not identity";
+                return new Auth_OpenID_ServerError($message, $s);
+            }
         }
 
         // There's a case for making self.trust_root be a TrustRoot
