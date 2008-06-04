@@ -3,7 +3,7 @@ Trust root parsing checking
 ========================================
 
 ----------------------------------------
-15: Does not parse
+18: Does not parse
 ----------------------------------------
 baz.org
 *.foo.com
@@ -15,16 +15,18 @@ foo.*.com
 http://foo.*.com
 http://www.*
 http://*foo.com/
+http://foo.com\/
+http://localhost:1900foo/
 http://foo.com/invalid#fragment
 
  
  	
 5
+http:///
 
 ----------------------------------------
-16: Insane
+15: Insane
 ----------------------------------------
-http:///
 http://*/
 https://*/
 http://*.com
@@ -68,7 +70,7 @@ return_to matching
 ========================================
 
 ----------------------------------------
-42: matches
+44: matches
 ----------------------------------------
 http://*/                             http://cnn.com/
 http://*/                             http://livejournal.com/
@@ -89,6 +91,8 @@ http://*.b.foo.com                    http://w.x.b.foo.com
 http://*.bar.co.uk                    http://www.bar.co.uk
 http://*.uoregon.edu                  http://x.cs.uoregon.edu
 http://x.com/abc                      http://x.com/abc
+http://127.1/abc                      http://127.1/abc
+http://10.0.0.1/abc                   http://10.0.0.1/abc
 http://x.com/abc                      http://x.com/abc/def
 http://*.x.com                        http://x.com/gallery
 http://*.x.com                        http://foo.x.com/gallery

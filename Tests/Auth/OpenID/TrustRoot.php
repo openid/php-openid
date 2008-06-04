@@ -22,16 +22,16 @@ class Tests_Auth_OpenID_TRParseCase extends PHPUnit_TestCase {
         $parsed = (bool)Auth_OpenID_TrustRoot::_parse($this->case);
         switch ($this->expected) {
         case 'sane':
-            $this->assertTrue($is_sane);
-            $this->assertTrue($parsed);
+            $this->assertTrue($parsed, "Did not parse");
+            $this->assertTrue($is_sane, "Is not sane");
             break;
         case 'insane':
-            $this->assertTrue($parsed);
-            $this->assertFalse($is_sane);
+            $this->assertTrue($parsed, "Did not parse");
+            $this->assertFalse($is_sane, "Is sane");
             break;
         default:
-            $this->assertFalse($parsed);
-            $this->assertFalse($is_sane);
+            $this->assertFalse($parsed, "Did parse");
+            $this->assertFalse($is_sane, "Is sane");
         }
     }
 }
@@ -161,8 +161,12 @@ class Tests_Auth_OpenID_TrustRoot extends PHPUnit_TestSuite {
         $this->setName($name);
 
         foreach (Tests_Auth_OpenID_trustRootTests() as $test) {
-            $this->addTest($test);
+            $this->_addTestByValue($test);
         }
+    }
+
+    function _addTestByValue($test) {
+        $this->addTest($test);
     }
 }
 
