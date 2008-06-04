@@ -1544,6 +1544,11 @@ class Auth_OpenID_Decoder {
                                                "No mode value in message");
         }
 
+        if (Auth_OpenID::isFailure($mode)) {
+            return new Auth_OpenID_ServerError($message,
+                                               $mode->message);
+        }
+
         $handlerCls = Auth_OpenID::arrayGet($this->handlers, $mode,
                                             $this->defaultDecoder($message));
 
