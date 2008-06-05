@@ -1749,8 +1749,7 @@ class Auth_OpenID_AuthRequest {
         $this->assoc = $assoc;
         $this->endpoint =& $endpoint;
         $this->return_to_args = array();
-        $this->message = new Auth_OpenID_Message();
-        $this->message->setOpenIDNamespace(
+        $this->message = new Auth_OpenID_Message(
             $endpoint->preferredNamespace());
         $this->_anonymous = false;
     }
