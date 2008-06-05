@@ -1058,6 +1058,18 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
         $this->assertTrue($this->request->trustRootValid());
     }
 
+    function test_malformedTrustRoot()
+    {
+        $this->request->trust_root = "invalid://trust*root/";
+        $this->request->return_to = "http://foo.unittest/39";
+        $sentinel = 'Sentinel';
+        $this->request->message = $sentinel;
+
+        $result = $this->request->trustRootValid();
+        $this->assertTrue(Auth_OpenID_isError($result));
+        $this->assertEquals($result->message, $sentinel);
+    }
+
     function _verify($trust_root, $return_to, $value)
     {
         $this->assertEquals($this->request->trust_root, $trust_root);

@@ -908,7 +908,8 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
 
         $tr = Auth_OpenID_TrustRoot::_parse($this->trust_root);
         if ($tr === false) {
-            return new Auth_OpenID_MalformedTrustRoot(null, $this->trust_root);
+            return new Auth_OpenID_MalformedTrustRoot($this->message,
+                                                      $this->trust_root);
         }
 
         if ($this->return_to !== null) {
