@@ -68,6 +68,7 @@ function loadTests($test_dir, $test_names)
 
     foreach ($test_names as $filename) {
         $filename = $test_dir . $filename . '.php';
+
         if (!global_require_once($filename)) {
             continue;
         }
@@ -89,13 +90,14 @@ function makeSuite($class_name) {
         $s->setName($class_name);
         $s->addTestSuite($class_name);
         $test = $s;
+    }
 
-        $tc_array_name = $class_name . '_other';
-        if (array_key_exists($tc_array_name, $GLOBALS) &&
-            is_array($GLOBALS[$tc_array_name])) {
-            foreach ($GLOBALS[$tc_array_name] as $tc) {
-                $test->addTestSuite(get_class($tc));
-            }
+    $tc_array_name = $class_name . '_other';
+    if (array_key_exists($tc_array_name, $GLOBALS) &&
+        is_array($GLOBALS[$tc_array_name])) {
+
+        foreach ($GLOBALS[$tc_array_name] as $tc) {
+            $test->addTestSuite(get_class($tc));
         }
     }
 
