@@ -1010,6 +1010,9 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
             'http://bar.unittest/',
             false, null,
             $this->server);
+
+        $this->request->message = new Auth_OpenID_Message(
+            Auth_OpenID_OPENID2_NS);
     }
 
     function test_fromMessageClaimedIDWithoutIdentityOpenID2()
@@ -1259,7 +1262,8 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
     function test_answerAllowWithDelegatedIdentityOpenID1()
     {
         // claimed_id parameter doesn't exist in OpenID 1.
-        $this->request->namespace = Auth_OpenID_OPENID1_NS;
+        $msg = new Auth_OpenID_Message(Auth_OpenID_OPENID1_NS);
+        $this->request->message = $msg;
         // claimed_id delegates to selected_id here.
         $this->request->identity = Auth_OpenID_IDENTIFIER_SELECT;
         $selected_id = 'http://anon.unittest/9861';
@@ -1270,7 +1274,8 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
                                          $selected_id,
                                          $claimed_id);
 
-        $this->assertTrue(is_a($result, "Auth_OpenID_ServerError"));
+        $this->assertTrue(is_a($result, "Auth_OpenID_ServerError"),
+                          var_export($result, true));
     }
 
     function test_answerAllowWithAnotherIdentity()
@@ -1285,7 +1290,8 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
 
     function test_answerAllowNoIdentityOpenID1()
     {
-        $this->request->namespace = Auth_OpenID_OPENID1_NS;
+        $msg = new Auth_OpenID_Message(Auth_OpenID_OPENID1_NS);
+        $this->request->message = $msg;
         $this->request->identity = null;
         // $this->failUnlessRaises(ValueError, $this->request->answer, true,
         //                       identity=null);
@@ -1377,7 +1383,9 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
 
     function test_answerImmediateDenyOpenID1()
     {
-        $this->request->namespace = Auth_OpenID_OPENID1_NS;
+        $msg = new Auth_OpenID_Message(Auth_OpenID_OPENID1_NS);
+        $this->request->message = $msg;
+        $this->request->namespace = $msg->getOpenIDNamespace();
         $this->request->mode = 'checkid_immediate';
         $this->request->immediate = true;
         $server_url = "http://setup-url.unittest/";
