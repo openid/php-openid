@@ -13,7 +13,7 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-session_start();
+@session_start();
 
 require_once 'Auth/OpenID/CryptUtil.php';
 require_once 'Auth/Yadis/HTTPFetcher.php';
