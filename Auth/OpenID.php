@@ -20,7 +20,7 @@
 /**
  * The library version string
  */
-define('Auth_OpenID_VERSION', '2.0.2');
+define('Auth_OpenID_VERSION', '2.1.0');
 
 /**
  * Require the fetcher code.
