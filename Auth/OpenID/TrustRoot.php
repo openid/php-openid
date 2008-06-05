@@ -396,19 +396,24 @@ function Auth_OpenID_getAllowedReturnURLs($relying_party_url, &$fetcher,
         $discover_function = array('Auth_Yadis_Yadis', 'discover');
     }
 
+    $xrds_parse_cb = array('Auth_OpenID_ServiceEndpoint', 'fromXRDS');
+
     list($rp_url_after_redirects, $endpoints) =
-      Auth_OpenID_discoverWithYadis($relying_party_url,
-                                    $fetcher,
-                                    'Auth_OpenID_extractReturnURL',
-                                    $discover_function);
+        Auth_Yadis_getServiceEndpoints($relying_party_url, $xrds_parse_cb,
+                                       $discover_function);
 
     if ($rp_url_after_redirects != $relying_party_url) {
         // Verification caused a redirect
         return false;
     }
 
+    call_user_func_array($discover_function,
+                         array($relying_party_url, $fetcher));
+
     $return_to_urls = array();
-    foreach ($endpoints as $e) {
+    $matching_endpoints = Auth_OpenID_extractReturnURL($endpoints);
+
+    foreach ($matching_endpoints as $e) {
         $return_to_urls[] = $e->server_url;
     }
 

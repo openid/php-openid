@@ -58,6 +58,21 @@ class TestFetcher {
     }
 }
 
+class BlankContentTypeFetcher {
+    function get($url, $headers=null)
+    {
+        return new Auth_Yadis_HTTPResponse(
+            $url, 200, array("Content-Type" => ""), '');
+    }
+}
+
+class NoContentTypeFetcher {
+    function get($url, $headers=null)
+    {
+        return new Auth_Yadis_HTTPResponse($url, 200, array(), '');
+    }
+}
+
 class MockFetcher {
     function MockFetcher() {
         $this->count = 0;
@@ -165,5 +180,53 @@ class Tests_Auth_Yadis_Discover_Yadis extends PHPUnit_TestSuite {
         }
     }
 }
+
+class Tests_Auth_Yadis_Discover_Yadis_ContentTypes extends PHPUnit_TestCase {
+    function test_is_xrds_yadis_location()
+    {
+        $result = new Auth_Yadis_DiscoveryResult('http://request.uri/');
+        $result->normalized_uri = "http://normalized/";
+        $result->xrds_uri = "http://normalized/xrds";
+
+        $this->assertTrue($result->isXRDS());
+    }
+
+    function test_is_xrds_content_type()
+    {
+        $result = new Auth_Yadis_DiscoveryResult('http://request.uri/');
+        $result->normalized_uri = $result->xrds_uri = "http://normalized/";
+        $result->content_type = Auth_Yadis_CONTENT_TYPE;
+
+        $this->assertTrue($result->isXRDS());
+      }
+
+    function test_is_xrds_neither()
+    {
+        $result = new Auth_Yadis_DiscoveryResult('http://request.uri/');
+        $result->normalized_uri = $result->xrds_uri = "http://normalized/";
+        $result->content_type = "another/content-type";
+
+        $this->assertTrue(!$result->isXRDS());
+      }
+
+    function test_no_content_type()
+    {
+        $fetcher = new NoContentTypeFetcher();
+        $result = Auth_Yadis_Yadis::discover("http://bogus", $fetcher);
+        $this->assertEquals(null, $result->content_type);
+    }
+
+    function test_blank_content_type()
+    {
+        $fetcher = new BlankContentTypeFetcher();
+        $result = Auth_Yadis_Yadis::discover("http://bogus", $fetcher);
+        $this->assertEquals("", $result->content_type);
+    }
+}
+
+global $Tests_Auth_Yadis_Discover_Yadis_other;
+$Tests_Auth_Yadis_Discover_Yadis_other = array(
+      new Tests_Auth_Yadis_Discover_Yadis_ContentTypes()
+      );
 
 ?>
