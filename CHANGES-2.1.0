@@ -4,8 +4,6 @@
   * Alter AX fromOpenIDRequest() to take Auth_OpenID_AuthRequest
     object instead of Auth_OpenID_Message object so that it matches
     its counterpart methods in SREG and PAPE extensions.
-  * NOT NULL constraints were added to SQLStore tables where
-    appropriate
   * PAPE (Provider Authentication Policy Extension) module
       * Updated extension for specification draft 2
       * Auth_OpenID_PAPE_Request::fromSuccessResponse returns None if
@@ -23,6 +21,8 @@
   * Fetchers now only read/request first megabyte of response
 
 * Bug Fixes
+  * NOT NULL constraints were added to SQLStore tables where
+    appropriate
   * Yadis discovery now properly falls back to HTML-based discovery if
     it fails to get an XRDS document
   * Auth_OpenID_Decoder now behaves correctly when given a protocol
