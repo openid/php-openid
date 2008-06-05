@@ -858,19 +858,21 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
         // here.  But if TrustRoot isn't currently part of the
         // "public" API, I'm not sure it's worth doing.
         if ($namespace == Auth_OpenID_OPENID1_NS) {
-            $trust_root = $message->getArg(Auth_OpenID_OPENID_NS,
-                                           'trust_root',
-                                           $return_to);
+            $trust_root_param = 'trust_root';
         } else {
-            $trust_root = $message->getArg(Auth_OpenID_OPENID_NS,
-                                           'realm',
-                                           $return_to);
+            $trust_root_param = 'realm';
+        }
+        $trust_root = $message->getArg(Auth_OpenID_OPENID_NS, 
+                                       $trust_root_param);
+        if (! $trust_root) {
+            $trust_root = $return_to;
+        }
 
-            if (($return_to === null) &&
-                ($trust_root === null)) {
-                return new Auth_OpenID_ServerError($message,
-                  "openid.realm required when openid.return_to absent");
-            }
+        if ($namespace != Auth_OpenID_OPENID1_NS && 
+            ($return_to === null) &&
+            ($trust_root === null)) {
+            return new Auth_OpenID_ServerError($message,
+              "openid.realm required when openid.return_to absent");
         }
 
         $assoc_handle = $message->getArg(Auth_OpenID_OPENID_NS,

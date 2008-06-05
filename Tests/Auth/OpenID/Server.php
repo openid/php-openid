@@ -1044,6 +1044,23 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
         $this->assertTrue(is_a($result, 'Auth_OpenID_ServerError'));
     }
 
+    function test_fromMessageWithEmptyTrustRoot()
+    {
+        $return_to = 'http://does.not.matter/';
+        $msg = Auth_OpenID_Message::fromPostArgs(array(
+                 'openid.assoc_handle' => '{blah}{blah}{OZivdQ==}',
+                 'openid.claimed_id' => 'http://delegated.invalid/',
+                 'openid.identity' => 'http://op-local.example.com/',
+                 'openid.mode' => 'checkid_setup',
+                 'openid.ns' => 'http://openid.net/signon/1.0',
+                 'openid.return_to' => $return_to,
+                 'openid.trust_root' => ''
+              ));
+        $result = Auth_OpenID_CheckIDRequest::fromMessage(
+                       $msg, $this->server);
+        $this->assertEquals($return_to, $result->trust_root);
+    }
+
     function test_trustRootInvalid()
     {
         $this->request->trust_root = "http://foo.unittest/17";
