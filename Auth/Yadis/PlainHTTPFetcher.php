@@ -63,6 +63,10 @@ class Auth_Yadis_PlainHTTPFetcher extends Auth_Yadis_HTTPFetcher {
                 }
             }
 
+            if (!array_key_exists('path', $parts)) {
+                $parts['path'] = '/';
+            }
+
             $host = $parts['host'];
 
             if ($parts['scheme'] == 'https') {
