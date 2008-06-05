@@ -95,6 +95,10 @@ class Auth_OpenID_TrustRoot {
             return false;
         }
 
+        if (preg_match("/:\/\/[^:]+(:\d+){2,}(\/|$)/", $trust_root)) {
+            return false;
+        }
+
         $parts = @parse_url($trust_root);
         if ($parts === false) {
             return false;
