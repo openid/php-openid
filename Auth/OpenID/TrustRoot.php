@@ -400,7 +400,7 @@ function Auth_OpenID_getAllowedReturnURLs($relying_party_url, &$fetcher,
 
     list($rp_url_after_redirects, $endpoints) =
         Auth_Yadis_getServiceEndpoints($relying_party_url, $xrds_parse_cb,
-                                       $discover_function);
+                                       $discover_function, $fetcher);
 
     if ($rp_url_after_redirects != $relying_party_url) {
         // Verification caused a redirect
