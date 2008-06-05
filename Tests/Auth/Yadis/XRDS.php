@@ -236,6 +236,14 @@ class Tests_Auth_Yadis_XRDS extends PHPUnit_TestCase {
                                           "bogus") === null,
                           "bogus filter check");
     }
+
+    function test_multisegment_xri()
+    {
+        $xml = Tests_Auth_Yadis_readdata('subsegments.xrds');
+        $xmldoc = Auth_Yadis_XRDS::parseXRDS($xml);
+        $result = Auth_Yadis_getCanonicalId('xri://=nishitani*masaki', $xmldoc);
+        $this->assertEquals($result, "xri://=!E117.EF2F.454B.C707!0000.0000.3B9A.CA01");
+    }
 }
 
 ?>
