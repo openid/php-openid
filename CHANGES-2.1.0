@@ -15,6 +15,7 @@
       * Server API: Auth_OpenID_OpenIDResponse::toHTML
 
 * New Features
+  * Added examples/discover.php, an OpenID service discovery tool
   * Add optional form_tag_attrs argument to
     Auth_OpenID_ServerResponse::toFormMarkup for setting arbitrary
     FORM element attributes

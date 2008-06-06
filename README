@@ -65,6 +65,11 @@ examples/README file for more details.
 TROUBLESHOOTING
 ===============
 
+* If you're unable to use an OpenID URL with the library, you may want
+to try using the discover tool (examples/discover.php).  This tool
+will perform OpenID discovery on the identifier and give a list of
+discovered OpenID services and their types.
+
 * On some systems, PHP basedir restrictions prevent web servers from
 opening a source of randomness, such as /dev/urandom.  If your PHP
 OpenID library has trouble getting a satisfactory source of
