@@ -3,6 +3,10 @@
 require_once "common.php";
 session_start();
 
+function escape($thing) {
+    return htmlentities($thing);
+}
+
 function run() {
     $consumer = getConsumer();
 
@@ -23,14 +27,15 @@ function run() {
         // identity URL and Simple Registration data (if it was
         // returned).
         $openid = $response->getDisplayIdentifier();
-        $esc_identity = htmlspecialchars($openid, ENT_QUOTES);
+        $esc_identity = escape($openid);
 
         $success = sprintf('You have successfully verified ' .
                            '<a href="%s">%s</a> as your identity.',
                            $esc_identity, $esc_identity);
 
         if ($response->endpoint->canonicalID) {
-            $success .= '  (XRI CanonicalID: '.$response->endpoint->canonicalID.') ';
+            $escaped_canonicalID = escape($response->endpoint->canonicalID);
+            $success .= '  (XRI CanonicalID: '.$escaped_canonicalID.') ';
         }
 
         $sreg_resp = Auth_OpenID_SRegResponse::fromSuccessResponse($response);
@@ -38,15 +43,18 @@ function run() {
         $sreg = $sreg_resp->contents();
 
         if (@$sreg['email']) {
-            $success .= "  You also returned '".$sreg['email']."' as your email.";
+            $success .= "  You also returned '".escape($sreg['email']).
+                "' as your email.";
         }
 
         if (@$sreg['nickname']) {
-            $success .= "  Your nickname is '".$sreg['nickname']."'.";
+            $success .= "  Your nickname is '".escape($sreg['nickname']).
+                "'.";
         }
 
         if (@$sreg['fullname']) {
-            $success .= "  Your fullname is '".$sreg['fullname']."'.";
+            $success .= "  Your fullname is '".escape($sreg['fullname']).
+                "'.";
         }
 
 	$pape_resp = Auth_OpenID_PAPE_Response::fromSuccessResponse($response);
@@ -56,7 +64,8 @@ function run() {
 	    $success .= "<p>The following PAPE policies affected the authentication:</p><ul>";
 
 	    foreach ($pape_resp->auth_policies as $uri) {
-	      $success .= "<li><tt>$uri</tt></li>";
+                $escaped_uri = escape($uri);
+                $success .= "<li><tt>$escaped_uri</tt></li>";
 	    }
 
 	    $success .= "</ul>";
@@ -65,13 +74,15 @@ function run() {
 	  }
 
 	  if ($pape_resp->auth_age) {
-	    $success .= "<p>The authentication age returned by the " .
-	      "server is: <tt>".$pape_resp->auth_age."</tt></p>";
+              $age = escape($pape_resp->auth_age);
+              $success .= "<p>The authentication age returned by the " .
+                  "server is: <tt>".$age."</tt></p>";
 	  }
 
 	  if ($pape_resp->nist_auth_level) {
-	    $success .= "<p>The NIST auth level returned by the " .
-	      "server is: <tt>".$pape_resp->nist_auth_level."</tt></p>";
+              $auth_level = escape($pape_resp->nist_auth_level);
+              $success .= "<p>The NIST auth level returned by the " .
+                  "server is: <tt>".$auth_level."</tt></p>";
 	  }
 
 	} else {
