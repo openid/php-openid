@@ -133,6 +133,7 @@ $_tests = array(
                                        'CryptUtil',
                                        'DiffieHellman',
                                        'Discover_OpenID',
+                                       'Extension',
                                        'HMACSHA1',
                                        'KVForm',
                                        'Message',
