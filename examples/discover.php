@@ -1,4 +1,7 @@
 <?php
+
+require_once "consumer/common.php";
+
 require_once "Auth/OpenID/Discover.php";
 require_once "Auth/Yadis/Yadis.php";
 
