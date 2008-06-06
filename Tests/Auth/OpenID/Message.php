@@ -70,7 +70,8 @@ class Tests_Auth_OpenID_EmptyMessage extends MessageTest {
     {
         $key = $this->msg->getKey(Auth_OpenID_OPENID_NS, 'foo');
         $this->assertTrue(Auth_OpenID::isFailure($key));
-        $this->msg->setOpenIDNamespace();
+
+        $this->msg->setOpenIDNamespace(Auth_OpenID_OPENID1_NS, false);
         $key = $this->msg->getKey(Auth_OpenID_OPENID_NS, 'foo');
         $this->assertEquals('openid.foo', $key);
     }
@@ -553,7 +554,7 @@ class Tests_Auth_OpenID_OpenID1Message extends MessageTest {
     }
 }
 
-class Tests_Auth_OpenID_OpenID1ExplicitMessage extends MessageTest {
+class Tests_Auth_OpenID_OpenID1ExplicitMessage extends PHPUnit_TestCase {
     function setUp()
     {
         $this->msg = Auth_OpenID_Message::fromPostArgs(array('openid.mode' => 'error',
@@ -564,7 +565,8 @@ class Tests_Auth_OpenID_OpenID1ExplicitMessage extends MessageTest {
     function test_isOpenID1()
     {
         $this->assertTrue($this->msg->isOpenID1());
-        $this->assertFalse($this->msg->namespaces->isImplicit(Auth_OpenID_OPENID1_NS));
+        $this->assertFalse(
+            $this->msg->namespaces->isImplicit(Auth_OpenID_OPENID1_NS));
     }
 
     function test_isOpenID2()
@@ -1099,6 +1101,101 @@ class Tests_Auth_OpenID_GeneralMessageTest extends PHPUnit_TestCase {
                                  $this->submit_text);
         $this->_checkForm($html, $m, $this->action_url,
                           $tag_attrs, $this->submit_text);
+    }
+
+    function test_setOpenIDNamespace_invalid()
+    {
+        $m = new Auth_OpenID_Message();
+        $invalid_things = array(
+            // Empty string is not okay here.
+            '',
+            // Good guess!  But wrong.
+            'http://openid.net/signon/2.0',
+            // What?
+            'http://specs%\\\r2Eopenid.net/auth/2.0',
+            // Too much escapings!
+            'http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0',
+            // This is a Type URI, not a openid.ns value.
+            'http://specs.openid.net/auth/2.0/signon',
+            );
+
+        foreach ($invalid_things as $x) {
+            $this->assertTrue($m->setOpenIDNamespace($x, true) === false);
+        }
+    }
+
+    function test_isOpenID1()
+    {
+        $v1_namespaces = array(
+            // Yes, there are two of them.
+            'http://openid.net/signon/1.1',
+            'http://openid.net/signon/1.0',
+                               );
+
+        foreach ($v1_namespaces as $ns) {
+            $m = new Auth_OpenID_Message($ns);
+            $this->assertTrue($m->isOpenID1(),
+                              "$ns not recognized as OpenID 1");
+            $this->assertEquals($ns, $m->getOpenIDNamespace());
+            $this->assertTrue($m->namespaces->isImplicit($ns));
+        }
+    }    
+
+    function test_isOpenID2()
+    {
+        $ns = 'http://specs.openid.net/auth/2.0';
+        $m = new Auth_OpenID_Message($ns);
+        $this->assertTrue($m->isOpenID2());
+        $this->assertFalse(
+            $m->namespaces->isImplicit(Auth_OpenID_NULL_NAMESPACE));
+        $this->assertEquals($ns, $m->getOpenIDNamespace());
+    }
+
+    function test_setOpenIDNamespace_explicit()
+    {
+        $m = new Auth_OpenID_Message();
+        $m->setOpenIDNamespace(Auth_OpenID_THE_OTHER_OPENID1_NS, false);
+        $this->assertFalse($m->namespaces->isImplicit(
+            Auth_OpenID_THE_OTHER_OPENID1_NS));
+    }
+
+    function test_setOpenIDNamespace_implicit()
+    {
+        $m = new Auth_OpenID_Message();
+        $m->setOpenIDNamespace(Auth_OpenID_THE_OTHER_OPENID1_NS, true);
+        $this->assertTrue(
+            $m->namespaces->isImplicit(Auth_OpenID_THE_OTHER_OPENID1_NS));
+    }
+
+
+    function test_explicitOpenID11NSSerialzation()
+    {
+        $m = new Auth_OpenID_Message();
+        $m->setOpenIDNamespace(Auth_OpenID_THE_OTHER_OPENID1_NS, false);
+
+        $post_args = $m->toPostArgs();
+        $this->assertEquals($post_args,
+                            array('openid.ns' =>
+                                  Auth_OpenID_THE_OTHER_OPENID1_NS));
+    }
+
+    function test_fromPostArgs_ns11()
+    {
+        // An example of the stuff that some Drupal installations send us,
+        // which includes openid.ns but is 1.1.
+        $query = array(
+            'openid.assoc_handle' => '',
+            'openid.claimed_id' => 'http://foobar.invalid/',
+            'openid.identity' => 'http://foobar.myopenid.com',
+            'openid.mode' => 'checkid_setup',
+            'openid.ns' => 'http://openid.net/signon/1.1',
+            'openid.ns.sreg' => 'http://openid.net/extensions/sreg/1.1',
+            'openid.return_to' => 'http://drupal.invalid/return_to',
+            'openid.sreg.required' => 'nickname,email',
+            'openid.trust_root' => 'http://drupal.invalid',
+            );
+        $m = Auth_OpenID_Message::fromPostArgs($query);
+        $this->assertTrue($m->isOpenID1());
     }
 }
 

@@ -1059,9 +1059,13 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
 
             $response->fields->updateArgs(Auth_OpenID_OPENID_NS,
                    array('mode' => $mode,
-                         'op_endpoint' => $server_url,
                          'return_to' => $this->return_to,
                          'response_nonce' => Auth_OpenID_mkNonce()));
+
+            if (!$this->message->isOpenID1()) {
+                $response->fields->setArg(Auth_OpenID_OPENID_NS,
+                                          'op_endpoint', $server_url);
+            }
 
             if ($response_identity !== null) {
                 $response->fields->setArg(

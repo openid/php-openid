@@ -75,8 +75,7 @@ class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_TestCase {
         $this->assertTrue($e->hasReturnTo());
         $expected_args = array(
             'openid.mode' => 'error',
-            'openid.error' => 'plucky',
-            'openid.ns' => Auth_OpenID_OPENID1_NS);
+            'openid.error' => 'plucky');
 
         $encoded = $e->encodeToURL();
         if (Auth_OpenID_isError($encoded)) {
@@ -155,8 +154,7 @@ class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_TestCase {
         $e = new Auth_OpenID_ServerError($args, "plucky");
         $this->assertTrue($e->hasReturnTo());
         $expected_args = array('openid.mode' => 'error',
-                               'openid.error' => 'plucky',
-                               'openid.ns' => Auth_OpenID_OPENID1_NS);
+                               'openid.error' => 'plucky');
 
         $this->assertTrue($e->whichEncoding() == Auth_OpenID_ENCODE_URL);
 
@@ -1247,6 +1245,41 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
         $this->assertTrue(is_a($result, 'Auth_OpenID_ServerError'));
     }
 
+    function test_answerAllowNoEndpointOpenID1()
+    {
+        $identity = 'http://bambam.unittest/';
+        $reqmessage = Auth_OpenID_Message::fromOpenIDArgs(array(
+            'identity' => $identity,
+            'trust_root' => 'http://bar.unittest/',
+            'return_to' => 'http://bar.unittest/999',
+            ));
+        $this->server->op_endpoint = null;
+        $this->request = Auth_OpenID_CheckIDRequest::fromMessage($reqmessage, $this->server);
+        $answer = $this->request->answer(true);
+
+        $expected_list = array('mode' => 'id_res',
+                               'return_to' => $this->request->return_to,
+                               'identity' => $identity,
+                               );
+
+        foreach ($expected_list as $k => $expected) {
+            $actual = $answer->fields->getArg(Auth_OpenID_OPENID_NS, $k);
+            $this->assertEquals($expected, $actual);
+        }
+
+        $this->assertTrue($answer->fields->hasKey(Auth_OpenID_OPENID_NS,
+                                                  'response_nonce'));
+        $this->assertTrue($answer->fields->getOpenIDNamespace(),
+                          Auth_OpenID_OPENID1_NS);
+        $this->assertTrue(
+            $answer->fields->namespaces->isImplicit(Auth_OpenID_OPENID1_NS));
+
+        // One for nonce (OpenID v1 namespace is implicit)
+        $this->assertEquals(count($answer->fields->toPostArgs()),
+                            count($expected_list) + 1,
+                            var_export($answer->fields->toPostArgs(), true));
+    }
+
     function test_answerAllowWithDelegatedIdentityOpenID2()
     {
         // Answer an IDENTIFIER_SELECT case with a delegated
@@ -1392,9 +1425,11 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
         $answer = $this->request->answer(false, $server_url);
 
         $this->assertEquals($answer->request, $this->request);
-        $this->assertEquals(count($answer->fields->toPostArgs()), 3);
+        $this->assertEquals(count($answer->fields->toPostArgs()), 2);
 	$this->assertEquals($answer->fields->getOpenIDNamespace(),
 			    Auth_OpenID_OPENID1_NS);
+        $this->assertTrue(
+                          $answer->fields->namespaces->isImplicit(Auth_OpenID_OPENID1_NS));
         $this->assertEquals($answer->fields->getArg(Auth_OpenID_OPENID_NS, 'mode'),
                             'id_res');
         $this->assertTrue(strpos($answer->fields->getArg(Auth_OpenID_OPENID_NS,

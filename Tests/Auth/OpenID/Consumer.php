@@ -228,7 +228,6 @@ class Tests_Auth_OpenID_Consumer extends PHPUnit_TestCase {
                           'openid.mode' => $mode,
                           'openid.identity' => $delegate_url,
                           'openid.trust_root' => $trust_root,
-                          'openid.ns' => Auth_OpenID_OPENID1_NS
                           );
 
         if ($consumer->_use_assocs) {
@@ -1555,6 +1554,36 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuth extends _TestIdRes {
         foreach ($signed_list as $k) {
             $this->assertTrue($args->getAliasedArg($k));
         }
+    }
+
+
+    function test_112()
+    {
+        $args = array('openid.assoc_handle' => 'fa1f5ff0-cde4-11dc-a183-3714bfd55ca8',
+              'openid.claimed_id' => 'http://binkley.lan/user/test01',
+              'openid.identity' => 'http://test01.binkley.lan/',
+              'openid.mode' => 'id_res',
+              'openid.ns' => 'http://specs.openid.net/auth/2.0',
+              'openid.ns.pape' => 'http://specs.openid.net/extensions/pape/1.0',
+              'openid.op_endpoint' => 'http://binkley.lan/server',
+              'openid.pape.auth_policies' => 'none',
+              'openid.pape.auth_time' => '2008-01-28T20 =>42 =>36Z',
+              'openid.pape.nist_auth_level' => '0',
+              'openid.response_nonce' => '2008-01-28T21 =>07 =>04Z99Q=',
+              'openid.return_to' => 'http://binkley.lan =>8001/process?janrain_nonce=2008-01-28T21%3A07%3A02Z0tMIKx',
+              'openid.sig' => 'YJlWH4U6SroB1HoPkmEKx9AyGGg=',
+              'openid.signed' => 'assoc_handle,identity,response_nonce,return_to,claimed_id,op_endpoint,pape.auth_time,ns.pape,pape.nist_auth_level,pape.auth_policies'
+              );
+        $this->assertEquals(Auth_OpenID_OPENID2_NS, $args['openid.ns']);
+        $incoming = Auth_OpenID_Message::fromPostArgs($args);
+        $this->assertTrue($incoming->isOpenID2());
+        $car = $this->consumer->_createCheckAuthRequest($incoming);
+        $expected_args = $args;
+        $expected_args['openid.mode'] = 'check_authentication';
+        $expected = Auth_OpenID_Message::fromPostArgs($expected_args);
+        $this->assertTrue($expected->isOpenID2());
+        $this->assertEquals($expected, $car);
+        $this->assertEquals($expected_args, $car->toPostArgs());
     }
 }
 

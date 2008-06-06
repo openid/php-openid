@@ -12,6 +12,7 @@
 require_once 'Auth/OpenID.php';
 require_once 'Auth/OpenID/KVForm.php';
 require_once 'Auth/Yadis/XML.php';
+require_once 'Auth/OpenID/Consumer.php'; // For Auth_OpenID_FailureResponse
 
 // This doesn't REALLY belong here, but where is better?
 define('Auth_OpenID_IDENTIFIER_SELECT',
@@ -23,6 +24,13 @@ define('Auth_OpenID_SREG_URI', 'http://openid.net/sreg/1.0');
 
 // The OpenID 1.X namespace URI
 define('Auth_OpenID_OPENID1_NS', 'http://openid.net/signon/1.0');
+define('Auth_OpenID_THE_OTHER_OPENID1_NS', 'http://openid.net/signon/1.1');
+
+function Auth_OpenID_isOpenID1($ns)
+{
+    return ($ns == Auth_OpenID_THE_OTHER_OPENID1_NS) ||
+        ($ns == Auth_OpenID_OPENID1_NS);
+}
 
 // The OpenID 2.0 namespace URI
 define('Auth_OpenID_OPENID2_NS', 'http://specs.openid.net/auth/2.0');
@@ -313,14 +321,15 @@ class Auth_OpenID_NamespaceMap {
         // Check that desired_alias is not an openid protocol field as
         // per the spec.
         if (in_array($desired_alias, $Auth_OpenID_OPENID_PROTOCOL_FIELDS)) {
-            // "%r is not an allowed namespace alias" % (desired_alias,);
+            Auth_OpenID::log("\"%s\" is not an allowed namespace alias",
+                            $desired_alias);
             return null;
         }
 
         // Check that desired_alias does not contain a period as per
         // the spec.
         if (strpos($desired_alias, '.') !== false) {
-            // "%r must not contain a dot" % (desired_alias,)
+            Auth_OpenID::log('"%s" must not contain a dot', $desired_alias);
             return null;
         }
 
@@ -331,7 +340,8 @@ class Auth_OpenID_NamespaceMap {
 
         if (($current_namespace_uri !== null) &&
             ($current_namespace_uri != $namespace_uri)) {
-            // Cannot map because previous mapping exists
+            Auth_OpenID::log('Cannot map "%s" because previous mapping exists',
+                            $namespace_uri);
             return null;
         }
 
@@ -340,9 +350,9 @@ class Auth_OpenID_NamespaceMap {
         $alias = $this->namespace_to_alias->get($namespace_uri);
 
         if (($alias !== null) && ($alias != $desired_alias)) {
-            // fmt = ('Cannot map %r to alias %r. '
-            //        'It is already mapped to alias %r')
-            // raise KeyError(fmt % (namespace_uri, desired_alias, alias))
+            Auth_OpenID::log('Cannot map %s to alias %s. ' .
+                            'It is already mapped to alias %s',
+                            $namespace_uri, $desired_alias, $alias);
             return null;
         }
 
@@ -409,6 +419,7 @@ class Auth_OpenID_Message {
         // Create an empty Message
         $this->allowed_openid_namespaces = array(
                                Auth_OpenID_OPENID1_NS,
+                               Auth_OpenID_THE_OTHER_OPENID1_NS,
                                Auth_OpenID_OPENID2_NS);
 
         $this->args = new Auth_OpenID_Mapping();
@@ -416,13 +427,14 @@ class Auth_OpenID_Message {
         if ($openid_namespace === null) {
             $this->_openid_ns_uri = null;
         } else {
-            $this->setOpenIDNamespace($openid_namespace);
+            $implicit = Auth_OpenID_isOpenID1($openid_namespace);
+            $this->setOpenIDNamespace($openid_namespace, $implicit);
         }
     }
 
     function isOpenID1()
     {
-        return $this->getOpenIDNamespace() == Auth_OpenID_OPENID1_NS;
+        return Auth_OpenID_isOpenID1($this->getOpenIDNamespace());
     }
 
     function isOpenID2()
@@ -513,8 +525,7 @@ class Auth_OpenID_Message {
             } else if (($ns_alias == Auth_OpenID_NULL_NAMESPACE) &&
                        ($ns_key == 'ns')) {
                 // null namespace
-                if ($this->namespaces->addAlias($value,
-                                     Auth_OpenID_NULL_NAMESPACE) === null) {
+                if ($this->setOpenIDNamespace($value, false) === false) {
                     return false;
                 }
             } else {
@@ -522,11 +533,12 @@ class Auth_OpenID_Message {
             }
         }
 
-        // Ensure that there is an OpenID namespace definition
-        $openid_ns_uri =
-            $this->namespaces->getNamespaceURI(Auth_OpenID_NULL_NAMESPACE);
-
-        $this->setOpenIDNamespace($openid_ns_uri);
+        if (!$this->getOpenIDNamespace()) {
+            if ($this->setOpenIDNamespace(Auth_OpenID_OPENID1_NS, true) ===
+                false) {
+                return false;
+            }
+        }
 
         // Actually put the pairs into the appropriate namespaces
         foreach ($ns_args as $triple) {
@@ -535,6 +547,7 @@ class Auth_OpenID_Message {
             if ($ns_uri === null) {
                 $ns_uri = $this->_getDefaultNamespace($ns_alias);
                 if ($ns_uri === null) {
+
                     $ns_uri = Auth_OpenID_OPENID_NS;
                     $ns_key = sprintf('%s.%s', $ns_alias, $ns_key);
                 } else {
@@ -557,24 +570,23 @@ class Auth_OpenID_Message {
         return null;
     }
 
-    function setOpenIDNamespace($openid_ns_uri=null)
+    function setOpenIDNamespace($openid_ns_uri, $implicit)
     {
-        if ($openid_ns_uri === null) {
-            $openid_ns_uri = Auth_OpenID_OPENID1_NS;
-            $implicit = true;
-        } else {
-            $implicit = false;
-        }
-
         if (!in_array($openid_ns_uri, $this->allowed_openid_namespaces)) {
-            // raise ValueError('Invalid null namespace: %r' % (openid_ns_uri,))
+            Auth_OpenID::log('Invalid null namespace: "%s"', $openid_ns_uri);
             return false;
         }
 
-        $this->namespaces->addAlias($openid_ns_uri,
-                                    Auth_OpenID_NULL_NAMESPACE,
-                                    $implicit);
+        $succeeded = $this->namespaces->addAlias($openid_ns_uri,
+                                                 Auth_OpenID_NULL_NAMESPACE,
+                                                 $implicit);
+        if ($succeeded === false) {
+            return false;
+        }
+
         $this->_openid_ns_uri = $openid_ns_uri;
+
+        return true;
     }
 
     function getOpenIDNamespace()
