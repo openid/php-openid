@@ -60,33 +60,33 @@ function run() {
 	$pape_resp = Auth_OpenID_PAPE_Response::fromSuccessResponse($response);
 
 	if ($pape_resp) {
-	  if ($pape_resp->auth_policies) {
-	    $success .= "<p>The following PAPE policies affected the authentication:</p><ul>";
+            if ($pape_resp->auth_policies) {
+                $success .= "<p>The following PAPE policies affected the authentication:</p><ul>";
 
-	    foreach ($pape_resp->auth_policies as $uri) {
-                $escaped_uri = escape($uri);
-                $success .= "<li><tt>$escaped_uri</tt></li>";
-	    }
+                foreach ($pape_resp->auth_policies as $uri) {
+                    $escaped_uri = escape($uri);
+                    $success .= "<li><tt>$escaped_uri</tt></li>";
+                }
 
-	    $success .= "</ul>";
-	  } else {
-	    $success .= "<p>No PAPE policies affected the authentication.</p>";
-	  }
+                $success .= "</ul>";
+            } else {
+                $success .= "<p>No PAPE policies affected the authentication.</p>";
+            }
 
-	  if ($pape_resp->auth_age) {
-              $age = escape($pape_resp->auth_age);
-              $success .= "<p>The authentication age returned by the " .
-                  "server is: <tt>".$age."</tt></p>";
-	  }
+            if ($pape_resp->auth_age) {
+                $age = escape($pape_resp->auth_age);
+                $success .= "<p>The authentication age returned by the " .
+                    "server is: <tt>".$age."</tt></p>";
+            }
 
-	  if ($pape_resp->nist_auth_level) {
-              $auth_level = escape($pape_resp->nist_auth_level);
-              $success .= "<p>The NIST auth level returned by the " .
-                  "server is: <tt>".$auth_level."</tt></p>";
-	  }
+            if ($pape_resp->nist_auth_level) {
+                $auth_level = escape($pape_resp->nist_auth_level);
+                $success .= "<p>The NIST auth level returned by the " .
+                    "server is: <tt>".$auth_level."</tt></p>";
+            }
 
 	} else {
-	  $success .= "<p>No PAPE response was sent by the provider.</p>";
+            $success .= "<p>No PAPE response was sent by the provider.</p>";
 	}
     }
 
