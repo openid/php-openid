@@ -1401,7 +1401,7 @@ class Auth_OpenID_GenericConsumer {
         if ($response->status == 400) {
             return Auth_OpenID_ServerErrorContainer::fromMessage(
                         $response_message);
-        } else if ($response->status != 200) {
+        } else if ($response->status != 200 and $response->status != 206) {
             return null;
         }
 
