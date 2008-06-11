@@ -77,3 +77,11 @@ fail
 Non-absolute URI
 http:/foo
 fail
+
+Illegal character in URI
+http://<illegal>.com/
+fail
+
+Non-ascii character in URI
+http://foo.com/
+fail
