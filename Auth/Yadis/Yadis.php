@@ -332,7 +332,8 @@ class Auth_Yadis_Yadis {
 
         $response = $fetcher->get($uri, $headers);
 
-        if (!$response || ($response->status != 200)) {
+        if (!$response || ($response->status != 200 and
+                           $response->status != 206)) {
             $result->fail();
             return $result;
         }
@@ -361,7 +362,8 @@ class Auth_Yadis_Yadis {
 
                 $response = $fetcher->get($yadis_location);
 
-                if ((!$response) || ($response->status != 200)) {
+                if ((!$response) || ($response->status != 200 and
+                                     $response->status != 206)) {
                     $result->fail();
                     return $result;
                 }
