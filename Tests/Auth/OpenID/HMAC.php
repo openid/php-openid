@@ -135,9 +135,13 @@ class Tests_Auth_OpenID_HMAC extends PHPUnit_TestSuite {
     function Tests_Auth_OpenID_HMAC($name)
     {
         $this->setName($name);
-        foreach (array(array('Auth_OpenID_HMACSHA1', 'hmac-sha1.txt', 20),
-                       array('Auth_OpenID_HMACSHA256', 'hmac-sha256.txt', 32))
-                 as $params) {
+        $hash_test_defs = array(array(
+            'Auth_OpenID_HMACSHA1', 'hmac-sha1.txt', 20));
+        if (Auth_OpenID_HMACSHA256_SUPPORTED) {
+            $hash_test_defs[] =
+                array('Auth_OpenID_HMACSHA256', 'hmac-sha256.txt', 32);
+        }
+        foreach ($hash_test_defs as $params) {
             list($hash_func, $filename, $hash_len) = $params;
             $cases = $this->_readTestCases($filename, $hash_len);
             foreach ($cases as $case) {
