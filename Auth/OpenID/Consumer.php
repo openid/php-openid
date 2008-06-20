@@ -723,7 +723,8 @@ class Auth_OpenID_GenericConsumer {
                                            'user_setup_url');
 
         if ($this->_checkSetupNeeded($message)) {
-            return SetupNeededResponse($endpoint, $user_setup_url);
+            return new Auth_OpenID_SetupNeededResponse(
+                $endpoint, $user_setup_url);
         } else {
             return $this->_doIdRes($message, $endpoint, $return_to);
         }
