@@ -15,28 +15,29 @@
  */
 
 require_once 'PHPUnit.php';
-require_once 'Auth/OpenID/HMACSHA1.php';
+require_once 'Auth/OpenID/HMAC.php';
 require_once 'Tests/Auth/OpenID/TestUtil.php';
 
-class Tests_Auth_OpenID_HMACSHA1_TestCase extends PHPUnit_TestCase {
-    function Tests_Auth_OpenID_HMACSHA1_TestCase(
-        $name, $key, $data, $expected)
+class Tests_Auth_OpenID_HMAC_TestCase extends PHPUnit_TestCase {
+    function Tests_Auth_OpenID_HMAC_TestCase(
+        $name, $key, $data, $expected, $hmac_func)
     {
 
         $this->setName($name);
         $this->key = $key;
         $this->data = $data;
         $this->expected = $expected;
+        $this->hmac_func = $hmac_func;
     }
 
     function runTest()
     {
-        $actual = Auth_OpenID_HMACSHA1($this->key, $this->data);
+        $actual = call_user_func($this->hmac_func, $this->key, $this->data);
         $this->assertEquals($this->expected, $actual);
     }
 }
 
-class Tests_Auth_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
+class Tests_Auth_OpenID_HMAC extends PHPUnit_TestSuite {
     function _strConvert($s)
     {
         $repeat_pat = '/^0x([a-f0-9]{2}) repeated (\d+) times$/';
@@ -57,9 +58,9 @@ class Tests_Auth_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
         return $data;
     }
 
-    function _readTestCases()
+    function _readTestCases($test_file_name)
     {
-        $lines = Tests_Auth_OpenID_readlines('hmac.txt');
+        $lines = Tests_Auth_OpenID_readlines($test_file_name);
         $cases = array();
         $case = array();
         foreach ($lines as $line) {
@@ -102,19 +103,19 @@ class Tests_Auth_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
         foreach ($cases as $case) {
             $clean = array();
             $clean["key"] =
-                Tests_Auth_OpenID_HMACSHA1::_strConvert($case["key"]);
+                Tests_Auth_OpenID_HMAC::_strConvert($case["key"]);
             if (Auth_OpenID::bytes($clean["key"]) != $case["key_len"]) {
                 trigger_error("Bad key length", E_USER_ERROR);
             }
 
             $clean["data"] =
-                Tests_Auth_OpenID_HMACSHA1::_strConvert($case["data"]);
+                Tests_Auth_OpenID_HMAC::_strConvert($case["data"]);
             if (Auth_OpenID::bytes($clean["data"]) != $case["data_len"]) {
                 trigger_error("Bad data length", E_USER_ERROR);
             }
 
             $clean["digest"] =
-                Tests_Auth_OpenID_HMACSHA1::_strConvert($case["digest"]);
+                Tests_Auth_OpenID_HMAC::_strConvert($case["digest"]);
             if (Auth_OpenID::bytes($clean["digest"]) != 20) {
                 $l = Auth_OpenID::bytes($clean["digest"]);
                 trigger_error("Bad digest length: $l", E_USER_ERROR);
@@ -127,21 +128,28 @@ class Tests_Auth_OpenID_HMACSHA1 extends PHPUnit_TestSuite {
         return $final;
     }
 
-    function Tests_Auth_OpenID_HMACSHA1($name)
+    function Tests_Auth_OpenID_HMAC($name)
     {
         $this->setName($name);
-        $cases = $this->_readTestCases();
-        foreach ($cases as $case) {
-            $test = new Tests_Auth_OpenID_HMACSHA1_TestCase(
-                $case['test_case'],
-                $case['key'],
-                $case['data'],
-                $case['digest']
-                );
+        foreach (array('Auth_OpenID_HMACSHA1' => 'hmac-sha1.txt')
+                 as $hash_func => $filename) {
+            $cases = $this->_readTestCases('hmac-sha1.txt');
+            foreach ($cases as $case) {
+                $test = new Tests_Auth_OpenID_HMAC_TestCase(
+                    $case['test_case'],
+                    $case['key'],
+                    $case['data'],
+                    $case['digest'],
+                    $hash_func);
 
-            $digest = $case['digest'];
-            $this->addTest($test);
+                $digest = $case['digest'];
+                $this->_addTestByValue($test);
+            }
         }
+    }
+
+    function _addTestByValue($test) {
+        $this->addTest($test);
     }
 }
 

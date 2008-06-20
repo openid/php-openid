@@ -9,7 +9,6 @@ require_once "Tests/Auth/OpenID/MemStore.php";
 require_once "Auth/OpenID.php";
 require_once "Auth/OpenID/DiffieHellman.php";
 require_once "Auth/OpenID/Server.php";
-require_once "Auth/OpenID/HMACSHA1.php";
 require_once "Auth/OpenID/Consumer.php";
 
 function altModulus()

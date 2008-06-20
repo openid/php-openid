@@ -27,7 +27,7 @@ require_once 'Auth/OpenID/KVForm.php';
 /**
  * @access private
  */
-require_once 'Auth/OpenID/HMACSHA1.php';
+require_once 'Auth/OpenID/HMAC.php';
 
 /**
  * This class represents an association between a server and a

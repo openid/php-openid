@@ -134,7 +134,7 @@ $_tests = array(
                                        'DiffieHellman',
                                        'Discover_OpenID',
                                        'Extension',
-                                       'HMACSHA1',
+                                       'HMAC',
                                        'KVForm',
                                        'Message',
                                        'Negotiation',

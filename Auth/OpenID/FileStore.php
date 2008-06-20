@@ -19,7 +19,7 @@
  */
 require_once 'Auth/OpenID.php';
 require_once 'Auth/OpenID/Interface.php';
-require_once 'Auth/OpenID/HMACSHA1.php';
+require_once 'Auth/OpenID/HMAC.php';
 require_once 'Auth/OpenID/Nonce.php';
 
 /**
