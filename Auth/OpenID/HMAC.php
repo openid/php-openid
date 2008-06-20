@@ -88,7 +88,7 @@ if (function_exists('hash_hmac') &&
     function Auth_OpenID_HMACSHA256($key, $text)
     {
         // Return raw MAC (not hex string).
-        return hash_hmac('sha256', $key, $text, true);
+        return hash_hmac('sha256', $text, $key, true);
     }
 
     define('Auth_OpenID_HMACSHA256_SUPPORTED', true);

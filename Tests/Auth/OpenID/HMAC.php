@@ -33,7 +33,7 @@ class Tests_Auth_OpenID_HMAC_TestCase extends PHPUnit_TestCase {
     function runTest()
     {
         $actual = call_user_func($this->hmac_func, $this->key, $this->data);
-        $this->assertEquals($this->expected, $actual);
+        $this->assertEquals(bin2hex($this->expected), bin2hex($actual));
     }
 }
 
@@ -58,7 +58,7 @@ class Tests_Auth_OpenID_HMAC extends PHPUnit_TestSuite {
         return $data;
     }
 
-    function _readTestCases($test_file_name)
+    function _readTestCases($test_file_name, $digest_len)
     {
         $lines = Tests_Auth_OpenID_readlines($test_file_name);
         $cases = array();
@@ -104,19 +104,23 @@ class Tests_Auth_OpenID_HMAC extends PHPUnit_TestSuite {
             $clean = array();
             $clean["key"] =
                 Tests_Auth_OpenID_HMAC::_strConvert($case["key"]);
-            if (Auth_OpenID::bytes($clean["key"]) != $case["key_len"]) {
-                trigger_error("Bad key length", E_USER_ERROR);
+            if (defined(@$case["key_len"])) {
+                if (Auth_OpenID::bytes($clean["key"]) != $case["key_len"]) {
+                    trigger_error("Bad key length", E_USER_ERROR);
+                }
             }
 
             $clean["data"] =
                 Tests_Auth_OpenID_HMAC::_strConvert($case["data"]);
-            if (Auth_OpenID::bytes($clean["data"]) != $case["data_len"]) {
-                trigger_error("Bad data length", E_USER_ERROR);
+            if (defined(@$case["data_len"])) {
+                if (Auth_OpenID::bytes($clean["data"]) != $case["data_len"]) {
+                    trigger_error("Bad data length", E_USER_ERROR);
+                }
             }
 
             $clean["digest"] =
                 Tests_Auth_OpenID_HMAC::_strConvert($case["digest"]);
-            if (Auth_OpenID::bytes($clean["digest"]) != 20) {
+            if (Auth_OpenID::bytes($clean["digest"]) != $digest_len) {
                 $l = Auth_OpenID::bytes($clean["digest"]);
                 trigger_error("Bad digest length: $l", E_USER_ERROR);
             }
@@ -131,9 +135,11 @@ class Tests_Auth_OpenID_HMAC extends PHPUnit_TestSuite {
     function Tests_Auth_OpenID_HMAC($name)
     {
         $this->setName($name);
-        foreach (array('Auth_OpenID_HMACSHA1' => 'hmac-sha1.txt')
-                 as $hash_func => $filename) {
-            $cases = $this->_readTestCases('hmac-sha1.txt');
+        foreach (array(array('Auth_OpenID_HMACSHA1', 'hmac-sha1.txt', 20),
+                       array('Auth_OpenID_HMACSHA256', 'hmac-sha256.txt', 32))
+                 as $params) {
+            list($hash_func, $filename, $hash_len) = $params;
+            $cases = $this->_readTestCases($filename, $hash_len);
             foreach ($cases as $case) {
                 $test = new Tests_Auth_OpenID_HMAC_TestCase(
                     $case['test_case'],
