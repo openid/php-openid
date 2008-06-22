@@ -153,13 +153,9 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
                 $new_headers = array();
 
                 foreach ($headers as $header) {
-                    if (preg_match("/:/", $header)) {
-                        $parts = explode(": ", $header, 2);
-
-                        if (count($parts) == 2) {
-                            list($name, $value) = $parts;
-                            $new_headers[$name] = $value;
-                        }
+                    if (strpos($header, ': ')) {
+                        list($name, $value) = explode(': ', $header, 2);
+                        $new_headers[$name] = $value;
                     }
                 }
 
@@ -211,15 +207,11 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
 
         curl_close($c);
 
-        if ($extra_headers === null) {
-            $new_headers = null;
-        } else {
-            $new_headers = $extra_headers;
-        }
+        $new_headers = $extra_headers;
 
         foreach ($this->headers as $header) {
-            if (preg_match("/:/", $header)) {
-                list($name, $value) = explode(": ", $header, 2);
+            if (strpos($header, ': ')) {
+                list($name, $value) = explode(': ', $header, 2);
                 $new_headers[$name] = $value;
             }
 
