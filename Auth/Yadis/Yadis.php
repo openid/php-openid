@@ -324,7 +324,7 @@ class Auth_Yadis_Yadis {
 
         $request_uri = $uri;
         $headers = array("Accept: " . Auth_Yadis_CONTENT_TYPE .
-                         ', text/html; q=0.3, application/xhtml+xml; 0.5');
+                         ', text/html; q=0.3, application/xhtml+xml; q=0.5');
 
         if ($fetcher === null) {
             $fetcher = Auth_Yadis_Yadis::getHTTPFetcher($timeout);
