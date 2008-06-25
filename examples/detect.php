@@ -426,11 +426,12 @@ function detect_fetcher($r, &$out)
     if (isset($result)) {
         $parts = array('An HTTP request was completed.');
         // list ($code, $url, $data) = $result;
-        if ($result->status != '200') {
+        if ($result->status != '200' && $result->status != '206') {
             $ok = false;
             $parts[] = $r->b(
-                sprintf('Got %s instead of the expected HTTP status code ' .
-                        '(200).', $result->status));
+                sprintf(
+                    'Got %s instead of the expected HTTP status ' .
+                    'code (200 or 206).', $result->status));
         }
 
         $url = $result->final_url;
