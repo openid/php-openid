@@ -9,7 +9,6 @@ require_once "lib/render/trust.php";
 
 require_once "Auth/OpenID/Server.php";
 require_once "Auth/OpenID/SReg.php";
-require_once "Auth/OpenID/HMACSHA1.php";
 
 function authCancel($info)
 {
