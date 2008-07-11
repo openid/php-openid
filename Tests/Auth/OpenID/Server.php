@@ -1419,6 +1419,7 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
         $this->request->message = $msg;
         $this->request->namespace = $msg->getOpenIDNamespace();
         $this->request->mode = 'checkid_immediate';
+        $this->request->claimed_id = 'http://claimed-id.test/';
         $this->request->immediate = true;
         $server_url = "http://setup-url.unittest/";
         $answer = $this->request->answer(false, $server_url);
@@ -1431,9 +1432,11 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
                           $answer->fields->namespaces->isImplicit(Auth_OpenID_OPENID1_NS));
         $this->assertEquals($answer->fields->getArg(Auth_OpenID_OPENID_NS, 'mode'),
                             'id_res');
-        $this->assertTrue(strpos($answer->fields->getArg(Auth_OpenID_OPENID_NS,
-                                                         'user_setup_url'),
-                                 $server_url) == 0);
+
+        $usu = $answer->fields->getArg(Auth_OpenID_OPENID_NS,'user_setup_url');
+        $this->assertTrue(strpos($usu, $server_url) == 0);
+        $expected_substr = 'openid.claimed_id=http%3A%2F%2Fclaimed-id.test%2F';
+        $this->assertTrue(strpos($usu, $expected_substr), $usu);
     }
 
     function test_answerImmediateDenyOpenID2()

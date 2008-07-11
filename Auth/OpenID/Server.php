@@ -765,12 +765,17 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
 
     function Auth_OpenID_CheckIDRequest($identity, $return_to,
                                         $trust_root = null, $immediate = false,
-                                        $assoc_handle = null, $server = null)
+                                        $assoc_handle = null, $server = null,
+                                        $claimed_id = null)
     {
         $this->namespace = Auth_OpenID_OPENID2_NS;
         $this->assoc_handle = $assoc_handle;
         $this->identity = $identity;
-        $this->claimed_id = $identity;
+        if ($claimed_id === null) {
+            $this->claimed_id = $identity;
+        } else {
+            $this->claimed_id = $claimed_id;
+        }
         $this->return_to = $return_to;
         $this->trust_root = $trust_root;
         $this->server =& $server;
@@ -1098,7 +1103,8 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
                                                 $this->trust_root,
                                                 false,
                                                 $this->assoc_handle,
-                                                $this->server);
+                                                $this->server,
+                                                $this->claimed_id);
                 $setup_request->message = $this->message;
 
                 $setup_url = $setup_request->encodeToURL($server_url);
