@@ -889,8 +889,8 @@ class Auth_OpenID_Message {
     {
         if ($aliased_key == 'ns') {
             // Return the namespace URI for the OpenID namespace
-        	return $this->getOpenIDNamespace();
-		}
+            return $this->getOpenIDNamespace();
+        }
 
         $parts = explode('.', $aliased_key, 2);
 
