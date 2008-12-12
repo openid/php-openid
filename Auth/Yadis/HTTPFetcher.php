@@ -138,7 +138,7 @@ class Auth_Yadis_HTTPFetcher {
      * pass the URLHasAllowedScheme check or if the server's response
      * is malformed.
      */
-    function get($url, $headers)
+    function get($url, $headers = null)
     {
         trigger_error("not implemented", E_USER_ERROR);
     }
