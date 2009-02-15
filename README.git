@@ -1,6 +1,6 @@
-This is the new home of the php-openid library.  It was originally written by JanRain and managed using the darcs RCS.
+GitHub is the new home for php-openid library development.
 
-This file is home to migration notes about moving the source code developement form openidenabled.com to github.
+This library was originally written by JanRain and managed using the darcs RCS.  This file is home to notes regarding the migration from darcs to git, and the move from openidenabled.com to github.com.
 
 Contact:
 Brian Ellin
