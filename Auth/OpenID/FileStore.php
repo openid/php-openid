@@ -367,7 +367,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
         }
 
         if ( abs($timestamp - time()) > $Auth_OpenID_SKEW ) {
-            return False;
+            return false;
         }
 
         if ($server_url) {

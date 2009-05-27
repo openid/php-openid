@@ -32,6 +32,28 @@ function Auth_OpenID_getOpenIDTypeURIs()
                  Auth_OpenID_RP_RETURN_TO_URL_TYPE);
 }
 
+
+/*
+ * Provides a user-readable interpretation of a type uri.
+ * Useful for error messages.
+ */
+function Auth_OpenID_getOpenIDTypeName($type_uri) {
+    switch ($type_uri) {
+    case Auth_OpenID_TYPE_2_0_IDP:
+      return 'OpenID 2.0 IDP';
+    case Auth_OpenID_TYPE_2_0:
+      return 'OpenID 2.0';
+    case Auth_OpenID_TYPE_1_2:
+      return 'OpenID 1.2';
+    case Auth_OpenID_TYPE_1_1:
+      return 'OpenID 1.1';
+    case Auth_OpenID_TYPE_1_0:
+      return 'OpenID 1.0';
+    case Auth_OpenID_RP_RETURN_TO_URL_TYPE:
+      return 'OpenID relying party';
+    }
+}
+
 /**
  * Object representing an OpenID service endpoint.
  */

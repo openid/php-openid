@@ -482,7 +482,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         global $Auth_OpenID_SKEW;
 
         if ( abs($timestamp - time()) > $Auth_OpenID_SKEW ) {
-            return False;
+            return false;
         }
 
         return $this->_add_nonce($server_url, $timestamp, $salt);

@@ -1216,8 +1216,8 @@ class Auth_OpenID_GenericConsumer {
         }
 
         return new Auth_OpenID_FailureResponse(null,
-          sprintf('No matching endpoint found after discovering %s',
-                  $claimed_id));
+          sprintf('No matching endpoint found after discovering %s: %s',
+                  $claimed_id, $result->message));
     }
 
     /**

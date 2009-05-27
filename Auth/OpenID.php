@@ -102,9 +102,7 @@ define('Auth_OpenID_digits',
 define('Auth_OpenID_punct',
        "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~");
 
-if (Auth_OpenID_getMathLib() === null) {
-    Auth_OpenID_setNoMathSupport();
-}
+Auth_OpenID_include_init();
 
 /**
  * The OpenID utility function class.
@@ -138,6 +136,9 @@ class Auth_OpenID {
      *
      * Returns an empty array if neither GET nor POST was used, or if
      * POST was used but php://input cannot be opened.
+     *
+     * See background:
+     * http://lists.openidenabled.com/pipermail/dev/2007-March/000395.html
      *
      * @access private
      */
@@ -550,3 +551,13 @@ class Auth_OpenID {
     }
 }
 
+/*
+ * Function to run when this file is included.
+ * Abstracted to a function to make life easier
+ * for some PHP optimizers.
+ */
+function Auth_OpenID_include_init() {
+  if (Auth_OpenID_getMathLib() === null) {
+    Auth_OpenID_setNoMathSupport();
+  }
+}
