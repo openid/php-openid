@@ -182,4 +182,4 @@ class Tests_Auth_OpenID_Parse extends PHPUnit_Framework_TestSuite {
     }
 }
 
-?>
+

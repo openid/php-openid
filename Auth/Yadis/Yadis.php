@@ -379,4 +379,4 @@ class Auth_Yadis_Yadis {
     }
 }
 
-?>
+

@@ -610,4 +610,3 @@ class Auth_OpenID_SessionNegotiator {
     }
 }
 
-?>

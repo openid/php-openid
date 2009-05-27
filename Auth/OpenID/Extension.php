@@ -59,4 +59,3 @@ class Auth_OpenID_Extension {
     }
 }
 
-?>

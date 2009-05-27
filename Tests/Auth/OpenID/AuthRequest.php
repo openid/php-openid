@@ -297,4 +297,3 @@ class Tests_Auth_OpenID_AuthRequest extends PHPUnit_Framework_TestSuite {
     }
 }
 
-?>

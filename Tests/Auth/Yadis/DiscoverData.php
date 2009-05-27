@@ -150,4 +150,3 @@ function generateResult($base_url, $input_name, $id_name, $result_name, $success
     return array($input_url, $result);
 }
 
-?>

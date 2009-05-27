@@ -29,7 +29,7 @@ if (function_exists('getOpenIDStore')) {
 
     writeResponse($resp);
 } else {
-?>
+
 <html>
   <head>
     <title>PHP OpenID Server</title>
@@ -45,4 +45,3 @@ if (function_exists('getOpenIDStore')) {
 </html>
 <?php
 }
-?>

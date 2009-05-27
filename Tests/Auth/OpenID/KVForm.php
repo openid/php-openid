@@ -257,4 +257,4 @@ class Tests_Auth_OpenID_KVForm extends PHPUnit_Framework_TestSuite {
     }
 }
 
-?>
+

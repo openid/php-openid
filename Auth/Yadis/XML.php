@@ -371,4 +371,4 @@ function &Auth_Yadis_getXMLParser()
     return $p;
 }
 
-?>
+

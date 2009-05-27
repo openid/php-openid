@@ -5,7 +5,7 @@ require_once "lib/render.php";
 
 require_once "Auth/OpenID/Discover.php";
 
-define('user_xrds_pat', '<?xml version="1.0" encoding="UTF-8"?>
+define('user_xrds_pat', '<?xml version="1.0" encoding="UTF-8"
 <xrds:XRDS
     xmlns:xrds="xri://$xrds"
     xmlns="xri://$xrd*($v*2.0)">
@@ -31,4 +31,3 @@ function userXrds_render($identity)
     return array($headers, $body);
 }
 
-?>

@@ -790,4 +790,3 @@ class Tests_Auth_OpenID_AX extends PHPUnit_Framework_TestSuite {
     }
 }
 
-?>

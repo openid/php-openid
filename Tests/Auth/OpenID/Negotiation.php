@@ -344,4 +344,3 @@ class Tests_Auth_OpenID_Negotiation extends PHPUnit_Framework_TestSuite {
     }
 }
 
-?>

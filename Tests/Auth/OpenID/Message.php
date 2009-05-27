@@ -1248,4 +1248,4 @@ $Tests_Auth_OpenID_Message_other = array(
                                          new Tests_Auth_OpenID_GeneralMessageTest()
                                          );
 
-?>
+

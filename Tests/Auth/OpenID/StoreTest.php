@@ -703,4 +703,4 @@ class Tests_Auth_OpenID_StoreTest extends PHPUnit_Framework_TestSuite {
         $this->addTestSuite('Tests_Auth_OpenID_MemcachedStore_Test');
     }
 }
-?>
+

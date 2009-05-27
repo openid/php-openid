@@ -2460,4 +2460,4 @@ class Tests_Auth_OpenID_Server extends PHPUnit_Framework_TestSuite {
     }
 }
 
-?>
+

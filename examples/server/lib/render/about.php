@@ -55,4 +55,3 @@ function about_render($error=false, $internal=true)
     return page_render($body, $current_user, 'OpenID Server Endpoint');
 }
 
-?>

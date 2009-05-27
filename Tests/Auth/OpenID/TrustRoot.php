@@ -169,4 +169,4 @@ class Tests_Auth_OpenID_TrustRoot extends PHPUnit_Framework_TestSuite {
     }
 }
 
-?>
+

@@ -27,4 +27,3 @@ function getParent()
     return dirname(dirname(realpath(__FILE__)));
 }
 
-?>
