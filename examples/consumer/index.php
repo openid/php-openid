@@ -2,6 +2,7 @@
 require_once "common.php";
 
 global $pape_policy_uris;
+?>
 
 <html>
   <head><title>PHP OpenID Authentication Example</title></head>
@@ -48,9 +49,17 @@ global $pape_policy_uris;
       is your identity URL.
     </p>
 
-    <?php if (isset($msg)) { print "<div class=\"alert\">$msg</div>"; } 
-    <?php if (isset($error)) { print "<div class=\"error\">$error</div>"; } 
-    <?php if (isset($success)) { print "<div class=\"success\">$success</div>"; } 
+    <?php
+   if (isset($msg)) {
+     print "<div class=\"alert\">$msg</div>";
+   }
+   if (isset($error)) {
+     print "<div class=\"error\">$error</div>";
+   }
+   if (isset($success)) {
+     print "<div class=\"success\">$success</div>";
+   }
+     ?>
 
     <div id="verify-form">
       <form method="get" action="try_auth.php">
@@ -63,7 +72,8 @@ global $pape_policy_uris;
         <?php foreach ($pape_policy_uris as $i => $uri) {
           print "<input type=\"checkbox\" name=\"policies[]\" value=\"$uri\" />";
           print "$uri<br/>";
-        } 
+        }
+        ?>
         </p>
 
         <input type="submit" value="Verify" />
