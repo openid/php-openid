@@ -5,7 +5,6 @@
  * protocol.
  */
 
-require_once "PHPUnit.php";
 require_once "Auth/Yadis/XRDS.php";
 require_once "Auth/OpenID/Discover.php";
 
@@ -141,13 +140,13 @@ function __subsets($list)
     return $subsets_list;
 }
 
-class Tests_Auth_OpenID_Tester extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_Tester extends PHPUnit_Framework_TestCase {
     function Tests_Auth_OpenID_Tester($uris, $type_uris, $delegate)
     {
+        parent::__construct();
         $this->uris = $uris;
         $this->type_uris = $type_uris;
         $this->local_id = $delegate;
-        parent::PHPUnit_TestCase();
     }
 
     function setUp()
@@ -211,7 +210,7 @@ class Tests_Auth_OpenID_Tester extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_OpenID_Yadis extends PHPUnit_TestSuite {
+class Tests_Auth_OpenID_OpenID_Yadis extends PHPUnit_Framework_TestSuite {
     function Tests_Auth_OpenID_OpenID_Yadis()
     {
         global $__data;

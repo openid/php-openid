@@ -13,11 +13,10 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once 'PHPUnit.php';
 require_once 'Auth/OpenID.php';
 require_once 'Auth/OpenID/CryptUtil.php';
 
-class Tests_Auth_OpenID_CryptUtil extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_CryptUtil extends PHPUnit_Framework_TestCase {
     function test_length()
     {
         $cases = array(1, 10, 255);

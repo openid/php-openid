@@ -1,6 +1,5 @@
 <?php
 
-require_once "PHPUnit.php";
 require_once "Tests/Auth/Yadis/DiscoverData.php";
 require_once "Auth/Yadis/Yadis.php";
 require_once "Auth/Yadis/HTTPFetcher.php";
@@ -90,7 +89,7 @@ class MockFetcher {
     }
 }
 
-class TestSecondGet extends PHPUnit_TestCase {
+class TestSecondGet extends PHPUnit_Framework_TestCase {
     function test_404()
     {
         $uri = "http://something.unittest/";
@@ -101,17 +100,17 @@ class TestSecondGet extends PHPUnit_TestCase {
     }
 }
 
-class _TestCase extends PHPUnit_TestCase {
+class _TestCase extends PHPUnit_Framework_TestCase {
     var $base_url = 'http://invalid.unittest/';
 
     function _TestCase($input_name, $id_name, $result_name, $success)
     {
+      parent::__construct();
         $this->input_name = $input_name;
         $this->id_name = $id_name;
         $this->result_name = $result_name;
         $this->success = $success;
         $this->fetcher = new TestFetcher($this->base_url);
-        parent::PHPUnit_TestCase();
     }
 
     function setUp()
@@ -163,7 +162,7 @@ class _TestCase extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_Yadis_Discover_Yadis extends PHPUnit_TestSuite {
+class Tests_Auth_Yadis_Discover_Yadis extends PHPUnit_Framework_TestSuite {
 
     function getName()
     {
@@ -181,7 +180,7 @@ class Tests_Auth_Yadis_Discover_Yadis extends PHPUnit_TestSuite {
     }
 }
 
-class Tests_Auth_Yadis_Discover_Yadis_ContentTypes extends PHPUnit_TestCase {
+class Tests_Auth_Yadis_Discover_Yadis_ContentTypes extends PHPUnit_Framework_TestCase {
     function test_is_xrds_yadis_location()
     {
         $result = new Auth_Yadis_DiscoveryResult('http://request.uri/');

@@ -13,10 +13,9 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once 'PHPUnit.php';
 require_once 'Auth/OpenID.php';
 
-class Tests_Auth_OpenID_Util extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_Util extends PHPUnit_Framework_TestCase {
     function test_base64()
     {
         // This is not good for international use, but PHP doesn't
@@ -87,7 +86,7 @@ class Tests_Auth_OpenID_Util extends PHPUnit_TestCase {
 
         foreach ($cases as $pair) {
             list($orig, $after) = $pair;
-            list($base, $frag) = Auth_OpenID::urldefrag($orig); 
+            list($base, $frag) = Auth_OpenID::urldefrag($orig);
             $this->assertEquals($after, $base);
             $this->assertEquals($frag, '');
 

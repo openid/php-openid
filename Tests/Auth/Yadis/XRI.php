@@ -9,12 +9,11 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once "PHPUnit.php";
 require_once "Auth/Yadis/XRIRes.php";
 require_once "Auth/Yadis/XRI.php";
 require_once "Auth/Yadis/Yadis.php";
 
-class Tests_Auth_Yadis_XriDiscoveryTestCase extends PHPUnit_TestCase {
+class Tests_Auth_Yadis_XriDiscoveryTestCase extends PHPUnit_Framework_TestCase {
     function runTest()
     {
         $this->assertEquals(
@@ -34,7 +33,7 @@ class Tests_Auth_Yadis_XriDiscoveryTestCase extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_Yadis_XriEscapingTestCase extends PHPUnit_TestCase {
+class Tests_Auth_Yadis_XriEscapingTestCase extends PHPUnit_Framework_TestCase {
     function test_escaping_percents()
     {
         $this->assertEquals(Auth_Yadis_escapeForIRI('@example/abc%2Fd/ef'),
@@ -60,7 +59,7 @@ class Tests_Auth_Yadis_XriEscapingTestCase extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_Yadis_ProxyQueryTestCase extends PHPUnit_TestCase {
+class Tests_Auth_Yadis_ProxyQueryTestCase extends PHPUnit_Framework_TestCase {
     function setUp()
     {
         $this->proxy_url = 'http://xri.example.com/';
@@ -95,7 +94,7 @@ class Tests_Auth_Yadis_ProxyQueryTestCase extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_Yadis_TestGetRootAuthority extends PHPUnit_TestCase {
+class Tests_Auth_Yadis_TestGetRootAuthority extends PHPUnit_Framework_TestCase {
     function runTest()
     {
         $xris = array(
@@ -126,7 +125,7 @@ class Tests_Auth_Yadis_TestGetRootAuthority extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_Yadis_XRI extends PHPUnit_TestSuite {
+class Tests_Auth_Yadis_XRI extends PHPUnit_Framework_TestSuite {
     function getName()
     {
         return "Tests_Auth_Yadis_XRI";

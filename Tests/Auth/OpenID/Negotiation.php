@@ -1,6 +1,5 @@
 <?php
 
-require_once "PHPUnit.php";
 require_once "Tests/Auth/OpenID/TestUtil.php";
 require_once "Tests/Auth/OpenID/MemStore.php";
 
@@ -36,7 +35,7 @@ class ErrorRaisingConsumer extends Auth_OpenID_GenericConsumer {
 /**
  * Test the session type negotiation behavior of an OpenID 2 consumer.
  */
-class TestOpenID2SessionNegotiation extends PHPUnit_TestCase {
+class TestOpenID2SessionNegotiation extends PHPUnit_Framework_TestCase {
     function setUp()
     {
         $dumb = null;
@@ -201,7 +200,7 @@ class TestOpenID2SessionNegotiation extends PHPUnit_TestCase {
  * of these tests pass openid2-style messages to the openid 1
  * association processing logic to be sure it ignores the extra data.
  */
-class TestOpenID1SessionNegotiation extends PHPUnit_TestCase {
+class TestOpenID1SessionNegotiation extends PHPUnit_Framework_TestCase {
     function setUp()
     {
         $dumb = null;
@@ -297,7 +296,7 @@ class TestOpenID1SessionNegotiation extends PHPUnit_TestCase {
     }
 }
 
-class TestNegotiatorBehaviors extends PHPUnit_TestCase {
+class TestNegotiatorBehaviors extends PHPUnit_Framework_TestCase {
     function setUp()
     {
         $this->allowed_types = array(
@@ -330,7 +329,7 @@ class TestNegotiatorBehaviors extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_Negotiation extends PHPUnit_TestSuite {
+class Tests_Auth_OpenID_Negotiation extends PHPUnit_Framework_TestSuite {
 
     function getName()
     {

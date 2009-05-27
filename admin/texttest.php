@@ -1,19 +1,19 @@
 <?php
 
 require_once 'Tests/TestDriver.php';
-require_once 'PHPUnit/TestResult.php';
+require_once 'PHPUnit/Framework.php';
 require_once 'Console/Getopt.php';
 
-class TextTestResult extends PHPUnit_TestResult {
-    function addError(&$test, &$t)
+class TextTestResult extends PHPUnit_Framework_TestResult {
+  function addError(&$test, &$t, $time=0)
     {
-        parent::addError($test, $t);
+      parent::addError($test, $t, $time);
         echo "E";
     }
 
-    function addFailure(&$test, &$t)
+    function addFailure(&$test, &$t, $time=0)
     {
-        parent::addFailure($test, $t);
+        parent::addFailure($test, $t, $time);
         echo "F";
     }
 
@@ -134,7 +134,7 @@ foreach ($extra_test_modules as $filename) {
     $class_name = "Tests_Auth_OpenID_${module_name}_Test";
     $suites[] = makeSuite($class_name);
 }
-    
+
 
 $totals = array(
     'run' => 0,
@@ -155,7 +155,7 @@ Test suite: $name
     $suite->run($result);
     $after = microtime_float();
 
-    $run = $result->runCount();
+    $run = $result->count();
     $error = $result->errorCount();
     $failure = $result->failureCount();
     $delta = $after - $before;

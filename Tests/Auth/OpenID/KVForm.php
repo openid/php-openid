@@ -13,7 +13,6 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once 'PHPUnit.php';
 require_once 'Auth/OpenID/KVForm.php';
 
 global $_Tests_Auth_OpenID_kverrors;
@@ -29,7 +28,7 @@ function Tests_Auth_OpenID_kvHandleError($errno, $errmsg)
 }
 
 
-class Tests_Auth_OpenID_KVForm_TestCase extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_KVForm_TestCase extends PHPUnit_Framework_TestCase {
     var $errs;
 
     function runTest()
@@ -112,7 +111,7 @@ extends Tests_Auth_OpenID_KVForm_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_KVForm extends PHPUnit_TestSuite {
+class Tests_Auth_OpenID_KVForm extends PHPUnit_Framework_TestSuite {
     function Tests_Auth_OpenID_KVForm($name)
     {
         $this->setName($name);
@@ -249,7 +248,7 @@ class Tests_Auth_OpenID_KVForm extends PHPUnit_TestSuite {
                 } else {
                     $lossy = 'neither';
                 }
-                $test = new Tests_Auth_OpenID_KVForm_TestCase(
+                $test = new Tests_Auth_OpenID_KVForm_TestCase_Parse(
                     $arr, $str, $lossy, $errs);
             }
             $test->setName($testdata["name"]);

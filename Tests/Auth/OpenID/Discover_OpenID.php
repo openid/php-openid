@@ -1,6 +1,5 @@
 <?php
 
-require_once 'PHPUnit.php';
 require_once 'TestUtil.php';
 
 require_once 'Auth/OpenID.php';
@@ -27,7 +26,7 @@ class _SimpleMockFetcher {
     }
 }
 
-class Tests_Auth_OpenID_ServiceEndpoint extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_ServiceEndpoint extends PHPUnit_Framework_TestCase {
     function setUp() {
         $this->endpoint = new Auth_OpenID_ServiceEndpoint();
     }
@@ -53,13 +52,13 @@ class Tests_Auth_OpenID_ServiceEndpoint extends PHPUnit_TestCase {
         foreach ($urls as $url) {
             $this->endpoint->claimed_id = $url;
             $split = explode('#', $url);
-            $this->assertEquals($split[0], 
+            $this->assertEquals($split[0],
                                 $this->endpoint->getDisplayIdentifier());
         }
     }
 }
 
-class Tests_Auth_OpenID_DiscoveryFailure extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_DiscoveryFailure extends PHPUnit_Framework_TestCase {
 
     function Tests_Auth_OpenID_DiscoveryFailure($responses)
     {
@@ -120,7 +119,7 @@ define('E_AUTH_OPENID_VALUE_ERROR', 'e_valueerror');
 define('E_AUTH_OPENID_RUNTIME_ERROR', 'e_runtimeerror');
 define('E_AUTH_OPENID_OI', 'e_oi');
 
-class Tests_Auth_OpenID_Discover_FetchException extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_Discover_FetchException extends PHPUnit_Framework_TestCase {
     // Make sure exceptions get passed through discover function from
     // fetcher.
 
@@ -152,10 +151,10 @@ class Tests_Auth_OpenID_Discover_FetchException extends PHPUnit_TestCase {
 // Tests for openid.consumer.discover.discover
 
 class _DiscoveryMockFetcher extends Auth_Yadis_HTTPFetcher {
-    function _DiscoveryMockFetcher(&$documents)
+    function _DiscoveryMockFetcher($documents)
     {
         $this->redirect = null;
-        $this->documents = &$documents;
+        $this->documents = $documents;
         $this->fetchlog = array();
     }
 
@@ -193,7 +192,7 @@ class _DiscoveryMockFetcher extends Auth_Yadis_HTTPFetcher {
     }
 }
 
-class _DiscoveryBase extends PHPUnit_TestCase {
+class _DiscoveryBase extends PHPUnit_Framework_TestCase {
     var $id_url = "http://someuser.unittest/";
     var $fetcherClass = '_DiscoveryMockFetcher';
 
@@ -590,7 +589,7 @@ class TestXRIDiscovery extends _DiscoveryBase {
 
     function setUp() {
         parent::setUp();
-      
+
 	$this->fetcher->documents = array('=smoker' => array('application/xrds+xml',
 							     Tests_Auth_OpenID_readdata('yadis_2entries_delegate.xml')),
 					  '=smoker*bad' => array('application/xrds+xml',
@@ -704,7 +703,7 @@ class _NonFetcher extends _DiscoveryMockFetcher {
     }
 }
 
-class Tests_Auth_OpenID_SSLSupport extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_SSLSupport extends PHPUnit_Framework_TestCase {
     function test_discoverDropSSL()
     {
         // In the absence of SSL support, the discovery process should

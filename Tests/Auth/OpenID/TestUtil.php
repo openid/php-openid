@@ -4,7 +4,6 @@
  * Utilites for test functions
  */
 
-require_once 'PHPUnit.php';
 
 function Tests_Auth_OpenID_datafile($name, $reader)
 {
@@ -29,7 +28,7 @@ function Tests_Auth_OpenID_readlines($name)
     return Tests_Auth_OpenID_datafile($name, 'file');
 }
 
-class OpenIDTestMixin extends PHPUnit_TestCase {
+class OpenIDTestMixin extends PHPUnit_Framework_TestCase {
     function failUnlessOpenIDValueEquals($msg, $key, $expected, $ns=null)
     {
         if ($ns === null) {

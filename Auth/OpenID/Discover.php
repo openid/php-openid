@@ -433,7 +433,7 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher,
     $openid_services = array();
 
     $response = call_user_func_array($discover_function,
-                                     array($uri, &$fetcher));
+                                     array($uri, $fetcher));
 
     $yadis_url = $response->normalized_uri;
     $yadis_services = array();
@@ -460,7 +460,7 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher,
     }
 
     $openid_services = call_user_func_array($endpoint_filter,
-                                            array(&$openid_services));
+                                            array($openid_services));
 
     return array($yadis_url, $openid_services);
 }

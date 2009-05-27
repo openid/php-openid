@@ -13,15 +13,14 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once 'PHPUnit.php';
 require_once 'Auth/OpenID/BigMath.php';
 require_once 'Tests/Auth/OpenID/TestUtil.php';
 
-class Tests_Auth_OpenID_BinLongConvertRnd extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_BinLongConvertRnd extends PHPUnit_Framework_TestCase {
     var $lib;
     var $max;
 
-    function Tests_Auth_OpenID_BinLongConvertRnd(&$lib, $max)
+    function Tests_Auth_OpenID_BinLongConvertRnd($lib, $max)
     {
         $this->lib =& $lib;
         $this->max = $max;
@@ -41,12 +40,12 @@ class Tests_Auth_OpenID_BinLongConvertRnd extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_BinLongConvert extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_BinLongConvert extends PHPUnit_Framework_TestCase {
     var $lib;
     var $bin;
     var $lng;
 
-    function Tests_Auth_OpenID_BinLongConvert(&$lib, $bin, $lng)
+    function Tests_Auth_OpenID_BinLongConvert($lib, $bin, $lng)
     {
         $this->lib =& $lib;
         $this->bin = $bin;
@@ -62,12 +61,12 @@ class Tests_Auth_OpenID_BinLongConvert extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_Base64ToLong extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_Base64ToLong extends PHPUnit_Framework_TestCase {
     var $num;
     var $b64;
     var $lib;
 
-    function Tests_Auth_OpenID_Base64ToLong(&$lib, $b64, $num)
+    function Tests_Auth_OpenID_Base64ToLong($lib, $b64, $num)
     {
         $this->lib = $lib;
         $this->b64 = $b64;
@@ -82,7 +81,7 @@ class Tests_Auth_OpenID_Base64ToLong extends PHPUnit_TestCase {
 }
 
 class Tests_Auth_OpenID_LongToBase64 extends Tests_Auth_OpenID_Base64ToLong {
-    function Tests_Auth_OpenID_LongToBase64(&$lib, $b64, $num)
+    function Tests_Auth_OpenID_LongToBase64($lib, $b64, $num)
     {
         $this->lib = $lib;
         $this->b64 = $b64;
@@ -96,8 +95,8 @@ class Tests_Auth_OpenID_LongToBase64 extends Tests_Auth_OpenID_Base64ToLong {
     }
 }
 
-class Tests_Auth_OpenID_Rand extends PHPUnit_TestCase {
-    function Tests_Auth_OpenID_Rand(&$lib)
+class Tests_Auth_OpenID_Rand extends PHPUnit_Framework_TestCase {
+    function Tests_Auth_OpenID_Rand($lib)
     {
         $this->lib =& $lib;
     }
@@ -141,7 +140,7 @@ function Tests_Auth_OpenID_maxint()
 }
 
 
-class Tests_Auth_OpenID_BigMath extends PHPUnit_TestSuite {
+class Tests_Auth_OpenID_BigMath extends PHPUnit_Framework_TestSuite {
     function _parseBase64Data()
     {
         $lines = Tests_Auth_OpenID_readlines('n2b64');
@@ -220,15 +219,16 @@ class Tests_Auth_OpenID_BigMath extends PHPUnit_TestSuite {
     function Tests_Auth_OpenID_BigMath($name)
     {
         $this->setName($name);
-        
-        if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
-            $this->addTestSuite('Tests_Auth_OpenID_BigInt');
-            $this->_addB64Tests();
-            $this->_addBinLongTests();
-            $test = new Tests_Auth_OpenID_Rand(Auth_OpenID_getMathLib());
-            $test->setName('Big number rand');
-            $this->addTest($test);
+
+        if (defined('Auth_OpenID_NO_MATH_SUPPORT')) {
+          return;
         }
+
+        $this->_addB64Tests();
+        $this->_addBinLongTests();
+        $test = new Tests_Auth_OpenID_Rand(Auth_OpenID_getMathLib());
+        $test->setName('Big number rand');
+        $this->addTest($test);
     }
 }
 

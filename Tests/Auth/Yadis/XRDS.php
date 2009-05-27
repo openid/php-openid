@@ -4,13 +4,12 @@
  * XRDS-parsing tests for the Yadis library.
  */
 
-require_once 'PHPUnit.php';
 require_once 'Auth/Yadis/XRDS.php';
 require_once 'Auth/Yadis/XRIRes.php';
 require_once 'Auth/Yadis/XRI.php';
 require_once 'Tests/Auth/Yadis/TestUtil.php';
 
-class Tests_Auth_Yadis_XRDS extends PHPUnit_TestCase {
+class Tests_Auth_Yadis_XRDS extends PHPUnit_Framework_TestCase {
 
     function test_good()
     {
@@ -108,7 +107,7 @@ class Tests_Auth_Yadis_XRDS extends PHPUnit_TestCase {
 
         foreach ($canonicalIDtests as $tupl) {
             list($iname, $filename, $expectedID) = $tupl;
-            
+
             $xml = Tests_Auth_Yadis_readdata($filename);
             $xrds = Auth_Yadis_XRDS::parseXRDS($xml);
             $this->_getCanonicalID($iname, $xrds, $expectedID);
@@ -153,7 +152,7 @@ class Tests_Auth_Yadis_XRDS extends PHPUnit_TestCase {
         $types = $s2->getTypes();
         $this->assertEquals(count($types), 1, "second type check");
 
-        function _DelegateFilter(&$service)
+        function _DelegateFilter($service)
             {
                 if ($service->getElements('openid:Delegate')) {
                     return true;
@@ -167,7 +166,7 @@ class Tests_Auth_Yadis_XRDS extends PHPUnit_TestCase {
                             "_DelegateFilter check");
 
         // This filter should match all services in the document.
-        function _HasTypeAndURI(&$service)
+        function _HasTypeAndURI($service)
             {
                 if ($service->getTypes() &&
                     $service->getURIs()) {
@@ -177,7 +176,7 @@ class Tests_Auth_Yadis_XRDS extends PHPUnit_TestCase {
             }
 
         // This filter should only match one.
-        function _URIMatchesSchtuff(&$service)
+        function _URIMatchesSchtuff($service)
             {
                 $uris = $service->getURIs();
 
@@ -190,7 +189,7 @@ class Tests_Auth_Yadis_XRDS extends PHPUnit_TestCase {
             }
 
         // This filter should only match one.
-        function _URIMatchesMyOpenID(&$service)
+        function _URIMatchesMyOpenID($service)
             {
                 $uris = $service->getURIs();
 

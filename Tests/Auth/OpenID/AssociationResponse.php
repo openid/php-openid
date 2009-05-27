@@ -1,6 +1,5 @@
 <?php
 
-require_once "PHPUnit.php";
 require_once "Tests/Auth/OpenID/TestUtil.php";
 require_once "Tests/Auth/OpenID/MemStore.php";
 
@@ -39,7 +38,7 @@ function mkAssocResponse($keys)
     return Auth_OpenID_Message::fromOpenIDArgs($args);
 }
 
-class Tests_Auth_OpenID_AssociationResponse extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_AssociationResponse extends PHPUnit_Framework_TestCase {
     function setUp()
     {
         $this->store = new Tests_Auth_OpenID_MemStore();

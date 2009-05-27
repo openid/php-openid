@@ -1,6 +1,5 @@
 <?php
 
-require_once "PHPUnit.php";
 require_once "Tests/Auth/OpenID/TestUtil.php";
 require_once "Tests/Auth/OpenID/MemStore.php";
 
@@ -70,7 +69,7 @@ class Tests_openID1Fallback1_0 extends _DiscoverAndVerify {
         $resp_msg = Auth_OpenID_Message::fromOpenIDArgs(
             array('ns' => Auth_OpenID_OPENID1_NS,
                   'identity' => $claimed_id));
-        $resp_msg->setArg(Auth_OpenID_BARE_NS, 'openid1_claimed_id', 
+        $resp_msg->setArg(Auth_OpenID_BARE_NS, 'openid1_claimed_id',
                           $claimed_id);
         $expected_endpoint = new Auth_OpenID_ServiceEndpoint();
         $expected_endpoint->type_uris = array(Auth_OpenID_TYPE_1_0);
@@ -84,18 +83,18 @@ class Tests_openID1Fallback1_0 extends _DiscoverAndVerify {
             $resp_msg, null);
 
         $this->assertTrue(is_a($actual_endpoint, "Auth_OpenID_ServiceEndpoint"));
-        
-        $this->assertEquals($expected_endpoint->local_id, 
+
+        $this->assertEquals($expected_endpoint->local_id,
                             $actual_endpoint->local_id);
         $this->assertEquals($expected_endpoint->server_url,
                             $actual_endpoint->server_url);
 
-        $this->assertEquals($expected_endpoint->type_uris, 
+        $this->assertEquals($expected_endpoint->type_uris,
                             $actual_endpoint->type_uris);
 
-        $this->assertEquals($expected_endpoint->claimed_id, 
+        $this->assertEquals($expected_endpoint->claimed_id,
                             $actual_endpoint->claimed_id);
-        
+
     }
 }
 
@@ -325,7 +324,7 @@ class Tests_openID2MismatchedDoesDisco extends Tests_Auth_OpenID_VerifyDisco {
     }
 }
 
-class Tests_openID2MismatchedDoesDisco_failure extends PHPUnit_TestCase {
+class Tests_openID2MismatchedDoesDisco_failure extends PHPUnit_Framework_TestCase {
     var $consumer_class = 'Tests_openID2NoEndpointDoesDisco_failure';
 
     function setUp()

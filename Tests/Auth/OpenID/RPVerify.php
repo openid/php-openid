@@ -9,8 +9,6 @@ require_once 'Auth/OpenID/TrustRoot.php';
 
 require_once 'Auth/Yadis/Yadis.php';
 
-require_once 'PHPUnit.php';
-
 // Because "null" cannot be passed by reference.
 $NULL_FETCHER = null;
 
@@ -18,7 +16,7 @@ $NULL_FETCHER = null;
  * Tests for building the discovery URL from a realm and a return_to
  * URL
  */
-class Tests_Auth_OpenID_BuildDiscoveryURL extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_BuildDiscoveryURL extends PHPUnit_Framework_TestCase {
     /*
      * Build a discovery URL out of the realm and a return_to and make
      * sure that it matches the expected discovery URL
@@ -50,7 +48,7 @@ class Tests_Auth_OpenID_BuildDiscoveryURL extends PHPUnit_TestCase {
 }
 
 class _MockDiscover {
-    function _MockDiscover(&$data) {
+    function _MockDiscover($data) {
         $this->data =& $data;
     }
 
@@ -63,13 +61,13 @@ class _MockDiscover {
     }
 }
 
-class Tests_Auth_OpenID_ExtractReturnToURLs extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_ExtractReturnToURLs extends PHPUnit_Framework_TestCase {
     var $disco_url = 'http://example.com/';
 
     function failUnlessXRDSHasReturnURLs($data, $expected_return_urls)
     {
         $discover_object = new _MockDiscover($data);
-        $actual_return_urls = Auth_OpenID_getAllowedReturnURLs($this->disco_url, $NULL_FETCHER, array(&$discover_object, 'mockDiscover'));
+        $actual_return_urls = Auth_OpenID_getAllowedReturnURLs($this->disco_url, $NULL_FETCHER, array($discover_object, 'mockDiscover'));
 
         $this->assertEquals($expected_return_urls, $actual_return_urls);
     }
@@ -77,7 +75,7 @@ class Tests_Auth_OpenID_ExtractReturnToURLs extends PHPUnit_TestCase {
     function failUnlessDiscoveryFailure($text)
     {
         $discover_object = new _MockDiscover($text);
-        $this->assertFalse(Auth_OpenID_getAllowedReturnURLs($this->disco_url, $NULL_FETCHER, array(&$discover_object, 'mockDiscover')));
+        $this->assertFalse(Auth_OpenID_getAllowedReturnURLs($this->disco_url, $NULL_FETCHER, array($discover_object, 'mockDiscover')));
     }
 
     function test_empty()
@@ -181,7 +179,7 @@ class Tests_Auth_OpenID_ExtractReturnToURLs extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_ReturnToMatches extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_ReturnToMatches extends PHPUnit_Framework_TestCase {
     function test_noEntries()
     {
         $this->assertFalse(Auth_OpenID_returnToMatches(array(), 'anything'));
@@ -224,7 +222,7 @@ class Tests_Auth_OpenID_ReturnToMatches extends PHPUnit_TestCase {
 }
 
 class Verifier {
-    function Verifier(&$test_case, $return_to)
+    function Verifier($test_case, $return_to)
     {
         $this->tc =& $test_case;
         $this->return_to = $return_to;
@@ -242,8 +240,8 @@ class Verifier {
     }
 }
 
-class Tests_Auth_OpenID_VerifyReturnTo extends PHPUnit_TestCase {
-    
+class Tests_Auth_OpenID_VerifyReturnTo extends PHPUnit_Framework_TestCase {
+
     function test_bogusRealm()
     {
         $this->assertFalse(Auth_OpenID_verifyReturnTo('', 'http://example.com/', $NULL_FETCHER));
@@ -256,7 +254,7 @@ class Tests_Auth_OpenID_VerifyReturnTo extends PHPUnit_TestCase {
 
         $v = new Verifier($this, $return_to);
 
-        $this->assertTrue(Auth_OpenID_verifyReturnTo($realm, $return_to, $NULL_FETCHER, array(&$v, 'verify')));
+        $this->assertTrue(Auth_OpenID_verifyReturnTo($realm, $return_to, $NULL_FETCHER, array($v, 'verify')));
     }
 
     function test_verifyFailWithDiscoveryCalled()
@@ -266,7 +264,7 @@ class Tests_Auth_OpenID_VerifyReturnTo extends PHPUnit_TestCase {
 
         $v = new Verifier($this, 'http://something-else.invalid/');
 
-        $this->assertFalse(Auth_OpenID_verifyReturnTo($realm, $return_to, $NULL_FETCHER, array(&$v, 'verify')));
+        $this->assertFalse(Auth_OpenID_verifyReturnTo($realm, $return_to, $NULL_FETCHER, array($v, 'verify')));
     }
 
     function test_verifyFailIfDiscoveryRedirects()
@@ -276,11 +274,11 @@ class Tests_Auth_OpenID_VerifyReturnTo extends PHPUnit_TestCase {
 
         $v = new Verifier($this, false);
 
-        $this->assertFalse(Auth_OpenID_verifyReturnTo($realm, $return_to, $NULL_FETCHER, array(&$v, 'verify')));
+        $this->assertFalse(Auth_OpenID_verifyReturnTo($realm, $return_to, $NULL_FETCHER, array($v, 'verify')));
     }
 }
 
-class Tests_Auth_OpenID_RPVerify extends PHPUnit_TestSuite {
+class Tests_Auth_OpenID_RPVerify extends PHPUnit_Framework_TestSuite {
     function getName()
     {
         return "Tests_Auth_OpenID_RPVerify";

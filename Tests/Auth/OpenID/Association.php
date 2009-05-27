@@ -13,10 +13,9 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once 'PHPUnit.php';
 require_once 'Auth/OpenID/Association.php';
 
-class Tests_Auth_OpenID_Association extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_Association extends PHPUnit_Framework_TestCase {
     function test_me()
     {
         $issued = time();

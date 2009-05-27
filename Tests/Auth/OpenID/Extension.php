@@ -1,6 +1,5 @@
 <?php
 
-require_once 'PHPUnit.php';
 require_once 'Auth/OpenID/Message.php';
 require_once 'Auth/OpenID/Extension.php';
 
@@ -14,7 +13,7 @@ class _ExtensionTest_DummyExtension extends Auth_OpenID_Extension {
     }
 }
 
-class Tests_Auth_OpenID_Extension extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_Extension extends PHPUnit_Framework_TestCase {
     function test_OpenID1()
     {
         $oid1_msg = new Auth_OpenID_Message(Auth_OpenID_OPENID1_NS);

@@ -14,11 +14,10 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once 'PHPUnit.php';
 require_once 'Auth/OpenID/HMAC.php';
 require_once 'Tests/Auth/OpenID/TestUtil.php';
 
-class Tests_Auth_OpenID_HMAC_TestCase extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_HMAC_TestCase extends PHPUnit_Framework_TestCase {
     function Tests_Auth_OpenID_HMAC_TestCase(
         $name, $key, $data, $expected, $hmac_func)
     {
@@ -37,7 +36,7 @@ class Tests_Auth_OpenID_HMAC_TestCase extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_HMAC extends PHPUnit_TestSuite {
+class Tests_Auth_OpenID_HMAC extends PHPUnit_Framework_TestSuite {
     function _strConvert($s)
     {
         $repeat_pat = '/^0x([a-f0-9]{2}) repeated (\d+) times$/';

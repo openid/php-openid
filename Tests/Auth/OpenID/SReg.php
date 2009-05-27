@@ -8,9 +8,7 @@ require_once 'Auth/OpenID/SReg.php';
 require_once 'Auth/OpenID/Message.php';
 require_once 'Auth/OpenID/Server.php';
 
-require_once 'PHPUnit.php';
-
-class SRegURITest extends PHPUnit_TestCase {
+class SRegURITest extends PHPUnit_Framework_TestCase {
     function test_is11()
     {
         $this->assertEquals(Auth_OpenID_SREG_NS_URI_1_1,
@@ -18,7 +16,7 @@ class SRegURITest extends PHPUnit_TestCase {
     }
 }
 
-class CheckFieldNameTest extends PHPUnit_TestCase {
+class CheckFieldNameTest extends PHPUnit_Framework_TestCase {
     function test_goodNamePasses()
     {
         global $Auth_OpenID_sreg_data_fields;
@@ -54,7 +52,7 @@ class FakeEndpoint {
     }
 }
 
-class SupportsSRegTest extends PHPUnit_TestCase {
+class SupportsSRegTest extends PHPUnit_Framework_TestCase {
     function test_unsupported()
     {
         $endpoint = new FakeEndpoint(array());
@@ -95,7 +93,7 @@ class FakeMessage {
     }
 }
 
-class GetNSTest extends PHPUnit_TestCase {
+class GetNSTest extends PHPUnit_Framework_TestCase {
     function setUp()
     {
         $this->msg = new FakeMessage();
@@ -182,7 +180,7 @@ $__args_sentinel = 'args_sentinel';
 $__ns_sentinel = 'ns_sentinel';
 
 class SentinelFakeMessage {
-    function SentinelFakeMessage(&$test_case)
+    function SentinelFakeMessage($test_case)
     {
         $this->test_case =& $test_case;
         $this->message = new Auth_OpenID_Message();
@@ -200,7 +198,7 @@ class SentinelFakeMessage {
 global $__TestingReq_TEST_CASE;
 $__TestingReq_TEST_CASE = "FLUB";
 
-function __setTestCase(&$thing) {
+function __setTestCase($thing) {
   global $__TestingReq_TEST_CASE;
   $__TestingReq_TEST_CASE = $thing;
 }
@@ -211,7 +209,7 @@ function &__getTestCase() {
 }
 
 class TestingReq extends Auth_OpenID_SRegRequest {
-    function fromOpenIDRequest(&$thing, &$test_case)
+    function fromOpenIDRequest($thing, $test_case)
     {
         __setTestCase($test_case);
         $obj = parent::fromOpenIDRequest($thing, 'TestingReq');
@@ -232,7 +230,7 @@ class TestingReq extends Auth_OpenID_SRegRequest {
     }
 }
 
-class SRegRequestTest extends PHPUnit_TestCase {
+class SRegRequestTest extends PHPUnit_Framework_TestCase {
     function test_constructEmpty()
     {
         $req = Auth_OpenID_SRegRequest::build();
@@ -573,7 +571,7 @@ class DummySuccessResponse {
     }
 }
 
-class SRegResponseTest extends PHPUnit_TestCase {
+class SRegResponseTest extends PHPUnit_Framework_TestCase {
     function test_fromSuccessResponse_signed()
     {
         $message = Auth_OpenID_Message::fromOpenIDArgs(array(
@@ -599,7 +597,7 @@ class SRegResponseTest extends PHPUnit_TestCase {
     }
 }
 
-class SendFieldsTest extends PHPUnit_TestCase {
+class SendFieldsTest extends PHPUnit_Framework_TestCase {
     function _test($uri)
     {
         // Create a request message with simple registration fields
@@ -654,7 +652,7 @@ class SendFieldsTest extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_SReg extends PHPUnit_TestSuite {
+class Tests_Auth_OpenID_SReg extends PHPUnit_Framework_TestSuite {
     function getName()
     {
         return "Tests_Auth_OpenID_SReg";

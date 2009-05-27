@@ -109,9 +109,9 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
             }
 
             curl_setopt($c, CURLOPT_WRITEFUNCTION,
-                        array(&$this, "_writeData"));
+                        array($this, "_writeData"));
             curl_setopt($c, CURLOPT_HEADERFUNCTION,
-                        array(&$this, "_writeHeader"));
+                        array($this, "_writeHeader"));
 
             if ($extra_headers) {
                 curl_setopt($c, CURLOPT_HTTPHEADER, $extra_headers);
@@ -190,7 +190,7 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
         curl_setopt($c, CURLOPT_TIMEOUT, $this->timeout);
         curl_setopt($c, CURLOPT_URL, $url);
         curl_setopt($c, CURLOPT_WRITEFUNCTION,
-                    array(&$this, "_writeData"));
+                    array($this, "_writeData"));
 
         curl_exec($c);
 

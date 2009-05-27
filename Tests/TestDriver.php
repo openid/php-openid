@@ -13,8 +13,8 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once 'PHPUnit.php';
-require_once 'PHPUnit/GUI/HTML.php';
+require_once 'PHPUnit/Framework.php';
+//require_once 'PHPUnit/GUI/HTML.php';
 
 error_reporting(E_ALL);
 
@@ -85,8 +85,8 @@ function loadTests($test_dir, $test_names)
 function makeSuite($class_name) {
     $test = new $class_name($class_name);
 
-    if (is_a($test, 'PHPUnit_TestCase')) {
-        $s = new PHPUnit_TestSuite();
+    if (is_a($test, 'PHPUnit_Framework_TestCase')) {
+        $s = new PHPUnit_Framework_TestSuite();
         $s->setName($class_name);
         $s->addTestSuite($class_name);
         $test = $s;

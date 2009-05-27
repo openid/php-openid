@@ -4,7 +4,6 @@
  * Tests for Auth_OpenID_Server
  */
 
-require_once "PHPUnit.php";
 require_once "Tests/Auth/OpenID/MemStore.php";
 require_once "Auth/OpenID.php";
 require_once "Auth/OpenID/DiffieHellman.php";
@@ -57,7 +56,7 @@ function _Auth_OpenID_NotAuthorized()
     return false;
 }
 
-class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_Framework_TestCase {
     function test_browserWithReturnTo()
     {
         $return_to = "http://rp.unittest/consumer";
@@ -187,7 +186,7 @@ class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_Test_Decode extends PHPUnit_Framework_TestCase {
     function setUp()
     {
         $this->id_url = "http://decoder.am.unittest/";
@@ -469,7 +468,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
                       'openid.mode' => 'associate',
                       'openid.session_type' => 'DH-SHA1',
                       'openid.dh_consumer_public' => "Rzup9265tw==");
-            
+
         $r = $this->decoder->decode($args);
         $this->assertTrue(is_a($r, 'Auth_OpenID_AssociateRequest'));
         $this->assertEquals($r->mode, "associate");
@@ -634,7 +633,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_Test_Encode extends PHPUnit_Framework_TestCase {
     function setUp()
     {
         $this->encoder = new Auth_OpenID_Encoder();
@@ -787,10 +786,10 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
             'http://burr.unittest/',
             false, null,
             $this->server);
-        
+
         $response = new Auth_OpenID_ServerResponse($request);
         $response->fields = Auth_OpenID_Message::fromOpenIDArgs(array('mode' => 'cancel'));
-        
+
         $form = $response->toFormMarkup();
         $pos = strpos($form, 'http://burr.unittest/999');
         $this->assertTrue($pos !== false, var_export($pos, true));
@@ -863,7 +862,7 @@ class Tests_Auth_OpenID_Test_Encode extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_SigningEncode extends PHPUnit_Framework_TestCase {
     function setUp()
     {
         // Use filestore here instead of memstore
@@ -991,7 +990,7 @@ class Tests_Auth_OpenID_SigningEncode extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_CheckID extends PHPUnit_Framework_TestCase {
     function setUp()
     {
         $this->store = new Tests_Auth_OpenID_MemStore();
@@ -1015,7 +1014,7 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
     function test_fromMessageClaimedIDWithoutIdentityOpenID2()
     {
         $name = 'https://example.myopenid.com';
-        
+
         $msg = new Auth_OpenID_Message(Auth_OpenID_OPENID2_NS);
         $msg->setArg(Auth_OpenID_OPENID_NS, 'mode', 'checkid_setup');
         $msg->setArg(Auth_OpenID_OPENID_NS, 'return_to',
@@ -1031,7 +1030,7 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
     function test_fromMessageIdentityWithoutClaimedIDOpenID2()
     {
         $name = 'https://example.myopenid.com';
-        
+
         $msg = new Auth_OpenID_Message(Auth_OpenID_OPENID2_NS);
         $msg->setArg(Auth_OpenID_OPENID_NS, 'mode', 'checkid_setup');
         $msg->setArg(Auth_OpenID_OPENID_NS, 'return_to',
@@ -1111,10 +1110,10 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
     function test_returnToVerified_callsVerify()
     {
         // Ensure that True and False are passed through unchanged
-        $this->request->verifyReturnTo = array(&$this, '_verifyTrue');
+        $this->request->verifyReturnTo = array($this, '_verifyTrue');
         $this->assertEquals(true, $this->request->returnToVerified());
 
-        $this->request->verifyReturnTo = array(&$this, '_verifyFalse');
+        $this->request->verifyReturnTo = array($this, '_verifyFalse');
         $this->assertEquals(false, $this->request->returnToVerified());
     }
 
@@ -1485,7 +1484,7 @@ class Tests_Auth_OpenID_CheckID extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_CheckIDExtension extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_CheckIDExtension extends PHPUnit_Framework_TestCase {
     function setUp()
     {
         $this->op_endpoint = 'http://endpoint.unittest/ext';
@@ -1577,7 +1576,7 @@ class _MockSignatory {
     }
 }
 
-class Tests_Auth_OpenID_CheckAuth extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_CheckAuth extends PHPUnit_Framework_TestCase {
     function setUp()
     {
         $this->assoc_handle = 'mooooooooo';
@@ -1642,7 +1641,7 @@ class Tests_Auth_OpenID_CheckAuth extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_Associate extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_Associate extends PHPUnit_Framework_TestCase {
     // TODO: test DH with non-default values for modulus and gen.
     // (important to do because we actually had it broken for a
     // while.)
@@ -2031,7 +2030,7 @@ class Counter {
     }
 }
 
-class Tests_Auth_OpenID_ServerTest extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_ServerTest extends PHPUnit_Framework_TestCase {
     function setUp()
     {
         $this->store = new Tests_Auth_OpenID_MemStore();
@@ -2146,7 +2145,7 @@ class Tests_Auth_OpenID_ServerTest extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_Signatory extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_Signatory extends PHPUnit_Framework_TestCase {
     function setUp()
     {
         $this->store =& new Tests_Auth_OpenID_MemStore();
@@ -2436,7 +2435,7 @@ class Tests_Auth_OpenID_Signatory extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_Server extends PHPUnit_TestSuite {
+class Tests_Auth_OpenID_Server extends PHPUnit_Framework_TestSuite {
 
     function getName()
     {

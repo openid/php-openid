@@ -1,7 +1,5 @@
 <?php
 
-require_once 'PHPUnit.php';
-
 require_once 'Tests/Auth/OpenID/TestUtil.php';
 
 require_once 'Auth/OpenID/Association.php';
@@ -283,7 +281,7 @@ class TestAuthRequestOpenID2Immediate extends TestAuthRequestOpenID2 {
     var $expected_mode = 'checkid_immediate';
 }
 
-class Tests_Auth_OpenID_AuthRequest extends PHPUnit_TestSuite {
+class Tests_Auth_OpenID_AuthRequest extends PHPUnit_Framework_TestSuite {
 
     function getName()
     {

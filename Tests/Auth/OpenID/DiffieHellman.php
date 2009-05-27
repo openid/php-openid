@@ -14,11 +14,10 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once 'PHPUnit.php';
 require_once 'Auth/OpenID/DiffieHellman.php';
 require_once 'Tests/Auth/OpenID/TestUtil.php';
 
-class Tests_Auth_OpenID_DiffieHellman_CheckCases extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_DiffieHellman_CheckCases extends PHPUnit_Framework_TestCase {
     function Tests_Auth_OpenID_DiffieHellman_CheckCases($cases, $n)
     {
         $this->cases = $cases;
@@ -31,7 +30,7 @@ class Tests_Auth_OpenID_DiffieHellman_CheckCases extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_DiffieHellman_Private extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_DiffieHellman_Private extends PHPUnit_Framework_TestCase {
     function Tests_Auth_OpenID_DiffieHellman_Private($name, $input, $expected)
     {
         $this->setName("$name");
@@ -47,7 +46,7 @@ class Tests_Auth_OpenID_DiffieHellman_Private extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_DiffieHellman_Exch extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_DiffieHellman_Exch extends PHPUnit_Framework_TestCase {
     function Tests_Auth_OpenID_DiffieHellman_Exch($name, $p1, $p2, $shared)
     {
         $this->setName("$name");
@@ -69,7 +68,7 @@ class Tests_Auth_OpenID_DiffieHellman_Exch extends PHPUnit_TestCase {
     }
 }
 
-class Tests_Auth_OpenID_DiffieHellman extends PHPUnit_TestSuite {
+class Tests_Auth_OpenID_DiffieHellman extends PHPUnit_Framework_TestSuite {
     function _readPrivateTestCases()
     {
         $lines = Tests_Auth_OpenID_readlines('dhpriv');

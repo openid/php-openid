@@ -1,12 +1,10 @@
 <?php
 
-require_once "PHPUnit.php";
-
 require_once "Auth/OpenID/PAPE.php";
 require_once "Auth/OpenID/Message.php";
 require_once "Auth/OpenID/Server.php";
 
-class PapeRequestTestCase extends PHPUnit_TestCase {
+class PapeRequestTestCase extends PHPUnit_Framework_TestCase {
     function setUp()
     {
         $this->req = new Auth_OpenID_PAPE_Request();
@@ -107,7 +105,7 @@ class PAPE_DummySuccessResponse {
   }
 }
 
-class PapeResponseTestCase extends PHPUnit_TestCase {
+class PapeResponseTestCase extends PHPUnit_Framework_TestCase {
   function setUp() {
     $this->req = new Auth_OpenID_PAPE_Response();
   }
@@ -118,7 +116,7 @@ class PapeResponseTestCase extends PHPUnit_TestCase {
     $this->assertEquals('pape', $this->req->ns_alias);
     $this->assertEquals(null, $this->req->nist_auth_level);
 
-    $req2 = new Auth_OpenID_PAPE_Response(array(PAPE_AUTH_MULTI_FACTOR), 
+    $req2 = new Auth_OpenID_PAPE_Response(array(PAPE_AUTH_MULTI_FACTOR),
                                           '2001-01-01T04:05:23Z',
                                           3);
     $this->assertEquals(array(PAPE_AUTH_MULTI_FACTOR), $req2->auth_policies);
@@ -179,7 +177,7 @@ class PapeResponseTestCase extends PHPUnit_TestCase {
     $this->assertEquals(null, $this->req->auth_time);
     $this->assertEquals(array(), $this->req->auth_policies);
   }
-  
+
   function test_parseExtensionArgs_strict_bogus1() {
     $args = array('auth_policies' => 'http://foo http://bar',
                   'auth_time' => 'yesterday');
@@ -232,7 +230,7 @@ class PapeResponseTestCase extends PHPUnit_TestCase {
   }
 }
 
-class Tests_Auth_OpenID_PAPE extends PHPUnit_TestSuite {
+class Tests_Auth_OpenID_PAPE extends PHPUnit_Framework_TestSuite {
   function getName() {
     return "Tests_Auth_OpenID_PAPE";
   }

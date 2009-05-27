@@ -20,7 +20,6 @@ require_once 'Auth/OpenID/Association.php';
 require_once 'Auth/OpenID/CryptUtil.php';
 require_once 'Auth/OpenID/Nonce.php';
 require_once 'Auth/OpenID.php';
-require_once 'PHPUnit.php';
 
 function _Auth_OpenID_mkdtemp()
 {
@@ -70,7 +69,9 @@ function _Auth_OpenID_getTmpDbName()
  *
  * @package OpenID
  */
-class Tests_Auth_OpenID_Store extends PHPUnit_TestCase {
+class Tests_Auth_OpenID_Store extends PHPUnit_Framework_TestCase {
+
+  function pass() {}
 
     /**
      * Prepares for the SQL store tests.
@@ -98,7 +99,7 @@ class Tests_Auth_OpenID_Store extends PHPUnit_TestCase {
     /**
      * @access private
      */
-    function _checkRetrieve(&$store, $url, $handle, $expected, $name = null)
+    function _checkRetrieve($store, $url, $handle, $expected, $name = null)
     {
         $retrieved_assoc = $store->getAssociation($url, $handle);
         if ($expected === null) {
@@ -108,7 +109,7 @@ class Tests_Auth_OpenID_Store extends PHPUnit_TestCase {
         }
     }
 
-    function _checkRemove(&$store, $url, $handle, $expected, $name = null)
+    function _checkRemove($store, $url, $handle, $expected, $name = null)
     {
         $present = $store->removeAssociation($url, $handle);
         $this->assertTrue((!$expected && !$present) ||
@@ -124,7 +125,7 @@ class Tests_Auth_OpenID_Store extends PHPUnit_TestCase {
      *
      * OpenIDStore -> NoneType
      */
-    function _testStore(&$store)
+    function _testStore($store)
     {
         // Association functions
         $now = time();
@@ -295,7 +296,7 @@ explicitly');
         if (!$store->supportsCleanup()) {
             return;
         }
-        
+
         $store->cleanupAssociations();
         $store->storeAssociation($server_url . '1', $assocValid1);
         $store->storeAssociation($server_url . '1', $assocExpired1);
@@ -306,14 +307,14 @@ explicitly');
         $this->assertEquals(2, $cleaned);
     }
 
-    function _checkUseNonce(&$store, $nonce, $expected, $server_url, $msg=null)
+    function _checkUseNonce($store, $nonce, $expected, $server_url, $msg=null)
     {
         list($stamp, $salt) = Auth_OpenID_splitNonce($nonce);
         $actual = $store->useNonce($server_url, $stamp, $salt);
         $this->assertEquals(intval($expected), intval($actual), "_checkUseNonce failed: $server_url, $msg");
     }
 
-    function _testNonce(&$store)
+    function _testNonce($store)
     {
         // Nonce functions
 
@@ -341,11 +342,11 @@ explicitly');
         }
     }
 
-    function _testNonceCleanup(&$store) {
+    function _testNonceCleanup($store) {
         if (!$store->supportsCleanup()) {
         	return;
         }
-        
+
         $server_url = 'http://www.myopenid.com/openid';
 
         $now = time();
@@ -364,15 +365,15 @@ explicitly');
 
         $params = Auth_OpenID_splitNonce($old_nonce1);
         array_unshift($params, $server_url);
-        $this->assertTrue(call_user_func_array(array(&$store, 'useNonce'), $params));
+        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
 
         $params = Auth_OpenID_splitNonce($old_nonce2);
         array_unshift($params, $server_url);
-        $this->assertTrue(call_user_func_array(array(&$store, 'useNonce'), $params));
+        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
 
         $params = Auth_OpenID_splitNonce($recent_nonce);
         array_unshift($params, $server_url);
-        $this->assertTrue(call_user_func_array(array(&$store, 'useNonce'), $params));
+        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
 
         $Auth_OpenID_SKEW = 3600;
         $cleaned = $store->cleanupNonces();
@@ -384,15 +385,15 @@ explicitly');
 
         $params = Auth_OpenID_splitNonce($old_nonce1);
         array_unshift($params, $server_url);
-        $this->assertTrue(call_user_func_array(array(&$store, 'useNonce'), $params));
+        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
         $params = Auth_OpenID_splitNonce($old_nonce2);
         array_unshift($params, $server_url);
-        $this->assertTrue(call_user_func_array(array(&$store, 'useNonce'), $params));
+        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
 
         // The recent nonce wasn't cleaned, so it should still fail.
         $params = Auth_OpenID_splitNonce($recent_nonce);
         array_unshift($params, $server_url);
-        $this->assertFalse(call_user_func_array(array(&$store, 'useNonce'), $params));
+        $this->assertFalse(call_user_func_array(array($store, 'useNonce'), $params));
 
         $Auth_OpenID_SKEW = $orig_skew;
     }
@@ -690,7 +691,7 @@ class Tests_Auth_OpenID_MemcachedStore_Test extends Tests_Auth_OpenID_Store {
     }
 }
 
-class Tests_Auth_OpenID_StoreTest extends PHPUnit_TestSuite {
+class Tests_Auth_OpenID_StoreTest extends PHPUnit_Framework_TestSuite {
     function getName()
     {
         return "Tests_Auth_OpenID_StoreTest";
