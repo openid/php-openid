@@ -58,4 +58,3 @@ class OpenIDTestMixin extends PHPUnit_Framework_TestCase {
     }
 }
 
-?>

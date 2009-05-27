@@ -51,4 +51,4 @@ class Tests_Auth_OpenID_Association extends PHPUnit_Framework_TestCase {
     }
 }
 
-?>
+

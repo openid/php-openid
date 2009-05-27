@@ -420,4 +420,3 @@ $Tests_Auth_OpenID_VerifyDisco_other = array(
                                              new Tests_openID1Fallback1_0(),
                                              );
 
-?>

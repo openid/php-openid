@@ -246,4 +246,3 @@ class Auth_Yadis_PlainHTTPFetcher extends Auth_Yadis_HTTPFetcher {
     }
 }
 
-?>

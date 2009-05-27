@@ -349,4 +349,3 @@ function Auth_OpenID_legacy_discover($html_text, $server_rel,
     }
 }
 
-?>

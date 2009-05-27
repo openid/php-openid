@@ -779,4 +779,3 @@ $Tests_Auth_OpenID_Discover_OpenID_other = array(
                                                  new Tests_Auth_OpenID_SSLSupport()
                                                  );
 
-?>

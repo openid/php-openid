@@ -163,4 +163,4 @@ class Tests_Auth_OpenID_Nonce_BadSplitCase extends PHPUnit_Framework_TestCase {
     }
 }
 
-?>
+

@@ -1020,4 +1020,3 @@ class Auth_OpenID_AX_StoreResponse extends Auth_OpenID_AX_Message {
     }
 }
 
-?>

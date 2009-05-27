@@ -86,4 +86,3 @@ class Tests_Auth_Yadis_Yadis extends PHPUnit_Framework_TestSuite {
 
 }
 
-?>

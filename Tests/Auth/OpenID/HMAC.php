@@ -162,4 +162,4 @@ class Tests_Auth_OpenID_HMAC extends PHPUnit_Framework_TestSuite {
     }
 }
 
-?>
+

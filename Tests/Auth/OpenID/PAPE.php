@@ -241,4 +241,4 @@ class Tests_Auth_OpenID_PAPE extends PHPUnit_Framework_TestSuite {
   }
 }
 
-?>
+

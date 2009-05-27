@@ -2526,4 +2526,4 @@ if (!defined('Auth_OpenID_NO_MATH_SUPPORT') &&
     $Tests_Auth_OpenID_Consumer_other[] = new TestOpenID2SHA256();
 }
 
-?>
+

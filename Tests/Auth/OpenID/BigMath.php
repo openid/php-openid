@@ -232,4 +232,3 @@ class Tests_Auth_OpenID_BigMath extends PHPUnit_Framework_TestSuite {
     }
 }
 
-?>

@@ -226,4 +226,3 @@ class Tests_Auth_OpenID_OpenID_Yadis extends PHPUnit_Framework_TestSuite {
 
 }
 
-?>

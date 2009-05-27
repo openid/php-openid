@@ -459,4 +459,3 @@ function Auth_OpenID_verifyReturnTo($realm_str, $return_to, &$fetcher,
     }
 }
 
-?>

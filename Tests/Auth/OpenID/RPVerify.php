@@ -294,4 +294,3 @@ class Tests_Auth_OpenID_RPVerify extends PHPUnit_Framework_TestSuite {
 }
 
 
-?>
