@@ -298,3 +298,4 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
     }
 }
 
+?>

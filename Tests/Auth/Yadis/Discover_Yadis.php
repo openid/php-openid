@@ -228,3 +228,4 @@ $Tests_Auth_Yadis_Discover_Yadis_other = array(
       new Tests_Auth_Yadis_Discover_Yadis_ContentTypes()
       );
 
+?>

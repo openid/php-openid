@@ -52,3 +52,4 @@ class Tests_Auth_OpenID_CryptUtil extends PHPUnit_Framework_TestCase {
     }
 }
 
+?>

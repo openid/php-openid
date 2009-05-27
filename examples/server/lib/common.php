@@ -92,3 +92,4 @@ function doAuth($info, $trusted=null, $fail_cancels=false,
     }
 }
 
+?>

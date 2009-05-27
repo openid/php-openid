@@ -68,3 +68,4 @@ class Auth_OpenID_SQLiteStore extends Auth_OpenID_SQLStore {
     }
 }
 
+?>

@@ -28,4 +28,4 @@ function idpage_render($identity)
     return array($headers, $body);
 }
 
-
+?>

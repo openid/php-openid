@@ -96,3 +96,4 @@ if (function_exists('hash_hmac') &&
     define('Auth_OpenID_HMACSHA256_SUPPORTED', false);
 }
 
+?>

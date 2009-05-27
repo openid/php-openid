@@ -84,3 +84,4 @@ class Tests_Auth_Yadis_ParseHTML extends PHPUnit_Framework_TestSuite {
     }
 }
 
+?>

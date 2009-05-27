@@ -375,3 +375,4 @@ if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
     $Tests_Auth_OpenID_AssociationResponse_other[] = new TestExtractAssociationDiffieHellman();
 }
 
+?>

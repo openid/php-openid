@@ -175,3 +175,4 @@ function idFromURL($url)
     return @$parts['user'];
 }
 
+?>

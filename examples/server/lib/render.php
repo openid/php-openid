@@ -111,3 +111,4 @@ function page_render($body, $user, $title, $h1=null, $login=false)
     return array($headers, $text);
 }
 
+?>

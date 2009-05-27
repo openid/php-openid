@@ -144,3 +144,4 @@ class Auth_Yadis_HTTPFetcher {
     }
 }
 
+?>

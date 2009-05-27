@@ -9,7 +9,7 @@ require_once "Auth/Yadis/XRDS.php";
 require_once "Auth/OpenID/Discover.php";
 
 global $__XRDS_BOILERPLATE;
-$__XRDS_BOILERPLATE = '<?xml version="1.0" encoding="UTF-8"
+$__XRDS_BOILERPLATE = '<?xml version="1.0" encoding="UTF-8"?>
 <xrds:XRDS xmlns:xrds="xri://$xrds"
            xmlns="xri://$xrd*($v*2.0)"
            xmlns:openid="http://openid.net/xmlns/1.0">
@@ -226,3 +226,4 @@ class Tests_Auth_OpenID_OpenID_Yadis extends PHPUnit_Framework_TestSuite {
 
 }
 
+?>

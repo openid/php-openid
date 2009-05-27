@@ -2,3 +2,4 @@
 
 header("Location: server.php");
 
+?>

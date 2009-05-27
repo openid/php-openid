@@ -53,3 +53,4 @@ function noIdentifier_render()
     return page_render(no_id_pat, null, 'No Identifier Sent');
 }
 
+?>

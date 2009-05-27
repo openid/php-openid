@@ -94,3 +94,4 @@ function getTrustRoot() {
                    dirname($_SERVER['PHP_SELF']));
 }
 
+?>

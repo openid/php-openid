@@ -34,3 +34,4 @@ class Auth_OpenID_ServerRequest {
     }
 }
 
+?>

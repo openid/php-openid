@@ -109,3 +109,4 @@ class Auth_OpenID_KVForm {
     }
 }
 
+?>

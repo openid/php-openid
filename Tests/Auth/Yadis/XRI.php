@@ -140,3 +140,4 @@ class Tests_Auth_Yadis_XRI extends PHPUnit_Framework_TestSuite {
     }
 }
 
+?>

@@ -9,4 +9,4 @@ $gui = new PHPUnit_GUI_HTML();
 $gui->addSuites($suites);
 $gui->show();
 
-
+?>

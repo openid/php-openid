@@ -62,3 +62,4 @@ function loginError_render($errors)
     }
     return sprintf("<ul class=\"error\">\n%s</ul>\n", $text);
 }
+?>

@@ -161,3 +161,4 @@ function action_userXrds()
     return userXrds_render($identity);
 }
 
+?>

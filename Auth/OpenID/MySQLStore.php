@@ -75,3 +75,4 @@ class Auth_OpenID_MySQLStore extends Auth_OpenID_SQLStore {
     }
 }
 
+?>

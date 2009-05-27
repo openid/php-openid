@@ -90,7 +90,7 @@ class Tests_Auth_OpenID_ExtractReturnToURLs extends PHPUnit_Framework_TestCase {
 
     function test_noEntries()
     {
-        $this->failUnlessXRDSHasReturnURLs('<?xml version="1.0" encoding="UTF-8"
+        $this->failUnlessXRDSHasReturnURLs('<?xml version="1.0" encoding="UTF-8"?>
 <xrds:XRDS xmlns:xrds="xri://$xrds"
            xmlns="xri://$xrd*($v*2.0)"
            >
@@ -102,7 +102,7 @@ class Tests_Auth_OpenID_ExtractReturnToURLs extends PHPUnit_Framework_TestCase {
 
     function test_noReturnToEntries()
     {
-        $this->failUnlessXRDSHasReturnURLs('<?xml version="1.0" encoding="UTF-8"
+        $this->failUnlessXRDSHasReturnURLs('<?xml version="1.0" encoding="UTF-8"?>
 <xrds:XRDS xmlns:xrds="xri://$xrds"
            xmlns="xri://$xrd*($v*2.0)"
            >
@@ -118,7 +118,7 @@ class Tests_Auth_OpenID_ExtractReturnToURLs extends PHPUnit_Framework_TestCase {
 
     function test_oneEntry()
     {
-        $this->failUnlessXRDSHasReturnURLs('<?xml version="1.0" encoding="UTF-8"
+        $this->failUnlessXRDSHasReturnURLs('<?xml version="1.0" encoding="UTF-8"?>
 <xrds:XRDS xmlns:xrds="xri://$xrds"
            xmlns="xri://$xrd*($v*2.0)"
            >
@@ -134,7 +134,7 @@ class Tests_Auth_OpenID_ExtractReturnToURLs extends PHPUnit_Framework_TestCase {
 
     function test_twoEntries()
     {
-        $this->failUnlessXRDSHasReturnURLs('<?xml version="1.0" encoding="UTF-8"
+        $this->failUnlessXRDSHasReturnURLs('<?xml version="1.0" encoding="UTF-8"?>
 <xrds:XRDS xmlns:xrds="xri://$xrds"
            xmlns="xri://$xrd*($v*2.0)"
            >
@@ -155,7 +155,7 @@ class Tests_Auth_OpenID_ExtractReturnToURLs extends PHPUnit_Framework_TestCase {
 
     function test_twoEntries_withOther()
     {
-        $this->failUnlessXRDSHasReturnURLs('<?xml version="1.0" encoding="UTF-8"
+        $this->failUnlessXRDSHasReturnURLs('<?xml version="1.0" encoding="UTF-8"?>
 <xrds:XRDS xmlns:xrds="xri://$xrds"
            xmlns="xri://$xrd*($v*2.0)"
            >
@@ -294,3 +294,4 @@ class Tests_Auth_OpenID_RPVerify extends PHPUnit_Framework_TestSuite {
 }
 
 
+?>

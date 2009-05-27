@@ -245,3 +245,4 @@ class Tests_Auth_Yadis_XRDS extends PHPUnit_Framework_TestCase {
     }
 }
 
+?>
