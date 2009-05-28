@@ -131,10 +131,8 @@ class Auth_OpenID_Association {
     function Auth_OpenID_Association(
         $handle, $secret, $issued, $lifetime, $assoc_type)
     {
-        // use array_key_exists because in_array doesn't check
-        // correctly for numerical indexes
-        $types_hash = array_flip(Auth_OpenID_getSupportedAssociationTypes());
-        if (!array_key_exists($assoc_type, $types_hash)) {
+        if (!in_array($assoc_type,
+                      Auth_OpenID_getSupportedAssociationTypes(), true)) {
             $fmt = 'Unsupported association type (%s)';
             trigger_error(sprintf($fmt, $assoc_type), E_USER_ERROR);
         }
