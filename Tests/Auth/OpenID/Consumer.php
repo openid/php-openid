@@ -510,7 +510,7 @@ class IdResCheckForFieldsTest extends _TestIdRes {
 			       'op_endpoint' =>'my favourite server',
 			       'response_nonce' =>'use only once',
 			       ),
-			 array('return_to', 'response_nonce', 'assoc_handle'));
+			 array('return_to', 'response_nonce', 'assoc_handle', 'op_endpoint'));
   }
 
   function test_openid2Success_identifiers() {
@@ -525,52 +525,76 @@ class IdResCheckForFieldsTest extends _TestIdRes {
 			       'response_nonce' =>'use only once',
 			       ),
 			 array('return_to', 'response_nonce', 'identity',
-			       'claimed_id', 'assoc_handle'));
+			       'claimed_id', 'assoc_handle', 'op_endpoint'));
   }
 
-  function failureTest($openid_args, $signed_list) {
+  function endswith($str, $it) {
+      $it_len = strlen($it);
+      $total = strlen($str);
+      return (strpos($str, $it) === $total - $it_len);
+  }
+
+  function missingFieldTest($openid_args) {
     $message = Auth_OpenID_Message::fromOpenIDArgs($openid_args);
     $result = $this->consumer->_idResCheckForFields($message);
     $this->assertTrue(Auth_OpenID::isFailure($result));
     $this->assertTrue(strpos($result->message, 'Missing required') === 0);
   }
 
+  function missingSignedTest($openid_args) {
+    $message = Auth_OpenID_Message::fromOpenIDArgs($openid_args);
+    $result = $this->consumer->_idResCheckForFields($message);
+    $this->assertTrue(Auth_OpenID::isFailure($result));
+    if (Auth_OpenID::isFailure($result)) {
+        $this->assertTrue($this->endswith($result->message, 'not signed'),
+                          $result->message);
+    }
+  }
+
   function test_openid1Missing_returnToSig() {
-    $this->failureTest(
+    $this->missingSignedTest(
 		       array('return_to' =>'return',
 			     'assoc_handle' =>'assoc handle',
 			     'sig' =>'a signature',
 			     'identity' =>'someone',
-			     ),
-		       array('identity'));
+                             'signed' => 'identity,assoc_handle'));
+  }
+
+  function test_openid2Missing_opEndpointSig() {
+    $this->missingSignedTest(
+                       array('ns' => Auth_OpenID_OPENID2_NS,
+                             'return_to' =>'return',
+			     'assoc_handle' =>'assoc handle',
+			     'sig' =>'a signature',
+			     'identity' =>'someone',
+                             'op_endpoint' => 'the endpoint',
+                             'signed' => 'identity,return_to,assoc_handle'));
   }
 
   function test_openid1Missing_identitySig() {
-    $this->failureTest(
+    $this->missingSignedTest(
 		       array('return_to' =>'return',
 			     'assoc_handle' =>'assoc handle',
 			     'sig' =>'a signature',
 			     'identity' =>'someone',
-			     ),
-		       array('return_to'));
+                             'signed' => 'eturn_to'));
   }
 
   function test_openid1MissingReturnTo() {
-    $this->failureTest(
+    $this->missingFieldTest(
 		       array('assoc_handle' =>'assoc handle',
 			     'sig' =>'a signature',
 			     'identity' =>'someone',
-			     ),
-		       array('return_to', 'identity'));
+                             'signed' => 'return_to,identity'));
   }
 
   function test_openid1MissingAssocHandle() {
-    $this->failureTest(
+    $this->missingFieldTest(
 		       array('return_to' =>'return',
 			     'sig' =>'a signature',
 			     'identity' =>'someone',
-			     ),
-		       array('return_to', 'identity'));
+                             'signed' => 'return_to,identity'
+			     ));
   }
 }
 
@@ -1149,7 +1173,7 @@ class TestCompleteMissingSig extends PHPUnit_Framework_TestCase {
               'assoc_handle'=> 'does not matter',
               'sig'=> $GOODSIG,
               'response_nonce'=> Auth_OpenID_mkNonce(),
-              'signed'=> 'identity,return_to,response_nonce,assoc_handle,claimed_id',
+              'signed'=> 'identity,return_to,response_nonce,assoc_handle,claimed_id,op_endpoint',
               'claimed_id'=> $claimed_id,
               'op_endpoint'=> $this->server_url,
               'ns' => Auth_OpenID_OPENID2_NS));
@@ -1174,7 +1198,7 @@ class TestCompleteMissingSig extends PHPUnit_Framework_TestCase {
         $this->message->delArg(Auth_OpenID_OPENID_NS, 'claimed_id');
         $this->endpoint->claimed_id = null;
         $this->message->setArg(Auth_OpenID_OPENID_NS,
-                               'signed', 'return_to,response_nonce,assoc_handle');
+                               'signed', 'return_to,response_nonce,assoc_handle,op_endpoint');
         $r = $this->consumer->complete($this->message, $this->endpoint, null);
         $this->failUnlessSuccess($r);
     }
@@ -1183,7 +1207,7 @@ class TestCompleteMissingSig extends PHPUnit_Framework_TestCase {
     {
         $this->message->setArg(Auth_OpenID_OPENID_NS,
                                'signed',
-                               'return_to,response_nonce,assoc_handle,claimed_id');
+                               'return_to,response_nonce,assoc_handle,claimed_id,op_endpoint');
         $r = $this->consumer->complete($this->message, $this->endpoint, null);
         $this->assertEquals($r->status, Auth_OpenID_FAILURE);
     }
