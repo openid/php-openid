@@ -215,6 +215,21 @@ class Auth_OpenID_Parse {
             return $str;
         }
     }
+    
+    function match($regexp, $text, &$match)
+    {
+    	if (!is_callable('mb_ereg_search_init')) {
+    		return preg_match($regexp, $text, $match);
+    	} else {
+            $regexp = substr($regexp, 1, strlen($regexp) - 2 - strlen($this->_re_flags));
+    		mb_ereg_search_init($text, $regexp);
+            if (!mb_ereg_search()) {
+            	return false;
+            }
+            list($match) = mb_ereg_search_getregs();
+            return true;
+    	}
+    }
 
     /**
      * Find all link tags in a string representing a HTML document and
@@ -254,8 +269,8 @@ class Auth_OpenID_Parse {
 
         // Try to find the <HEAD> tag.
         $head_re = $this->headFind();
-        $head_matches = array();
-        if (!preg_match($head_re, $stripped, $head_matches)) {
+        $html_match = '';
+        if (!$this->match($html_re, $stripped, $html_match)) {
                      ini_set( 'pcre.backtrack_limit', $old_btlimit );
                      return array();
         }
@@ -263,7 +278,7 @@ class Auth_OpenID_Parse {
         $link_data = array();
         $link_matches = array();
 
-        if (!preg_match_all($this->_link_find, $head_matches[0],
+        if (!preg_match_all($this->_link_find, $head_match,
                             $link_matches)) {
             ini_set( 'pcre.backtrack_limit', $old_btlimit );
             return array();
