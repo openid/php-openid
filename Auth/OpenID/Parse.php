@@ -220,6 +220,11 @@ class Auth_OpenID_Parse {
      * Find all link tags in a string representing a HTML document and
      * return a list of their attributes.
      *
+     * @todo This is quite ineffective and may fail with the default
+     *       pcre.backtrack_limit of 100000 in PHP 5.2, if $html is big.
+     *       It should rather use stripos (in PHP5) or strpos()+strtoupper()
+     *       in PHP4 to manage this.
+     *
      * @param string $html The text to parse
      * @return array $list An array of arrays of attributes, one for each
      * link tag
@@ -244,11 +249,15 @@ class Auth_OpenID_Parse {
         $stripped = substr($stripped, $html_begin,
                            $html_end - $html_begin);
 
+        // Workaround to prevent PREG_BACKTRACK_LIMIT_ERROR:
+        $old_btlimit = ini_set( 'pcre.backtrack_limit', -1 );
+
         // Try to find the <HEAD> tag.
         $head_re = $this->headFind();
         $head_matches = array();
         if (!preg_match($head_re, $stripped, $head_matches)) {
-            return array();
+                     ini_set( 'pcre.backtrack_limit', $old_btlimit );
+                     return array();
         }
 
         $link_data = array();
@@ -256,6 +265,7 @@ class Auth_OpenID_Parse {
 
         if (!preg_match_all($this->_link_find, $head_matches[0],
                             $link_matches)) {
+            ini_set( 'pcre.backtrack_limit', $old_btlimit );
             return array();
         }
 
@@ -273,6 +283,7 @@ class Auth_OpenID_Parse {
             $link_data[] = $link_attrs;
         }
 
+        ini_set( 'pcre.backtrack_limit', $old_btlimit );
         return $link_data;
     }
 
