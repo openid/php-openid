@@ -440,14 +440,14 @@ class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_Store {
         // because we can't run the test.
         if (!(extension_loaded('pgsql') ||
               @dl('pgsql.so') ||
-              @dl('php_pgsql.dll'))) {
+              @dl('php_pgsql.dll')) ||
+            !(@include_once 'DB.php')) {
             print "(not testing PostGreSQL store)";
             $this->pass();
             return;
         }
 
         require_once 'Auth/OpenID/PostgreSQLStore.php';
-        require_once 'DB.php';
 
         global $_Auth_OpenID_db_test_host;
 
@@ -560,14 +560,14 @@ class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_Store {
         // because we can't run the test.
         if (!(extension_loaded('sqlite') ||
               @dl('sqlite.so') ||
-              @dl('php_sqlite.dll'))) {
+              @dl('php_sqlite.dll')) ||
+            !(@include_once 'DB.php')) {
             print "(not testing SQLite store)";
             $this->pass();
             return;
         }
 
         require_once 'Auth/OpenID/SQLiteStore.php';
-        require_once 'DB.php';
 
         $temp_dir = _Auth_OpenID_mkdtemp();
 
@@ -604,14 +604,14 @@ class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_Store {
         // If the mysql extension isn't loaded or loadable, succeed
         // because we can't run the test.
         if (!(extension_loaded('mysql') ||
-              @dl('mysql.' . PHP_SHLIB_SUFFIX))) {
+              @dl('mysql.' . PHP_SHLIB_SUFFIX)) ||
+            !(@include_once 'DB.php')) {
             print "(not testing MySQL store)";
             $this->pass();
             return;
         }
 
         require_once 'Auth/OpenID/MySQLStore.php';
-        require_once 'DB.php';
 
         global $_Auth_OpenID_db_test_host;
 
@@ -645,6 +645,62 @@ class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_Store {
 
         $store =& new Auth_OpenID_MySQLStore($db);
         $store->createTables();
+        $this->_testStore($store);
+        $this->_testNonce($store);
+        $this->_testNonceCleanup($store);
+
+        $db->query("DROP DATABASE $temp_db_name");
+    }
+
+    function test_mdb2store()
+    {
+        // The MDB2 test can use any database engine. MySQL is chosen
+        // arbitrarily.
+        if (!(extension_loaded('mysql') ||
+              @dl('mysql.' . PHP_SHLIB_SUFFIX)) ||
+            !(@include_once 'MDB2.php')) {
+            print "(not testing MDB2 store)";
+            $this->pass();
+            return;
+        }
+
+        require_once 'Auth/OpenID/MDB2Store.php';
+
+        global $_Auth_OpenID_db_test_host;
+
+        $dsn = array(
+                     'phptype'  => 'mysql',
+                     'username' => 'openid_test',
+                     'password' => '',
+                     'hostspec' => $_Auth_OpenID_db_test_host
+                     );
+
+        $db =& MDB2::connect($dsn);
+
+        if (PEAR::isError($db)) {
+            print "MySQL database connection failed: " .
+                $db->getMessage();
+            $this->pass();
+            return;
+        }
+
+        $temp_db_name = _Auth_OpenID_getTmpDbName();
+
+        $result = $db->query("CREATE DATABASE $temp_db_name");
+
+        if (PEAR::isError($result)) {
+            $this->pass("Error creating MySQL temporary database: " .
+                        $result->getMessage());
+            return;
+        }
+
+        $db->query("USE $temp_db_name");
+
+        $store =& new Auth_OpenID_MDB2Store($db);
+        if (!$store->createTables()) {
+            $this->fail("Failed to create tables");
+            return;
+        }
         $this->_testStore($store);
         $this->_testNonce($store);
         $this->_testNonceCleanup($store);
