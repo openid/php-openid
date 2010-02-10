@@ -395,6 +395,21 @@ function detect_xml($r, &$out)
     }
 }
 
+function detect_query_corruption($r, &$out)
+{
+    $out .= $r->h2('Query Corruption');
+    if ($_SERVER["QUERY_STRING"]!="test_query=a%26b")
+    {
+        $out.=$r->p("Your web server seems to corrupt queries.  Received ".$_SERVER["QUERY_STRING"].", expected a=%26b. Check for mod_encoding.");
+	return false;
+    }
+    else
+    {
+        $out.=$r->p("Your web server does not corrupt queries.  Good.");
+	return true;
+    }
+}
+    
 function detect_fetcher($r, &$out)
 {
     $out .= $r->h2('HTTP Fetching');
@@ -468,8 +483,12 @@ function detect_fetcher($r, &$out)
 }
 
 header('Content-Type: ' . $r->contentType() . '; charset=us-ascii');
-
-$title = 'OpenID Library Support Report';
+if (!$_GET["test_query"])
+{
+    header("Location: ".$_SERVER['PHP_SELF']."?test_query=a%26b");
+}
+    
+    $title = 'OpenID Library Support Report';
 $out = $r->start($title) .
     $r->h1($title) .
     $r->p('This script checks your PHP installation to determine if you ' .
@@ -493,7 +512,7 @@ if (!$_include) {
     $status[] = detect_stores($r, $body);
     $status[] = detect_fetcher($r, $body);
     $status[] = detect_xml($r, $body);
-
+    $status[] = detect_query_corruption($r, $body);
     $result = true;
 
     foreach ($status as $v) {
