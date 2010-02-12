@@ -28,8 +28,12 @@ function Auth_OpenID_getOpenIDTypeURIs()
                  Auth_OpenID_TYPE_2_0,
                  Auth_OpenID_TYPE_1_2,
                  Auth_OpenID_TYPE_1_1,
-                 Auth_OpenID_TYPE_1_0,
-                 Auth_OpenID_RP_RETURN_TO_URL_TYPE);
+                 Auth_OpenID_TYPE_1_0);
+}
+
+function Auth_OpenID_getOpenIDConsumerTypeURIs()
+{
+    return array(Auth_OpenID_RP_RETURN_TO_URL_TYPE);
 }
 
 
@@ -194,6 +198,25 @@ class Auth_OpenID_ServiceEndpoint {
     }
 
     /*
+     * Parse the given document as XRDS looking for OpenID consumer services.
+     *
+     * @return array of Auth_OpenID_ServiceEndpoint or null if the
+     * document cannot be parsed.
+     */
+    function consumerFromXRDS($uri, $xrds_text)
+    {
+        $xrds =& Auth_Yadis_XRDS::parseXRDS($xrds_text);
+
+        if ($xrds) {
+            $yadis_services =
+              $xrds->services(array('filter_MatchesAnyOpenIDConsumerType'));
+            return Auth_OpenID_makeOpenIDEndpoints($uri, $yadis_services);
+        }
+
+        return null;
+    }
+
+    /*
      * Parse the given document as XRDS looking for OpenID services.
      *
      * @return array of Auth_OpenID_ServiceEndpoint or null if the
@@ -333,6 +356,19 @@ function filter_MatchesAnyOpenIDType(&$service)
 
     foreach ($uris as $uri) {
         if (in_array($uri, Auth_OpenID_getOpenIDTypeURIs())) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function filter_MatchesAnyOpenIDConsumerType(&$service)
+{
+    $uris = $service->getTypes();
+
+    foreach ($uris as $uri) {
+        if (in_array($uri, Auth_OpenID_getOpenIDConsumerTypeURIs())) {
             return true;
         }
     }

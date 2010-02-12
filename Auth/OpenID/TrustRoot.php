@@ -401,7 +401,7 @@ function Auth_OpenID_getAllowedReturnURLs($relying_party_url, &$fetcher,
         $discover_function = array('Auth_Yadis_Yadis', 'discover');
     }
 
-    $xrds_parse_cb = array('Auth_OpenID_ServiceEndpoint', 'fromXRDS');
+    $xrds_parse_cb = array('Auth_OpenID_ServiceEndpoint', 'consumerFromXRDS');
 
     list($rp_url_after_redirects, $endpoints) =
         Auth_Yadis_getServiceEndpoints($relying_party_url, $xrds_parse_cb,
