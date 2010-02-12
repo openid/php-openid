@@ -69,7 +69,7 @@ function Auth_OpenID_parse($qs)
     foreach ($parts as $pair) {
         list($key, $value) = explode("=", $pair, 2);
         assert(!array_key_exists($key, $result));
-        $result[$key] = urldecode($value);
+        $result[urldecode($key)] = urldecode($value);
     }
     return $result;
 }

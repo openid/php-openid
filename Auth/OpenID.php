@@ -191,7 +191,7 @@ class Auth_OpenID {
             }
 
             list($k, $v) = $parts;
-            $data[$k] = urldecode($v);
+            $data[urldecode($k)] = urldecode($v);
         }
 
         return $data;
@@ -279,7 +279,7 @@ class Auth_OpenID {
             }
 
             list($key, $value) = $pair;
-            $new_parts[$key] = urldecode($value);
+            $new_parts[urldecode($key)] = urldecode($value);
         }
 
         return $new_parts;
