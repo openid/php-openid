@@ -105,7 +105,7 @@ class Auth_Yadis_DiscoveryResult {
     function usedYadisLocation()
     {
         // Was the Yadis protocol's indirection used?
-        return $this->normalized_uri != $this->xrds_uri;
+        return ($this->xrds_uri && $this->normalized_uri != $this->xrds_uri);
     }
 
     function isXRDS()

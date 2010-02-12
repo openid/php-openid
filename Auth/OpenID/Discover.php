@@ -496,7 +496,7 @@ function Auth_OpenID_discoverWithYadis($uri, &$fetcher,
     $yadis_url = $response->normalized_uri;
     $yadis_services = array();
 
-    if ($response->isFailure()) {
+    if ($response->isFailure() && !$response->isXRDS()) {
         return array($uri, array());
     }
 
