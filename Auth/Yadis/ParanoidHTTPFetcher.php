@@ -142,7 +142,7 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
             }
 
             if (in_array($code, array(301, 302, 303, 307))) {
-                $url = $this->_findRedirect($headers);
+                $url = $this->_findRedirect($headers, $url);
                 $redir = true;
             } else {
                 $redir = false;
