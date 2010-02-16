@@ -821,7 +821,7 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
                                     array($this->trust_root, $this->return_to));
     }
 
-    static function fromMessage($message, $server)
+    static function fromMessage(&$message, $server)
     {
         $mode = $message->getArg(Auth_OpenID_OPENID_NS, 'mode');
         $immediate = null;
@@ -1703,7 +1703,7 @@ class Auth_OpenID_Server {
     {
         if (method_exists($this, "openid_" . $request->mode)) {
             $handler = array($this, "openid_" . $request->mode);
-            return call_user_func($handler, $request);
+            return call_user_func($handler, &$request);
         }
         return null;
     }

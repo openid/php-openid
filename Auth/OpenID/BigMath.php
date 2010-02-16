@@ -365,6 +365,7 @@ function Auth_OpenID_detectMathLibrary($exts)
 {
     $loaded = false;
 
+	$hasDl = function_exists('dl');
     foreach ($exts as $extension) {
         if (extension_loaded($extension['extension'])) {
             return $extension;
