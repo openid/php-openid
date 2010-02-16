@@ -57,7 +57,7 @@ class Tests_Auth_OpenID_DiffieHellman_Exch extends PHPUnit_Framework_TestCase {
 
     function runTest()
     {
-        $lib =& Auth_OpenID_getMathLib();
+        $lib = Auth_OpenID_getMathLib();
         $shared = $lib->init($this->shared);
         $dh1 = new Auth_OpenID_DiffieHellman(null, null, $this->p1);
         $dh2 = new Auth_OpenID_DiffieHellman(null, null, $this->p2);

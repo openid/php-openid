@@ -438,9 +438,7 @@ class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_Store {
     {
         // If the postgres extension isn't loaded or loadable, succeed
         // because we can't run the test.
-        if (!(extension_loaded('pgsql') ||
-              @dl('pgsql.so') ||
-              @dl('php_pgsql.dll')) ||
+        if (!(extension_loaded('pgsql')) ||
             !(@include_once 'DB.php')) {
             print "(not testing PostGreSQL store)";
             $this->pass();
@@ -512,7 +510,7 @@ class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_Store {
             return;
         }
 
-        $store =& new Auth_OpenID_PostgreSQLStore($db);
+        $store = new Auth_OpenID_PostgreSQLStore($db);
 
         $this->assertFalse($store->tableExists($store->nonces_table_name));
         $this->assertFalse($store->tableExists($store->associations_table_name));
@@ -558,9 +556,7 @@ class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_Store {
     {
         // If the sqlite extension isn't loaded or loadable, succeed
         // because we can't run the test.
-        if (!(extension_loaded('sqlite') ||
-              @dl('sqlite.so') ||
-              @dl('php_sqlite.dll')) ||
+        if (!(extension_loaded('sqlite')) ||
             !(@include_once 'DB.php')) {
             print "(not testing SQLite store)";
             $this->pass();
@@ -585,7 +581,7 @@ class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_Store {
             $this->pass("SQLite database connection failed: " .
                         $db->getMessage());
         } else {
-            $store =& new Auth_OpenID_SQLiteStore($db);
+            $store = new Auth_OpenID_SQLiteStore($db);
             $this->assertTrue($store->createTables(), "Table creation failed");
             $this->_testStore($store);
             $this->_testNonce($store);
@@ -603,8 +599,7 @@ class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_Store {
     {
         // If the mysql extension isn't loaded or loadable, succeed
         // because we can't run the test.
-        if (!(extension_loaded('mysql') ||
-              @dl('mysql.' . PHP_SHLIB_SUFFIX)) ||
+        if (!(extension_loaded('mysql')) ||
             !(@include_once 'DB.php')) {
             print "(not testing MySQL store)";
             $this->pass();
@@ -643,7 +638,7 @@ class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_Store {
 
         $db->query("USE $temp_db_name");
 
-        $store =& new Auth_OpenID_MySQLStore($db);
+        $store = new Auth_OpenID_MySQLStore($db);
         $store->createTables();
         $this->_testStore($store);
         $this->_testNonce($store);
@@ -720,9 +715,7 @@ class Tests_Auth_OpenID_MemcachedStore_Test extends Tests_Auth_OpenID_Store {
     {
         // If the memcache extension isn't loaded or loadable, succeed
         // because we can't run the test.
-        if (!(extension_loaded('memcache') ||
-              @dl('memcache.so') ||
-              @dl('php_memcache.dll'))) {
+        if (!extension_loaded('memcache')) {
             print "(skipping memcache store tests)";
             $this->pass();
             return;

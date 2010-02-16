@@ -64,7 +64,7 @@ class Tests_Auth_Yadis_ProxyQueryTestCase extends PHPUnit_Framework_TestCase {
     {
         $this->proxy_url = 'http://xri.example.com/';
         $this->fetcher = Auth_Yadis_Yadis::getHTTPFetcher();
-        $this->proxy = new Auth_Yadis_ProxyResolver($fetcher,
+        $this->proxy = new Auth_Yadis_ProxyResolver($this->fetcher,
                                                         $this->proxy_url);
         $this->servicetype = 'xri://+i-service*(+forwarding)*($v*1.0)';
         $this->servicetype_enc = 'xri%3A%2F%2F%2Bi-service%2A%28%2Bforwarding%29%2A%28%24v%2A1.0%29';

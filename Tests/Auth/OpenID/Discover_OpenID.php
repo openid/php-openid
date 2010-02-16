@@ -715,7 +715,7 @@ class Tests_Auth_OpenID_SSLSupport extends PHPUnit_Framework_TestCase {
                                     Tests_Auth_OpenID_readdata('test_discover_openid_ssl.xml'))
                    );
 
-        $f =& new _FetcherWithoutSSL($d);
+        $f = new _FetcherWithoutSSL($d);
 
         $result = Auth_OpenID_discover($id_url, $f);
 
@@ -742,7 +742,7 @@ class Tests_Auth_OpenID_SSLSupport extends PHPUnit_Framework_TestCase {
                                     Tests_Auth_OpenID_readdata('test_discover_openid_ssl.xml'))
                    );
 
-        $f =& new _FetcherWithSSL($d);
+        $f = new _FetcherWithSSL($d);
 
         $result = Auth_OpenID_discover($id_url, $f);
 
@@ -765,7 +765,7 @@ class Tests_Auth_OpenID_SSLSupport extends PHPUnit_Framework_TestCase {
 
         $id_url = 'https://unsupported/';
 
-        $f =& new _NonFetcher();
+        $f = new _NonFetcher();
 
         $result = Auth_OpenID_discover($id_url, $f);
 

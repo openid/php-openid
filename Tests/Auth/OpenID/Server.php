@@ -12,7 +12,7 @@ require_once "Auth/OpenID/Consumer.php";
 
 function altModulus()
 {
-    $lib =& Auth_OpenID_getMathLib();
+    $lib = Auth_OpenID_getMathLib();
     static $num = null;
 
     if (!$num) {
@@ -520,7 +520,7 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_Framework_TestCase {
 
         // test dh with non-default but valid values for dh_modulus
         // and dh_gen
-        $lib =& Auth_OpenID_getMathLib();
+        $lib = Auth_OpenID_getMathLib();
 
         $args = array(
             'openid.mode' => 'associate',
@@ -1661,7 +1661,7 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_Framework_TestCase {
                                                                'HMAC-SHA1');
 
             $dh = new Auth_OpenID_DiffieHellman();
-            $ml =& Auth_OpenID_getMathLib();
+            $ml = Auth_OpenID_getMathLib();
 
             $cpub = $dh->public;
             $session = new Auth_OpenID_DiffieHellmanSHA1ServerSession(
@@ -1743,7 +1743,7 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_Framework_TestCase {
         $enc_key = base64_decode(
                      $response->fields->getArg(Auth_OpenID_OPENID_NS, "enc_mac_key"));
 
-        $lib =& Auth_OpenID_getMathLib();
+        $lib = Auth_OpenID_getMathLib();
         $spub = $lib->base64ToLong($response->fields->getArg(Auth_OpenID_OPENID_NS,
                                                              "dh_server_public"));
         $secret = $consumer_dh->xorSecret($spub, $enc_key, 'Auth_OpenID_SHA256');
@@ -2148,8 +2148,8 @@ class Tests_Auth_OpenID_ServerTest extends PHPUnit_Framework_TestCase {
 class Tests_Auth_OpenID_Signatory extends PHPUnit_Framework_TestCase {
     function setUp()
     {
-        $this->store =& new Tests_Auth_OpenID_MemStore();
-        $this->signatory =& new Auth_OpenID_Signatory($this->store);
+        $this->store = new Tests_Auth_OpenID_MemStore();
+        $this->signatory = new Auth_OpenID_Signatory($this->store);
         $this->dumb_key = $this->signatory->dumb_key;
         $this->normal_key = $this->signatory->normal_key;
     }

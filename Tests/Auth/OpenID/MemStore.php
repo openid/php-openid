@@ -85,7 +85,7 @@ class Tests_Auth_OpenID_MemStore extends Auth_OpenID_OpenIDStore {
     function &_getServerAssocs($server_url)
     {
         if (!array_key_exists($server_url, $this->server_assocs)) {
-            $this->server_assocs[$server_url] =& new ServerAssocs();
+            $this->server_assocs[$server_url] = new ServerAssocs();
         }
 
         return $this->server_assocs[$server_url];

@@ -171,7 +171,7 @@ class Tests_Auth_OpenID_VerifyDisco extends _DiscoverAndVerify {
 
     function test_openid2UsePreDiscoveredWrongType()
     {
-        $this->consumer =& new Tests_Auth_OpenID_VerifyDisco_1($this->store);
+        $this->consumer = new Tests_Auth_OpenID_VerifyDisco_1($this->store);
         $this->consumer->test_case =& $this;
         $this->consumer->text = "verify failed";
 

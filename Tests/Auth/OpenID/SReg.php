@@ -209,14 +209,14 @@ function &__getTestCase() {
 }
 
 class TestingReq extends Auth_OpenID_SRegRequest {
-    function fromOpenIDRequest($thing, $test_case)
+    static function fromOpenIDRequest($thing, $test_case)
     {
         __setTestCase($test_case);
         $obj = parent::fromOpenIDRequest($thing, 'TestingReq');
         return $obj;
     }
 
-    function _getSRegNS($unused)
+    static function _getSRegNS($unused)
     {
         global $__ns_sentinel;
         return $__ns_sentinel;

@@ -159,7 +159,7 @@ class Tests_Auth_OpenID_BigMath extends PHPUnit_Framework_TestSuite {
 
     function _addB64Tests()
     {
-        $lib =& Auth_OpenID_getMathLib();
+        $lib = Auth_OpenID_getMathLib();
         $count = defined('Tests_Auth_OpenID_thorough') ? -1 : 2;
         $data = $this->_parseBase64Data();
         foreach ($data as $b64 => $num_s) {

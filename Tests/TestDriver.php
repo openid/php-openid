@@ -16,7 +16,7 @@
 require_once 'PHPUnit/Framework.php';
 //require_once 'PHPUnit/GUI/HTML.php';
 
-error_reporting(E_ALL);
+error_reporting(E_ALL | E_STRICT);
 
 global $__test_errors;
 $__test_errors = array();

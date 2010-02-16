@@ -1693,12 +1693,12 @@ class Tests_Auth_OpenID_AuthRequestHTMLMarkup extends PHPUnit_Framework_TestCase
     {
         $html = $this->request->htmlMarkup('http://realm.com/',
                                            'http://realm.com/return_to');
-        $this->assertTrue(substr($html,"<html>") !== false);
-        $this->assertTrue(substr($html,"</html>") !== false);
-        $this->assertTrue(substr($html,"<body onload") !== false);
-        $this->assertTrue(substr($html,"</body>") !== false);
-        $this->assertTrue(substr($html,"<form") !== false);
-        $this->assertTrue(substr($html,"</form>") !== false);
+        $this->assertTrue(strpos($html,"<html>") !== false);
+        $this->assertTrue(strpos($html,"</html>") !== false);
+        $this->assertTrue(strpos($html,"<body onload") !== false);
+        $this->assertTrue(strpos($html,"</body>") !== false);
+        $this->assertTrue(strpos($html,"<form") !== false);
+        $this->assertTrue(strpos($html,"</form>") !== false);
     }
 }
 
@@ -1817,9 +1817,9 @@ class Tests_Auth_OpenID_DiscoFailure extends PHPUnit_Framework_TestCase {
         $this->store = null;
         $this->session = new Auth_Yadis_PHPSession();
         $cls = $this->consumerClass;
-        $this->consumer =& new $cls($this->store, $this->session);
-        $this->consumer->consumer =& new _StubConsumer();
-        $this->discovery =& new Auth_Yadis_Discovery($this->session,
+        $this->consumer = new $cls($this->store, $this->session);
+        $this->consumer->consumer = new _StubConsumer();
+        $this->discovery = new Auth_Yadis_Discovery($this->session,
                                          $this->claimed_id,
                                          $this->consumer->session_key_prefix);
     }
@@ -1848,9 +1848,9 @@ class Tests_Auth_OpenID_ConsumerTest2 extends PHPUnit_Framework_TestCase {
         $this->endpoint->claimed_id = $this->claimed_id;
         $this->store = null;
         $this->session = new Auth_Yadis_PHPSession();
-        $this->consumer =& new Auth_OpenID_Consumer($this->store, $this->session);
-        $this->consumer->consumer =& new _StubConsumer();
-        $this->discovery =& new Auth_Yadis_Discovery($this->session,
+        $this->consumer = new Auth_OpenID_Consumer($this->store, $this->session);
+        $this->consumer->consumer = new _StubConsumer();
+        $this->discovery = new Auth_Yadis_Discovery($this->session,
                                          $this->claimed_id,
                                          $this->consumer->session_key_prefix);
     }
@@ -2385,7 +2385,7 @@ class TestDiffieHellmanResponseParameters extends PHPUnit_Framework_TestCase {
         $this->server_dh = new Auth_OpenID_DiffieHellman(100389557, 2);
         $this->consumer_dh = new Auth_OpenID_DiffieHellman(100389557, 2);
 
-        $lib =& Auth_OpenID_getMathLib();
+        $lib = Auth_OpenID_getMathLib();
 
         $cls = $this->session_cls;
         $this->consumer_session = new $cls($this->consumer_dh);
