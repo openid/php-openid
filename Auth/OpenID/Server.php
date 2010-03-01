@@ -821,7 +821,7 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
         return call_user_func_array($this->verifyReturnTo,
                                     array($this->trust_root, $this->return_to, $fetcher));
     }
-    
+
     static function fromMessage($message, $server)
     {
         $mode = $message->getArg(Auth_OpenID_OPENID_NS, 'mode');
