@@ -43,7 +43,7 @@ global $pape_policy_uris;
     <h1>PHP OpenID Authentication Example</h1>
     <p>
       This example consumer uses the <a
-      href="http://www.openidenabled.com/openid/libraries/php/">PHP
+      href="http://github.com/openid/php-openid">PHP
       OpenID</a> library. It just verifies that the URL that you enter
       is your identity URL.
     </p>

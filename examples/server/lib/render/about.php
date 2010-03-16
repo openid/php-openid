@@ -14,7 +14,7 @@ define('about_body',
        '<p>
   This is an <a href="http://www.openid.net/">OpenID</a> server
   endpoint. This server is built on the <a
-  href="http://www.openidenabled.com/openid/libraries/php">JanRain PHP OpenID
+  href="http://github.com/openid/php-openid">JanRain PHP OpenID
   library</a>. Since OpenID consumer sites will need to directly contact this
   server, it must be accessible over the Internet (not behind a firewall).
 </p>
@@ -25,18 +25,7 @@ define('about_body',
 </p>
 <pre>&lt;link rel="openid.server" href="%s" /&gt;</pre>
 <p>
-  Then configure this server so that you can log in with that URL. Once you
-  have configured the server, and marked up your identity URL, you can verify
-  that it is working by using the <a href="http://www.openidenabled.com/"
-  >openidenabled.com</a>
-  <a href="http://www.openidenabled.com/resources/openid-test/checkup">OpenID
-  Checkup tool</a>:
-  <form method="post"
-        action="http://www.openidenabled.com/resources/openid-test/checkup/start">
-    <label for="checkup">OpenID URL:
-    </label><input id="checkup" type="text" name="openid_url" />
-    <input type="submit" value="Check" />
-  </form>
+  Then configure this server so that you can log in with that URL.
 </p>
 ');
 

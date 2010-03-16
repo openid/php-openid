@@ -43,7 +43,7 @@
  * consumers to add extensions to their requests.  For example, with
  * sites using the Simple Registration
  * Extension
- * (http://www.openidenabled.com/openid/simple-registration-extension/),
+ * (http://openid.net/specs/openid-simple-registration-extension-1_0.html),
  * a user can agree to have their nickname and e-mail address sent to
  * a site when they sign up.
  *

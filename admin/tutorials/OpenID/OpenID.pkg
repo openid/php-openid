@@ -60,7 +60,7 @@
   <para>
    <itemizedlist>
     <listitem>
-     {@link http://www.openidenabled.com/openid/libraries/php PHP OpenID Library}
+     {@link http://github.com/openid/php-openid PHP OpenID Library}
     </listitem>
 
     <listitem>
@@ -68,11 +68,7 @@
     </listitem>
 
     <listitem>
-     {@link http://lists.openidenabled.com/mailman/listinfo/dev OpenID Development Discussion List}
-    </listitem>
-
-    <listitem>
-     {@link http://www.openidenabled.com/yadis/libraries/php PHP Yadis Library}
+     {@link http://openid.net/developers/dev-mailing-lists/ OpenID Development Discussion Lists}
     </listitem>
    </itemizedlist>
   </para>
