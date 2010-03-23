@@ -218,17 +218,17 @@ class Auth_OpenID_Parse {
     
     function match($regexp, $text, &$match)
     {
-    	if (!is_callable('mb_ereg_search_init')) {
-    		return preg_match($regexp, $text, $match);
-    	} else {
-            $regexp = substr($regexp, 1, strlen($regexp) - 2 - strlen($this->_re_flags));
-    		mb_ereg_search_init($text, $regexp);
-            if (!mb_ereg_search()) {
-            	return false;
-            }
-            list($match) = mb_ereg_search_getregs();
-            return true;
-    	}
+        if (!is_callable('mb_ereg_search_init')) {
+            return preg_match($regexp, $text, $match);
+        }
+
+        $regexp = substr($regexp, 1, strlen($regexp) - 2 - strlen($this->_re_flags));
+        mb_ereg_search_init($text);
+        if (!mb_ereg_search($regexp)) {
+            return false;
+        }
+        list($match) = mb_ereg_search_getregs();
+        return true;
     }
 
     /**
