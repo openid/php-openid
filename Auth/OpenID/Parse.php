@@ -269,8 +269,8 @@ class Auth_OpenID_Parse {
 
         // Try to find the <HEAD> tag.
         $head_re = $this->headFind();
-        $html_match = '';
-        if (!$this->match($html_re, $stripped, $html_match)) {
+        $head_match = '';
+        if (!$this->match($head_re, $stripped, $head_match)) {
                      ini_set( 'pcre.backtrack_limit', $old_btlimit );
                      return array();
         }
