@@ -2089,7 +2089,7 @@ class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
 
         foreach ($msg_args as $key => $value) {
             if (!$this->isSigned($ns_uri, $key)) {
-                return null;
+                unset($msg_args[$key]);
             }
         }
 
