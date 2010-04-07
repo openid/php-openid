@@ -652,7 +652,7 @@ class Auth_OpenID_AX_KeyValueMessage extends Auth_OpenID_AX_Message {
         foreach ($aliases->iteritems() as $pair) {
             list($type_uri, $alias) = $pair;
 
-            if (array_key_exists('count.' . $alias, $ax_args)) {
+            if (array_key_exists('count.' . $alias, $ax_args) && ($ax_args['count.' . $alias] !== Auth_OpenID_AX_UNLIMITED_VALUES)) {
 
                 $count_key = 'count.' . $alias;
                 $count_s = $ax_args[$count_key];
