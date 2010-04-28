@@ -822,7 +822,7 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
                                     array($this->trust_root, $this->return_to, $fetcher));
     }
     
-    static function fromMessage(&$message, $server)
+    static function fromMessage($message, $server)
     {
         $mode = $message->getArg(Auth_OpenID_OPENID_NS, 'mode');
         $immediate = null;
