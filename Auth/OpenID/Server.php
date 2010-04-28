@@ -1464,7 +1464,7 @@ class Auth_OpenID_Encoder {
                            array('location' => $location));
         } else if ($encode_as == Auth_OpenID_ENCODE_HTML_FORM) {
           $wr = new $cls(AUTH_OPENID_HTTP_OK, array(),
-                         $response->toFormMarkup());
+                         $response->toHTML());
         } else {
             return new Auth_OpenID_EncodingError($response);
         }
