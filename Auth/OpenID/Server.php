@@ -1468,7 +1468,7 @@ class Auth_OpenID_Encoder {
             return new Auth_OpenID_EncodingError($response);
         }
         /* Allow the response to carry a custom error code (ex: for Association errors) */
-        if($response->code) {
+        if(isset($response->code)) {
             $wr->code = $response->code;
         }
         return $wr;
