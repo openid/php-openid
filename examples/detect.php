@@ -314,7 +314,7 @@ function detect_stores($r, &$out)
 
     $found = array();
     foreach (array('sqlite', 'mysql', 'pgsql') as $dbext) {
-        if (extension_loaded($dbext) || @dl($dbext . '.' . PHP_SHLIB_SUFFIX)) {
+        if (extension_loaded($dbext) || (ini_get('enable_dl') && dl($dbext . '.' . PHP_SHLIB_SUFFIX))) {
             $found[] = $dbext;
         }
     }
@@ -401,15 +401,15 @@ function detect_query_corruption($r, &$out)
     if ($_SERVER["QUERY_STRING"]!="test_query=a%26b")
     {
         $out.=$r->p("Your web server seems to corrupt queries.  Received ".$_SERVER["QUERY_STRING"].", expected a=%26b. Check for mod_encoding.");
-	return false;
+	    return false;
     }
     else
     {
         $out.=$r->p("Your web server does not corrupt queries.  Good.");
-	return true;
+	    return true;
     }
 }
-    
+
 function detect_fetcher($r, &$out)
 {
     $out .= $r->h2('HTTP Fetching');
@@ -483,11 +483,11 @@ function detect_fetcher($r, &$out)
 }
 
 header('Content-Type: ' . $r->contentType() . '; charset=us-ascii');
-if (!$_GET["test_query"])
+if (empty($_GET["test_query"]))
 {
     header("Location: ".$_SERVER['PHP_SELF']."?test_query=a%26b");
 }
-    
+
     $title = 'OpenID Library Support Report';
 $out = $r->start($title) .
     $r->h1($title) .
