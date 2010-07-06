@@ -434,8 +434,8 @@ function detect_fetcher($r, &$out)
 
     $ok = true;
     $fetcher = Auth_Yadis_Yadis::getHTTPFetcher();
-    $fetch_url = 'http://www.openidenabled.com/resources/php-fetch-test';
-    $expected_url = $fetch_url . '.txt';
+    $fetch_url = 'http://gist.github.com/raw/465630/c57eff55ebc0c54973903af5f72bac72762cf4f4/helloworld';
+    $expected_url = $fetch_url;// . '.txt';
     $result = $fetcher->get($fetch_url);
 
     if (isset($result)) {

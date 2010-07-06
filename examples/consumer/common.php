@@ -58,8 +58,9 @@ function &getStore() {
             " Please check the effective permissions.";
         exit(0);
     }
+	$r = new Auth_OpenID_FileStore($store_path);
 
-    return new Auth_OpenID_FileStore($store_path);
+    return $r;
 }
 
 function &getConsumer() {
@@ -68,7 +69,8 @@ function &getConsumer() {
      * earlier.
      */
     $store = getStore();
-    return new Auth_OpenID_Consumer($store);
+	$r = new Auth_OpenID_Consumer($store);
+    return $r;
 }
 
 function getScheme() {
