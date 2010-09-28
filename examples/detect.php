@@ -314,7 +314,7 @@ function detect_stores($r, &$out)
 
     $found = array();
     foreach (array('sqlite', 'mysql', 'pgsql') as $dbext) {
-        if (extension_loaded($dbext) || (ini_get('enable_dl') && dl($dbext . '.' . PHP_SHLIB_SUFFIX))) {
+        if (extension_loaded($dbext) || (ini_get('enable_dl') && function_exists('dl') && dl($dbext . '.' . PHP_SHLIB_SUFFIX))) {
             $found[] = $dbext;
         }
     }

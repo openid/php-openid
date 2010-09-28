@@ -652,7 +652,7 @@ class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_Store {
         // The MDB2 test can use any database engine. MySQL is chosen
         // arbitrarily.
         if (!(extension_loaded('mysql') ||
-              @dl('mysql.' . PHP_SHLIB_SUFFIX)) ||
+              (function_exists('dl') && @dl('mysql.' . PHP_SHLIB_SUFFIX))) ||
             !(@include_once 'MDB2.php')) {
             print "(not testing MDB2 store)";
             $this->pass();
