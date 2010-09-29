@@ -1029,7 +1029,7 @@ class Auth_OpenID_GenericConsumer {
         if ($endpoint !== null) {
             $result = $this->_verifyDiscoverySingle($endpoint, $to_match);
 
-            if (is_a($result, 'Auth_OpenID_TypeURIMismatch')) {
+            if (instanceof($result, 'Auth_OpenID_TypeURIMismatch')) {
                 $result = $this->_verifyDiscoverySingle($endpoint,
                                                         $to_match_1_0);
             }
@@ -1344,7 +1344,7 @@ class Auth_OpenID_GenericConsumer {
 
         $resp_message = $this->_makeKVPost($request, $server_url);
         if (($resp_message === null) ||
-            (is_a($resp_message, 'Auth_OpenID_ServerErrorContainer'))) {
+            (instanceof($resp_message, 'Auth_OpenID_ServerErrorContainer'))) {
             return false;
         }
 
@@ -1512,7 +1512,7 @@ class Auth_OpenID_GenericConsumer {
             return null;
         }
 
-        if (is_a($assoc, 'Auth_OpenID_ServerErrorContainer')) {
+        if (instanceof($assoc, 'Auth_OpenID_ServerErrorContainer')) {
             $why = $assoc;
 
             $supportedTypes = $this->_extractSupportedAssociationType(
@@ -1527,7 +1527,7 @@ class Auth_OpenID_GenericConsumer {
                 $assoc = $this->_requestAssociation(
                                    $endpoint, $assoc_type, $session_type);
 
-                if (is_a($assoc, 'Auth_OpenID_ServerErrorContainer')) {
+                if (instanceof($assoc, 'Auth_OpenID_ServerErrorContainer')) {
                     // Do not keep trying, since it rejected the
                     // association type that it told us to use.
                     // oidutil.log('Server %s refused its suggested association
@@ -1559,7 +1559,7 @@ class Auth_OpenID_GenericConsumer {
         if ($response_message === null) {
             // oidutil.log('openid.associate request failed: %s' % (why[0],))
             return null;
-        } else if (is_a($response_message,
+        } else if (instanceof($response_message,
                         'Auth_OpenID_ServerErrorContainer')) {
             return $response_message;
         }
