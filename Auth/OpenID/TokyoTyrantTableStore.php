@@ -16,6 +16,12 @@
  */
 
 /**
+ * important notice
+ * Pecl-TokyoTyrantTable has bug.
+ * Use git version of Pecl-TokyoTyrantTable.
+ */
+
+/**
  * Import the interface for creating a new store class.
  */
 require_once 'Auth/OpenID/Interface.php';
