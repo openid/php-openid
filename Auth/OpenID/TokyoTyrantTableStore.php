@@ -10,7 +10,7 @@
  *
  * @package OpenID
  * @author isamu arimoto <git@isamu.cc>
- * @copyright 2010 JanRain, Inc.
+ * @copyright 2010 JanRain, Inc. isamu arimoto.
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  * Contributed by Open Web Technologies <http://openwebtech.ru/>
  */
@@ -94,7 +94,7 @@ class Auth_OpenID_TokyoTyrantTableStore extends Auth_OpenID_OpenIDStore {
         // create key for list of associations
         $query = $this->connection->getQuery();
         $query->addCond("server_url", TokyoTyrant::RDBQC_STREQ, $server_url);
-        $query->addCond("issued", TokyoTyrant::RDBQO_NUMDESC);
+        $query->setOrder("issued", TokyoTyrant::RDBQO_NUMDESC);
         $associations = $query->search();
         // return null if failed or got empty list
         if(!$association){
