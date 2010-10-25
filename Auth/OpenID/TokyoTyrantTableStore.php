@@ -83,7 +83,9 @@ class Auth_OpenID_TokyoTyrantTableStore extends Auth_OpenID_OpenIDStore {
             // save association itself
             $this->connection->put(
                                    $associationKey,
-                                   array("association" => serialize($association),
+                                   array(
+                                         "server_url" => $server_url,
+                                         "association" => serialize($association),
                                          "association_expire" => $association->issued +  $association->lifetime ));
         }catch (TokyoTyrantException $e){
             trigger_error("TokyoTyrantTableStore no longer active", E_USER_ERROR);
@@ -119,10 +121,8 @@ class Auth_OpenID_TokyoTyrantTableStore extends Auth_OpenID_OpenIDStore {
         $keys = array_keys($serverAssociations);
         sort($keys);
         $lastKey = $serverAssociations[array_pop($keys)];
-        
         // get association, return null if failed
         $association = $this->connection->get($lastKey);
-
         return $association ? (unserialize($association['association'])) : null;
     }
 
@@ -206,14 +206,14 @@ class Auth_OpenID_TokyoTyrantTableStore extends Auth_OpenID_OpenIDStore {
     
     function cleanupNonces()
     {
-        $query = $this->ttt->getQuery();
+        $query = $this->connection->getQuery();
         $query->addCond("nonce_expire", TokyoTyrant::RDBQC_NUMLT, time());
         return $query->out();
     }
 
     function cleanupAssociations()
     {
-        $query = $this->ttt->getQuery();
+        $query = $this->connection->getQuery();
         $query->addCond("association_expire", TokyoTyrant::RDBQC_NUMLT, time());
         return $query->out();
     }
