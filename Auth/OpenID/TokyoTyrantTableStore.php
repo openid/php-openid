@@ -60,31 +60,15 @@ class Auth_OpenID_TokyoTyrantTableStore extends Auth_OpenID_OpenIDStore {
     {
         // create TokyoTyrantTable keys for association itself 
         // and list of associations for this server
-        $associationKey = $this->associationKey($server_url, 
-            $association->handle);
-        $serverKey = $this->associationServerKey($server_url);
-        
-        // get list of associations 
-        $serverAssociations = $this->connection->get($serverKey);
-        
-        // if no such list, initialize it with empty array
-        if (!$serverAssociations) {
-            $serverAssociations = array();
-        }
-        // and store given association key in it
-        $serverAssociations[strval($association->issued)] = $associationKey;
+        $associationKey = $this->associationKey($server_url, $association->handle);
 
         try{
-            // save associations' keys list 
-            $this->connection->put(
-                                   $serverKey,
-                                   $serverAssociations
-                                   );
             // save association itself
             $this->connection->put(
                                    $associationKey,
                                    array(
                                          "server_url" => $server_url,
+                                         "issued" => $association->issued,
                                          "association" => serialize($association),
                                          "association_expire" => $association->issued +  $association->lifetime ));
         }catch (TokyoTyrantException $e){
@@ -108,58 +92,28 @@ class Auth_OpenID_TokyoTyrantTableStore extends Auth_OpenID_OpenIDStore {
         
         // no handle given, working with list
         // create key for list of associations
-        $serverKey = $this->associationServerKey($server_url);
-        
-        // get list of associations
-        $serverAssociations = $this->connection->get($serverKey);
+        $query = $this->connection->getQuery();
+        $query->addCond("server_url", TokyoTyrant::RDBQC_STREQ, $server_url);
+        $query->addCond("issued", TokyoTyrant::RDBQO_NUMDESC);
+        $associations = $query->search();
         // return null if failed or got empty list
-        if (!$serverAssociations) {
+        if(!$association){
             return null;
         }
-        
-        // get key of most recently issued association
-        $keys = array_keys($serverAssociations);
-        sort($keys);
-        $lastKey = $serverAssociations[array_pop($keys)];
         // get association, return null if failed
-        $association = $this->connection->get($lastKey);
+        $association = array_pop($res);
         return $association ? (unserialize($association['association'])) : null;
     }
 
     /**
-     * Immediately delete association from memcache.
+     * Immediately delete association from TokyoTyrantTable.
      */
     function removeAssociation($server_url, $handle)
     {
         // create TokyoTyrantTable keys for association itself 
-        // and list of associations for this server
-        $serverKey = $this->associationServerKey($server_url);
         $associationKey = $this->associationKey($server_url, 
             $handle);
         
-        // get list of associations
-        $serverAssociations = $this->connection->get($serverKey);
-        // return null if failed or got empty list
-        if (!$serverAssociations) {
-            return false;
-        }
-        
-        // ensure that given association key exists in list
-        $serverAssociations = array_flip($serverAssociations);
-        if (!array_key_exists($associationKey, $serverAssociations)) {
-            return false;
-        }
-        
-        // remove given association key from list
-        unset($serverAssociations[$associationKey]);
-        $serverAssociations = array_flip($serverAssociations);
-        
-        // save updated list
-        $this->connection->put(
-            $serverKey,
-            $serverAssociations
-        );
-
         // delete association 
         return $this->connection->out($associationKey);
     }
@@ -172,7 +126,7 @@ class Auth_OpenID_TokyoTyrantTableStore extends Auth_OpenID_OpenIDStore {
     {
         global $Auth_OpenID_SKEW;
         
-        // save one request to memcache when nonce obviously expired 
+        // save one request to TokyoTyrantTable when nonce obviously expired 
         if (abs($timestamp - time()) > $Auth_OpenID_SKEW) {
             return false;
         }
@@ -194,14 +148,6 @@ class Auth_OpenID_TokyoTyrantTableStore extends Auth_OpenID_OpenIDStore {
     function associationKey($server_url, $handle = null) 
     {
         return 'openid_association_' . $server_url . '_' . $handle;
-    }
-    
-    /**
-     * TokyoTyrantTable key is prefixed with 'openid_association_' string. 
-     */
-    function associationServerKey($server_url) 
-    {
-        return 'openid_association_server_' . $server_url;
     }
     
     function cleanupNonces()
