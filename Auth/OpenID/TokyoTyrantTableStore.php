@@ -135,7 +135,7 @@ class Auth_OpenID_TokyoTyrantTableStore extends Auth_OpenID_OpenIDStore {
         // otherwise adds nonce
         try{
             return $this->connection->putKeep(
-                                              'openid_nonce_' . $server_url . '_' . $timestamp . '_' .$salt,
+                                              'openid_nonce_' . $server_url . '_' . $timestamp . '_' . $salt,
                                               array("nonce_expire" => time() + $Auth_OpenID_SKEW));
         }catch (TokyoTyrantException $e){
             return false;
