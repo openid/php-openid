@@ -23,15 +23,20 @@ require_once 'Auth/OpenID.php';
 
 function _Auth_OpenID_mkdtemp()
 {
-    if (strpos(PHP_OS, 'WIN') === 0) {
-        $dir = $_ENV['TMP'];
-        if (!isset($dir)) {
-            $dir = 'C:\Windows\Temp';
-        }
-    } else {
-        $dir = @$_ENV['TMPDIR'];
-        if (!isset($dir)) {
-            $dir = '/tmp';
+    if (function_exists('sys_get_temp_dir')) {
+        $dir = sys_get_temp_dir();
+    }
+    else {
+        if (strpos(PHP_OS, 'WIN') === 0) {
+            $dir = $_ENV['TMP'];
+            if (!isset($dir)) {
+                $dir = 'C:\Windows\Temp';
+            }
+        } else {
+            $dir = @$_ENV['TMPDIR'];
+            if (!isset($dir)) {
+                $dir = '/tmp';
+            }
         }
     }
 
