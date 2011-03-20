@@ -666,7 +666,7 @@ class Auth_OpenID_GenericConsumer {
                                         '_completeInvalid');
 
         return call_user_func_array(array($this, $method),
-                                    array($message, &$endpoint, $return_to));
+                                    array($message, $endpoint, $return_to));
     }
 
     /**
@@ -1185,7 +1185,7 @@ class Auth_OpenID_GenericConsumer {
         // oidutil.log('Performing discovery on %s' % (claimed_id,))
         list($unused, $services) = call_user_func($this->discoverMethod,
                                                   $claimed_id,
-                                                  &$this->fetcher);
+                                                  $this->fetcher);
 
         if (!$services) {
             return new Auth_OpenID_FailureResponse(null,
