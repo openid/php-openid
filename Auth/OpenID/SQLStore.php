@@ -9,9 +9,22 @@
  *
  * @package OpenID
  * @author JanRain, Inc. <openid@janrain.com>
+ * MDB2 migration by Petr Soukup
  * @copyright 2005-2008 Janrain, Inc.
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
+
+/**
+ * Require the PEAR DB module because we'll need it for the SQL-based
+ * stores implemented here.  We silence any errors from the inclusion
+ * because it might not be present, and a user of the SQL stores may
+ * supply an Auth_OpenID_DatabaseConnection instance that implements
+ * its own storage.
+ */
+global $__Auth_OpenID_PEAR_AVAILABLE;
+// MDB2 edit
+// $__Auth_OpenID_PEAR_AVAILABLE = @include_once 'DB.php';
+$__Auth_OpenID_PEAR_AVAILABLE = @include_once 'MDB2.php';
 
 /**
  * @access private
@@ -79,13 +92,17 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
                                   $associations_table = null,
                                   $nonces_table = null)
     {
+        global $__Auth_OpenID_PEAR_AVAILABLE;
+
         $this->associations_table_name = "oid_associations";
         $this->nonces_table_name = "oid_nonces";
 
         // Check the connection object type to be sure it's a PEAR
         // database connection.
         if (!(is_object($connection) &&
-              (is_subclass_of($connection, 'db_common') ||
+// MDB2 edit
+//              (is_subclass_of($connection, 'db_common') ||
+              (is_subclass_of($connection, 'MDB2_Driver_Common') ||
                is_subclass_of($connection,
                               'auth_openid_databaseconnection')))) {
             trigger_error("Auth_OpenID_SQLStore expected PEAR connection " .
@@ -101,26 +118,30 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         // constant, so only try to use it if PEAR is present.  Note
         // that Auth_Openid_Databaseconnection instances need not
         // implement ::setFetchMode for this reason.
-        if (is_subclass_of($this->connection, 'db_common')) {
-            $this->connection->setFetchMode(DB_FETCHMODE_ASSOC);
+        if ($__Auth_OpenID_PEAR_AVAILABLE) {
+// MDB2 edit
+//            $this->connection->setFetchMode(DB_FETCHMODE_ASSOC);
+            $this->connection->setFetchMode(MDB2_FETCHMODE_ASSOC);
+// MDB2 edit
+            $this->connection->loadModule('Extended');
         }
 
         if ($associations_table) {
             $this->associations_table_name = $associations_table;
         }
-
         if ($nonces_table) {
             $this->nonces_table_name = $nonces_table;
         }
 
-        $this->max_nonce_age = 6 * 60 * 60;
+        $this->max_nonce_age = 6 * 60;
 
         // Be sure to run the database queries with auto-commit mode
         // turned OFF, because we want every function to run in a
         // transaction, implicitly.  As a rule, methods named with a
         // leading underscore will NOT control transaction behavior.
         // Callers of these methods will worry about transactions.
-        $this->connection->autoCommit(false);
+// MDB2 edit
+//        $this->connection->autoCommit(false);
 
         // Create an empty SQL strings array.
         $this->sql = array();
@@ -198,10 +219,15 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
      */
     function reset()
     {
-        $this->connection->query(sprintf("DELETE FROM %s",
+// MDB2 edit
+//        $this->connection->query(sprintf("DELETE FROM %s",
+//                                         $this->associations_table_name));
+        $this->connection->exec(sprintf("DELETE FROM %s",
                                          $this->associations_table_name));
 
-        $this->connection->query(sprintf("DELETE FROM %s",
+//        $this->connection->query(sprintf("DELETE FROM %s",
+//                                         $this->nonces_table_name));
+        $this->connection->exec(sprintf("DELETE FROM %s",
                                          $this->nonces_table_name));
     }
 
@@ -285,10 +311,12 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
     function createTables()
     {
-        $this->connection->autoCommit(true);
+// MDB2 edit
+// Autocommit implicitly on
+//        $this->connection->autoCommit(true);
         $n = $this->create_nonce_table();
         $a = $this->create_assoc_table();
-        $this->connection->autoCommit(false);
+//        $this->connection->autoCommit(false);
 
         if ($n && $a) {
             return true;
@@ -300,7 +328,9 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
     function create_nonce_table()
     {
         if (!$this->tableExists($this->nonces_table_name)) {
-            $r = $this->connection->query($this->sql['nonce_table']);
+// MDB2 edit
+//            $r = $this->connection->query($this->sql['nonce_table']);
+            $r = $this->connection->exec($this->sql['nonce_table']);
             return $this->resultToBool($r);
         }
         return true;
@@ -309,7 +339,9 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
     function create_assoc_table()
     {
         if (!$this->tableExists($this->associations_table_name)) {
-            $r = $this->connection->query($this->sql['assoc_table']);
+// MDB2 edit
+//            $r = $this->connection->query($this->sql['assoc_table']);
+            $r = $this->connection->exec($this->sql['assoc_table']);
             return $this->resultToBool($r);
         }
         return true;
@@ -321,18 +353,24 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
     function _set_assoc($server_url, $handle, $secret, $issued,
                         $lifetime, $assoc_type)
     {
-        return $this->connection->query($this->sql['set_assoc'],
+// MDB2 edit
+//        $this->connection->query($this->sql['set_assoc'],
+        $result = $this->connection->extended->execParam($this->sql['set_assoc'],
                                         array(
                                               $server_url,
                                               $handle,
                                               $secret,
                                               $issued,
                                               $lifetime,
-                                              $assoc_type));
+                                              $assoc_type)
+                                        );
     }
 
     function storeAssociation($server_url, $association)
     {
+// MDB2 edit
+// Manual transaction start
+        $this->connection->beginTransaction();
         if ($this->resultToBool($this->_set_assoc(
                                             $server_url,
                                             $association->handle,
@@ -342,9 +380,17 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
                                             $association->lifetime,
                                             $association->assoc_type
                                             ))) {
-            $this->connection->commit();
+// MDB2 edit
+//            $this->connection->commit();
+            if ($this->connection->in_transaction) {
+                $this->connection->commit();
+            }
         } else {
-            $this->connection->rollback();
+// MDB2 edit
+//            $this->connection->rollback();
+            if ($this->connection->in_transaction) {
+                $this->connection->rollback();
+            }
         }
     }
 
@@ -353,7 +399,9 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
      */
     function _get_assoc($server_url, $handle)
     {
-        $result = $this->connection->getRow($this->sql['get_assoc'],
+// MDB2 edit
+//        $result = $this->connection->getRow($this->sql['get_assoc'],
+        $result = $this->connection->extended->getRow($this->sql['get_assoc'], null,
                                             array($server_url, $handle));
         if ($this->isError($result)) {
             return null;
@@ -367,7 +415,9 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
      */
     function _get_assocs($server_url)
     {
-        $result = $this->connection->getAll($this->sql['get_assocs'],
+// MDB2 edit
+//        $result = $this->connection->getAll($this->sql['get_assocs'],
+        $result = $this->connection->extended->getAll($this->sql['get_assocs'], null,
                                             array($server_url));
 
         if ($this->isError($result)) {
@@ -383,14 +433,24 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
             return false;
         }
 
-        if ($this->resultToBool($this->connection->query(
+// MDB2 edit
+        $this->connection->beginTransaction();
+//        if ($this->resultToBool($this->connection->query(
+        if ($this->resultToBool($this->connection->extended->execParam(
                               $this->sql['remove_assoc'],
                               array($server_url, $handle)))) {
-            $this->connection->commit();
+// MDB2 edit
+//            $this->connection->commit();
+            if ($this->connection->in_transaction) {
+                $this->connection->commit();
+            }
         } else {
-            $this->connection->rollback();
+// MDB2 edit
+//            $this->connection->rollback();
+            if ($this->connection->in_transaction) {
+                $this->connection->rollback();
+            }
         }
-
         return true;
     }
 
@@ -420,7 +480,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
                                                      $assoc_row['assoc_type']);
 
                 $assoc->secret = $this->blobDecode($assoc->secret);
-
+                
                 if ($assoc->getExpiresIn() == 0) {
                     $this->removeAssociation($server_url, $assoc->handle);
                 } else {
@@ -454,13 +514,25 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
     function _add_nonce($server_url, $timestamp, $salt)
     {
         $sql = $this->sql['add_nonce'];
-        $result = $this->connection->query($sql, array($server_url,
+// MDB2 edit
+        $this->connection->beginTransaction();
+//        $result = $this->connection->query($sql, array($server_url,
+        $result = $this->connection->extended->execParam($sql, array($server_url,
                                                        $timestamp,
                                                        $salt));
+
         if ($this->isError($result)) {
-            $this->connection->rollback();
+// MDB2 edit
+//            $this->connection->rollback();
+            if ($this->connection->in_transaction) {
+                $this->connection->rollback();
+            }
         } else {
-            $this->connection->commit();
+// MDB2 edit
+//            $this->connection->commit();
+            if ($this->connection->in_transaction) {
+                $this->connection->commit();
+            }
         }
         return $this->resultToBool($result);
     }
@@ -470,7 +542,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         global $Auth_OpenID_SKEW;
 
         if ( abs($timestamp - time()) > $Auth_OpenID_SKEW ) {
-            return false;
+            return False;
         }
 
         return $this->_add_nonce($server_url, $timestamp, $salt);
@@ -538,20 +610,35 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         global $Auth_OpenID_SKEW;
         $v = time() - $Auth_OpenID_SKEW;
 
-        $this->connection->query($this->sql['clean_nonce'], array($v));
-        $num = $this->connection->affectedRows();
-        $this->connection->commit();
+// MBD2 edit
+        $this->connection->beginTransaction();
+//        $this->connection->query($this->sql['clean_nonce'], array($v));
+//        $num = $this->connection->affectedRows();
+        $num = $this->connection->extended->execParam($this->sql['clean_nonce'], array($v));
+// MDB2 edit
+//        $this->connection->commit();
+        if ($this->connection->in_transaction) {
+            $this->connection->commit();
+        }
         return $num;
     }
 
     function cleanupAssociations()
     {
-        $this->connection->query($this->sql['clean_assoc'],
+// MBD2 edit
+        $this->connection->beginTransaction();
+//        $this->connection->query($this->sql['clean_assoc'],
+//                                 array(time()));
+//        $num = $this->connection->affectedRows();
+        $num = $this->connection->extended->execParam($this->sql['clean_assoc'],
                                  array(time()));
-        $num = $this->connection->affectedRows();
-        $this->connection->commit();
+// MDB2 edit
+//        $this->connection->commit();
+        if ($this->connection->in_transaction) {
+            $this->connection->commit();
+        }
         return $num;
     }
 }
 
-
+?>
