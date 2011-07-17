@@ -9,7 +9,7 @@
 /**
  * Require the Message implementation.
  */
-require_once dirname(__FILE__) . '/Message.php';
+require_once 'Auth/OpenID/Message.php';
 
 /**
  * A base class for accessing extension request and response data for

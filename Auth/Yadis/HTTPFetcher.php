@@ -16,10 +16,10 @@
 /**
  * Require logging functionality
  */
-require_once dirname(__FILE__) . '/../OpenID.php';
+require_once "Auth/OpenID.php";
 
 define('Auth_OpenID_FETCHER_MAX_RESPONSE_KB', 1024);
-define('Auth_OpenID_USER_AGENT',
+define('Auth_OpenID_USER_AGENT', 
        'php-openid/'.Auth_OpenID_VERSION.' (php/'.phpversion().')');
 
 class Auth_Yadis_HTTPResponse {

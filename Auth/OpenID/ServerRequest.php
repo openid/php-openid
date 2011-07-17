@@ -17,7 +17,7 @@
 /**
  * Imports
  */
-require_once dirname(__FILE__) . '/../OpenID.php';
+require_once "Auth/OpenID.php";
 
 /**
  * Object that holds the state of a request to the OpenID server

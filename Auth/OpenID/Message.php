@@ -9,10 +9,10 @@
 /**
  * Import tools needed to deal with messages.
  */
-require_once dirname(__FILE__) . '/../OpenID.php';
-require_once dirname(__FILE__) . '/KVForm.php';
-require_once dirname(__FILE__) . '/../Yadis/XML.php';
-require_once dirname(__FILE__) . '/Consumer.php'; // For Auth_OpenID_FailureResponse
+require_once 'Auth/OpenID.php';
+require_once 'Auth/OpenID/KVForm.php';
+require_once 'Auth/Yadis/XML.php';
+require_once 'Auth/OpenID/Consumer.php'; // For Auth_OpenID_FailureResponse
 
 // This doesn't REALLY belong here, but where is better?
 define('Auth_OpenID_IDENTIFIER_SELECT',

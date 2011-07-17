@@ -9,7 +9,7 @@
 /**
  * Require the base class file.
  */
-require_once dirname(__FILE__) . '/SQLStore.php';
+require_once "Auth/OpenID/SQLStore.php";
 
 /**
  * An SQL store that uses SQLite as its backend.

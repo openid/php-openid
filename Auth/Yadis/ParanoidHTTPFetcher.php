@@ -16,9 +16,9 @@
 /**
  * Interface import
  */
-require_once dirname(__FILE__) . '/HTTPFetcher.php';
+require_once "Auth/Yadis/HTTPFetcher.php";
 
-require_once dirname(__FILE__) . '/../OpenID.php';
+require_once "Auth/OpenID.php";
 
 /**
  * A paranoid {@link Auth_Yadis_HTTPFetcher} class which uses CURL

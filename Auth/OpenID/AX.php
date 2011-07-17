@@ -10,9 +10,9 @@
 /**
  * Require utility classes and functions for the consumer.
  */
-require_once dirname(__FILE__) . '/Extension.php';
-require_once dirname(__FILE__) . '/Message.php';
-require_once dirname(__FILE__) . '/TrustRoot.php';
+require_once "Auth/OpenID/Extension.php";
+require_once "Auth/OpenID/Message.php";
+require_once "Auth/OpenID/TrustRoot.php";
 
 define('Auth_OpenID_AX_NS_URI',
        'http://openid.net/srv/ax/1.0');

@@ -12,7 +12,7 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once dirname(__FILE__) . '/Discover.php';
+require_once 'Auth/OpenID/Discover.php';
 
 /**
  * A regular expression that matches a domain ending in a top-level domains.
@@ -210,7 +210,7 @@ class Auth_OpenID_TrustRoot {
         if ($parts['host'] == 'localhost') {
             return true;
         }
-
+        
         $host_parts = explode('.', $parts['host']);
         if ($parts['wildcard']) {
             // Remove the empty string from the beginning of the array
