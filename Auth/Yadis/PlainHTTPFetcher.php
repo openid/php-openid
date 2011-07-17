@@ -17,7 +17,7 @@
 /**
  * Interface import
  */
-require_once "Auth/Yadis/HTTPFetcher.php";
+require_once dirname(__FILE__) . '/HTTPFetcher.php';
 
 /**
  * This class implements a plain, hand-built socket-based fetcher

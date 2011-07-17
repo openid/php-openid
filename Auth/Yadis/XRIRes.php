@@ -4,8 +4,8 @@
  * Code for using a proxy XRI resolver.
  */
 
-require_once 'Auth/Yadis/XRDS.php';
-require_once 'Auth/Yadis/XRI.php';
+require_once dirname(__FILE__) . '/XRDS.php';
+require_once dirname(__FILE__) . '/XRI.php';
 
 class Auth_Yadis_ProxyResolver {
     function Auth_Yadis_ProxyResolver($fetcher, $proxy_url = null)

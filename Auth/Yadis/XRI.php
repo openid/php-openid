@@ -9,9 +9,9 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once 'Auth/Yadis/Misc.php';
-require_once 'Auth/Yadis/Yadis.php';
-require_once 'Auth/OpenID.php';
+require_once dirname(__FILE__) . '/Misc.php';
+require_once dirname(__FILE__) . '/Yadis.php';
+require_once dirname(__FILE__) . '/../OpenID.php';
 
 function Auth_Yadis_getDefaultProxy()
 {

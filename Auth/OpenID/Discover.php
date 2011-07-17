@@ -4,11 +4,11 @@
  * The OpenID and Yadis discovery implementation for OpenID 1.2.
  */
 
-require_once "Auth/OpenID.php";
-require_once "Auth/OpenID/Parse.php";
-require_once "Auth/OpenID/Message.php";
-require_once "Auth/Yadis/XRIRes.php";
-require_once "Auth/Yadis/Yadis.php";
+require_once dirname(__FILE__) . '/../OpenID.php';
+require_once dirname(__FILE__) . '/Parse.php';
+require_once dirname(__FILE__) . '/Message.php';
+require_once dirname(__FILE__) . '/../Yadis/XRIRes.php';
+require_once dirname(__FILE__) . '/../Yadis/Yadis.php';
 
 // XML namespace value
 define('Auth_OpenID_XMLNS_1_0', 'http://openid.net/xmlns/1.0');
