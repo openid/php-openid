@@ -9,7 +9,7 @@
 /**
  * Need CryptUtil to generate random strings.
  */
-require_once 'Auth/OpenID/CryptUtil.php';
+require_once dirname(__FILE__) . '/CryptUtil.php';
 
 /**
  * This is the characters that the nonces are made from.

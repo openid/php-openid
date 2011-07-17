@@ -82,7 +82,7 @@
 /**
  * Require Auth_OpenID::arrayGet().
  */
-require_once "Auth/OpenID.php";
+require_once dirname(__FILE__) . '/../OpenID.php';
 
 class Auth_OpenID_Parse {
 
@@ -215,7 +215,7 @@ class Auth_OpenID_Parse {
             return $str;
         }
     }
-    
+
     function match($regexp, $text, &$match)
     {
         if (!is_callable('mb_ereg_search_init')) {
