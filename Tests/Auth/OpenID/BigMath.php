@@ -13,8 +13,8 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once 'Auth/OpenID/BigMath.php';
-require_once 'Tests/Auth/OpenID/TestUtil.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/BigMath.php';
+require_once dirname(__FILE__) . '/TestUtil.php';
 
 class Tests_Auth_OpenID_BinLongConvertRnd extends PHPUnit_Framework_TestCase {
     var $lib;

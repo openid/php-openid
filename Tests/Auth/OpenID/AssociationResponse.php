@@ -1,12 +1,12 @@
 <?php
 
-require_once "Tests/Auth/OpenID/TestUtil.php";
-require_once "Tests/Auth/OpenID/MemStore.php";
+require_once dirname(__FILE__) . '/TestUtil.php';
+require_once dirname(__FILE__) . '/MemStore.php';
 
-require_once "Auth/OpenID/Message.php";
-require_once "Auth/OpenID/Server.php";
-require_once "Auth/OpenID/Consumer.php";
-require_once "Auth/OpenID/Association.php";
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Message.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Server.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Consumer.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Association.php';
 
 // Some values we can use for convenience (see mkAssocResponse)
 global $association_response_values;

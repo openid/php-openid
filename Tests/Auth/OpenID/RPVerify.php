@@ -4,10 +4,10 @@
  * Unit tests for verification of return_to URLs for a realm.
  */
 
-require_once 'Auth/OpenID/Discover.php';
-require_once 'Auth/OpenID/TrustRoot.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Discover.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/TrustRoot.php';
 
-require_once 'Auth/Yadis/Yadis.php';
+require_once dirname(__FILE__) . '/../../../Auth/Yadis/Yadis.php';
 
 /*
  * Tests for building the discovery URL from a realm and a return_to

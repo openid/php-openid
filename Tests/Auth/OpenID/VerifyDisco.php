@@ -1,10 +1,10 @@
 <?php
 
-require_once "Tests/Auth/OpenID/TestUtil.php";
-require_once "Tests/Auth/OpenID/MemStore.php";
+require_once dirname(__FILE__) . '/TestUtil.php';
+require_once dirname(__FILE__) . '/MemStore.php';
 
-require_once "Auth/OpenID/Message.php";
-require_once "Auth/OpenID/Consumer.php";
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Message.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Consumer.php';
 
 class Tests_Auth_OpenID_VerifyDisco_1 extends Auth_OpenID_GenericConsumer {
     function _discoverAndVerify($claimed_id, $to_match_endpoints)

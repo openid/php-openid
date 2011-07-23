@@ -4,9 +4,9 @@
  * SReg.php testing code.
  */
 
-require_once 'Auth/OpenID/SReg.php';
-require_once 'Auth/OpenID/Message.php';
-require_once 'Auth/OpenID/Server.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/SReg.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Message.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Server.php';
 
 class SRegURITest extends PHPUnit_Framework_TestCase {
     function test_is11()

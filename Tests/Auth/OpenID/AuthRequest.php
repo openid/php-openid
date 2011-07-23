@@ -1,9 +1,9 @@
 <?php
 
-require_once 'Tests/Auth/OpenID/TestUtil.php';
+require_once dirname(__FILE__) . '/TestUtil.php';
 
-require_once 'Auth/OpenID/Association.php';
-require_once 'Auth/OpenID/Consumer.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Association.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Consumer.php';
 
 class AuthRequest_DummyEndpoint {
     var $preferred_namespace = null;

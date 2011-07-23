@@ -13,7 +13,7 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once 'Auth/OpenID/KVForm.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/KVForm.php';
 
 global $_Tests_Auth_OpenID_kverrors;
 $_Tests_Auth_OpenID_kverrors = null;

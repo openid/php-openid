@@ -3,8 +3,8 @@
 /**
  * In-memory OpenID store implementation for testing only
  */
-require_once "Auth/OpenID/Interface.php";
-require_once 'Auth/OpenID/Nonce.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Interface.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Nonce.php';
 
 class ServerAssocs {
     function ServerAssocs()

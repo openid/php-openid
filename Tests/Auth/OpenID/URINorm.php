@@ -14,8 +14,8 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once 'Auth/OpenID/URINorm.php';
-require_once 'Tests/Auth/OpenID/TestUtil.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/URINorm.php';
+require_once dirname(__FILE__) . '/TestUtil.php';
 
 class Tests_Auth_OpenID_URINorm_TestCase extends PHPUnit_Framework_TestCase {
     function Tests_Auth_OpenID_URINorm_TestCase(

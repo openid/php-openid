@@ -1,8 +1,8 @@
 <?php
 
-require_once "Auth/OpenID/PAPE.php";
-require_once "Auth/OpenID/Message.php";
-require_once "Auth/OpenID/Server.php";
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/PAPE.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Message.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Server.php';
 
 class PapeRequestTestCase extends PHPUnit_Framework_TestCase {
     function setUp()

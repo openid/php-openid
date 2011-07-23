@@ -13,8 +13,7 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once 'PHPUnit/Framework.php';
-//require_once 'PHPUnit/GUI/HTML.php';
+require_once 'PHPUnit/Autoload.php';
 
 error_reporting(E_ALL | E_STRICT);
 
@@ -122,7 +121,7 @@ function global_require_once($name)
 
 $_tests = array(
                 array(
-                      'dir' => 'Tests/Auth/OpenID/',
+                      'dir' => dirname(__FILE__) . '/OpenID/',
                       'files' => array(
                                        'Association',
                                        'AssociationResponse',
@@ -152,7 +151,7 @@ $_tests = array(
                                        'VerifyDisco'),
                       ),
                 array(
-                      'dir' => 'Tests/Auth/Yadis/',
+                      'dir' => dirname(__FILE__) . '/Yadis/',
                       'files' => array(
                                        'ParseHTML',
                                        'XRDS',
