@@ -43,7 +43,7 @@ class Auth_Yadis_HTTPResponse {
  */
 class Auth_Yadis_HTTPFetcher {
 
-    var $timeout = 20; // timeout in seconds.
+    var $timeout = 5; // timeout in seconds.
 
     /**
      * Return whether a URL can be fetched.  Returns false if the URL
