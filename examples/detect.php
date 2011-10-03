@@ -455,7 +455,7 @@ function detect_fetcher($r, &$out)
             if ($url == $fetch_url) {
                 $msg = 'The redirected URL was not returned.';
             } else {
-                $msg = 'An unexpected URL was returned: <' . $url . '>.';
+                $msg = 'An unexpected URL was returned: ' . $url . '.';
             }
             $parts[] = $r->b($msg);
         }
