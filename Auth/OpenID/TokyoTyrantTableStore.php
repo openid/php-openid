@@ -95,13 +95,14 @@ class Auth_OpenID_TokyoTyrantTableStore extends Auth_OpenID_OpenIDStore {
         $query = $this->connection->getQuery();
         $query->addCond("server_url", TokyoTyrant::RDBQC_STREQ, $server_url);
         $query->setOrder("issued", TokyoTyrant::RDBQO_NUMDESC);
+        $query->setLimit(1);
         $associations = $query->search();
         // return null if failed or got empty list
-        if(!$association){
+        if(!$associations){
             return null;
         }
         // get association, return null if failed
-        $association = array_pop($res);
+        $association = array_pop($associations);
         return $association ? (unserialize($association['association'])) : null;
     }
 
