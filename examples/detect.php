@@ -512,7 +512,9 @@ if (!$_include) {
     $status[] = detect_stores($r, $body);
     $status[] = detect_fetcher($r, $body);
     $status[] = detect_xml($r, $body);
-    $status[] = detect_query_corruption($r, $body);
+    if (isset($_SERVER['REQUEST_METHOD'])) {
+        $status[] = detect_query_corruption($r, $body);
+    }
     $result = true;
 
     foreach ($status as $v) {
