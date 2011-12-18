@@ -215,7 +215,7 @@ class Auth_OpenID_Parse {
             return $str;
         }
     }
-    
+
     function match($regexp, $text, &$match)
     {
         if (!is_callable('mb_ereg_search_init')) {

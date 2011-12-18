@@ -331,11 +331,11 @@ function Auth_Yadis_getSupportedExtensions()
 function Auth_Yadis_getXMLParser()
 {
     global $__Auth_Yadis_defaultParser;
-    
+
     if (isset($__Auth_Yadis_defaultParser)) {
         return $__Auth_Yadis_defaultParser;
     }
-    
+
     foreach(Auth_Yadis_getSupportedExtensions() as $extension => $classname)
     {
       if (extension_loaded($extension))
@@ -345,7 +345,7 @@ function Auth_Yadis_getXMLParser()
         return $p;
       }
     }
-    
+
     return false;
 }
 
