@@ -128,19 +128,17 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
             curl_setopt($c, CURLOPT_TIMEOUT, $off);
             curl_setopt($c, CURLOPT_URL, $url);
 
-            if (defined('Auth_OpenID_VERIFY_HOST') &&
-                Auth_OpenID_VERIFY_HOST == false) {
-                curl_setopt($c, CURLOPT_SSL_VERIFYPEER, false);
-            } elseif (defined('Auth_OpenID_VERIFY_HOST')) {
-                /* These are actually the default options
-                 * So by setting Auth_OpenID_VERIFY_HOST as false
-                 * you disable the option, and if you set it to
-                 * true, you will overide any custom settings
-                 * that may be set in your distribution of PHP.
-                */
-                curl_setopt($c, CURLOPT_SSL_VERIFYPEER, true);
-                curl_setopt($c, CURLOPT_SSL_VERIFYHOST, 2);
+            if (defined('Auth_OpenID_VERIFY_HOST')) {
+                // set SSL verification options only if Auth_OpenID_VERIFY_HOST
+                // is explicitly set, otherwise use system default.
+                if (Auth_OpenID_VERIFY_HOST) {
+                    curl_setopt($c, CURLOPT_SSL_VERIFYPEER, true);
+                    curl_setopt($c, CURLOPT_SSL_VERIFYHOST, 2);
+                } else {
+                    curl_setopt($c, CURLOPT_SSL_VERIFYPEER, false);
+                }
             }
+
             curl_exec($c);
 
             $code = curl_getinfo($c, CURLINFO_HTTP_CODE);
@@ -211,18 +209,15 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
         curl_setopt($c, CURLOPT_WRITEFUNCTION,
                     array($this, "_writeData"));
 
-        if (defined('Auth_OpenID_VERIFY_HOST') &&
-            Auth_OpenID_VERIFY_HOST == false) {
-            curl_setopt($c, CURLOPT_SSL_VERIFYPEER, false);
-        } elseif (defined('Auth_OpenID_VERIFY_HOST')) {
-            /* These are actually the default options
-             * So by setting Auth_OpenID_VERIFY_HOST as false
-             * you disable the option, and if you set it to
-             * true, you will overide any custom settings
-             * that may be set in your distribution of PHP.
-            */
-            curl_setopt($c, CURLOPT_SSL_VERIFYPEER, true);
-            curl_setopt($c, CURLOPT_SSL_VERIFYHOST, 2);
+        if (defined('Auth_OpenID_VERIFY_HOST')) {
+            // set SSL verification options only if Auth_OpenID_VERIFY_HOST
+            // is explicitly set, otherwise use system default.
+            if (Auth_OpenID_VERIFY_HOST) {
+                curl_setopt($c, CURLOPT_SSL_VERIFYPEER, true);
+                curl_setopt($c, CURLOPT_SSL_VERIFYHOST, 2);
+            } else {
+                curl_setopt($c, CURLOPT_SSL_VERIFYPEER, false);
+            }
         }
 
         curl_exec($c);
