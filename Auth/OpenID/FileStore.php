@@ -17,10 +17,10 @@
 /**
  * Require base class for creating a new interface.
  */
-require_once 'Auth/OpenID.php';
-require_once 'Auth/OpenID/Interface.php';
-require_once 'Auth/OpenID/HMAC.php';
-require_once 'Auth/OpenID/Nonce.php';
+require_once dirname(__FILE__) . '/../OpenID.php';
+require_once dirname(__FILE__) . '/Interface.php';
+require_once dirname(__FILE__) . '/HMAC.php';
+require_once dirname(__FILE__) . '/Nonce.php';
 
 /**
  * This is a filesystem-based store for OpenID associations and

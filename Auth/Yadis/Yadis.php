@@ -17,18 +17,18 @@
  * Need both fetcher types so we can use the right one based on the
  * presence or absence of CURL.
  */
-require_once "Auth/Yadis/PlainHTTPFetcher.php";
-require_once "Auth/Yadis/ParanoidHTTPFetcher.php";
+require_once dirname(__FILE__) . '/PlainHTTPFetcher.php';
+require_once dirname(__FILE__) . '/ParanoidHTTPFetcher.php';
 
 /**
  * Need this for parsing HTML (looking for META tags).
  */
-require_once "Auth/Yadis/ParseHTML.php";
+require_once dirname(__FILE__) . '/ParseHTML.php';
 
 /**
  * Need this to parse the XRDS document during Yadis discovery.
  */
-require_once "Auth/Yadis/XRDS.php";
+require_once dirname(__FILE__) . '/XRDS.php';
 
 /**
  * XRDS (yadis) content type
@@ -141,7 +141,7 @@ function Auth_Yadis_getServiceEndpoints($input_url, $xrds_parse_func,
     }
 
     $yadis_result = call_user_func_array($discover_func,
-                                         array($input_url, &$fetcher));
+                                         array($input_url, $fetcher));
 
     if ($yadis_result === null) {
         return array($input_url, array());

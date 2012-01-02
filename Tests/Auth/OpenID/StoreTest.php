@@ -16,10 +16,10 @@
 /**
  * Require classes and functions to run the Store tests.
  */
-require_once 'Auth/OpenID/Association.php';
-require_once 'Auth/OpenID/CryptUtil.php';
-require_once 'Auth/OpenID/Nonce.php';
-require_once 'Auth/OpenID.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Association.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/CryptUtil.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Nonce.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID.php';
 
 function _Auth_OpenID_mkdtemp()
 {

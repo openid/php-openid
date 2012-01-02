@@ -17,8 +17,8 @@
 /**
  * Import the interface for creating a new store class.
  */
-require_once 'Auth/OpenID/Interface.php';
-require_once 'Auth/OpenID/HMAC.php';
+require_once dirname(__FILE__) . '/Interface.php';
+require_once dirname(__FILE__) . '/HMAC.php';
 
 /**
  * This is a store for use in the worst case, when you have no way of

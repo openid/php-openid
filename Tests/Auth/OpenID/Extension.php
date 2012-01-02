@@ -1,7 +1,7 @@
 <?php
 
-require_once 'Auth/OpenID/Message.php';
-require_once 'Auth/OpenID/Extension.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Message.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Extension.php';
 
 class _ExtensionTest_DummyExtension extends Auth_OpenID_Extension {
     var $ns_uri = 'http://an.extension/';

@@ -4,11 +4,11 @@
  * Tests for Auth_OpenID_Server
  */
 
-require_once "Tests/Auth/OpenID/MemStore.php";
-require_once "Auth/OpenID.php";
-require_once "Auth/OpenID/DiffieHellman.php";
-require_once "Auth/OpenID/Server.php";
-require_once "Auth/OpenID/Consumer.php";
+require_once dirname(__FILE__) . '/MemStore.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/DiffieHellman.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Server.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Consumer.php';
 
 function altModulus()
 {

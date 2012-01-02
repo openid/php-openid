@@ -4,10 +4,10 @@
  * Tests for the attribute exchange extension module
  */
 
-require_once "Auth/OpenID/AX.php";
-require_once "Auth/OpenID/Message.php";
-require_once "Auth/OpenID/Consumer.php";
-require_once "Auth/OpenID/Server.php";
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/AX.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Message.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Consumer.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Server.php';
 
 class BogusAXMessage extends Auth_OpenID_AX_Message {
     var $mode = 'bogus';

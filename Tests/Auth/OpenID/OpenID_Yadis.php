@@ -5,8 +5,8 @@
  * protocol.
  */
 
-require_once "Auth/Yadis/XRDS.php";
-require_once "Auth/OpenID/Discover.php";
+require_once dirname(__FILE__) . '/../../../Auth/Yadis/XRDS.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Discover.php';
 
 global $__XRDS_BOILERPLATE;
 $__XRDS_BOILERPLATE = '<?xml version="1.0" encoding="UTF-8"?>

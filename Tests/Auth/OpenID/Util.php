@@ -13,7 +13,7 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once 'Auth/OpenID.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID.php';
 
 class Tests_Auth_OpenID_Util extends PHPUnit_Framework_TestCase {
     function test_base64()

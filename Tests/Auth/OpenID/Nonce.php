@@ -13,7 +13,7 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once 'Auth/OpenID/Nonce.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Nonce.php';
 
 define('Tests_Auth_OpenID_nonce_re',
        '/\A\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ/');

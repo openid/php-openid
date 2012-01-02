@@ -1,12 +1,12 @@
 <?php
 
-require_once 'TestUtil.php';
+require_once dirname(__FILE__) . '/TestUtil.php';
 
-require_once 'Auth/OpenID.php';
-require_once 'Auth/OpenID/Discover.php';
-require_once 'Auth/Yadis/Manager.php';
-require_once 'Auth/Yadis/Misc.php';
-require_once 'Auth/Yadis/XRI.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Discover.php';
+require_once dirname(__FILE__) . '/../../../Auth/Yadis/Manager.php';
+require_once dirname(__FILE__) . '/../../../Auth/Yadis/Misc.php';
+require_once dirname(__FILE__) . '/../../../Auth/Yadis/XRI.php';
 
 /**
  * Tests for the core of the PHP Yadis library discovery logic.

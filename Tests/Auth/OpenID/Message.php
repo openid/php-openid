@@ -4,8 +4,8 @@
  * Unit tests for the Auth_OpenID_Message implementation.
  */
 
-require_once "Auth/OpenID/Message.php";
-require_once "Auth/OpenID.php";
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Message.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID.php';
 
 class MessageTest extends PHPUnit_Framework_TestCase {
     function _argTest($ns, $key, $expected = null)

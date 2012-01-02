@@ -13,17 +13,17 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache
  */
 
-require_once 'Auth/OpenID/CryptUtil.php';
-require_once 'Auth/Yadis/HTTPFetcher.php';
-require_once 'Auth/OpenID/DiffieHellman.php';
-require_once 'Auth/OpenID/FileStore.php';
-require_once 'Auth/OpenID/KVForm.php';
-require_once 'Auth/OpenID/Consumer.php';
-require_once 'Auth/OpenID/Server.php';
-require_once 'Auth/OpenID/Nonce.php';
-require_once 'Auth/OpenID/SReg.php';
-require_once 'Auth/OpenID/Message.php';
-require_once 'Tests/Auth/OpenID/MemStore.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/CryptUtil.php';
+require_once dirname(__FILE__) . '/../../../Auth/Yadis/HTTPFetcher.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/DiffieHellman.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/FileStore.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/KVForm.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Consumer.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Server.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Nonce.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/SReg.php';
+require_once dirname(__FILE__) . '/../../../Auth/OpenID/Message.php';
+require_once dirname(__FILE__) . '/MemStore.php';
 
 /*
  * Convenience function to create a SuccessResponse with the given
