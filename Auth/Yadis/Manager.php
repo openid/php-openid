@@ -413,7 +413,7 @@ class Auth_Yadis_Discovery {
 
             list($yadis_url, $services) = call_user_func($discover_cb,
                                                          $this->url,
-                                                         &$fetcher);
+                                                         $fetcher);
 
             $manager = $this->createManager($services, $yadis_url);
         }
