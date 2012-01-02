@@ -176,19 +176,22 @@ function render_form() {
 
     $sqlite_found = false;
     if (extension_loaded('sqlite') ||
-        @dl('sqlite.' . PHP_SHLIB_SUFFIX)) {
+        (function_exists('dl') && @dl('sqlite.' . PHP_SHLIB_SUFFIX))
+    ) {
       $sqlite_found = true;
     }
 
     $mysql_found = false;
     if (extension_loaded('mysql') ||
-        @dl('mysql.' . PHP_SHLIB_SUFFIX)) {
+        (function_exists('dl') && @dl('mysql.' . PHP_SHLIB_SUFFIX))
+    ) {
       $mysql_found = true;
     }
 
     $pgsql_found = false;
     if (extension_loaded('pgsql') ||
-        @dl('pgsql.' . PHP_SHLIB_SUFFIX)) {
+        (function_exists('dl') && @dl('pgsql.' . PHP_SHLIB_SUFFIX))
+    ) {
       $pgsql_found = true;
     }
 
