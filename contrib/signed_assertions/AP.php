@@ -16,7 +16,7 @@
  */
 require_once 'Auth/OpenID/SAML.php';
 /**
- * The Attribute_Provider class which signs the attribute,value pair 
+ * The Attribute_Provider class which signs the attribute,value pair
  * for a given openid.
  */
 class Attribute_Provider
@@ -33,10 +33,10 @@ class Attribute_Provider
    private $assertionTemplate=null;
    /**
     * Creates an Attribute_Provider object initialized with startup values.
-    * @param string $public_key_certificate - The public key certificate 
+    * @param string $public_key_certificate - The public key certificate
 	of the signer.
     * @param string $private_key - The private key of the signer.
-    * @param string $notBefore - Certificate validity time 
+    * @param string $notBefore - Certificate validity time
     * @param string $notOnOrAfter - Certificate validity time
     * @param string $rsadsa - Choice of the algorithm (RSA/DSA)
     * @param string $acsURI - URI of the signer.
@@ -62,9 +62,9 @@ class Attribute_Provider
    function sign($openid,$attribute,$value)
    {
       $samlObj = new SAML();
-      $responseXmlString = $samlObj->createSamlAssertion($openid, 
-                                                         $this->notBefore, 
-                                                         $this->notOnOrAfter, 
+      $responseXmlString = $samlObj->createSamlAssertion($openid,
+                                                         $this->notBefore,
+                                                         $this->notOnOrAfter,
                                                          $this->rsadsa,
                                                          $this->acsURI,
                                                          $attribute,
@@ -112,16 +112,16 @@ class Attribute_Verifier
 class AP_OP_StoreRequest
 {
    /**
-    * Creates store request and adds it as an extension to AuthRequest object 
+    * Creates store request and adds it as an extension to AuthRequest object
       passed to it.
-    * @param &Auth_OpenID_AuthRequest &$auth_request - A reference to 
+    * @param &Auth_OpenID_AuthRequest &$auth_request - A reference to
       the AuthRequest object.
-    * @param &Attribute_Provider &$attributeProvider - A reference to the  
+    * @param &Attribute_Provider &$attributeProvider - A reference to the
       Attribute Provider object.
     * @param string $attribute - The attribute name being asserted.
     * @param string $value - The attribute value being asserted.
     * @param string $openid - Openid of the entity being asserted.
-    * @return &Auth_OpenID_AuthRequest - Auth_OpenID_AuthRequest object 
+    * @return &Auth_OpenID_AuthRequest - Auth_OpenID_AuthRequest object
                                    returned with StoreRequest extension.
    */
    static function createStoreRequest(&$auth_request,&$attributeProvider,
@@ -143,14 +143,14 @@ class AP_OP_StoreRequest
 }
 
 /*
- *This is implemented at the RP Takes care of getting the attribute from the 
+ *This is implemented at the RP Takes care of getting the attribute from the
  *AX_Fetch_Response object and verifying it.
  */
 class RP_OP_Verify
 {
    /**
     * Verifies a given signed assertion.
-    * @param &Attribute_Verifier &$attributeVerifier - An instance of the class 
+    * @param &Attribute_Verifier &$attributeVerifier - An instance of the class
                                             passed for the verification.
     * @param Auth_OpenID_Response - Response object for extraction.
     * @return boolean - true if successful, false if verification fails.

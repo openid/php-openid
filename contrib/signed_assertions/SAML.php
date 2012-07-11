@@ -8,7 +8,7 @@
  ** @author Santosh Subramanian <subrasan@cs.sunysb.edu>
  ** @author Shishir Randive <srandive@cs.sunysb.edu>
  ** Stony Brook University.
- ** largely derived from 
+ ** largely derived from
  **
  * Copyright (C) 2007 Google Inc.
  *
@@ -29,12 +29,12 @@ class SAML{
    private $assertionTemplate=null;
    /**
     * Returns a SAML response with various elements filled in.
-    * @param string $authenticatedUser The OpenId of the user 
-    * @param string $notBefore The ISO 8601 formatted date before which the 
+    * @param string $authenticatedUser The OpenId of the user
+    * @param string $notBefore The ISO 8601 formatted date before which the
     response is invalid
-    * @param string $notOnOrAfter The ISO 8601 formatted data after which the 
+    * @param string $notOnOrAfter The ISO 8601 formatted data after which the
     response is invalid
-    * @param string $rsadsa 'rsa' if the response will be signed with RSA keys, 
+    * @param string $rsadsa 'rsa' if the response will be signed with RSA keys,
     'dsa' for DSA keys
     * @param string $requestID The ID of the request we're responding to
     * @param string $destination The ACS URL that the response is submitted to
@@ -43,7 +43,7 @@ class SAML{
    function createSamlAssertion($authenticatedUser, $notBefore, $notOnOrAfter, $rsadsa, $acsURI,$attribute,$value,$assertionTemplate)
    {
       $samlResponse = $assertionTemplate;
-      $samlResponse = str_replace('USERNAME_STRING', $authenticatedUser, $samlResponse); 
+      $samlResponse = str_replace('USERNAME_STRING', $authenticatedUser, $samlResponse);
       $samlResponse = str_replace('RESPONSE_ID', $this->samlCreateId(), $samlResponse);
       $samlResponse = str_replace('ISSUE_INSTANT', $this->samlGetDateTime(time()), $samlResponse);
       $samlResponse = str_replace('NOT_BEFORE', $this->samlGetDateTime(strtotime($notBefore)), $samlResponse);
@@ -58,23 +58,23 @@ class SAML{
 
    /**
     * Signs a SAML response with the given private key, and embeds the public key.
-    * @param string $responseXmlString The unsigned Assertion which will be signed 
-    * @param string $priKey Private key to sign the certificate 
+    * @param string $responseXmlString The unsigned Assertion which will be signed
+    * @param string $priKey Private key to sign the certificate
     * @param string $cert Public key certificate of signee
-    * @return string Signed Assertion 
+    * @return string Signed Assertion
     */
-   function signAssertion($responseXmlString,$privKey,$cert) 
+   function signAssertion($responseXmlString,$privKey,$cert)
    {
       if (file_exists("/tmp/xml")) {
-         $tempFileDir="/tmp/xml/";          
-      
+         $tempFileDir="/tmp/xml/";
+
       } else {
-             mkdir("/tmp/xml",0777);   
+             mkdir("/tmp/xml",0777);
          $tempFileDir="/tmp/xml/";
       }
       $tempName = 'saml-response-' . $this->samlCreateId() . '.xml';
       $tempFileName=$tempFileDir.$tempName;
-      while (file_exists($tempFileName)) 
+      while (file_exists($tempFileName))
          $tempFileName = 'saml-response-' . $this->samlCreateId() . '.xml';
 
       if (!$handle = fopen($tempFileName, 'w')) {
@@ -84,14 +84,14 @@ class SAML{
          return null;
       }
       fclose($handle);
-      $cmd = 'xmlsec1 --sign --privkey-pem ' . $privKey . 
-         ',' . $cert . ' --output ' . $tempFileName . 
+      $cmd = 'xmlsec1 --sign --privkey-pem ' . $privKey .
+         ',' . $cert . ' --output ' . $tempFileName .
          '.out ' . $tempFileName;
       exec($cmd, $resp);
       unlink($tempFileName);
 
       $xmlResult = @file_get_contents($tempFileName . '.out');
-      if (!$xmlResult) { 
+      if (!$xmlResult) {
          return null;
       } else {
          unlink($tempFileName . '.out');
@@ -106,20 +106,20 @@ class SAML{
     * @param string $rootcert trusted public key certificate
     * @return string Signed SAML response
     */
-   function verifyAssertion($responseXmlString,$rootcert) 
+   function verifyAssertion($responseXmlString,$rootcert)
    {
       date_default_timezone_set("UTC");
       if (file_exists("/tmp/xml")) {
-         $tempFileDir="/tmp/xml/";          
-      
+         $tempFileDir="/tmp/xml/";
+
       } else {
-             mkdir("/tmp/xml",0777);   
+             mkdir("/tmp/xml",0777);
          $tempFileDir="/tmp/xml/";
       }
-      
+
       $tempName = 'saml-response-' . $this->samlCreateId() . '.xml';
       $tempFileName=$tempFileDir.$tempName;
-      while (file_exists($tempFileName)) 
+      while (file_exists($tempFileName))
          $tempFileName = 'saml-response-' . $this->samlCreateId() . '.xml';
 
       if (!$handle = fopen($tempFileName, 'w')) {
@@ -172,7 +172,7 @@ class SAML{
     * @return string Containing pseudorandomness of 160 bits
     */
 
-   function samlCreateId() 
+   function samlCreateId()
    {
       $rndChars = 'abcdefghijklmnop';
       $rndId = '';
@@ -184,11 +184,11 @@ class SAML{
 
    /**
     * Returns a unix timestamp in xsd:dateTime format.
-    * @param timestamp int UNIX Timestamp to convert to xsd:dateTime 
+    * @param timestamp int UNIX Timestamp to convert to xsd:dateTime
     * ISO 8601 format.
     * @return string
     */
-   function samlGetDateTime($timestamp) 
+   function samlGetDateTime($timestamp)
    {
       return gmdate('Y-m-d\TH:i:s\Z', $timestamp);
    }
@@ -198,7 +198,7 @@ class SAML{
     * @return bool
     */
 
-   function validSamlDateFormat($samlDate) 
+   function validSamlDateFormat($samlDate)
    {
       if ($samlDate == "") return false;
       $indexT = strpos($samlDate, 'T');

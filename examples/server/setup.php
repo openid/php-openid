@@ -505,7 +505,7 @@ function getOpenIDStore()
     }
 
     $db->query("USE <?php print $_SESSION['store_data']['database']; ?>");
-        
+
     $s =& new Auth_OpenID_MySQLStore($db);
 
     $s->createTables();

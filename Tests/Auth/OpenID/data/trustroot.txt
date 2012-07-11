@@ -21,8 +21,8 @@ http://foo.com/invalid#fragment
 http://π.pi.com/
 http://lambda.com/Λ
 
- 
- 	
+
+
 5
 http:///
 
