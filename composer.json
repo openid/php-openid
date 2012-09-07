@@ -1,0 +1,26 @@
+{
+    "name": "raphox/php-openid",
+    "type": "library",
+    "description": "OpenID library for PHP5",
+    "keywords": ["OpenID", "Authentication", "Server", "Provider", "User"],
+    "homepage": "https://github.com/raphox/php-openid",
+    "license": "Apache License 2.0",
+    "authors": [
+        {
+            "name": "OpenID",
+            "homepage": "http://openid.net/"
+        },
+        {
+            "name": "Raphael A. Araújo",
+            "email": "raphox.araujo@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.2"
+    },
+    "autoload": {
+        "psr-0": {
+            "": "."
+        }
+    }
+}
