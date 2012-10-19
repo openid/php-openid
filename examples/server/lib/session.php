@@ -82,8 +82,8 @@ function getServer()
 {
     static $server = null;
     if (!isset($server)) {
-        $server =& new Auth_OpenID_Server(getOpenIDStore(),
-                                          buildURL());
+        $server = new Auth_OpenID_Server(getOpenIDStore(),
+                                         buildURL());
     }
     return $server;
 }

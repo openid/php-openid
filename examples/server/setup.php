@@ -498,7 +498,7 @@ function getOpenIDStore()
                  'hostspec' => '<?php print $_SESSION['store_data']['host']; ?>'
                  );
 
-    $db =& DB::connect($dsn);
+    $db = DB::connect($dsn);
 
     if (PEAR::isError($db)) {
         return null;
@@ -506,7 +506,7 @@ function getOpenIDStore()
 
     $db->query("USE <?php print $_SESSION['store_data']['database']; ?>");
         
-    $s =& new Auth_OpenID_MySQLStore($db);
+    $s = new Auth_OpenID_MySQLStore($db);
 
     $s->createTables();
 
@@ -527,13 +527,13 @@ function getOpenIDStore()
                  'database' => '<?php print $_SESSION['store_data']['database']; ?>'
                  );
 
-    $db =& DB::connect($dsn);
+    $db = DB::connect($dsn);
 
     if (PEAR::isError($db)) {
         return null;
     }
 
-    $s =& new Auth_OpenID_PostgreSQLStore($db);
+    $s = new Auth_OpenID_PostgreSQLStore($db);
 
     $s->createTables();
 

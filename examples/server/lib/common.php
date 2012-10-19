@@ -50,8 +50,8 @@ function doAuth($info, $trusted=null, $fail_cancels=false,
 
     if ($trusted) {
         setRequestInfo();
-        $server =& getServer();
-        $response =& $info->answer(true, null, $req_url);
+        $server = getServer();
+        $response = $info->answer(true, null, $req_url);
 
         // Answer with some sample Simple Registration data.
         $sreg_data = array(
@@ -76,7 +76,7 @@ function doAuth($info, $trusted=null, $fail_cancels=false,
         $sreg_response->toMessage($response->fields);
 
         // Generate a response to send to the user agent.
-        $webresponse =& $server->encodeResponse($response);
+        $webresponse = $server->encodeResponse($response);
 
         $new_headers = array();
 
