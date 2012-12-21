@@ -179,10 +179,6 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
                     }
                 }
 
-                Auth_OpenID::log(
-                    "Successfully fetched '%s': GET response code %s",
-                    $url, $code);
-
                 return new Auth_Yadis_HTTPResponse($url, $code,
                                                     $new_headers, $body);
             }
@@ -262,9 +258,6 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
             }
 
         }
-
-        Auth_OpenID::log("Successfully fetched '%s': POST response code %s",
-                         $url, $code);
 
         return new Auth_Yadis_HTTPResponse($url, $code,
                                            $new_headers, $body);
