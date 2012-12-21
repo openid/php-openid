@@ -18,7 +18,7 @@ function action_default()
 {
     header('X-XRDS-Location: '.buildURL('idpXrds'));
 
-    $server =& getServer();
+    $server = getServer();
     $method = $_SERVER['REQUEST_METHOD'];
     $request = null;
     if ($method == 'GET') {
@@ -41,7 +41,7 @@ function action_default()
         if ($request->idSelect()) {
             // Perform IDP-driven identifier selection
             if ($request->mode == 'checkid_immediate') {
-                $response =& $request->answer(false);
+                $response = $request->answer(false);
             } else {
                 return trust_render($request);
             }
@@ -51,7 +51,7 @@ function action_default()
             // so.
             return noIdentifier_render();
         } else if ($request->immediate) {
-            $response =& $request->answer(false, buildURL());
+            $response = $request->answer(false, buildURL());
         } else {
             if (!getLoggedInUser()) {
                 return login_render();
@@ -59,10 +59,10 @@ function action_default()
             return trust_render($request);
         }
     } else {
-        $response =& $server->handleRequest($request);
+        $response = $server->handleRequest($request);
     }
 
-    $webresponse =& $server->encodeResponse($response);
+    $webresponse = $server->encodeResponse($response);
 
     if ($webresponse->code != AUTH_OPENID_HTTP_OK) {
         header(sprintf("HTTP/1.1 %d ", $webresponse->code),
