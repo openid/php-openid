@@ -726,12 +726,11 @@ class Auth_OpenID_AX_KeyValueMessage extends Auth_OpenID_AX_Message {
             return $default;
         } else if (count($values) == 1) {
             return $values[0];
-        } else {
-            return new Auth_OpenID_AX_Error(
-              sprintf('More than one value present for %s',
-                      $type_uri)
-              );
         }
+			return new Auth_OpenID_AX_Error(
+			  sprintf('More than one value present for %s',
+						 $type_uri)
+			  );
     }
 
     /**
@@ -776,12 +775,12 @@ class Auth_OpenID_AX_KeyValueMessage extends Auth_OpenID_AX_Message {
     {
         if (array_key_exists($type_uri, $this->data)) {
             return count($this->get($type_uri));
-        } else {
-            return new Auth_OpenID_AX_Error(
-              sprintf("Type URI %s not found in response",
-                      $type_uri)
-              );
         }
+
+			return new Auth_OpenID_AX_Error(
+			  sprintf("Type URI %s not found in response",
+						 $type_uri)
+			  );
     }
 }
 

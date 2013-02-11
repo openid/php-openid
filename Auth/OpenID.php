@@ -20,7 +20,7 @@
 /**
  * The library version string
  */
-define('Auth_OpenID_VERSION', '2.2.2');
+define('Auth_OpenID_VERSION', '2.2.3');
 
 /**
  * Require the fetcher code.
@@ -208,16 +208,15 @@ class Auth_OpenID {
     {
         if (is_dir($dir_name) || @mkdir($dir_name)) {
             return true;
-        } else {
-            $parent_dir = dirname($dir_name);
-
-            // Terminal case; there is no parent directory to create.
-            if ($parent_dir == $dir_name) {
-                return true;
-            }
-
-            return (Auth_OpenID::ensureDir($parent_dir) && @mkdir($dir_name));
         }
+			$parent_dir = dirname($dir_name);
+
+			// Terminal case; there is no parent directory to create.
+			if ($parent_dir == $dir_name) {
+				 return true;
+			}
+
+			return (Auth_OpenID::ensureDir($parent_dir) && @mkdir($dir_name));
     }
 
     /**
@@ -247,16 +246,15 @@ class Auth_OpenID {
         if (is_array($arr)) {
             if (array_key_exists($key, $arr)) {
                 return $arr[$key];
-            } else {
-                return $fallback;
-            }
-        } else {
-            trigger_error("Auth_OpenID::arrayGet (key = ".$key.") expected " .
-                          "array as first parameter, got " .
-                          gettype($arr), E_USER_WARNING);
-
-            return false;
+            } 
+            return $fallback;
         }
+
+			trigger_error("Auth_OpenID::arrayGet (key = ".$key.") expected " .
+							  "array as first parameter, got " .
+							  gettype($arr), E_USER_WARNING);
+
+			return false;
     }
 
     /**
@@ -493,9 +491,9 @@ class Auth_OpenID {
 
         if (count($parts) == 1) {
             return array($parts[0], "");
-        } else {
-            return $parts;
         }
+
+        return $parts;
     }
 
     static function filter($callback, &$sequence)

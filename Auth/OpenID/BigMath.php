@@ -253,9 +253,9 @@ class Auth_OpenID_BcMathWrapper extends Auth_OpenID_MathLibrary{
     {
         if (function_exists('bcpowmod')) {
             return bcpowmod($base, $exponent, $modulus);
-        } else {
-            return $this->_powmod($base, $exponent, $modulus);
         }
+
+        return $this->_powmod($base, $exponent, $modulus);
     }
 
     function toString($num)
@@ -447,5 +447,3 @@ function Auth_OpenID_noMathSupport()
 {
     return defined('Auth_OpenID_NO_MATH_SUPPORT');
 }
-
-
