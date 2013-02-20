@@ -37,7 +37,7 @@ class Auth_Yadis_PHPSession {
      */
     function get($name, $default=null)
     {
-        if (array_key_exists($name, $_SESSION)) {
+        if (is_array($_SESSION) && array_key_exists($name, $_SESSION)) {
             return $_SESSION[$name];
         } else {
             return $default;
