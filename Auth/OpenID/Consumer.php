@@ -347,7 +347,8 @@ class Auth_OpenID_Consumer {
         }
 
         if ($endpoint === null) {
-            return null;
+            return new Auth_OpenID_FailureResponse(null,
+              "Certificate or Certificate Authority verification failed");
         } else {
             return $this->beginWithoutDiscovery($endpoint,
                                                 $anonymous);
