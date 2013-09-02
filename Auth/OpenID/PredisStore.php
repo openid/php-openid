@@ -77,8 +77,8 @@ class Auth_OpenID_PredisStore extends Auth_OpenID_OpenIDStore {
         $expiration = $this->redis->get($expirationKey);
         if (!$expiration || $newExpiration > $expiration) {
             $this->redis->set($expirationKey, $newExpiration);
-            $this->redis->expiresat($serverKey, $newExpiration);
-            $this->redis->expiresat($expirationKey, $newExpiration);
+            $this->redis->expireat($serverKey, $newExpiration);
+            $this->redis->expireat($expirationKey, $newExpiration);
         }
 
         // save association itself, will automatically expire
