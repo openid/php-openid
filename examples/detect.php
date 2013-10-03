@@ -434,7 +434,7 @@ function detect_fetcher($r, &$out)
 
     $ok = true;
     $fetcher = Auth_Yadis_Yadis::getHTTPFetcher();
-    $fetch_url = 'https://raw.github.com/gist/465630/c57eff55ebc0c54973903af5f72bac72762cf4f4/helloworld';
+    $fetch_url = 'https://gist.github.com/chuckpearce/6810258/raw/c57eff55ebc0c54973903af5f72bac72762cf4f4/gistfile1.txt';
     $expected_url = $fetch_url;// . '.txt';
     $result = $fetcher->get($fetch_url);
 
