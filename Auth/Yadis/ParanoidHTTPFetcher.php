@@ -80,7 +80,7 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
         if (!$this->canFetchURL($url)) {
             return null;
         }
-
+       
         $stop = time() + $this->timeout;
         $off = $this->timeout;
 
@@ -90,11 +90,15 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
             $this->reset();
 
             $c = curl_init();
-
+            if (defined('Auth_OpenID_DISABLE_SSL_VERIFYPEER') 
+                    && Auth_OpenID_DISABLE_SSL_VERIFYPEER === true) {
+                curl_setopt($c, CURLOPT_SSL_VERIFYPEER, false);
+            }
+            
             if ($c === false) {
                 Auth_OpenID::log(
                     "curl_init returned false; could not " .
-                    "initialize for URL '%s'", $url);
+                    "initialize for URL '%s'", $url); 
                 return null;
             }
 
