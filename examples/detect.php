@@ -352,7 +352,7 @@ function detect_stores($r, &$out)
     }
 
     $basedir_str = ini_get('open_basedir');
-    if (gettype($basedir_str) == 'string') {
+    if (gettype($basedir_str) == 'string' && $basedir_str) {
         $url = 'http://www.php.net/manual/en/features.safe-mode.php' .
             '#ini.open-basedir';
         $lnk = $r->link($url, 'open_basedir');
