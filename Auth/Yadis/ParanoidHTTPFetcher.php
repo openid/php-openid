@@ -80,7 +80,7 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
         if (!$this->canFetchURL($url)) {
             return null;
         }
-       
+
         $stop = time() + $this->timeout;
         $off = $this->timeout;
 
@@ -98,7 +98,7 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
             if ($c === false) {
                 Auth_OpenID::log(
                     "curl_init returned false; could not " .
-                    "initialize for URL '%s'", $url); 
+                    "initialize for URL '%s'", $url);
                 return null;
             }
 
