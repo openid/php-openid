@@ -90,11 +90,16 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
             $this->reset();
 
             $c = curl_init();
-            if (defined('Auth_OpenID_DISABLE_SSL_VERIFYPEER') 
+            if (defined('Auth_OpenID_DISABLE_SSL_VERIFYPEER')
                     && Auth_OpenID_DISABLE_SSL_VERIFYPEER === true) {
+                trigger_error(
+                    'You have disabled SSL verifcation, this is a TERRIBLE ' .
+                    'idea in almost all cases. Set Auth_OpenID_DISABLE_SSL_' .
+                    'VERIFYPEER to false if you want to be safe again',
+                    E_USER_WARNING);
                 curl_setopt($c, CURLOPT_SSL_VERIFYPEER, false);
             }
-            
+
             if ($c === false) {
                 Auth_OpenID::log(
                     "curl_init returned false; could not " .
