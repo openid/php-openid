@@ -250,6 +250,10 @@ class Auth_Yadis_dom extends Auth_Yadis_XMLParser {
             return false;
         }
 
+        if (isset($this->doc->doctype)) {
+            return false;
+        }
+
         $this->xpath = new DOMXPath($this->doc);
 
         if ($this->xpath) {
@@ -343,11 +347,11 @@ function Auth_Yadis_getSupportedExtensions()
 function Auth_Yadis_getXMLParser()
 {
     global $__Auth_Yadis_defaultParser;
-    
+
     if (isset($__Auth_Yadis_defaultParser)) {
         return $__Auth_Yadis_defaultParser;
     }
-    
+
     foreach(Auth_Yadis_getSupportedExtensions() as $extension => $classname)
     {
       if (extension_loaded($extension))
@@ -357,7 +361,7 @@ function Auth_Yadis_getXMLParser()
         return $p;
       }
     }
-    
+
     return false;
 }
 
