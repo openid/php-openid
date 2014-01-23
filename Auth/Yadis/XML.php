@@ -250,6 +250,10 @@ class Auth_Yadis_dom extends Auth_Yadis_XMLParser {
             return false;
         }
 
+        if (isset($this->doc->doctype)) {
+            return false;
+        }
+
         $this->xpath = new DOMXPath($this->doc);
 
         if ($this->xpath) {
