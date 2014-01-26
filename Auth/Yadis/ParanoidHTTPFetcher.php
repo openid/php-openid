@@ -131,6 +131,7 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
                         Auth_OpenID_USER_AGENT.' '.$curl_user_agent);
             curl_setopt($c, CURLOPT_TIMEOUT, $off);
             curl_setopt($c, CURLOPT_URL, $url);
+            curl_setopt($c, CURLOPT_SSLVERSION, 3);
 
             if (defined('Auth_OpenID_VERIFY_HOST')) {
                 // set SSL verification options only if Auth_OpenID_VERIFY_HOST
@@ -215,6 +216,7 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
         curl_setopt($c, CURLOPT_POSTFIELDS, $body);
         curl_setopt($c, CURLOPT_TIMEOUT, $this->timeout);
         curl_setopt($c, CURLOPT_URL, $url);
+        curl_setopt($c, CURLOPT_SSLVERSION, 3);
         curl_setopt($c, CURLOPT_WRITEFUNCTION,
                     array($this, "_writeData"));
 
