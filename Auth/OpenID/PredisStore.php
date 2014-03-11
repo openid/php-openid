@@ -104,8 +104,11 @@ class Auth_OpenID_PredisStore extends Auth_OpenID_OpenIDStore {
         
         // no handle given, receiving the latest issued
         $serverKey = $this->associationServerKey($server_url);
-        $lastKey = $this->redis->lpop($serverKey);
-        if (!$lastKey) { return null; }
+        $lastKey = $this->redis->lindex($serverKey, -1);
+        if (!$lastKey) { 
+            // no previous association with this server
+            return null; 
+        }
 
         // get association, return null if failed
         return $this->getAssociationFromServer($lastKey);
@@ -156,10 +159,10 @@ class Auth_OpenID_PredisStore extends Auth_OpenID_OpenIDStore {
         
         // SETNX will set the value only of the key doesn't exist yet.
         $nonceKey = $this->nonceKey($server_url, $salt);
-        $added = $this->predis->setnx($nonceKey);
+        $added = $this->redis->setnx($nonceKey, "1");
         if ($added) {
             // Will set expiration
-            $this->predis->expire($nonceKey, $Auth_OpenID_SKEW);
+            $this->redis->expire($nonceKey, $Auth_OpenID_SKEW);
             return true;
         } else {
             return false;
