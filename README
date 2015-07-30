@@ -33,10 +33,10 @@ Follow these steps:
    - Enable the CURL extension.
 
    - If you plan to use SQLite, PostgreSQL, or MySQL to store OpenID
-     data, you'll need PEAR DB.  You can install this by running this
+     data, you'll need PEAR MDB2.  You can install this by running this
      as root:
 
-     # pear install DB
+     # pear install MDB2
 
      You'll also need to install and enable the appropriate PHP
      database extension.  Alternatively, you can store OpenID data on
