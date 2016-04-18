@@ -41,7 +41,7 @@ function mkSuccess($endpoint, $q)
 }
 
 class FastConsumerSession extends Auth_OpenID_DiffieHellmanSHA1ConsumerSession {
-    function FastConsumerSession($dh = null)
+    function __construct($dh = null)
     {
         if ($dh === null) {
             $dh = new Auth_OpenID_DiffieHellman(100389557, 2);
@@ -108,7 +108,7 @@ function Auth_OpenID_associate($qs, $assoc_secret, $assoc_handle)
 }
 
 class Auth_OpenID_TestFetcher extends Auth_Yadis_HTTPFetcher {
-    function Auth_OpenID_TestFetcher($user_url, $user_page,
+    function __construct($user_url, $user_page,
                                      $assoc_secret, $assoc_handle)
     {
         $this->get_responses = array($user_url =>
@@ -992,7 +992,7 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuthTriggered extends _TestIdRes {
 }
 
 class _MockFetcher {
-    function _MockFetcher($response = null)
+    function __construct($response = null)
     {
         // response is (code, url, body)
         $this->response = $response;
@@ -1519,6 +1519,9 @@ class _BadArgCheckingConsumer extends Auth_OpenID_GenericConsumer {
 }
 
 class Tests_Auth_OpenID_Consumer_TestCheckAuth extends _TestIdRes {
+    public $fetcher;
+    public $consumer;
+
     function setUp()
     {
         $this->store = new Tests_Auth_OpenID_MemStore();
@@ -1608,6 +1611,8 @@ class Tests_Auth_OpenID_Consumer_TestCheckAuth extends _TestIdRes {
 }
 
 class Tests_Auth_OpenID_Consumer_TestFetchAssoc extends PHPUnit_Framework_TestCase {
+    public $fetcher;
+    public $consumer;
     function setUp()
     {
         $this->store = new Tests_Auth_OpenID_MemStore();
@@ -1781,7 +1786,7 @@ class Tests_Auth_OpenID_SuccessResponse extends PHPUnit_Framework_TestCase {
 }
 
 class _StubConsumer {
-    function _StubConsumer()
+    function __construct()
     {
         $this->assoc = null;
         $this->response = null;
@@ -2069,6 +2074,9 @@ class IDPDrivenTest_Consumer2 extends ConfigurableConsumer {
 }
 
 class IDPDrivenTest extends PHPUnit_Framework_TestCase {
+    public $consumer;
+    public $endpoint;
+
     function setUp()
     {
         $this->store = new GoodAssocStore();

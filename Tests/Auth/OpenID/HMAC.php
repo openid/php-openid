@@ -18,7 +18,7 @@ require_once 'Auth/OpenID/HMAC.php';
 require_once 'Tests/Auth/OpenID/TestUtil.php';
 
 class Tests_Auth_OpenID_HMAC_TestCase extends PHPUnit_Framework_TestCase {
-    function Tests_Auth_OpenID_HMAC_TestCase(
+    function __construct(
         $name, $key, $data, $expected, $hmac_func)
     {
 
@@ -131,7 +131,7 @@ class Tests_Auth_OpenID_HMAC extends PHPUnit_Framework_TestSuite {
         return $final;
     }
 
-    function Tests_Auth_OpenID_HMAC($name)
+    function __construct($name)
     {
         $this->setName($name);
         $hash_test_defs = array(array(

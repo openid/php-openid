@@ -517,7 +517,7 @@ class FetchRequestTest extends PHPUnit_Framework_TestCase {
 }
 
 class FauxEndpoint {
-    function FauxEndpoint() {
+    function __construct() {
         $this->claimed_id = 'http://some.url/';
     }
 }
@@ -777,7 +777,7 @@ class Tests_Auth_OpenID_AX extends PHPUnit_Framework_TestSuite {
         return "Tests_Auth_OpenID_AX";
     }
 
-    function Tests_Auth_OpenID_AX()
+    function __construct()
     {
         $this->addTestSuite('StoreResponseTest');
         $this->addTestSuite('StoreRequestTest');

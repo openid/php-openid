@@ -45,7 +45,7 @@ class Tests_Auth_OpenID_BuildDiscoveryURL extends PHPUnit_Framework_TestCase {
 }
 
 class _MockDiscover {
-    function _MockDiscover($data) {
+    function __construct($data) {
         $this->data =& $data;
     }
 
@@ -219,7 +219,7 @@ class Tests_Auth_OpenID_ReturnToMatches extends PHPUnit_Framework_TestCase {
 }
 
 class Verifier {
-    function Verifier($test_case, $return_to)
+    function __construct($test_case, $return_to)
     {
         $this->tc =& $test_case;
         $this->return_to = $return_to;
@@ -281,7 +281,7 @@ class Tests_Auth_OpenID_RPVerify extends PHPUnit_Framework_TestSuite {
         return "Tests_Auth_OpenID_RPVerify";
     }
 
-    function Tests_Auth_OpenID_RPVerify()
+    function __construct()
     {
         $this->addTestSuite('Tests_Auth_OpenID_VerifyReturnTo');
         $this->addTestSuite('Tests_Auth_OpenID_ReturnToMatches');

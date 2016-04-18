@@ -7,7 +7,7 @@ require_once "Auth/OpenID/Interface.php";
 require_once 'Auth/OpenID/Nonce.php';
 
 class ServerAssocs {
-    function ServerAssocs()
+    function __construct()
     {
         $this->assocs = array();
     }
@@ -76,7 +76,7 @@ class ServerAssocs {
  * Use for single long-running processes.  No persistence supplied.
  */
 class Tests_Auth_OpenID_MemStore extends Auth_OpenID_OpenIDStore {
-    function Tests_Auth_OpenID_MemStore()
+    function __construct()
     {
         $this->server_assocs = array();
         $this->nonces = array();

@@ -39,7 +39,7 @@ class CheckFieldNameTest extends PHPUnit_Framework_TestCase {
 
 // For supportsSReg test
 class FakeEndpoint {
-    function FakeEndpoint($supported)
+    function __construct($supported)
     {
         $this->supported = $supported;
         $this->checked_uris = array();
@@ -81,7 +81,7 @@ class SupportsSRegTest extends PHPUnit_Framework_TestCase {
 }
 
 class FakeMessage {
-    function FakeMessage()
+    function __construct()
     {
         $this->openid1 = false;
         $this->namespaces = new Auth_OpenID_NamespaceMap();
@@ -180,7 +180,7 @@ $__args_sentinel = 'args_sentinel';
 $__ns_sentinel = 'ns_sentinel';
 
 class SentinelFakeMessage {
-    function SentinelFakeMessage($test_case)
+    function __construct($test_case)
     {
         $this->test_case =& $test_case;
         $this->message = new Auth_OpenID_Message();
@@ -559,7 +559,7 @@ class SRegRequestTest extends PHPUnit_Framework_TestCase {
 }
 
 class DummySuccessResponse {
-    function DummySuccessResponse($message, $signed_stuff)
+    function __construct($message, $signed_stuff)
     {
         $this->message = $message;
         $this->signed_stuff = $signed_stuff;
@@ -658,7 +658,7 @@ class Tests_Auth_OpenID_SReg extends PHPUnit_Framework_TestSuite {
         return "Tests_Auth_OpenID_SReg";
     }
 
-    function Tests_Auth_OpenID_SReg()
+    function __construct()
     {
         $this->addTestSuite('SRegURITest');
         $this->addTestSuite('CheckFieldNameTest');

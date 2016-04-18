@@ -20,7 +20,7 @@ class Tests_Auth_OpenID_BinLongConvertRnd extends PHPUnit_Framework_TestCase {
     var $lib;
     var $max;
 
-    function Tests_Auth_OpenID_BinLongConvertRnd($lib, $max)
+    function __construct($lib, $max)
     {
         $this->lib =& $lib;
         $this->max = $max;
@@ -45,7 +45,7 @@ class Tests_Auth_OpenID_BinLongConvert extends PHPUnit_Framework_TestCase {
     var $bin;
     var $lng;
 
-    function Tests_Auth_OpenID_BinLongConvert($lib, $bin, $lng)
+    function __construct($lib, $bin, $lng)
     {
         $this->lib =& $lib;
         $this->bin = $bin;
@@ -66,7 +66,7 @@ class Tests_Auth_OpenID_Base64ToLong extends PHPUnit_Framework_TestCase {
     var $b64;
     var $lib;
 
-    function Tests_Auth_OpenID_Base64ToLong($lib, $b64, $num)
+    function __construct($lib, $b64, $num)
     {
         $this->lib = $lib;
         $this->b64 = $b64;
@@ -81,7 +81,7 @@ class Tests_Auth_OpenID_Base64ToLong extends PHPUnit_Framework_TestCase {
 }
 
 class Tests_Auth_OpenID_LongToBase64 extends Tests_Auth_OpenID_Base64ToLong {
-    function Tests_Auth_OpenID_LongToBase64($lib, $b64, $num)
+    function __construct($lib, $b64, $num)
     {
         $this->lib = $lib;
         $this->b64 = $b64;
@@ -96,7 +96,7 @@ class Tests_Auth_OpenID_LongToBase64 extends Tests_Auth_OpenID_Base64ToLong {
 }
 
 class Tests_Auth_OpenID_Rand extends PHPUnit_Framework_TestCase {
-    function Tests_Auth_OpenID_Rand($lib)
+    function __construct($lib)
     {
         $this->lib =& $lib;
     }
@@ -216,7 +216,7 @@ class Tests_Auth_OpenID_BigMath extends PHPUnit_Framework_TestSuite {
 
     }
 
-    function Tests_Auth_OpenID_BigMath($name)
+    function __construct($name)
     {
         $this->setName($name);
 

@@ -141,7 +141,7 @@ function __subsets($list)
 }
 
 class Tests_Auth_OpenID_Tester extends PHPUnit_Framework_TestCase {
-    function Tests_Auth_OpenID_Tester($uris, $type_uris, $delegate)
+    function __construct($uris, $type_uris, $delegate)
     {
         parent::__construct();
         $this->uris = $uris;
@@ -211,7 +211,7 @@ class Tests_Auth_OpenID_Tester extends PHPUnit_Framework_TestCase {
 }
 
 class Tests_Auth_OpenID_OpenID_Yadis extends PHPUnit_Framework_TestSuite {
-    function Tests_Auth_OpenID_OpenID_Yadis()
+    function __construct()
     {
         global $__data;
         foreach ($__data as $case) {

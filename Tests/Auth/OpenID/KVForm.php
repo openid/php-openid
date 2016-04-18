@@ -55,7 +55,7 @@ class Tests_Auth_OpenID_KVForm_TestCase extends PHPUnit_Framework_TestCase {
 
 class Tests_Auth_OpenID_KVForm_TestCase_Parse
 extends Tests_Auth_OpenID_KVForm_TestCase {
-    function Tests_Auth_OpenID_KVForm_TestCase_Parse(
+    function __construct(
         $arr, $str, $lossy, $errs)
     {
 
@@ -97,7 +97,7 @@ extends Tests_Auth_OpenID_KVForm_TestCase {
 
 class Tests_Auth_OpenID_KVForm_TestCase_Null
 extends Tests_Auth_OpenID_KVForm_TestCase {
-    function Tests_Auth_OpenID_KVForm_TestCase_Null($arr, $errs)
+    function __construct($arr, $errs)
     {
         $this->arr = $arr;
         $this->errs = $errs;
@@ -112,7 +112,7 @@ extends Tests_Auth_OpenID_KVForm_TestCase {
 }
 
 class Tests_Auth_OpenID_KVForm extends PHPUnit_Framework_TestSuite {
-    function Tests_Auth_OpenID_KVForm($name)
+    function __construct($name)
     {
         $this->setName($name);
         $testdata_list = array(

@@ -1532,7 +1532,7 @@ class Tests_Auth_OpenID_CheckIDExtension extends PHPUnit_Framework_TestCase {
 class _MockSignatory {
     var $isValid = true;
 
-    function _MockSignatory($assoc)
+    function __construct($assoc)
     {
         $this->assocs = array($assoc);
     }
@@ -2019,7 +2019,7 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_Framework_TestCase {
 }
 
 class Counter {
-    function Counter()
+    function __construct()
     {
         $this->count = 0;
     }
@@ -2442,7 +2442,7 @@ class Tests_Auth_OpenID_Server extends PHPUnit_Framework_TestSuite {
         return "Tests_Auth_OpenID_Server";
     }
 
-    function Tests_Auth_OpenID_Server()
+    function __construct()
     {
         $this->addTestSuite('Tests_Auth_OpenID_Signatory');
         $this->addTestSuite('Tests_Auth_OpenID_ServerTest');
