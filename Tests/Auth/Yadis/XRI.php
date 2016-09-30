@@ -131,7 +131,7 @@ class Tests_Auth_Yadis_XRI extends PHPUnit_Framework_TestSuite {
         return "Tests_Auth_Yadis_XRI";
     }
 
-    function Tests_Auth_Yadis_XRI()
+    function __construct()
     {
         $this->addTest(new Tests_Auth_Yadis_ProxyQueryTestCase());
         $this->addTest(new Tests_Auth_Yadis_XriEscapingTestCase());

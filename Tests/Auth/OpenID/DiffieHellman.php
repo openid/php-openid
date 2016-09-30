@@ -18,7 +18,7 @@ require_once 'Auth/OpenID/DiffieHellman.php';
 require_once 'Tests/Auth/OpenID/TestUtil.php';
 
 class Tests_Auth_OpenID_DiffieHellman_CheckCases extends PHPUnit_Framework_TestCase {
-    function Tests_Auth_OpenID_DiffieHellman_CheckCases($cases, $n)
+    function __construct($cases, $n)
     {
         $this->cases = $cases;
         $this->n = $n;
@@ -31,7 +31,7 @@ class Tests_Auth_OpenID_DiffieHellman_CheckCases extends PHPUnit_Framework_TestC
 }
 
 class Tests_Auth_OpenID_DiffieHellman_Private extends PHPUnit_Framework_TestCase {
-    function Tests_Auth_OpenID_DiffieHellman_Private($name, $input, $expected)
+    function __construct($name, $input, $expected)
     {
         $this->setName("$name");
         $this->input = $input;
@@ -47,7 +47,7 @@ class Tests_Auth_OpenID_DiffieHellman_Private extends PHPUnit_Framework_TestCase
 }
 
 class Tests_Auth_OpenID_DiffieHellman_Exch extends PHPUnit_Framework_TestCase {
-    function Tests_Auth_OpenID_DiffieHellman_Exch($name, $p1, $p2, $shared)
+    function __construct($name, $p1, $p2, $shared)
     {
         $this->setName("$name");
         $this->p1 = $p1;
@@ -114,7 +114,7 @@ class Tests_Auth_OpenID_DiffieHellman extends PHPUnit_Framework_TestSuite {
         return $cases;
     }
 
-    function Tests_Auth_OpenID_DiffieHellman($name)
+    function __construct($name)
     {
         $this->setName($name);
 

@@ -17,7 +17,7 @@ require_once 'Tests/Auth/Yadis/TestUtil.php';
 require_once 'Auth/Yadis/ParseHTML.php';
 
 class Tests_Auth_Yadis_ParseTest extends PHPUnit_Framework_TestCase {
-    function Tests_Auth_Yadis_ParseTest($case)
+    function __construct($case)
     {
         list($result, $comment, $html) = $case;
 
@@ -72,7 +72,7 @@ class Tests_Auth_Yadis_ParseHTML extends PHPUnit_Framework_TestSuite {
         return $tests;
     }
 
-    function Tests_Auth_Yadis_ParseHTML()
+    function __construct()
     {
         $test_data = Tests_Auth_Yadis_readdata('test1-parsehtml.txt');
 

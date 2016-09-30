@@ -93,7 +93,7 @@ class PapeRequestTestCase extends PHPUnit_Framework_TestCase {
 }
 
 class PAPE_DummySuccessResponse {
-  function PAPE_DummySuccessResponse($message, $signed_stuff)
+  function __construct($message, $signed_stuff)
   {
     $this->message = $message;
     $this->signed_stuff = $signed_stuff;
@@ -235,7 +235,7 @@ class Tests_Auth_OpenID_PAPE extends PHPUnit_Framework_TestSuite {
     return "Tests_Auth_OpenID_PAPE";
   }
 
-  function Tests_Auth_OpenID_PAPE() {
+  function __construct() {
     $this->addTestSuite('PapeRequestTestCase');
     $this->addTestSuite('PapeResponseTestCase');
   }

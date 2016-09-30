@@ -13,7 +13,7 @@ require_once 'Auth/Yadis/XRI.php';
  */
 
 class _SimpleMockFetcher {
-    function _SimpleMockFetcher($responses)
+    function __construct($responses)
     {
         $this->responses = $responses;
     }
@@ -60,7 +60,7 @@ class Tests_Auth_OpenID_ServiceEndpoint extends PHPUnit_Framework_TestCase {
 
 class Tests_Auth_OpenID_DiscoveryFailure extends PHPUnit_Framework_TestCase {
 
-    function Tests_Auth_OpenID_DiscoveryFailure($responses)
+    function __construct($responses)
     {
         // Response is ($code, $url, $body).
         $this->cases = array(
@@ -97,7 +97,7 @@ class Tests_Auth_OpenID_DiscoveryFailure extends PHPUnit_Framework_TestCase {
 class _ErrorRaisingFetcher {
     // Just raise an exception when fetch is called
 
-    function _ErrorRaisingFetcher($thing_to_raise)
+    function __construct($thing_to_raise)
     {
         $this->thing_to_raise = $thing_to_raise;
     }
@@ -123,7 +123,7 @@ class Tests_Auth_OpenID_Discover_FetchException extends PHPUnit_Framework_TestCa
     // Make sure exceptions get passed through discover function from
     // fetcher.
 
-    function Tests_Auth_OpenID_Discover_FetchException($exc)
+    function __construct($exc)
     {
         $this->cases = array(E_AUTH_OPENID_EXCEPTION,
                              E_AUTH_OPENID_DIDFETCH,
@@ -151,7 +151,7 @@ class Tests_Auth_OpenID_Discover_FetchException extends PHPUnit_Framework_TestCa
 // Tests for openid.consumer.discover.discover
 
 class _DiscoveryMockFetcher extends Auth_Yadis_HTTPFetcher {
-    function _DiscoveryMockFetcher($documents)
+    function __construct($documents)
     {
         $this->redirect = null;
         $this->documents = $documents;
@@ -536,7 +536,7 @@ class Tests_Auth_OpenID_Discover_OpenID extends _DiscoveryBase {
 
 class _MockFetcherForXRIProxy extends Auth_Yadis_HTTPFetcher {
 
-    function _MockFetcherForXRIProxy($documents)
+    function __construct($documents)
     {
         $this->documents = $documents;
         $this->fetchlog = array();
@@ -634,7 +634,7 @@ class TestXRIDiscovery extends _DiscoveryBase {
 }
 
 class Tests_Auth_OpenID_DiscoverSession {
-    function Tests_Auth_OpenID_DiscoverSession()
+    function __construct()
     {
         $this->data = array();
     }
@@ -686,10 +686,10 @@ class _FetcherWithoutSSL extends _DiscoveryMockFetcher {
 class _NonFetcher extends _DiscoveryMockFetcher {
     var $used = false;
 
-    function _NonFetcher()
+    function __construct()
     {
         $a = array();
-        parent::_DiscoveryMockFetcher($a);
+        parent::__construct($a);
     }
 
     function supportsSSL()

@@ -17,7 +17,7 @@ require_once 'Tests/Auth/OpenID/TestUtil.php';
 require_once 'Auth/OpenID/Parse.php';
 
 class Tests_Auth_OpenID_Link extends PHPUnit_Framework_TestCase {
-    function Tests_Auth_OpenID_Link($case)
+    function __construct($case)
     {
         list($desc, $markup, $links, $case_text) = $case;
         $this->desc = $desc;
@@ -85,7 +85,7 @@ class Tests_Auth_OpenID_Link extends PHPUnit_Framework_TestCase {
 }
 
 class NumTestCases extends PHPUnit_Framework_TestCase {
-    function NumTestCases($test_cases, $num_tests)
+    function __construct($test_cases, $num_tests)
     {
         $this->test_cases = $test_cases;
         $this->num_tests = $num_tests;
@@ -168,7 +168,7 @@ class Tests_Auth_OpenID_Parse extends PHPUnit_Framework_TestSuite {
         return array($num_tests, $tests);
     }
 
-    function Tests_Auth_OpenID_Parse()
+    function __construct()
     {
         $test_data = Tests_Auth_OpenID_readdata('linkparse.txt');
 

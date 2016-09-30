@@ -19,7 +19,7 @@ define('Tests_Auth_OpenID_nonce_re',
        '/\A\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ/');
 
 class Tests_Auth_OpenID_Nonce extends PHPUnit_Framework_TestSuite {
-    function Tests_Auth_OpenID_Nonce()
+    function __construct()
     {
         $this->addTestSuite('Tests_Auth_OpenID_NonceTests');
         $this->makeSplitTests();
@@ -95,7 +95,7 @@ class Tests_Auth_OpenID_Nonce extends PHPUnit_Framework_TestSuite {
 }
 
 class Tests_Auth_OpenID_Nonce_TimestampCase extends PHPUnit_Framework_TestCase {
-    function Tests_Auth_OpenID_Nonce_TimestampCase(
+    function __construct(
         $nonce_str, $skew, $now, $expected)
     {
         $this->nonce_string = $nonce_str;
@@ -151,7 +151,7 @@ class Tests_Auth_OpenID_NonceTests extends PHPUnit_Framework_TestCase {
 }
 
 class Tests_Auth_OpenID_Nonce_BadSplitCase extends PHPUnit_Framework_TestCase {
-    function Tests_Auth_OpenID_Nonce_BadSplitCase($nonce_str)
+    function __construct($nonce_str)
     {
         $this->nonce_str = $nonce_str;
     }

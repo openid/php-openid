@@ -42,7 +42,7 @@ class Attribute_Provider
     * @param string $acsURI - URI of the signer.
     * @param string $assertionTemplate - SAML template used for assertion
     */
-   function Attribute_Provider($public_key_certificate,$private_key,$notBefore,$notOnOrAfter,$rsadsa,$acsURI,
+   function __construct($public_key_certificate,$private_key,$notBefore,$notOnOrAfter,$rsadsa,$acsURI,
                                $assertionTemplate)
    {
       $this->public_key_certificate=$public_key_certificate;

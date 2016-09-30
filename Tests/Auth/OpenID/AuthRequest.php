@@ -288,7 +288,7 @@ class Tests_Auth_OpenID_AuthRequest extends PHPUnit_Framework_TestSuite {
         return "Tests_Auth_OpenID_AuthRequest";
     }
 
-    function Tests_Auth_OpenID_AuthRequest()
+    function __construct()
     {
         $this->addTestSuite('TestAuthRequestOpenID1');
         $this->addTestSuite('TestAuthRequestOpenID1Immediate');

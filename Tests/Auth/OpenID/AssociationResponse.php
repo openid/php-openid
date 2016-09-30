@@ -118,7 +118,7 @@ class TestExtractAssociationMissingFieldsOpenID1 extends Tests_Auth_OpenID_Assoc
 }
 
 class DummyAssocationSession {
-    function DummyAssocationSession($session_type, $allowed_assoc_types=array())
+    function __construct($session_type, $allowed_assoc_types=array())
     {
         $this->session_type = $session_type;
         $this->allowed_assoc_types = $allowed_assoc_types;

@@ -8,7 +8,7 @@ require_once "Auth/OpenID/TrustRoot.php";
 require_once "Tests/Auth/OpenID/TestUtil.php";
 
 class Tests_Auth_OpenID_TRParseCase extends PHPUnit_Framework_TestCase {
-    function Tests_Auth_OpenID_TRParseCase($desc, $case, $expected)
+    function __construct($desc, $case, $expected)
     {
         $this->setName($desc);
         $this->case = $case;
@@ -36,7 +36,7 @@ class Tests_Auth_OpenID_TRParseCase extends PHPUnit_Framework_TestCase {
 }
 
 class Tests_Auth_OpenID_TRMatchCase extends PHPUnit_Framework_TestCase {
-    function Tests_Auth_OpenID_TRMatchCase($desc, $tr, $rt, $matches)
+    function __construct($desc, $tr, $rt, $matches)
     {
         $this->setName($desc);
         $this->tr = $tr;
@@ -155,7 +155,7 @@ function Tests_Auth_OpenID_trustRootTests()
 }
 
 class Tests_Auth_OpenID_TrustRoot extends PHPUnit_Framework_TestSuite {
-    function Tests_Auth_OpenID_TrustRoot($name)
+    function __construct($name)
     {
         $this->setName($name);
 

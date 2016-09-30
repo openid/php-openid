@@ -336,7 +336,7 @@ class Tests_Auth_OpenID_Negotiation extends PHPUnit_Framework_TestSuite {
         return 'Tests_Auth_OpenID_Negotiation';
     }
 
-    function Tests_Auth_OpenID_Negotiation()
+    function __construct()
     {
         $this->addTestSuite('TestNegotiatorBehaviors');
         $this->addTestSuite('TestOpenID1SessionNegotiation');

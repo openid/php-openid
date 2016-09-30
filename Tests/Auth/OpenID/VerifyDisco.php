@@ -52,7 +52,7 @@ class _DiscoverAndVerify extends OpenIDTestMixin {
 }
 
 class _Tests_discoveryOverride {
-    function _Tests_discoveryOverride($endpoint)
+    function __construct($endpoint)
     {
         $this->endpoint = $endpoint;
     }
