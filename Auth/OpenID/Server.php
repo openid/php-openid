@@ -279,9 +279,9 @@ class Auth_OpenID_ServerError {
     {
         if ($this->text) {
             return $this->text;
-        } else {
-            return get_class($this) . " error";
         }
+
+        return get_class($this) . " error";
     }
 }
 
@@ -529,11 +529,11 @@ class Auth_OpenID_DiffieHellmanSHA1ServerSession {
 
         if (is_a($result, 'Auth_OpenID_ServerError')) {
             return $result;
-        } else {
-            list($dh, $consumer_pubkey) = $result;
-            return new Auth_OpenID_DiffieHellmanSHA1ServerSession($dh,
-                                                    $consumer_pubkey);
         }
+
+			list($dh, $consumer_pubkey) = $result;
+			return new Auth_OpenID_DiffieHellmanSHA1ServerSession($dh,
+																 $consumer_pubkey);
     }
 
     function answer($secret)
@@ -566,11 +566,11 @@ class Auth_OpenID_DiffieHellmanSHA256ServerSession
 
         if (is_a($result, 'Auth_OpenID_ServerError')) {
             return $result;
-        } else {
-            list($dh, $consumer_pubkey) = $result;
-            return new Auth_OpenID_DiffieHellmanSHA256ServerSession($dh,
-                                                      $consumer_pubkey);
         }
+
+			list($dh, $consumer_pubkey) = $result;
+			return new Auth_OpenID_DiffieHellmanSHA256ServerSession($dh,
+																	$consumer_pubkey);
     }
 }
 
@@ -927,9 +927,9 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
         if ($this->return_to !== null) {
             return Auth_OpenID_TrustRoot::match($this->trust_root,
                                                 $this->return_to);
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     /**
@@ -1202,9 +1202,9 @@ class Auth_OpenID_ServerResponse {
             } else {
                 return Auth_OpenID_ENCODE_URL;
             }
-        } else {
-            return Auth_OpenID_ENCODE_KVFORM;
         }
+
+        return Auth_OpenID_ENCODE_KVFORM;
     }
 
     /*
@@ -1579,9 +1579,9 @@ class Auth_OpenID_Decoder {
         if (!is_a($handlerCls, 'Auth_OpenID_ServerError')) {
             return call_user_func_array(array($handlerCls, 'fromMessage'),
                                         array($message, $this->server));
-        } else {
-            return $handlerCls;
         }
+
+        return $handlerCls;
     }
 
     function defaultDecoder($message)
@@ -1708,6 +1708,7 @@ class Auth_OpenID_Server {
             $handler = array($this, "openid_" . $request->mode);
             return call_user_func_array($handler, array($request));
         }
+
         return null;
     }
 
@@ -1730,15 +1731,15 @@ class Auth_OpenID_Server {
             $assoc = $this->signatory->createAssociation(false,
                                                          $assoc_type);
             return $request->answer($assoc);
-        } else {
-            $message = sprintf('Association type %s is not supported with '.
-                               'session type %s', $assoc_type, $session_type);
-            list($preferred_assoc_type, $preferred_session_type) =
-                $this->negotiator->getAllowedType();
-            return $request->answerUnsupported($message,
-                                               $preferred_assoc_type,
-                                               $preferred_session_type);
         }
+
+			$message = sprintf('Association type %s is not supported with '.
+									 'session type %s', $assoc_type, $session_type);
+			list($preferred_assoc_type, $preferred_session_type) =
+				 $this->negotiator->getAllowedType();
+			return $request->answerUnsupported($message,
+														  $preferred_assoc_type,
+														  $preferred_session_type);
     }
 
     /**
@@ -1763,5 +1764,3 @@ class Auth_OpenID_Server {
         return $this->decoder->decode($query);
     }
 }
-
-

@@ -384,9 +384,9 @@ function Auth_OpenID_getSecretSize($assoc_type)
         return 20;
     } else if ($assoc_type == 'HMAC-SHA256') {
         return 32;
-    } else {
-        return null;
     }
+
+    return null;
 }
 
 function Auth_OpenID_getAllAssociationTypes()

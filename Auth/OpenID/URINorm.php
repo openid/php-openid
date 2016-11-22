@@ -88,7 +88,7 @@ function Auth_OpenID_pct_encoded_replace_unreserved($mo)
         return strtoupper($mo[0]);
     }
 
-    return $mo[0];
+    return $mo[0]; // ?
 }
 
 function Auth_OpenID_pct_encoded_replace($mo)
@@ -255,5 +255,3 @@ function Auth_OpenID_urinorm($uri)
 
     return $scheme . '://' . $authority . $path . $query . $fragment;
 }
-
-

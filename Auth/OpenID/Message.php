@@ -214,9 +214,9 @@ class Auth_OpenID_Mapping {
 
         if ($index !== false) {
             return $this->values[$index];
-        } else {
-            return $default;
         }
+
+        return $default;
     }
 
     /**
@@ -472,9 +472,9 @@ class Auth_OpenID_Message {
 
         if ($obj->_fromOpenIDArgs($openid_args)) {
             return $obj;
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     static function fromOpenIDArgs($openid_args)
@@ -485,9 +485,9 @@ class Auth_OpenID_Message {
         $obj = new Auth_OpenID_Message();
         if ($obj->_fromOpenIDArgs($openid_args)) {
             return $obj;
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     /**
@@ -770,9 +770,9 @@ class Auth_OpenID_Message {
         if (Auth_OpenID::isFailure($namespace)) {
             // XXX log me
             return false;
-        } else {
-            return $this->args->contains(array($namespace, $ns_key));
         }
+
+        return $this->args->contains(array($namespace, $ns_key));
     }
 
     function getKey($namespace, $ns_key)
@@ -850,12 +850,13 @@ class Auth_OpenID_Message {
 
         if (Auth_OpenID::isFailure($namespace)) {
             return $namespace;
-        } else {
-            foreach ($updates as $k => $v) {
-                $this->setArg($namespace, $k, $v);
-            }
-            return true;
         }
+
+			foreach ($updates as $k => $v) {
+				 $this->setArg($namespace, $k, $v);
+			}
+
+			return true;
     }
 
     function setArg($namespace, $key, $value)
@@ -865,13 +866,15 @@ class Auth_OpenID_Message {
 
         if (Auth_OpenID::isFailure($namespace)) {
             return $namespace;
-        } else {
-            $this->args->set(array($namespace, $key), $value);
-            if ($namespace !== Auth_OpenID_BARE_NS) {
-                $this->namespaces->add($namespace);
-            }
-            return true;
         }
+
+			$this->args->set(array($namespace, $key), $value);
+
+			if ($namespace !== Auth_OpenID_BARE_NS) {
+				 $this->namespaces->add($namespace);
+			}
+
+			return true;
     }
 
     function delArg($namespace, $key)
@@ -880,9 +883,9 @@ class Auth_OpenID_Message {
 
         if (Auth_OpenID::isFailure($namespace)) {
             return $namespace;
-        } else {
-            return $this->args->del(array($namespace, $key));
         }
+
+        return $this->args->del(array($namespace, $key));
     }
 
     function getAliasedArg($aliased_key, $default = null)
@@ -916,5 +919,3 @@ class Auth_OpenID_Message {
         return $this->getArg($ns, $key, $default);
     }
 }
-
-
