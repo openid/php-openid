@@ -43,7 +43,9 @@ class Auth_OpenID_MySQLStore extends Auth_OpenID_SQLStore {
 
         $this->sql['set_assoc'] =
             "REPLACE INTO %s (server_url, handle, secret, issued,\n".
-            "  lifetime, assoc_type) VALUES (?, ?, !, ?, ?, ?)";
+			"  lifetime, assoc_type) VALUES (?, ?, ?, ?, ?, ?)";
+// MDB2 edit
+//            "  lifetime, assoc_type) VALUES (?, ?, !, ?, ?, ?)";
 
         $this->sql['get_assocs'] =
             "SELECT handle, secret, issued, lifetime, assoc_type FROM %s ".
@@ -66,12 +68,13 @@ class Auth_OpenID_MySQLStore extends Auth_OpenID_SQLStore {
             "DELETE FROM %s WHERE issued + lifetime < ?";
     }
 
-    /**
-     * @access private
-     */
-    function blobEncode($blob)
-    {
-        return "0x" . bin2hex($blob);
-    }
+// MDB2 edit
+//    /**
+//     * @access private
+//     */
+//    function blobEncode($blob)
+//    {
+//        return "0x" . bin2hex($blob);
+//    }
 }
 
