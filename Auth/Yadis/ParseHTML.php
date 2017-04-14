@@ -25,23 +25,22 @@ class Auth_Yadis_ParseHTML {
     /**
      * @access private
      */
-    var $_re_flags = "si";
+    public $_re_flags = "si";
 
     /**
      * @access private
      */
-    var $_removed_re =
-           "<!--.*?-->|<!\[CDATA\[.*?\]\]>|<script\b(?!:)[^>]*>.*?<\/script>";
+    public $_removed_re = '<!--.*?-->|<!\[CDATA\[.*?\]\]>|<script\b(?!:)[^>]*>.*?<\/script>';
 
     /**
      * @access private
      */
-    var $_tag_expr = "<%s%s(?:\s.*?)?%s>";
+    public $_tag_expr = '<%s%s(?:\s.*?)?%s>';
 
     /**
      * @access private
      */
-    var $_attr_find = '\b([-\w]+)=(".*?"|\'.*?\'|.+?)[\/\s>]';
+    public $_attr_find = '\b([-\w]+)=(".*?"|\'.*?\'|.+?)[\/\s>]';
 
     function __construct()
     {
@@ -78,7 +77,7 @@ class Auth_Yadis_ParseHTML {
     {
         $matches = array();
         $double = '/^"(.*)"$/';
-        $single = "/^\'(.*)\'$/";
+        $single = "/^'(.*)'$/";
 
         if (preg_match($double, $str, $matches)) {
             return $matches[1];
@@ -90,7 +89,7 @@ class Auth_Yadis_ParseHTML {
     }
 
     /**
-     * Create a regular expression that will match an opening 
+     * Create a regular expression that will match an opening
      * or closing tag from a set of names.
      *
      * @access private
@@ -181,7 +180,7 @@ class Auth_Yadis_ParseHTML {
 
         $link_data = array();
         $link_matches = array();
-        
+
         if (!preg_match_all($this->tagPattern('meta', false, 'maybe'),
                             $html_string, $link_matches)) {
             return array();

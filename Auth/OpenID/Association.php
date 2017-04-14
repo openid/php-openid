@@ -48,14 +48,14 @@ class Auth_OpenID_Association {
      *
      * @access private
      */
-    var $SIG_LENGTH = 20;
+    public $SIG_LENGTH = 20;
 
     /**
      * The ordering and name of keys as stored by serialize.
      *
      * @access private
      */
-    var $assoc_keys = array(
+    public $assoc_keys = array(
                             'version',
                             'handle',
                             'secret',
@@ -64,7 +64,7 @@ class Auth_OpenID_Association {
                             'assoc_type'
                             );
 
-    var $_macs = array(
+    public $_macs = array(
                        'HMAC-SHA1' => 'Auth_OpenID_HMACSHA1',
                        'HMAC-SHA256' => 'Auth_OpenID_HMACSHA256'
                        );
@@ -83,16 +83,15 @@ class Auth_OpenID_Association {
      * @param string $handle This is the handle the server gave this
      * association.
      *
-     * @param string secret This is the shared secret the server
+     * @param string $secret This is the shared secret the server
      * generated for this association.
      *
-     * @param assoc_type This is the type of association this
+     * @param string $assoc_type This is the type of association this
      * instance represents.  The only valid values of this field at
      * this time is 'HMAC-SHA1' and 'HMAC-SHA256', but new types may
      * be defined in the future.
      *
-     * @return association An {@link Auth_OpenID_Association}
-     * instance.
+     * @return Auth_OpenID_Association
      */
     static function fromExpiresIn($expires_in, $handle, $secret, $assoc_type)
     {
@@ -148,7 +147,8 @@ class Auth_OpenID_Association {
      * This returns the number of seconds this association is still
      * valid for, or 0 if the association is no longer valid.
      *
-     * @return integer $seconds The number of seconds this association
+     * @param int|null $now
+     * @return int $seconds The number of seconds this association
      * is still valid for, or 0 if the association is no longer valid.
      */
     function getExpiresIn($now = null)
@@ -164,6 +164,7 @@ class Auth_OpenID_Association {
      * This checks to see if two {@link Auth_OpenID_Association}
      * instances represent the same association.
      *
+     * @param object $other
      * @return bool $result true if the two instances represent the
      * same association, false otherwise.
      */
@@ -196,13 +197,14 @@ class Auth_OpenID_Association {
 
         assert(array_keys($data) == $this->assoc_keys);
 
-        return Auth_OpenID_KVForm::fromArray($data, $strict = true);
+        return Auth_OpenID_KVForm::fromArray($data);
     }
 
     /**
      * Parse an association as stored by serialize().  This is the
      * inverse of serialize.
      *
+     * @param string $class_name
      * @param string $assoc_s Association as serialized by serialize()
      * @return Auth_OpenID_Association $result instance of this class
      */
@@ -274,11 +276,12 @@ class Auth_OpenID_Association {
      * Generate a signature for some fields in a dictionary
      *
      * @access private
-     * @param array $fields The fields to sign, in order; this is an
-     * array of strings.
-     * @param array $data Dictionary of values to sign (an array of
-     * string => string pairs).
+     * @param Auth_OpenID_Message $message
      * @return string $signature The signature, base64 encoded
+     * @internal param array $fields The fields to sign, in order; this is an
+     * array of strings.
+     * @internal param array $data Dictionary of values to sign (an array of
+     * string => string pairs).
      */
     function signMessage($message)
     {
@@ -326,6 +329,8 @@ class Auth_OpenID_Association {
      * the message lacks a signed list, return null.
      *
      * @access private
+     * @param Auth_OpenID_Message $message
+     * @return array|null
      */
     function _makePairs($message)
     {
@@ -351,6 +356,8 @@ class Auth_OpenID_Association {
      * the signed list in the message.
      *
      * @access private
+     * @param Auth_OpenID_Message $message
+     * @return string
      */
     function getMessageSignature($message)
     {
@@ -363,6 +370,8 @@ class Auth_OpenID_Association {
      * signature contained in the data.
      *
      * @access private
+     * @param Auth_OpenID_Message $message
+     * @return bool
      */
     function checkMessageSignature($message)
     {
@@ -405,6 +414,10 @@ function Auth_OpenID_getSupportedAssociationTypes()
     return $a;
 }
 
+/**
+ * @param string $assoc_type
+ * @return mixed
+ */
 function Auth_OpenID_getSessionTypes($assoc_type)
 {
     $assoc_to_session = array(
@@ -534,6 +547,8 @@ class Auth_OpenID_SessionNegotiator {
      * combination is valid.
      *
      * @access private
+     * @param array $allowed_types
+     * @return bool
      */
     function setAllowedTypes($allowed_types)
     {
@@ -554,6 +569,9 @@ class Auth_OpenID_SessionNegotiator {
      * they are added.
      *
      * @access private
+     * @param $assoc_type
+     * @param null $session_type
+     * @return bool
      */
     function addAllowedType($assoc_type, $session_type = null)
     {

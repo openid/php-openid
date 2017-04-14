@@ -325,7 +325,7 @@ class Auth_OpenID_TrustRoot {
     }
 }
 
-/*
+/**
  * If the endpoint is a relying party OpenID return_to endpoint,
  * return the endpoint URL. Otherwise, return None.
  *
@@ -335,10 +335,10 @@ class Auth_OpenID_TrustRoot {
  * @see: C{L{openid.yadis.services}}
  * @see: C{L{openid.yadis.filters}}
  *
- * @param endpoint: An XRDS BasicServiceEndpoint, as returned by
+ * @param Auth_OpenID_ServiceEndpoint $endpoint An XRDS BasicServiceEndpoint, as returned by
  * performing Yadis dicovery.
  *
- * @returns: The endpoint URL or None if the endpoint is not a
+ * @return Auth_OpenID_ServiceEndpoint|null The endpoint URL or None if the endpoint is not a
  * relying party endpoint.
  */
 function filter_extractReturnURL($endpoint)

@@ -40,7 +40,6 @@ class Auth_OpenID_CryptUtil {
     static function getBytes($num_bytes)
     {
         static $f = null;
-        $bytes = '';
         if ($f === null) {
             if (Auth_OpenID_RAND_SOURCE === null) {
                 $f = false;
@@ -72,7 +71,7 @@ class Auth_OpenID_CryptUtil {
      *
      * @param integer $length The length of the resulting
      * randomly-generated string
-     * @param string $chrs A string of characters from which to choose
+     * @param string|null $population A string of characters from which to choose
      * to build the new string
      * @return string $result A string of randomly-chosen characters
      * from $chrs

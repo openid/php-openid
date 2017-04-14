@@ -43,6 +43,7 @@ function Auth_OpenID_SHA1($text)
     } else {
         // Explode.
         trigger_error('No SHA1 function found', E_USER_ERROR);
+        return false;
     }
 }
 
@@ -57,7 +58,7 @@ function Auth_OpenID_SHA1($text)
 function Auth_OpenID_HMACSHA1($key, $text)
 {
     if (Auth_OpenID::bytes($key) > Auth_OpenID_SHA1_BLOCKSIZE) {
-        $key = Auth_OpenID_SHA1($key, true);
+        $key = Auth_OpenID_SHA1($key);
     }
 
     if (function_exists('hash_hmac') &&
@@ -70,8 +71,8 @@ function Auth_OpenID_HMACSHA1($key, $text)
     $key = str_pad($key, Auth_OpenID_SHA1_BLOCKSIZE, chr(0x00));
     $ipad = str_repeat(chr(0x36), Auth_OpenID_SHA1_BLOCKSIZE);
     $opad = str_repeat(chr(0x5c), Auth_OpenID_SHA1_BLOCKSIZE);
-    $hash1 = Auth_OpenID_SHA1(($key ^ $ipad) . $text, true);
-    $hmac = Auth_OpenID_SHA1(($key ^ $opad) . $hash1, true);
+    $hash1 = Auth_OpenID_SHA1(($key ^ $ipad) . $text);
+    $hmac = Auth_OpenID_SHA1(($key ^ $opad) . $hash1);
     return $hmac;
 }
 

@@ -54,6 +54,8 @@ function Auth_Yadis_getNSMap()
 
 /**
  * @access private
+ * @param array $arr
+ * @return array
  */
 function Auth_Yadis_array_scramble($arr)
 {
@@ -82,14 +84,10 @@ function Auth_Yadis_array_scramble($arr)
  */
 class Auth_Yadis_Service {
 
-    /**
-     * Creates an empty service object.
-     */
-    function __construct()
-    {
-        $this->element = null;
-        $this->parser = null;
-    }
+    public $element = null;
+
+    /** @var Auth_Yadis_XMLParser */
+    public $parser = null;
 
     /**
      * Return the URIs in the "Type" elements, if any, of this Service
@@ -213,7 +211,7 @@ class Auth_Yadis_Service {
  */
 function Auth_Yadis_getXRDExpiration($xrd_element, $default=null)
 {
-    $expires_element = $xrd_element->$parser->evalXPath('/xrd:Expires');
+    $expires_element = $xrd_element->parser->evalXPath('/xrd:Expires');
     if ($expires_element === null) {
         return $default;
     } else {
@@ -251,9 +249,22 @@ function Auth_Yadis_getXRDExpiration($xrd_element, $default=null)
  */
 class Auth_Yadis_XRDS {
 
+    /** @var Auth_Yadis_XMLParser */
+    public $parser;
+
+    public $xrdNode;
+
+    public $allXrdNodes;
+
+    /** @var Auth_Yadis_Service[][] */
+    public $serviceList;
+
     /**
      * Instantiate a Auth_Yadis_XRDS object.  Requires an XPath
      * instance which has been used to parse a valid XRDS document.
+     *
+     * @param Auth_Yadis_XMLParser $xmlParser
+     * @param array $xrdNodes
      */
     function __construct($xmlParser, $xrdNodes)
     {
@@ -270,6 +281,7 @@ class Auth_Yadis_XRDS {
      * XRDS XML is valid.
      *
      * @param string $xml_string An XRDS XML string.
+     * @param array|null $extra_ns_map
      * @return mixed $xrds An instance of Auth_Yadis_XRDS or null,
      * depending on the validity of $xml_string
      */
@@ -321,12 +333,13 @@ class Auth_Yadis_XRDS {
             return $_null;
         }
 
-        $xrds = new Auth_Yadis_XRDS($parser, $xrd_nodes);
-        return $xrds;
+        return new Auth_Yadis_XRDS($parser, $xrd_nodes);
     }
 
     /**
      * @access private
+     * @param int $priority
+     * @param string $service
      */
     function _addService($priority, $service)
     {

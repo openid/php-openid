@@ -184,6 +184,11 @@ function Auth_Yadis_XRI($xri)
     return $xri;
 }
 
+/**
+ * @param string $iname
+ * @param Auth_Yadis_XRDS $xrds
+ * @return bool|string
+ */
 function Auth_Yadis_getCanonicalID($iname, $xrds)
 {
     // Returns false or a canonical ID value.

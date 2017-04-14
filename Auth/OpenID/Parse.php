@@ -89,24 +89,24 @@ class Auth_OpenID_Parse {
     /**
      * Specify some flags for use with regex matching.
      */
-    var $_re_flags = "si";
+    public $_re_flags = "si";
 
     /**
      * Stuff to remove before we start looking for tags
      */
-    var $_removed_re =
+    public $_removed_re =
            "<!--.*?-->|<!\[CDATA\[.*?\]\]>|<script\b(?!:)[^>]*>.*?<\/script>";
 
     /**
      * Starts with the tag name at a word boundary, where the tag name
      * is not a namespace
      */
-    var $_tag_expr = "<%s\b(?!:)([^>]*?)(?:\/>|>(.*)(?:<\/?%s\s*>|\Z))";
+    public $_tag_expr = "<%s\b(?!:)([^>]*?)(?:\/>|>(.*)(?:<\/?%s\s*>|\Z))";
 
-    var $_attr_find = '\b(\w+)=("[^"]*"|\'[^\']*\'|[^\'"\s\/<>]+)';
+    public $_attr_find = '\b(\w+)=("[^"]*"|\'[^\']*\'|[^\'"\s\/<>]+)';
 
-    var $_open_tag_expr = "<%s\b";
-    var $_close_tag_expr = "<((\/%s\b)|(%s[^>\/]*\/))>";
+    public $_open_tag_expr = "<%s\b";
+    public $_close_tag_expr = "<((\/%s\b)|(%s[^>\/]*\/))>";
 
     function __construct()
     {
@@ -136,6 +136,10 @@ class Auth_OpenID_Parse {
     /**
      * Returns a regular expression that will match a given tag in an
      * SGML string.
+     *
+     * @param string $tag_name
+     * @param array $close_tags
+     * @return string
      */
     function tagMatcher($tag_name, $close_tags = null)
     {
@@ -215,7 +219,7 @@ class Auth_OpenID_Parse {
             return $str;
         }
     }
-    
+
     function match($regexp, $text, &$match)
     {
         if (!is_callable('mb_ereg_search_init')) {

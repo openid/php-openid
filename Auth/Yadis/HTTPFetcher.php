@@ -19,10 +19,16 @@
 require_once "Auth/OpenID.php";
 
 define('Auth_OpenID_FETCHER_MAX_RESPONSE_KB', 1024);
-define('Auth_OpenID_USER_AGENT', 
+define('Auth_OpenID_USER_AGENT',
        'php-openid/'.Auth_OpenID_VERSION.' (php/'.phpversion().')');
 
 class Auth_Yadis_HTTPResponse {
+
+    public $final_url = '';
+    public $status = '';
+    public $body = '';
+    public $headers = array();
+
     function __construct($final_url = null, $status = null,
                                          $headers = null, $body = null)
     {
@@ -43,13 +49,14 @@ class Auth_Yadis_HTTPResponse {
  */
 class Auth_Yadis_HTTPFetcher {
 
-    var $timeout = 20; // timeout in seconds.
+    public $timeout = 20; // timeout in seconds.
 
     /**
      * Return whether a URL can be fetched.  Returns false if the URL
      * scheme is not allowed or is not supported by this fetcher
      * implementation; returns true otherwise.
      *
+     * @param string $url
      * @return bool
      */
     function canFetchURL($url)
@@ -74,6 +81,9 @@ class Auth_Yadis_HTTPFetcher {
      * conform to your local policy.
      *
      * By default, will attempt to fetch any http or https URL.
+     *
+     * @param string $url
+     * @return bool
      */
     function allowedURL($url)
     {
@@ -90,12 +100,15 @@ class Auth_Yadis_HTTPFetcher {
     function supportsSSL()
     {
         trigger_error("not implemented", E_USER_ERROR);
+        return false;
     }
 
     /**
      * Is this an https URL?
      *
      * @access private
+     * @param string $url
+     * @return bool
      */
     function isHTTPS($url)
     {
@@ -106,6 +119,8 @@ class Auth_Yadis_HTTPFetcher {
      * Is this an http or https URL?
      *
      * @access private
+     * @param string $url
+     * @return bool
      */
     function URLHasAllowedScheme($url)
     {
@@ -114,6 +129,9 @@ class Auth_Yadis_HTTPFetcher {
 
     /**
      * @access private
+     * @param array $headers
+     * @param string $url
+     * @return null|string
      */
     function _findRedirect($headers, $url)
     {
@@ -159,16 +177,13 @@ class Auth_Yadis_HTTPFetcher {
      * returns the server's response.
      *
      * @param string $url The URL to be fetched.
-     * @param array $extra_headers An array of header strings
-     * (e.g. "Accept: text/html").
-     * @return mixed $result An array of ($code, $url, $headers,
-     * $body) if the URL could be fetched; null if the URL does not
-     * pass the URLHasAllowedScheme check or if the server's response
-     * is malformed.
+     * @param array $headers
+     * @return Auth_Yadis_HTTPResponse|null
      */
     function get($url, $headers = null)
     {
         trigger_error("not implemented", E_USER_ERROR);
+        return null;
     }
 }
 
