@@ -169,19 +169,6 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
                 curl_setopt($c, CURLOPT_PROXY, Auth_OpenID_HTTP_PROXY);
             }
 
-			// <TYPO3-specific>
-			if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['curlProxyServer']) {
-				curl_setopt($c, CURLOPT_PROXY, $GLOBALS['TYPO3_CONF_VARS']['SYS']['curlProxyServer']);
-
-				if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['curlProxyTunnel']) {
-					curl_setopt($c, CURLOPT_HTTPPROXYTUNNEL, $GLOBALS['TYPO3_CONF_VARS']['SYS']['curlProxyTunnel']);
-				}
-				if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['curlProxyUserPass']) {
-					curl_setopt($c, CURLOPT_PROXYUSERPWD, $GLOBALS['TYPO3_CONF_VARS']['SYS']['curlProxyUserPass']);
-				}
-			}
-			// </TYPO3-specific>
-
             curl_exec($c);
 
             $code = curl_getinfo($c, CURLINFO_HTTP_CODE);
@@ -244,19 +231,6 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
         if (defined('Auth_OpenID_HTTP_PROXY')) {
             curl_setopt($c, CURLOPT_PROXY, Auth_OpenID_HTTP_PROXY);
         }
-
-		// <TYPO3-specific>
-		if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['curlProxyServer']) {
-			curl_setopt($c, CURLOPT_PROXY, $GLOBALS['TYPO3_CONF_VARS']['SYS']['curlProxyServer']);
-
-			if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['curlProxyTunnel']) {
-				curl_setopt($c, CURLOPT_HTTPPROXYTUNNEL, $GLOBALS['TYPO3_CONF_VARS']['SYS']['curlProxyTunnel']);
-			}
-			if ($GLOBALS['TYPO3_CONF_VARS']['SYS']['curlProxyUserPass']) {
-				curl_setopt($c, CURLOPT_PROXYUSERPWD, $GLOBALS['TYPO3_CONF_VARS']['SYS']['curlProxyUserPass']);
-			}
-		}
-		// </TYPO3-specific>
 
         curl_setopt($c, CURLOPT_POST, true);
         curl_setopt($c, CURLOPT_POSTFIELDS, $body);
