@@ -50,6 +50,7 @@ class Auth_OpenID_DatabaseConnection {
      */
     function query($sql, $params = array())
     {
+        return null;
     }
 
     /**
@@ -90,6 +91,7 @@ class Auth_OpenID_DatabaseConnection {
      */
     function getOne($sql, $params = array())
     {
+        return false;
     }
 
     /**
@@ -103,11 +105,12 @@ class Auth_OpenID_DatabaseConnection {
      * @param array $params An array of parameters to insert into the
      * SQL string using this connection's escaping mechanism.
      *
-     * @return array $result The first row of the result set, if any,
+     * @return array|bool $result The first row of the result set, if any,
      * keyed on column name.  False if no such result was found.
      */
     function getRow($sql, $params = array())
     {
+        return false;
     }
 
     /**
@@ -125,6 +128,7 @@ class Auth_OpenID_DatabaseConnection {
      */
     function getAll($sql, $params = array())
     {
+        return array();
     }
 }
 

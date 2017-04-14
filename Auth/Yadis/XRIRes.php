@@ -8,6 +8,10 @@ require_once 'Auth/Yadis/XRDS.php';
 require_once 'Auth/Yadis/XRI.php';
 
 class Auth_Yadis_ProxyResolver {
+
+    /** @var Auth_Yadis_HTTPFetcher */
+    protected $fetcher;
+
     function __construct($fetcher, $proxy_url = null)
     {
         $this->fetcher = $fetcher;

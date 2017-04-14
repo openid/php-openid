@@ -37,7 +37,7 @@ function Auth_OpenID_splitNonce($nonce_string)
         return null;
     }
 
-    list($unused,
+    list(,
          $tm_year,
          $tm_mon,
          $tm_mday,

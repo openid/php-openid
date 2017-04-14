@@ -34,6 +34,11 @@ class Auth_Yadis_PlainHTTPFetcher extends Auth_Yadis_HTTPFetcher {
         return function_exists('openssl_open');
     }
 
+    /**
+     * @param string $url
+     * @param array|null $extra_headers
+     * @return Auth_Yadis_HTTPResponse|null|bool
+     */
     function get($url, $extra_headers = null)
     {
         if (!$this->canFetchURL($url)) {
@@ -44,6 +49,9 @@ class Auth_Yadis_PlainHTTPFetcher extends Auth_Yadis_HTTPFetcher {
 
         $stop = time() + $this->timeout;
         $off = $this->timeout;
+        $headers = array();
+        $code = '';
+        $body = '';
 
         while ($redir && ($off > 0)) {
 

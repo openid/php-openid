@@ -74,6 +74,10 @@ $Auth_OpenID_registered_aliases = array();
  * namespace URI or alias has already been registered with a different
  * value.  This function is required if you want to use a namespace
  * with an OpenID 1 message.
+ *
+ * @param string $namespace_uri
+ * @param string $alias
+ * @return bool
  */
 function Auth_OpenID_registerNamespaceAlias($namespace_uri, $alias)
 {
@@ -101,6 +105,10 @@ function Auth_OpenID_registerNamespaceAlias($namespace_uri, $alias)
  * Removes a (namespace_uri, alias) registration from the global
  * namespace alias map.  Returns true if the removal succeeded; false
  * if not (if the mapping did not exist).
+ *
+ * @param string $namespace_uri
+ * @param string $alias
+ * @return bool
  */
 function Auth_OpenID_removeNamespaceAlias($namespace_uri, $alias)
 {
@@ -126,6 +134,8 @@ class Auth_OpenID_Mapping {
     /**
      * Initialize a mapping.  If $classic_array is specified, its keys
      * and values are used to populate the mapping.
+     *
+     * @param array|null $classic_array
      */
     function __construct($classic_array = null)
     {
@@ -142,6 +152,9 @@ class Auth_OpenID_Mapping {
     /**
      * Returns true if $thing is an Auth_OpenID_Mapping object; false
      * if not.
+     *
+     * @param Auth_OpenID_Mapping $thing
+     * @return bool
      */
     static function isA($thing)
     {
@@ -190,6 +203,9 @@ class Auth_OpenID_Mapping {
     /**
      * Sets a key-value pair in the mapping.  If the key already
      * exists, its value is replaced with the new value.
+     *
+     * @param string $key
+     * @param mixed $value
      */
     function set($key, $value)
     {
@@ -207,6 +223,10 @@ class Auth_OpenID_Mapping {
      * Gets a specified value from the mapping, associated with the
      * specified key.  If the key does not exist in the mapping,
      * $default is returned instead.
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed|null
      */
     function get($key, $default = null)
     {
@@ -244,6 +264,9 @@ class Auth_OpenID_Mapping {
     /**
      * Deletes a key-value pair from the mapping with the specified
      * key.
+     *
+     * @param string $key
+     * @return bool
      */
     function del($key)
     {
@@ -261,6 +284,9 @@ class Auth_OpenID_Mapping {
     /**
      * Returns true if the specified value has a key in the mapping;
      * false if not.
+     *
+     * @param string $value
+     * @return bool
      */
     function contains($value)
     {
@@ -442,6 +468,10 @@ class Auth_OpenID_Message {
         return $this->getOpenIDNamespace() == Auth_OpenID_OPENID2_NS;
     }
 
+    /**
+     * @param array $args
+     * @return Auth_OpenID_Message|null
+     */
     static function fromPostArgs($args)
     {
         // Construct a Message containing a set of POST arguments
@@ -457,6 +487,7 @@ class Auth_OpenID_Message {
 
             $parts = explode('.', $key, 2);
 
+            $rest = '';
             if (count($parts) == 2) {
                 list($prefix, $rest) = $parts;
             } else {
@@ -492,11 +523,11 @@ class Auth_OpenID_Message {
 
     /**
      * @access private
+     * @param Auth_OpenID_Mapping|array $openid_args
+     * @return bool
      */
     function _fromOpenIDArgs($openid_args)
     {
-        global $Auth_OpenID_registered_aliases;
-
         // Takes an Auth_OpenID_Mapping instance OR an array.
 
         if (!Auth_OpenID_Mapping::isA($openid_args)) {
@@ -601,6 +632,9 @@ class Auth_OpenID_Message {
                      Auth_OpenID_KVForm::toArray($kvform_string));
     }
 
+    /**
+     * @return Auth_OpenID_Message
+     */
     function copy()
     {
         return $this;
@@ -657,8 +691,13 @@ class Auth_OpenID_Message {
         return $kvargs;
     }
 
-    function toFormMarkup($action_url, $form_tag_attrs = null,
-                          $submit_text = "Continue")
+    /**
+     * @param string $action_url
+     * @param null|array $form_tag_attrs
+     * @param string $submit_text
+     * @return string
+     */
+    function toFormMarkup($action_url, $form_tag_attrs = null, $submit_text = "Continue")
     {
         $form = "<form accept-charset=\"UTF-8\" ".
             "enctype=\"application/x-www-form-urlencoded\"";
@@ -725,6 +764,8 @@ class Auth_OpenID_Message {
 
     /**
      * @access private
+     * @param string $namespace
+     * @return Auth_OpenID_FailureResponse|null|string
      */
     function _fixNS($namespace)
     {
@@ -802,6 +843,12 @@ class Auth_OpenID_Message {
         return 'openid.' . $tail;
     }
 
+    /**
+     * @param string $namespace
+     * @param string $key
+     * @param mixed $default
+     * @return Auth_OpenID_FailureResponse|mixed|null|string
+     */
     function getArg($namespace, $key, $default = null)
     {
         // Get a value for a namespaced key.
@@ -894,6 +941,7 @@ class Auth_OpenID_Message {
 
         $parts = explode('.', $aliased_key, 2);
 
+        $key = null;
         if (count($parts) != 2) {
             $ns = null;
         } else {

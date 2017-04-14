@@ -25,6 +25,9 @@ class Auth_OpenID_KVForm {
      *
      * @static
      * @access private
+     * @param string $kvs
+     * @param bool $strict
+     * @return array|bool
      */
     static function toArray($kvs, $strict=false)
     {
@@ -77,6 +80,8 @@ class Auth_OpenID_KVForm {
      *
      * @static
      * @access private
+     * @param null|array $values
+     * @return null|string
      */
     static function fromArray($values)
     {

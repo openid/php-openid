@@ -39,15 +39,14 @@ class Auth_OpenID_OpenIDStore {
      * particular, expect to see unescaped non-url-safe characters in
      * the server_url field.
      *
-     * @param Association $association The Association to store.
+     * @param Auth_OpenID_Association $association The Association to store.
      */
     function storeAssociation($server_url, $association)
     {
-        trigger_error("Auth_OpenID_OpenIDStore::storeAssociation ".
-                      "not implemented", E_USER_ERROR);
+        trigger_error("Auth_OpenID_OpenIDStore::storeAssociation not implemented", E_USER_ERROR);
     }
 
-    /*
+    /**
      * Remove expired nonces from the store.
      *
      * Discards any nonce from storage that is old enough that its
@@ -57,40 +56,40 @@ class Auth_OpenID_OpenIDStore {
      * library.  It provides a way for store admins to keep their
      * storage from filling up with expired data.
      *
-     * @return the number of nonces expired
+     * @return int the number of nonces expired
      */
     function cleanupNonces()
     {
-        trigger_error("Auth_OpenID_OpenIDStore::cleanupNonces ".
-                      "not implemented", E_USER_ERROR);
+        trigger_error("Auth_OpenID_OpenIDStore::cleanupNonces not implemented", E_USER_ERROR);
+        return 0;
     }
 
-    /*
+    /**
      * Remove expired associations from the store.
      *
      * This method is not called in the normal operation of the
      * library.  It provides a way for store admins to keep their
      * storage from filling up with expired data.
      *
-     * @return the number of associations expired.
+     * @return int the number of associations expired.
      */
     function cleanupAssociations()
     {
-        trigger_error("Auth_OpenID_OpenIDStore::cleanupAssociations ".
-                      "not implemented", E_USER_ERROR);
+        trigger_error("Auth_OpenID_OpenIDStore::cleanupAssociations not implemented", E_USER_ERROR);
+        return 0;
     }
 
-    /*
+    /**
      * Shortcut for cleanupNonces(), cleanupAssociations().
      *
      * This method is not called in the normal operation of the
      * library.  It provides a way for store admins to keep their
      * storage from filling up with expired data.
+     * @return array
      */
     function cleanup()
     {
-        return array($this->cleanupNonces(),
-                     $this->cleanupAssociations());
+        return array($this->cleanupNonces(), $this->cleanupAssociations());
     }
 
     /**
@@ -128,13 +127,12 @@ class Auth_OpenID_OpenIDStore {
      * provided, any valid association matching the server URL is
      * returned.
      *
-     * @return Association The Association for the given identity
-     * server.
+     * @return Auth_OpenID_Association The Association for the given identity server.
      */
     function getAssociation($server_url, $handle = null)
     {
-        trigger_error("Auth_OpenID_OpenIDStore::getAssociation ".
-                      "not implemented", E_USER_ERROR);
+        trigger_error("Auth_OpenID_OpenIDStore::getAssociation not implemented", E_USER_ERROR);
+        return null;
     }
 
     /**
@@ -157,8 +155,8 @@ class Auth_OpenID_OpenIDStore {
      */
     function removeAssociation($server_url, $handle)
     {
-        trigger_error("Auth_OpenID_OpenIDStore::removeAssociation ".
-                      "not implemented", E_USER_ERROR);
+        trigger_error("Auth_OpenID_OpenIDStore::removeAssociation not implemented", E_USER_ERROR);
+        return null;
     }
 
     /**
@@ -176,14 +174,15 @@ class Auth_OpenID_OpenIDStore {
      * storeNonce call.  (storeNonce is no longer part of the
      * interface.
      *
-     * @param string $nonce The nonce to use.
-     *
+     * @param string $server_url
+     * @param int $timestamp
+     * @param string $salt
      * @return bool Whether or not the nonce was valid.
      */
     function useNonce($server_url, $timestamp, $salt)
     {
-        trigger_error("Auth_OpenID_OpenIDStore::useNonce ".
-                      "not implemented", E_USER_ERROR);
+        trigger_error("Auth_OpenID_OpenIDStore::useNonce not implemented", E_USER_ERROR);
+        return false;
     }
 
     /**
@@ -192,5 +191,4 @@ class Auth_OpenID_OpenIDStore {
     function reset()
     {
     }
-
 }

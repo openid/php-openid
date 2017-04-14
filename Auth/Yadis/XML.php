@@ -61,6 +61,7 @@ class Auth_Yadis_XMLParser {
     function registerNamespace($prefix, $uri)
     {
         // Not implemented.
+        return false;
     }
 
     /**
@@ -76,6 +77,7 @@ class Auth_Yadis_XMLParser {
     function setXML($xml_string)
     {
         // Not implemented.
+        return false;
     }
 
     /**
@@ -94,6 +96,7 @@ class Auth_Yadis_XMLParser {
     function &evalXPath($xpath, $node = null)
     {
         // Not implemented.
+        return array();
     }
 
     /**
@@ -107,6 +110,7 @@ class Auth_Yadis_XMLParser {
     function content($node)
     {
         // Not implemented.
+        return '';
     }
 
     /**
@@ -115,12 +119,13 @@ class Auth_Yadis_XMLParser {
      * @param mixed $node A node object from a previous call to
      * $this->evalXPath().
      *
-     * @return array $attrs An array mapping attribute names to
+     * @return array An array mapping attribute names to
      * values.
      */
     function attributes($node)
     {
         // Not implemented.
+        return array();
     }
 }
 
@@ -217,13 +222,16 @@ class Auth_Yadis_domxml extends Auth_Yadis_XMLParser {
  * @package OpenID
  */
 class Auth_Yadis_dom extends Auth_Yadis_XMLParser {
-    function __construct()
-    {
-        $this->xml = null;
-        $this->doc = null;
-        $this->xpath = null;
-        $this->errors = array();
-    }
+
+    /** @var string */
+    protected $xml = '';
+
+    protected $doc = null;
+
+    /** @var DOMXPath */
+    protected $xpath = null;
+
+    protected $errors = array();
 
     function setXML($xml_string)
     {
@@ -294,11 +302,17 @@ class Auth_Yadis_dom extends Auth_Yadis_XMLParser {
         if ($node) {
             return $node->textContent;
         }
+        return '';
     }
 
+    /**
+     * @param DOMNode $node
+     * @return array
+     */
     function attributes($node)
     {
         if ($node) {
+            /** @var DOMNamedNodeMap $arr */
             $arr = $node->attributes;
             $result = array();
 
@@ -311,6 +325,7 @@ class Auth_Yadis_dom extends Auth_Yadis_XMLParser {
 
             return $result;
         }
+        return array();
     }
 }
 
@@ -343,6 +358,8 @@ function Auth_Yadis_getSupportedExtensions()
  * the availability of PHP extensions for XML parsing.  If
  * Auth_Yadis_setDefaultParser has been called, the parser used in
  * that call will be returned instead.
+ *
+ * @return Auth_Yadis_XMLParser|bool
  */
 function Auth_Yadis_getXMLParser()
 {

@@ -56,12 +56,27 @@ require_once 'Auth/OpenID/Nonce.php';
  */
 class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
+    /** @var string */
+    protected $associations_table_name = '';
+
+    /** @var string */
+    protected $nonces_table_name = '';
+
+    /** @var Auth_OpenID_DatabaseConnection|db_common */
+    protected $connection;
+
+    /** @var int */
+    protected $max_nonce_age = 0;
+
+    /** @var array */
+    protected $sql = array();
+
     /**
      * This creates a new SQLStore instance.  It requires an
      * established database connection be given to it, and it allows
      * overriding the default table names.
      *
-     * @param connection $connection This must be an established
+     * @param Auth_OpenID_DatabaseConnection $connection This must be an established
      * connection to a database of the correct type for the SQLStore
      * subclass you're using.  This must either be an PEAR DB
      * connection handle or an instance of a subclass of
@@ -75,9 +90,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
      * the name of the table used for storing nonces.  The default
      * value is 'oid_nonces'.
      */
-    function __construct($connection,
-                                  $associations_table = null,
-                                  $nonces_table = null)
+    function __construct($connection, $associations_table = null, $nonces_table = null)
     {
         $this->associations_table_name = "oid_associations";
         $this->nonces_table_name = "oid_nonces";
@@ -317,6 +330,13 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
     /**
      * @access private
+     * @param string $server_url
+     * @param int $handle
+     * @param string $secret
+     * @param string $issued
+     * @param int $lifetime
+     * @param string $assoc_type
+     * @return mixed
      */
     function _set_assoc($server_url, $handle, $secret, $issued,
                         $lifetime, $assoc_type)
@@ -350,6 +370,9 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
     /**
      * @access private
+     * @param string $server_url
+     * @param int $handle
+     * @return array|bool|null
      */
     function _get_assoc($server_url, $handle)
     {
@@ -364,6 +387,8 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
     /**
      * @access private
+     * @param string $server_url
+     * @return array
      */
     function _get_assocs($server_url)
     {
@@ -440,7 +465,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
                                 $associations);
 
                 // return the most recently issued one.
-                list($issued, $assoc) = $associations[0];
+                list($assoc) = $associations[0];
                 return $assoc;
             } else {
                 return null;
@@ -450,6 +475,10 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
     /**
      * @access private
+     * @param string $server_url
+     * @param int $timestamp
+     * @param string $salt
+     * @return bool
      */
     function _add_nonce($server_url, $timestamp, $salt)
     {
@@ -482,6 +511,8 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
      * PostgreSQL BYTEA fields.
      *
      * @access private
+     * @param string $str
+     * @return string
      */
     function _octify($str)
     {
@@ -504,6 +535,8 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
      * resulting ASCII (possibly binary) string.
      *
      * @access private
+     * @param string $str
+     * @return string
      */
     function _unoctify($str)
     {
@@ -546,8 +579,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
 
     function cleanupAssociations()
     {
-        $this->connection->query($this->sql['clean_assoc'],
-                                 array(time()));
+        $this->connection->query($this->sql['clean_assoc'], array(time()));
         $num = $this->connection->affectedRows();
         $this->connection->commit();
         return $num;

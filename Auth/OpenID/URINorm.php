@@ -84,11 +84,8 @@ function Auth_OpenID_pct_encoded_replace_unreserved($mo)
     $i = intval($mo[1], 16);
     if ($_unreserved[$i]) {
         return chr($i);
-    } else {
-        return strtoupper($mo[0]);
     }
-
-    return $mo[0];
+    return strtoupper($mo[0]);
 }
 
 function Auth_OpenID_pct_encoded_replace($mo)
@@ -168,11 +165,6 @@ function Auth_OpenID_urinorm($uri)
     }
 
     $scheme = $uri_matches[2];
-    if ($scheme) {
-        $scheme = strtolower($scheme);
-    }
-
-    $scheme = $uri_matches[2];
     if ($scheme === '') {
         // No scheme specified
         return null;
@@ -204,13 +196,13 @@ function Auth_OpenID_urinorm($uri)
         }
     }
 
-    list($_whole, $userinfo, $host, $port) = $authority_matches;
+    list(, $userinfo, $host, $port) = $authority_matches;
 
     if ($userinfo === null) {
         $userinfo = '';
     }
 
-    if (strpos($host, '%') !== -1) {
+    if (strpos($host, '%') !== false) {
         $host = strtolower($host);
         $host = preg_replace_callback(
                   Auth_OpenID_getEncodedPattern(),

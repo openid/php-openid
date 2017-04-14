@@ -32,6 +32,7 @@ require_once 'Auth/OpenID/HMAC.php';
  * @package OpenID
  */
 class Auth_OpenID_DumbStore extends Auth_OpenID_OpenIDStore {
+    protected $auth_key;
 
     /**
      * Creates a new {@link Auth_OpenID_DumbStore} instance. For the security
@@ -47,7 +48,7 @@ class Auth_OpenID_DumbStore extends Auth_OpenID_OpenIDStore {
      * Each {@link Auth_OpenID_DumbStore} instance that is created for use by
      * your consumer site needs to use the same $secret_phrase.
      *
-     * @param string secret_phrase The phrase used to create the auth
+     * @param string $secret_phrase The phrase used to create the auth
      * key returned by getAuthKey
      */
     function __construct($secret_phrase)
@@ -57,6 +58,9 @@ class Auth_OpenID_DumbStore extends Auth_OpenID_OpenIDStore {
 
     /**
      * This implementation does nothing.
+     *
+     * @param string $server_url
+     * @param Auth_OpenID_Association $association
      */
     function storeAssociation($server_url, $association)
     {
@@ -64,6 +68,10 @@ class Auth_OpenID_DumbStore extends Auth_OpenID_OpenIDStore {
 
     /**
      * This implementation always returns null.
+     *
+     * @param string $server_url
+     * @param null $handle
+     * @return Auth_OpenID_Association|null
      */
     function getAssociation($server_url, $handle = null)
     {
@@ -72,6 +80,10 @@ class Auth_OpenID_DumbStore extends Auth_OpenID_OpenIDStore {
 
     /**
      * This implementation always returns false.
+     *
+     * @param string $server_url
+     * @param string $handle
+     * @return bool|mixed
      */
     function removeAssociation($server_url, $handle)
     {
@@ -82,6 +94,11 @@ class Auth_OpenID_DumbStore extends Auth_OpenID_OpenIDStore {
      * In a system truly limited to dumb mode, nonces must all be
      * accepted. This therefore always returns true, which makes
      * replay attacks feasible.
+     *
+     * @param string $server_url
+     * @param int $timestamp
+     * @param string $salt
+     * @return bool
      */
     function useNonce($server_url, $timestamp, $salt)
     {

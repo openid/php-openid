@@ -34,8 +34,11 @@ define('PAPE_TIME_VALIDATOR',
  */
 class Auth_OpenID_PAPE_Request extends Auth_OpenID_Extension {
 
-    var $ns_alias = 'pape';
-    var $ns_uri = Auth_OpenID_PAPE_NS_URI;
+    public $ns_alias = 'pape';
+    public $ns_uri = Auth_OpenID_PAPE_NS_URI;
+
+    private $max_auth_age = 0;
+    private $preferred_auth_policies = array();
 
     function __construct($preferred_auth_policies=null,
                                       $max_auth_age=null)
@@ -56,6 +59,8 @@ class Auth_OpenID_PAPE_Request extends Auth_OpenID_Extension {
      *
      * policy_uri: The identifier for the preferred type of
      * authentication.
+     *
+     * @param string $policy_uri
      */
     function addPolicyURI($policy_uri)
     {
@@ -64,7 +69,14 @@ class Auth_OpenID_PAPE_Request extends Auth_OpenID_Extension {
         }
     }
 
-    function getExtensionArgs()
+    /**
+     * Get the string arguments that should be added to an OpenID
+     * message for this extension.
+     *
+     * @param Auth_OpenID_Request|null $request
+     * @return null
+     */
+    function getExtensionArgs($request = null)
     {
         $ns_args = array(
                          'preferred_auth_policies' =>
@@ -81,6 +93,9 @@ class Auth_OpenID_PAPE_Request extends Auth_OpenID_Extension {
     /**
      * Instantiate a Request object from the arguments in a checkid_*
      * OpenID message
+     *
+     * @param Auth_OpenID_Request $request
+     * @return Auth_OpenID_PAPE_Request|null
      */
     static function fromOpenIDRequest($request)
     {
@@ -158,8 +173,12 @@ class Auth_OpenID_PAPE_Request extends Auth_OpenID_Extension {
  */
 class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
 
-    var $ns_alias = 'pape';
-    var $ns_uri = Auth_OpenID_PAPE_NS_URI;
+    public $ns_alias = 'pape';
+    public $ns_uri = Auth_OpenID_PAPE_NS_URI;
+
+    private $auth_time = 0;
+    private $nist_auth_level = 0;
+    private $auth_policies = array();
 
     function __construct($auth_policies=null, $auth_time=null,
                                        $nist_auth_level=null)
@@ -195,10 +214,10 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
      * Create an Auth_OpenID_PAPE_Response object from a successful
      * OpenID library response.
      *
-     * @param success_response $success_response A SuccessResponse
+     * @param Auth_OpenID_SuccessResponse $success_response A SuccessResponse
      * from Auth_OpenID_Consumer::complete()
      *
-     * @returns: A provider authentication policy response from the
+     * @return Auth_OpenID_PAPE_Response A provider authentication policy response from the
      * data that was supplied with the id_res response.
      */
     static function fromSuccessResponse($success_response)
@@ -225,13 +244,13 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
      * Parse the provider authentication policy arguments into the
      *  internal state of this object
      *
-     * @param args: unqualified provider authentication policy
+     * @param array $args unqualified provider authentication policy
      * arguments
      *
-     * @param strict: Whether to return false when bad data is
+     * @param bool $strict Whether to return false when bad data is
      * encountered
      *
-     * @return null The data is parsed into the internal fields of
+     * @return null|bool The data is parsed into the internal fields of
      * this object.
     */
     function parseExtensionArgs($args, $strict=false)
@@ -268,9 +287,17 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
                 return false;
             }
         }
+        return null;
     }
 
-    function getExtensionArgs()
+    /**
+     * Get the string arguments that should be added to an OpenID
+     * message for this extension.
+     *
+     * @param Auth_OpenID_Request|null $request
+     * @return null
+     */
+    function getExtensionArgs($request = null)
     {
         $ns_args = array();
         if (count($this->auth_policies) > 0) {
