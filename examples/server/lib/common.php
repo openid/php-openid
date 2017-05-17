@@ -43,7 +43,7 @@ function doAuth($info, $trusted=null, $fail_cancels=false,
     setRequestInfo($info);
 
     if ((!$info->idSelect()) && ($req_url != idURL($user))) {
-        return login_render(array(), $req_url, $req_url);
+        return login_render([], $req_url, $req_url);
     }
 
     $trust_root = $info->trust_root;
@@ -54,7 +54,7 @@ function doAuth($info, $trusted=null, $fail_cancels=false,
         $response = $info->answer(true, null, $req_url);
 
         // Answer with some sample Simple Registration data.
-        $sreg_data = array(
+        $sreg_data = [
                            'fullname' => 'Example User',
                            'nickname' => 'example',
                            'dob' => '1970-01-01',
@@ -63,7 +63,8 @@ function doAuth($info, $trusted=null, $fail_cancels=false,
                            'postcode' => '12345',
                            'country' => 'ES',
                            'language' => 'eu',
-                           'timezone' => 'America/New_York');
+                           'timezone' => 'America/New_York'
+        ];
 
         // Add the simple registration response values to the OpenID
         // response message.
@@ -78,13 +79,13 @@ function doAuth($info, $trusted=null, $fail_cancels=false,
         // Generate a response to send to the user agent.
         $webresponse = $server->encodeResponse($response);
 
-        $new_headers = array();
+        $new_headers = [];
 
         foreach ($webresponse->headers as $k => $v) {
             $new_headers[] = $k.": ".$v;
         }
 
-        return array($new_headers, $webresponse->body);
+        return [$new_headers, $webresponse->body];
     } elseif ($fail_cancels) {
         return authCancel($info);
     } else {

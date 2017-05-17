@@ -26,14 +26,14 @@ class AXMessageTest extends PHPUnit_Framework_TestCase {
 
     function test_checkMode()
     {
-        $result = $this->bax->_checkMode(array());
+        $result = $this->bax->_checkMode([]);
         $this->assertTrue(Auth_OpenID_AX::isError($result));
 
-        $result = $this->bax->_checkMode(array('mode' => 'fetch_request'));
+        $result = $this->bax->_checkMode(['mode' => 'fetch_request']);
         $this->assertTrue(Auth_OpenID_AX::isError($result));
 
         // does not raise an exception when the mode is right
-        $result = $this->bax->_checkMode(array('mode' => $this->bax->mode));
+        $result = $this->bax->_checkMode(['mode' => $this->bax->mode]);
         $this->assertTrue($result === true);
     }
 
@@ -68,9 +68,9 @@ class ToTypeURIsTest extends PHPUnit_Framework_TestCase {
 
     function test_empty()
     {
-        foreach (array(null, '') as $empty) {
+        foreach ([null, ''] as $empty) {
             $uris = Auth_OpenID_AX_toTypeURIs($this->aliases, $empty);
-            $this->assertEquals(array(), $uris);
+            $this->assertEquals([], $uris);
         }
     }
 
@@ -87,7 +87,7 @@ class ToTypeURIsTest extends PHPUnit_Framework_TestCase {
         $alias = 'openid_hackers';
         $this->aliases->addAlias($uri, $alias);
         $uris = Auth_OpenID_AX_toTypeURIs($this->aliases, $alias);
-        $this->assertEquals(array($uri), $uris);
+        $this->assertEquals([$uri], $uris);
     }
 
     function test_two()
@@ -101,8 +101,8 @@ class ToTypeURIsTest extends PHPUnit_Framework_TestCase {
         $this->aliases->addAlias($uri2, $alias2);
 
         $uris = Auth_OpenID_AX_toTypeURIs($this->aliases,
-                                          implode(',', array($alias1, $alias2)));
-        $this->assertEquals(array($uri1, $uri2), $uris);
+                                          implode(',', [$alias1, $alias2]));
+        $this->assertEquals([$uri1, $uri2], $uris);
     }
 }
 
@@ -124,22 +124,26 @@ class ParseAXValuesTest extends PHPUnit_Framework_TestCase {
 
     function test_emptyIsValid()
     {
-        $this->failUnlessAXValues(array(), array());
+        $this->failUnlessAXValues([], []);
     }
 
     function test_invalidAlias()
     {
-        $types = array(
+        $types = [
                        'Auth_OpenID_AX_KeyValueMessage',
                        'Auth_OpenID_AX_FetchRequest'
-                       );
+        ];
 
-        $inputs = array(
-                        array('type.a.b' =>  'urn:foo',
-                              'count.a.b' => '1'),
-                        array('type.a,b' => 'urn:foo',
-                              'count.a,b' => '1'),
-                        );
+        $inputs = [
+                        [
+                            'type.a.b' =>  'urn:foo',
+                              'count.a.b' => '1'
+                        ],
+                        [
+                            'type.a,b' => 'urn:foo',
+                              'count.a,b' => '1'
+                        ],
+        ];
 
         foreach ($types as $typ) {
             foreach ($inputs as $input) {
@@ -152,13 +156,15 @@ class ParseAXValuesTest extends PHPUnit_Framework_TestCase {
 
     function test_missingValueForAliasExplodes()
     {
-        $this->failUnlessAXKeyError(array('type.foo' => 'urn:foo'));
+        $this->failUnlessAXKeyError(['type.foo' => 'urn:foo']);
     }
 
     function test_countPresentButNotValue()
     {
-        $this->failUnlessAXKeyError(array('type.foo' => 'urn:foo',
-                                          'count.foo' => '1'));
+        $this->failUnlessAXKeyError([
+            'type.foo' => 'urn:foo',
+                                          'count.foo' => '1'
+        ]);
     }
 
     function test_invalidCountValue()
@@ -166,8 +172,10 @@ class ParseAXValuesTest extends PHPUnit_Framework_TestCase {
         $msg = new Auth_OpenID_AX_FetchRequest();
 
         $result = $msg->parseExtensionArgs(
-                    array('type.foo' => 'urn:foo',
-                          'count.foo' => 'bogus'));
+                    [
+                        'type.foo' => 'urn:foo',
+                          'count.foo' => 'bogus'
+                    ]);
 
         $this->assertTrue(Auth_OpenID_AX::isError($result));
     }
@@ -177,10 +185,12 @@ class ParseAXValuesTest extends PHPUnit_Framework_TestCase {
         $msg = new Auth_OpenID_AX_FetchRequest();
 
         $result = $msg->parseExtensionArgs(
-               array('mode' => 'fetch_request',
+               [
+                   'mode' => 'fetch_request',
                      'required' => 'foo',
                      'type.foo' => 'urn:foo',
-                     'count.foo' => Auth_OpenID_AX_UNLIMITED_VALUES));
+                     'count.foo' => Auth_OpenID_AX_UNLIMITED_VALUES
+               ]);
 
         $attrs = $msg->iterAttrs();
         $foo = $attrs[0];
@@ -197,9 +207,11 @@ class ParseAXValuesTest extends PHPUnit_Framework_TestCase {
 
         $msg = new Auth_OpenID_AX_KeyValueMessage();
         $result = $msg->parseExtensionArgs(
-                                 array('type.' . $alias => 'urn:foo',
+                                 [
+                                     'type.' . $alias => 'urn:foo',
                                        'count.' . $alias => '1',
-                                       'value.'.$alias.'.1' => 'first')
+                                       'value.'.$alias.'.1' => 'first'
+                                 ]
                                  );
         $this->assertFalse(Auth_OpenID_AX::isError($result));
     }
@@ -207,45 +219,50 @@ class ParseAXValuesTest extends PHPUnit_Framework_TestCase {
     function test_countPresentAndIsZero()
     {
         $this->failUnlessAXValues(
-                                  array('type.foo' => 'urn:foo',
+                                  [
+                                      'type.foo' => 'urn:foo',
                                         'count.foo' => '0',
-                                        ), array('urn:foo' => array()));
+                                  ], ['urn:foo' => []]);
     }
 
     function test_singletonEmpty()
     {
         $this->failUnlessAXValues(
-                                  array('type.foo' => 'urn:foo',
+                                  [
+                                      'type.foo' => 'urn:foo',
                                         'value.foo' => '',
-                                        ), array('urn:foo' => array()));
+                                  ], ['urn:foo' => []]);
     }
 
     function test_doubleAlias()
     {
         $this->failUnlessAXKeyError(
-                                    array('type.foo' => 'urn:foo',
+                                    [
+                                        'type.foo' => 'urn:foo',
                                           'value.foo' => '',
                                           'type.bar' => 'urn:foo',
                                           'value.bar' => '',
-                                          ));
+                                    ]);
     }
 
     function test_doubleSingleton()
     {
         $this->failUnlessAXValues(
-                                  array('type.foo' => 'urn:foo',
+                                  [
+                                      'type.foo' => 'urn:foo',
                                         'value.foo' => '',
                                         'type.bar' => 'urn:bar',
                                         'value.bar' => '',
-                                        ), array('urn:foo' => array(), 'urn:bar' => array()));
+                                  ], ['urn:foo' => [], 'urn:bar' => []]);
     }
 
     function test_singletonValue()
     {
         $this->failUnlessAXValues(
-                                  array('type.foo' => 'urn:foo',
+                                  [
+                                      'type.foo' => 'urn:foo',
                                         'value.foo' => 'Westfall',
-                                        ), array('urn:foo' => array('Westfall')));
+                                  ], ['urn:foo' => ['Westfall']]);
     }
 }
 
@@ -264,11 +281,11 @@ class FetchRequestTest extends PHPUnit_Framework_TestCase {
 
     function test_construct()
     {
-        $this->assertEquals(array(), $this->msg->requested_attributes);
+        $this->assertEquals([], $this->msg->requested_attributes);
         $this->assertEquals(null, $this->msg->update_url);
 
         $msg = new Auth_OpenID_AX_FetchRequest('hailstorm');
-        $this->assertEquals(array(), $msg->requested_attributes);
+        $this->assertEquals([], $msg->requested_attributes);
         $this->assertEquals('hailstorm', $msg->update_url);
     }
 
@@ -297,9 +314,9 @@ class FetchRequestTest extends PHPUnit_Framework_TestCase {
 
     function test_getExtensionArgs_empty()
     {
-        $expected_args = array(
+        $expected_args = [
                                'mode' =>'fetch_request',
-                               );
+        ];
         $this->assertEquals($expected_args, $this->msg->getExtensionArgs());
     }
 
@@ -325,9 +342,10 @@ class FetchRequestTest extends PHPUnit_Framework_TestCase {
             return;
         }
 
-        $this->failUnlessExtensionArgs(array(
+        $this->failUnlessExtensionArgs([
             'type.' . $alias => $attr->type_uri,
-            'if_available' => $alias));
+            'if_available' => $alias
+        ]);
     }
 
     function test_getExtensionArgs_alias_if_available()
@@ -337,9 +355,10 @@ class FetchRequestTest extends PHPUnit_Framework_TestCase {
                                               'transport');
 
         $this->msg->add($attr);
-        $this->failUnlessExtensionArgs(array(
+        $this->failUnlessExtensionArgs([
             'type.' .  $attr->alias => $attr->type_uri,
-            'if_available' => $attr->alias));
+            'if_available' => $attr->alias
+        ]);
     }
 
     function test_getExtensionArgs_alias_req()
@@ -349,9 +368,10 @@ class FetchRequestTest extends PHPUnit_Framework_TestCase {
             1, true, 'transport');
 
         $this->msg->add($attr);
-        $this->failUnlessExtensionArgs(array(
+        $this->failUnlessExtensionArgs([
             'type.' . $attr->alias => $attr->type_uri,
-            'required' => $attr->alias));
+            'required' => $attr->alias
+        ]);
     }
 
     /*
@@ -367,20 +387,21 @@ class FetchRequestTest extends PHPUnit_Framework_TestCase {
 
     function test_isIterable()
     {
-        $this->assertEquals(array(), $this->msg->iterAttrs());
-        $this->assertEquals(array(), $this->msg->iterTypes());
+        $this->assertEquals([], $this->msg->iterAttrs());
+        $this->assertEquals([], $this->msg->iterTypes());
     }
 
     function test_getRequiredAttrs_empty()
     {
-        $this->assertEquals(array(), $this->msg->getRequiredAttrs());
+        $this->assertEquals([], $this->msg->getRequiredAttrs());
     }
 
     function test_parseExtensionArgs_extraType()
     {
-        $extension_args = array(
+        $extension_args = [
                                 'mode' => 'fetch_request',
-                                'type.' . $this->alias_a => $this->type_a);
+                                'type.' . $this->alias_a => $this->type_a
+        ];
 
         $this->assertTrue(Auth_OpenID_AX::isError(
                $this->msg->parseExtensionArgs($extension_args)));
@@ -388,29 +409,31 @@ class FetchRequestTest extends PHPUnit_Framework_TestCase {
 
     function test_parseExtensionArgs()
     {
-        $extension_args = array(
+        $extension_args = [
             'mode' => 'fetch_request',
             'type.' . $this->alias_a => $this->type_a,
-            'if_available' => $this->alias_a);
+            'if_available' => $this->alias_a
+        ];
 
         $this->msg->parseExtensionArgs($extension_args);
-        $this->assertEquals(array($this->type_a), $this->msg->iterTypes());
+        $this->assertEquals([$this->type_a], $this->msg->iterTypes());
         $attr_info = Auth_OpenID::arrayGet($this->msg->requested_attributes,
                                            $this->type_a);
         $this->assertTrue($attr_info);
         $this->assertFalse($attr_info->required);
         $this->assertEquals($this->type_a, $attr_info->type_uri);
         $this->assertEquals($this->alias_a, $attr_info->alias);
-        $this->assertEquals(array($attr_info),
+        $this->assertEquals([$attr_info],
                             $this->msg->iterAttrs());
     }
 
     function test_extensionArgs_idempotent()
     {
-        $extension_args = array(
+        $extension_args = [
             'mode' => 'fetch_request',
             'type.' . $this->alias_a => $this->type_a,
-            'if_available' => $this->alias_a);
+            'if_available' => $this->alias_a
+        ];
 
         $this->msg->parseExtensionArgs($extension_args);
         $this->assertEquals($extension_args, $this->msg->getExtensionArgs());
@@ -421,11 +444,12 @@ class FetchRequestTest extends PHPUnit_Framework_TestCase {
 
     function test_extensionArgs_idempotent_count_required()
     {
-        $extension_args = array(
+        $extension_args = [
                                 'mode' => 'fetch_request',
                                 'type.' . $this->alias_a => $this->type_a,
                                 'count.' . $this->alias_a => '2',
-                                'required' => $this->alias_a);
+                                'required' => $this->alias_a
+        ];
 
         $this->msg->parseExtensionArgs($extension_args);
         $this->assertEquals($extension_args, $this->msg->getExtensionArgs());
@@ -436,16 +460,18 @@ class FetchRequestTest extends PHPUnit_Framework_TestCase {
 
     function test_extensionArgs_count1()
     {
-        $extension_args = array(
+        $extension_args = [
             'mode' => 'fetch_request',
             'type.' . $this->alias_a => $this->type_a,
             'count.' . $this->alias_a => '1',
-            'if_available' => $this->alias_a);
+            'if_available' => $this->alias_a
+        ];
 
-        $extension_args_norm = array(
+        $extension_args_norm = [
             'mode' => 'fetch_request',
             'type.' . $this->alias_a => $this->type_a,
-            'if_available' => $this->alias_a);
+            'if_available' => $this->alias_a
+        ];
 
         $this->msg->parseExtensionArgs($extension_args);
         $this->assertEquals($extension_args_norm, $this->msg->getExtensionArgs());
@@ -453,13 +479,13 @@ class FetchRequestTest extends PHPUnit_Framework_TestCase {
 
     function test_openidNoRealm()
     {
-        $openid_req_msg = Auth_OpenID_Message::fromOpenIDArgs(array(
+        $openid_req_msg = Auth_OpenID_Message::fromOpenIDArgs([
             'mode' => 'checkid_setup',
             'ns' => Auth_OpenID_OPENID2_NS,
             'ns.ax' => Auth_OpenID_AX_NS_URI,
             'ax.update_url' => 'http://different.site/path',
             'ax.mode' => 'fetch_request',
-            ));
+        ]);
 		$openid_req = new Auth_OpenID_Request();
 		$openid_req->message =& $openid_req_msg;
         $result = Auth_OpenID_AX_FetchRequest::fromOpenIDRequest(
@@ -469,14 +495,14 @@ class FetchRequestTest extends PHPUnit_Framework_TestCase {
 
     function test_openidUpdateURLVerificationError()
     {
-        $openid_req_msg = Auth_OpenID_Message::fromOpenIDArgs(array(
+        $openid_req_msg = Auth_OpenID_Message::fromOpenIDArgs([
             'mode' => 'checkid_setup',
             'ns' => Auth_OpenID_OPENID2_NS,
             'realm' => 'http://example.com/realm',
             'ns.ax' => Auth_OpenID_AX_NS_URI,
             'ax.update_url' => 'http://different.site/path',
             'ax.mode' => 'fetch_request',
-            ));
+        ]);
 		$openid_req = new Auth_OpenID_Request();
 		$openid_req->message =& $openid_req_msg;
         $result = Auth_OpenID_AX_FetchRequest::fromOpenIDRequest($openid_req);
@@ -485,14 +511,14 @@ class FetchRequestTest extends PHPUnit_Framework_TestCase {
 
     function test_openidUpdateURLVerificationSuccess()
     {
-        $openid_req_msg = Auth_OpenID_Message::fromOpenIDArgs(array(
+        $openid_req_msg = Auth_OpenID_Message::fromOpenIDArgs([
             'mode' => 'checkid_setup',
             'ns' => Auth_OpenID_OPENID2_NS,
             'realm' => 'http://example.com/realm',
             'ns.ax' => Auth_OpenID_AX_NS_URI,
             'ax.update_url' => 'http://example.com/realm/update_path',
             'ax.mode' => 'fetch_request',
-            ));
+        ]);
 		$openid_req = new Auth_OpenID_Request();
 		$openid_req->message =& $openid_req_msg;
         $fr = Auth_OpenID_AX_FetchRequest::fromOpenIDRequest($openid_req);
@@ -501,14 +527,14 @@ class FetchRequestTest extends PHPUnit_Framework_TestCase {
 
     function test_openidUpdateURLVerificationSuccessReturnTo()
     {
-        $openid_req_msg = Auth_OpenID_Message::fromOpenIDArgs(array(
+        $openid_req_msg = Auth_OpenID_Message::fromOpenIDArgs([
             'mode' => 'checkid_setup',
             'ns' => Auth_OpenID_OPENID2_NS,
             'return_to' => 'http://example.com/realm',
             'ns.ax' => Auth_OpenID_AX_NS_URI,
             'ax.update_url' => 'http://example.com/realm/update_path',
             'ax.mode' => 'fetch_request',
-            ));
+        ]);
 		$openid_req = new Auth_OpenID_Request();
 		$openid_req->message =& $openid_req_msg;
         $fr = Auth_OpenID_AX_FetchRequest::fromOpenIDRequest($openid_req);
@@ -535,23 +561,23 @@ class FetchResponseTest extends PHPUnit_Framework_TestCase {
     function test_construct()
     {
         $this->assertTrue($this->msg->update_url === null);
-        $this->assertEquals(array(), $this->msg->data);
+        $this->assertEquals([], $this->msg->data);
     }
 
     function test_getExtensionArgs_empty()
     {
-        $expected_args = array(
+        $expected_args = [
             'mode' => 'fetch_response',
-                               );
+        ];
         $req = null;
         $this->assertEquals($expected_args, $this->msg->getExtensionArgs($req));
     }
 
     function test_getExtensionArgs_empty_request()
     {
-        $expected_args = array(
+        $expected_args = [
             'mode' => 'fetch_response',
-                               );
+        ];
         $req = new Auth_OpenID_AX_FetchRequest();
         $this->assertEquals($expected_args, $this->msg->getExtensionArgs($req));
     }
@@ -561,11 +587,11 @@ class FetchResponseTest extends PHPUnit_Framework_TestCase {
         $uri = 'http://not.found/';
         $alias = 'ext0';
 
-        $expected_args = array(
+        $expected_args = [
             'mode' => 'fetch_response',
             'type.' . $alias => $uri,
             'count.' . $alias => '0'
-                               );
+        ];
         $req = new Auth_OpenID_AX_FetchRequest();
         $req->add(Auth_OpenID_AX_AttrInfo::make('http://not.found/'));
         $this->assertEquals($expected_args, $this->msg->getExtensionArgs($req));
@@ -576,12 +602,12 @@ class FetchResponseTest extends PHPUnit_Framework_TestCase {
         $uri = 'http://not.found/';
         $alias = 'ext0';
 
-        $expected_args = array(
+        $expected_args = [
             'mode' => 'fetch_response',
             'update_url' => $this->request_update_url,
             'type.' . $alias => $uri,
             'count.' . $alias => '0'
-                               );
+        ];
         $req = new Auth_OpenID_AX_FetchRequest($this->request_update_url);
         $req->add(Auth_OpenID_AX_AttrInfo::make($uri));
         $this->assertEquals($expected_args, $this->msg->getExtensionArgs($req));
@@ -589,12 +615,12 @@ class FetchResponseTest extends PHPUnit_Framework_TestCase {
 
     function test_getExtensionArgs_some_request()
     {
-        $expected_args = array(
+        $expected_args = [
             'mode' => 'fetch_response',
             'type.' . $this->alias_a => $this->type_a,
             'value.' . $this->alias_a . '.1' => $this->value_a,
             'count.' . $this->alias_a => '1'
-                               );
+        ];
 
         $req = new Auth_OpenID_AX_FetchRequest();
         $req->add(Auth_OpenID_AX_AttrInfo::make($this->type_a, 1, false, $this->alias_a));
@@ -625,7 +651,7 @@ class FetchResponseTest extends PHPUnit_Framework_TestCase {
 
     function test_getSingle_extra()
     {
-        $data = array('x', 'y');
+        $data = ['x', 'y'];
         $this->msg->setValues($this->type_a, $data);
         $this->assertTrue(Auth_OpenID_AX::isError($this->msg->getSingle($this->type_a)));
     }
@@ -637,11 +663,11 @@ class FetchResponseTest extends PHPUnit_Framework_TestCase {
 
     function test_fromSuccessResponseWithoutExtension()
     {
-        $args = array(
+        $args = [
                       'mode' => 'id_res',
                       'ns' => Auth_OpenID_OPENID2_NS
-                     );
-        $sf = array();
+        ];
+        $sf = [];
         foreach (array_keys($args) as $k) {
             array_push($sf, $k);
         }
@@ -654,13 +680,13 @@ class FetchResponseTest extends PHPUnit_Framework_TestCase {
 
     function test_fromSuccessResponseWithoutData()
     {
-        $args = array(
+        $args = [
                       'mode' => 'id_res',
                       'ns' => Auth_OpenID_OPENID2_NS,
                       'ns.ax' => Auth_OpenID_AX_NS_URI,
                       'ax.mode' => 'fetch_response',
-                     );
-        $sf = array();
+        ];
+        $sf = [];
         foreach (array_keys($args) as $k) {
             array_push($sf, $k);
         }
@@ -676,7 +702,7 @@ class FetchResponseTest extends PHPUnit_Framework_TestCase {
         $name = "ziggy";
         $value = "stardust";
         $uri = "http://david.bowie.name/";
-        $args = array(
+        $args = [
                       'mode' => 'id_res',
                       'ns' => Auth_OpenID_OPENID2_NS,
                       'ns.ax' => Auth_OpenID_AX_NS_URI,
@@ -685,8 +711,8 @@ class FetchResponseTest extends PHPUnit_Framework_TestCase {
                       'ax.type.'.$name => $uri,
                       'ax.count.'.$name => '1',
                       'ax.value.'.$name.'.1' => $value,
-                     );
-        $sf = array();
+        ];
+        $sf = [];
         foreach (array_keys($args) as $k) {
             array_push($sf, $k);
         }
@@ -697,7 +723,7 @@ class FetchResponseTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($ax_resp === null);
         $this->assertTrue(is_a($ax_resp, 'Auth_OpenID_AX_FetchResponse'));
         $values = $ax_resp->get($uri);
-        $this->assertEquals(array($value), $values);
+        $this->assertEquals([$value], $values);
     }
 }
 
@@ -711,32 +737,32 @@ class StoreRequestTest extends PHPUnit_Framework_TestCase {
 
     function test_construct()
     {
-        $this->assertEquals(array(), $this->msg->data);
+        $this->assertEquals([], $this->msg->data);
     }
 
     function test_getExtensionArgs_empty()
     {
         $args = $this->msg->getExtensionArgs();
-        $expected_args = array(
+        $expected_args = [
             'mode' => 'store_request',
-                               );
+        ];
         $this->assertEquals($expected_args, $args);
     }
 
     function test_getExtensionArgs_nonempty()
     {
-        $data = array('foo', 'bar');
+        $data = ['foo', 'bar'];
         $this->msg->setValues($this->type_a, $data);
         $aliases = new Auth_OpenID_NamespaceMap();
         $aliases->addAlias($this->type_a, $this->alias_a);
         $args = $this->msg->getExtensionArgs($aliases);
-        $expected_args = array(
+        $expected_args = [
             'mode' => 'store_request',
             'type.' . $this->alias_a => $this->type_a,
             'count.' . $this->alias_a => '2',
             sprintf('value.%s.1', $this->alias_a) => 'foo',
             sprintf('value.%s.2', $this->alias_a) => 'bar',
-                               );
+        ];
         $this->assertEquals($expected_args, $args);
     }
 }
@@ -747,7 +773,7 @@ class StoreResponseTest extends PHPUnit_Framework_TestCase {
         $msg = new Auth_OpenID_AX_StoreResponse();
         $this->assertTrue($msg->succeeded());
         $this->assertFalse($msg->error_message);
-        $this->assertEquals(array('mode' => 'store_response_success'),
+        $this->assertEquals(['mode' => 'store_response_success'],
                             $msg->getExtensionArgs());
     }
 
@@ -756,7 +782,7 @@ class StoreResponseTest extends PHPUnit_Framework_TestCase {
         $msg = new Auth_OpenID_AX_StoreResponse(false);
         $this->assertFalse($msg->succeeded());
         $this->assertFalse($msg->error_message);
-        $this->assertEquals(array('mode' => 'store_response_failure'),
+        $this->assertEquals(['mode' => 'store_response_failure'],
                             $msg->getExtensionArgs());
     }
 
@@ -766,8 +792,10 @@ class StoreResponseTest extends PHPUnit_Framework_TestCase {
         $msg = new Auth_OpenID_AX_StoreResponse(false, $reason);
         $this->assertFalse($msg->succeeded());
         $this->assertEquals($reason, $msg->error_message);
-        $this->assertEquals(array('mode' => 'store_response_failure',
-                                  'error' => $reason), $msg->getExtensionArgs());
+        $this->assertEquals([
+            'mode' => 'store_response_failure',
+                                  'error' => $reason
+        ], $msg->getExtensionArgs());
     }
 }
 

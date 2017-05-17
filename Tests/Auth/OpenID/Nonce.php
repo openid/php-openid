@@ -29,7 +29,7 @@ class Tests_Auth_OpenID_Nonce extends PHPUnit_Framework_TestSuite {
 
     function makeSplitTests()
     {
-        $cases = array(
+        $cases = [
                        '',
                        '1970-01-01T00:00:00+1:00',
                        '1969-01-01T00:00:00Z',
@@ -37,7 +37,7 @@ class Tests_Auth_OpenID_Nonce extends PHPUnit_Framework_TestSuite {
                        '1970.01-01T00:00:00Z',
                        'Thu Sep  7 13:29:31 PDT 2006',
                        'monkeys',
-                       );
+        ];
 
         foreach ($cases as $nonce_str) {
             $this->_mkSplitTest($nonce_str);
@@ -53,31 +53,31 @@ class Tests_Auth_OpenID_Nonce extends PHPUnit_Framework_TestSuite {
 
     function makeCheckTimestampTests()
     {
-        $cases = array(
+        $cases = [
                        // exact, no allowed skew
-                       array('1970-01-01T00:00:00Z', 0, 0, true),
+                       ['1970-01-01T00:00:00Z', 0, 0, true],
 
                        // exact, large skew
-                       array('1970-01-01T00:00:00Z', 1000, 0, true),
+                       ['1970-01-01T00:00:00Z', 1000, 0, true],
 
                        // no allowed skew, one second old
-                       array('1970-01-01T00:00:00Z', 0, 1, false),
+                       ['1970-01-01T00:00:00Z', 0, 1, false],
 
                        // many seconds old, outside of skew
-                       array('1970-01-01T00:00:00Z', 10, 50, false),
+                       ['1970-01-01T00:00:00Z', 10, 50, false],
 
                        // one second old, one second skew allowed
-                       array('1970-01-01T00:00:00Z', 1, 1, true),
+                       ['1970-01-01T00:00:00Z', 1, 1, true],
 
                        // One second in the future, one second skew allowed
-                       array('1970-01-01T00:00:02Z', 1, 1, true),
+                       ['1970-01-01T00:00:02Z', 1, 1, true],
 
                        // two seconds in the future, one second skew allowed
-                       array('1970-01-01T00:00:02Z', 1, 0, false),
+                       ['1970-01-01T00:00:02Z', 1, 0, false],
 
                        // malformed nonce string
-                       array('monkeys', 0, 0, false)
-                       );
+                       ['monkeys', 0, 0, false]
+        ];
 
         foreach ($cases as $case) {
             $this->_mkCheckTest($case);

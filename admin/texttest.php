@@ -41,13 +41,15 @@ function microtime_float()
    return ((float)$usec + (float)$sec);
 }
 
-$longopts = array('no-math',
+$longopts = [
+    'no-math',
                   'buggy-gmp',
                   'no-curl',
                   'math-lib=',
                   'insecure-rand',
                   'thorough',
-                  'extra-tests=');
+                  'extra-tests='
+];
 
 $con  = new Console_Getopt;
 $args = $con->readPHPArgv();
@@ -61,8 +63,8 @@ if (PEAR::isError($options)) {
 
 list($flags, $tests_to_run) = $options;
 
-$math_type = array();
-$extra_test_modules = array();
+$math_type = [];
+$extra_test_modules = [];
 $thorough = false;
 foreach ($flags as $flag) {
     list($option, $value) = $flag;
@@ -102,7 +104,7 @@ if ($math_type && false) {
         exit(1);
     }
     require_once('Auth/OpenID/BigMath.php');
-    $new_extensions = array();
+    $new_extensions = [];
     foreach ($math_type as $lib) {
         $found = false;
         foreach (Auth_OpenID_math_extensions() as $ext) {
@@ -136,12 +138,12 @@ foreach ($extra_test_modules as $filename) {
 }
 
 
-$totals = array(
+$totals = [
     'run' => 0,
     'error' => 0,
     'failure' => 0,
     'time' => 0
-    );
+];
 
 foreach ($suites as $suite) {
     $name = $suite->getName();

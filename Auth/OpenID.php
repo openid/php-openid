@@ -148,7 +148,7 @@ class Auth_OpenID {
      */
     static function getQuery($query_str=null)
     {
-        $data = array();
+        $data = [];
 
         if ($query_str !== null) {
             $data = Auth_OpenID::params_from_string($query_str);
@@ -170,7 +170,7 @@ class Auth_OpenID {
             $str = file_get_contents('php://input');
 
             if ($str === false) {
-              $post = array();
+              $post = [];
             } else {
               $post = Auth_OpenID::params_from_string($str);
             }
@@ -186,7 +186,7 @@ class Auth_OpenID {
     {
         $chunks = explode("&", $str);
 
-        $data = array();
+        $data = [];
         foreach ($chunks as $chunk) {
             $parts = explode("=", $chunk, 2);
 
@@ -237,7 +237,7 @@ class Auth_OpenID {
      */
     static function addPrefix($values, $prefix)
     {
-        $new_values = array();
+        $new_values = [];
         foreach ($values as $s) {
             $new_values[] = $prefix . $s;
         }
@@ -286,7 +286,7 @@ class Auth_OpenID {
 
         $parts = explode('&', $query);
 
-        $new_parts = array();
+        $new_parts = [];
         for ($i = 0; $i < count($parts); $i++) {
             $pair = explode('=', $parts[$i]);
 
@@ -314,7 +314,7 @@ class Auth_OpenID {
      */
     static function httpBuildQuery($data)
     {
-        $pairs = array();
+        $pairs = [];
         foreach ($data as $key => $value) {
             if (is_array($value)) {
                 $pairs[] = urlencode($value[0])."=".urlencode($value[1]);
@@ -354,9 +354,9 @@ class Auth_OpenID {
         } else {
             $keys = array_keys($args);
             sort($keys);
-            $new_args = array();
+            $new_args = [];
             foreach ($keys as $key) {
-                $new_args[] = array($key, $args[$key]);
+                $new_args[] = [$key, $args[$key]];
             }
             $args = $new_args;
         }
@@ -440,7 +440,7 @@ class Auth_OpenID {
         if (isset($parsed['scheme']) &&
             isset($parsed['host'])) {
             $scheme = strtolower($parsed['scheme']);
-            if (!in_array($scheme, array('http', 'https'))) {
+            if (!in_array($scheme, ['http', 'https'])) {
                 return null;
             }
         } else {
@@ -497,10 +497,10 @@ class Auth_OpenID {
         $hex = bin2hex($str);
 
         if (!$hex) {
-            return array();
+            return [];
         }
 
-        $b = array();
+        $b = [];
         for ($i = 0; $i < strlen($hex); $i += 2) {
             $b[] = chr(base_convert(substr($hex, $i, 2), 16, 10));
         }
@@ -513,7 +513,7 @@ class Auth_OpenID {
         $parts = explode("#", $url, 2);
 
         if (count($parts) == 1) {
-            return array($parts[0], "");
+            return [$parts[0], ""];
         } else {
             return $parts;
         }
@@ -521,10 +521,10 @@ class Auth_OpenID {
 
     static function filter($callback, &$sequence)
     {
-        $result = array();
+        $result = [];
 
         foreach ($sequence as $item) {
-            if (call_user_func_array($callback, array($item))) {
+            if (call_user_func_array($callback, [$item])) {
                 $result[] = $item;
             }
         }

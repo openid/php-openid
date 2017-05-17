@@ -11,10 +11,10 @@ function mkResponse($data)
 {
     global $__status_header_re;
 
-    $matches = array();
+    $matches = [];
     $status_mo = preg_match($__status_header_re, $data, $matches);
     list($headers_str, $body) = explode("\n\n", $data, 2);
-    $headers = array();
+    $headers = [];
     foreach (explode("\n", $headers_str) as $line) {
         list($k, $v) = explode(":", $line, 2);
         $k = strtolower(trim($k));
@@ -42,12 +42,12 @@ class TestFetcher {
             if ($data === null) {
                 return new Auth_Yadis_HTTPResponse($current_url,
                                                        404,
-                                                       array(),
+                                                       [],
                                                        '');
             }
 
             $response = mkResponse($data);
-            if (in_array($response->status, array(301, 302, 303, 307))) {
+            if (in_array($response->status, [301, 302, 303, 307])) {
                 $current_url = $response->headers['location'];
             } else {
                 $response->final_url = $current_url;
@@ -61,14 +61,14 @@ class BlankContentTypeFetcher {
     function get($url, $headers=null)
     {
         return new Auth_Yadis_HTTPResponse(
-            $url, 200, array("Content-Type" => ""), '');
+            $url, 200, ["Content-Type" => ""], '');
     }
 }
 
 class NoContentTypeFetcher {
     function get($url, $headers=null)
     {
-        return new Auth_Yadis_HTTPResponse($url, 200, array(), '');
+        return new Auth_Yadis_HTTPResponse($url, 200, [], '');
     }
 }
 
@@ -81,7 +81,7 @@ class MockFetcher {
     {
         $this->count++;
         if ($this->count == 1) {
-            $headers = array(strtolower('X-XRDS-Location') . ': http://unittest/404');
+            $headers = [strtolower('X-XRDS-Location') . ': http://unittest/404'];
             return new Auth_Yadis_HTTPResponse($uri, 200, $headers, '');
         } else {
             return new Auth_Yadis_HTTPResponse($uri, 404);
@@ -224,7 +224,7 @@ class Tests_Auth_Yadis_Discover_Yadis_ContentTypes extends PHPUnit_Framework_Tes
 }
 
 global $Tests_Auth_Yadis_Discover_Yadis_other;
-$Tests_Auth_Yadis_Discover_Yadis_other = array(
+$Tests_Auth_Yadis_Discover_Yadis_other = [
       new Tests_Auth_Yadis_Discover_Yadis_ContentTypes()
-      );
+];
 

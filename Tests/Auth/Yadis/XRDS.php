@@ -13,10 +13,10 @@ class Tests_Auth_Yadis_XRDS extends PHPUnit_Framework_TestCase {
 
     function test_good()
     {
-        $files = array(
+        $files = [
                        'brian.xrds' => 1,
                        'pip.xrds' => 2
-                       );
+        ];
 
         foreach ($files as $filename => $service_count) {
             $xml = Tests_Auth_Yadis_readdata($filename);
@@ -64,11 +64,11 @@ class Tests_Auth_Yadis_XRDS extends PHPUnit_Framework_TestCase {
         $services = $xrds->services();
         $uris = $services[0]->getURIs();
 
-        $expected_uris = array(
+        $expected_uris = [
                                "http://zero.priority/",
                                "http://one.priority/",
                                "http://no.priority/"
-                               );
+        ];
 
         $this->assertEquals($uris, $expected_uris);
     }
@@ -85,25 +85,35 @@ class Tests_Auth_Yadis_XRDS extends PHPUnit_Framework_TestCase {
 
     function test_getCanonicalID()
     {
-        $canonicalIDtests = array(
-               array("@ootao*test1", "delegated-20060809.xrds",
-                     "@!5BAD.2AA.3C72.AF46!0000.0000.3B9A.CA01"),
-               array("@ootao*test1", "delegated-20060809-r1.xrds",
-                     "@!5BAD.2AA.3C72.AF46!0000.0000.3B9A.CA01"),
-               array("@ootao*test1", "delegated-20060809-r2.xrds",
-                     "@!5BAD.2AA.3C72.AF46!0000.0000.3B9A.CA01"),
-               array("@ootao*test1", "sometimesprefix.xrds",
-                     "@!5BAD.2AA.3C72.AF46!0000.0000.3B9A.CA01"),
-               array("@ootao*test1", "prefixsometimes.xrds",
-                     "@!5BAD.2AA.3C72.AF46!0000.0000.3B9A.CA01"),
-               array("=keturn*isDrummond", "spoof1.xrds", null),
-               array("=keturn*isDrummond", "spoof2.xrds", null),
-               array("@keturn*is*drummond", "spoof3.xrds", null),
+        $canonicalIDtests = [
+               [
+                   "@ootao*test1", "delegated-20060809.xrds",
+                     "@!5BAD.2AA.3C72.AF46!0000.0000.3B9A.CA01"
+               ],
+               [
+                   "@ootao*test1", "delegated-20060809-r1.xrds",
+                     "@!5BAD.2AA.3C72.AF46!0000.0000.3B9A.CA01"
+               ],
+               [
+                   "@ootao*test1", "delegated-20060809-r2.xrds",
+                     "@!5BAD.2AA.3C72.AF46!0000.0000.3B9A.CA01"
+               ],
+               [
+                   "@ootao*test1", "sometimesprefix.xrds",
+                     "@!5BAD.2AA.3C72.AF46!0000.0000.3B9A.CA01"
+               ],
+               [
+                   "@ootao*test1", "prefixsometimes.xrds",
+                     "@!5BAD.2AA.3C72.AF46!0000.0000.3B9A.CA01"
+               ],
+               ["=keturn*isDrummond", "spoof1.xrds", null],
+               ["=keturn*isDrummond", "spoof2.xrds", null],
+               ["@keturn*is*drummond", "spoof3.xrds", null],
                // Don't let IRI authorities be canonical for the GCS.
-               array("phreak.example.com", "delegated-20060809-r2.xrds", null)
+               ["phreak.example.com", "delegated-20060809-r2.xrds", null]
                // TODO: Refs
                // ("@ootao*test.ref", "ref.xrds", "@!BAE.A650.823B.2475")
-               );
+        ];
 
         foreach ($canonicalIDtests as $tupl) {
             list($iname, $filename, $expectedID) = $tupl;
@@ -133,8 +143,10 @@ class Tests_Auth_Yadis_XRDS extends PHPUnit_Framework_TestCase {
         // thing.
         $xml = Tests_Auth_Yadis_readdata("brian_priority.xrds");
         $xrds = Auth_Yadis_XRDS::parseXRDS($xml,
-                                               array('openid' =>
-                                                     'http://openid.net/xmlns/1.0'));
+                                               [
+                                                   'openid' =>
+                                                     'http://openid.net/xmlns/1.0'
+                                               ]);
         $this->assertTrue($xrds !== null);
 
         // Get list of service objects.
@@ -162,7 +174,7 @@ class Tests_Auth_Yadis_XRDS extends PHPUnit_Framework_TestCase {
 
         // Make sure that a filter which matches both DOES match both.
         $this->assertEquals(count(
-                              $xrds->services(array("_DelegateFilter"))), 2,
+                              $xrds->services(["_DelegateFilter"])), 2,
                             "_DelegateFilter check");
 
         // This filter should match all services in the document.
@@ -203,35 +215,45 @@ class Tests_Auth_Yadis_XRDS extends PHPUnit_Framework_TestCase {
 
         // Make sure a pair of filters in ALL mode only match one service.
         $this->assertEquals(count(
-                              $xrds->services(array("_HasTypeAndURI",
-                                                    "_URIMatchesSchtuff"),
+                              $xrds->services([
+                                  "_HasTypeAndURI",
+                                                    "_URIMatchesSchtuff"
+                              ],
                                               SERVICES_YADIS_MATCH_ALL)), 1,
                             "_HasTypeAndURI / _URIMatchesSchtuff check");
 
         // Make sure a pair of filters in ALL mode only match one service.
         $this->assertEquals(count(
-                              $xrds->services(array("_HasTypeAndURI",
-                                                    "_URIMatchesMyOpenID"),
+                              $xrds->services([
+                                  "_HasTypeAndURI",
+                                                    "_URIMatchesMyOpenID"
+                              ],
                                               SERVICES_YADIS_MATCH_ALL)), 1,
                             "_HasTypeAndURI / _URIMatchesMyOpenID check");
 
         // Make sure a pair of filters in ANY mode matches both services.
         $this->assertEquals(count(
-                              $xrds->services(array("_URIMatchesMyOpenID",
-                                                    "_URIMatchesSchtuff"))), 2,
+                              $xrds->services([
+                                  "_URIMatchesMyOpenID",
+                                                    "_URIMatchesSchtuff"
+                              ])), 2,
                             "_URIMatchesMyOpenID / _URIMatchesSchtuff check");
 
         // Make sure the order of the services returned (when using
         // filters) is correct.
-        $s = $xrds->services(array("_URIMatchesMyOpenID",
-                                   "_URIMatchesSchtuff"));
+        $s = $xrds->services([
+            "_URIMatchesMyOpenID",
+                                   "_URIMatchesSchtuff"
+        ]);
 
         $this->assertTrue($s[0]->getPriority() === 1, "s[0] priority check");
         $this->assertTrue($s[1]->getPriority() === 2, "s[1] priority check");
 
         // Make sure a bad filter mode gets us a null service list.
-        $this->assertTrue($xrds->services(array("_URIMatchesMyOpenID",
-                                                "_URIMatchesSchtuff"),
+        $this->assertTrue($xrds->services([
+                "_URIMatchesMyOpenID",
+                                                "_URIMatchesSchtuff"
+            ],
                                           "bogus") === null,
                           "bogus filter check");
     }

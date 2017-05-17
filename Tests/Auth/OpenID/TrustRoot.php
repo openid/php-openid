@@ -55,7 +55,7 @@ function Tests_Auth_OpenID_parseHeadings($data, $c)
 {
     $heading_pat = '/(^|\n)' . $c . '{40}\n([^\n]+)\n' . $c . '{40}\n()/';
     $offset = 0;
-    $headings = array();
+    $headings = [];
     while (true) {
         preg_match($heading_pat, substr($data, $offset), $matches,
                    PREG_OFFSET_CAPTURE);
@@ -65,10 +65,11 @@ function Tests_Auth_OpenID_parseHeadings($data, $c)
         $start = $matches[0][1];
         $heading = $matches[2][0];
         $end = $matches[3][1];
-        $headings[] = array('heading' => $heading,
+        $headings[] = [
+            'heading' => $heading,
                             'start' => $offset + $start,
                             'end' => $offset + $end,
-                            );
+        ];
         $offset += $end;
     }
     return $headings;
@@ -77,7 +78,7 @@ function Tests_Auth_OpenID_parseHeadings($data, $c)
 function Tests_Auth_OpenID_getSections($data)
 {
     $headings = Tests_Auth_OpenID_parseHeadings($data, '-');
-    $sections = array();
+    $sections = [];
     $n = count($headings);
     for ($i = 0; $i < $n; ) {
         $secdata = $headings[$i];
@@ -94,17 +95,19 @@ function Tests_Auth_OpenID_getSections($data)
             trigger_error('Parse failure: ' . var_export($secdata, true),
                           E_USER_ERROR);
         }
-        $sections[] = array('desc' => $desc, 'lines' => $lines,);
+        $sections[] = ['desc' => $desc, 'lines' => $lines,];
     }
     return $sections;
 }
 
 function Tests_Auth_OpenID_trParseTests($head, $tests)
 {
-    $tests = array('fail' => $tests[0],
+    $tests = [
+        'fail' => $tests[0],
                    'insane' => $tests[1],
-                   'sane' => $tests[2]);
-    $testobjs = array();
+                   'sane' => $tests[2]
+    ];
+    $testobjs = [];
     foreach ($tests as $expected => $testdata) {
         $lines = $testdata['lines'];
         foreach ($lines as $line) {
@@ -119,8 +122,8 @@ function Tests_Auth_OpenID_trParseTests($head, $tests)
 
 function Tests_Auth_OpenID_trMatchTests($head, $tests)
 {
-    $tests = array(true => $tests[0], false => $tests[1]);
-    $testobjs = array();
+    $tests = [true => $tests[0], false => $tests[1]];
+    $testobjs = [];
     foreach ($tests as $expected => $testdata) {
         $lines = $testdata['lines'];
         foreach ($lines as $line) {

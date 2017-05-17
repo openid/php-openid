@@ -27,7 +27,7 @@ class Auth_Yadis_HTTPResponse {
     public $final_url = '';
     public $status = '';
     public $body = '';
-    public $headers = array();
+    public $headers = [];
 
     function __construct($final_url = null, $status = null,
                                          $headers = null, $body = null)

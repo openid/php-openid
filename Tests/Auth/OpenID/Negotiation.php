@@ -17,7 +17,7 @@ class ErrorRaisingConsumer extends Auth_OpenID_GenericConsumer {
     // element is a Message object, it will be wrapped in a
     // ServerErrorContainer exception.  Otherwise it will be returned
     // as-is.
-    var $return_messages = array();
+    var $return_messages = [];
 
     function _requestAssociation($endpoint, $assoc_type, $session_type)
     {
@@ -41,7 +41,7 @@ class TestOpenID2SessionNegotiation extends PHPUnit_Framework_TestCase {
         $dumb = null;
         $this->consumer = new ErrorRaisingConsumer($dumb);
         $this->endpoint = new Auth_OpenID_ServiceEndpoint();
-        $this->endpoint->type_uris = array(Auth_OpenID_TYPE_2_0);
+        $this->endpoint->type_uris = [Auth_OpenID_TYPE_2_0];
         $this->endpoint->server_url = 'bogus';
     }
 
@@ -51,8 +51,9 @@ class TestOpenID2SessionNegotiation extends PHPUnit_Framework_TestCase {
      */
     function testBadResponse()
     {
-        $this->consumer->return_messages = array(
-           new Auth_OpenID_Message($this->endpoint->preferredNamespace()));
+        $this->consumer->return_messages = [
+           new Auth_OpenID_Message($this->endpoint->preferredNamespace())
+        ];
         $this->assertEquals($this->consumer->_negotiateAssociation($this->endpoint), null);
         // $this->failUnlessLogMatches('Server error when requesting an association')
     }
@@ -63,8 +64,9 @@ class TestOpenID2SessionNegotiation extends PHPUnit_Framework_TestCase {
      */
     function testBadResponseWithFailure()
     {
-        $this->consumer->return_messages = array(
-             new Auth_OpenID_FailureResponse($this->endpoint));
+        $this->consumer->return_messages = [
+             new Auth_OpenID_FailureResponse($this->endpoint)
+        ];
         $this->assertEquals($this->consumer->_negotiateAssociation($this->endpoint), null);
         // $this->failUnlessLogMatches('Server error when requesting an association')
     }
@@ -81,7 +83,7 @@ class TestOpenID2SessionNegotiation extends PHPUnit_Framework_TestCase {
         $msg->setArg(Auth_OpenID_OPENID_NS, 'assoc_type', null);
         $msg->setArg(Auth_OpenID_OPENID_NS, 'session_type', 'new-session-type');
 
-        $this->consumer->return_messages = array($msg);
+        $this->consumer->return_messages = [$msg];
         $this->assertEquals($this->consumer->_negotiateAssociation($this->endpoint), null);
 
         // $this->failUnlessLogMatches('Unsupported association type',
@@ -101,7 +103,7 @@ class TestOpenID2SessionNegotiation extends PHPUnit_Framework_TestCase {
         $msg->setArg(Auth_OpenID_OPENID_NS, 'assoc_type', 'new-assoc-type');
         $msg->setArg(Auth_OpenID_OPENID_NS, 'session_type', null);
 
-        $this->consumer->return_messages = array($msg);
+        $this->consumer->return_messages = [$msg];
         $this->assertEquals($this->consumer->_negotiateAssociation($this->endpoint), null);
 
         // $this->failUnlessLogMatches('Unsupported association type',
@@ -116,7 +118,7 @@ class TestOpenID2SessionNegotiation extends PHPUnit_Framework_TestCase {
      */
     function testNotAllowed()
     {
-        $allowed_types = array();
+        $allowed_types = [];
 
         $negotiator = new Auth_OpenID_SessionNegotiator($allowed_types);
         $this->consumer->negotiator = $negotiator;
@@ -127,7 +129,7 @@ class TestOpenID2SessionNegotiation extends PHPUnit_Framework_TestCase {
         $msg->setArg(Auth_OpenID_OPENID_NS, 'assoc_type', 'not-allowed');
         $msg->setArg(Auth_OpenID_OPENID_NS, 'session_type', 'not-allowed');
 
-        $this->consumer->return_messages = array($msg);
+        $this->consumer->return_messages = [$msg];
         $this->assertEquals($this->consumer->_negotiateAssociation($this->endpoint), null);
 
         // $this->failUnlessLogMatches('Unsupported association type',
@@ -149,7 +151,7 @@ class TestOpenID2SessionNegotiation extends PHPUnit_Framework_TestCase {
         $assoc = new Auth_OpenID_Association(
                    'handle', 'secret', 'issued', 10000, 'HMAC-SHA1');
 
-        $this->consumer->return_messages = array($msg, $assoc);
+        $this->consumer->return_messages = [$msg, $assoc];
         $this->assertTrue($this->consumer->_negotiateAssociation($this->endpoint) === $assoc);
 
         // $this->failUnlessLogMatches('Unsupported association type');
@@ -167,8 +169,10 @@ class TestOpenID2SessionNegotiation extends PHPUnit_Framework_TestCase {
         $msg->setArg(Auth_OpenID_OPENID_NS, 'assoc_type', 'HMAC-SHA1');
         $msg->setArg(Auth_OpenID_OPENID_NS, 'session_type', 'DH-SHA1');
 
-        $this->consumer->return_messages = array($msg,
-           new Auth_OpenID_Message($this->endpoint->preferredNamespace()));
+        $this->consumer->return_messages = [
+            $msg,
+           new Auth_OpenID_Message($this->endpoint->preferredNamespace())
+        ];
 
         $this->assertEquals($this->consumer->_negotiateAssociation($this->endpoint), null);
 
@@ -185,7 +189,7 @@ class TestOpenID2SessionNegotiation extends PHPUnit_Framework_TestCase {
         $assoc = new Auth_OpenID_Association(
                    'handle', 'secret', 'issued', 10000, 'HMAC-SHA1');
 
-        $this->consumer->return_messages = array($assoc);
+        $this->consumer->return_messages = [$assoc];
         $this->assertTrue($this->consumer->_negotiateAssociation($this->endpoint) === $assoc);
         // $this->failUnlessLogEmpty()
     }
@@ -207,14 +211,14 @@ class TestOpenID1SessionNegotiation extends PHPUnit_Framework_TestCase {
         $this->consumer = new ErrorRaisingConsumer($dumb);
 
         $this->endpoint = new Auth_OpenID_ServiceEndpoint();
-        $this->endpoint->type_uris = array(Auth_OpenID_OPENID1_NS);
+        $this->endpoint->type_uris = [Auth_OpenID_OPENID1_NS];
         $this->endpoint->server_url = 'bogus';
     }
 
     function testBadResponse()
     {
         $this->consumer->return_messages =
-            array(new Auth_OpenID_Message($this->endpoint->preferredNamespace()));
+            [new Auth_OpenID_Message($this->endpoint->preferredNamespace())];
         $this->assertEquals($this->consumer->_negotiateAssociation($this->endpoint), null);
         // $this->failUnlessLogMatches('Server error when requesting an association')
     }
@@ -227,7 +231,7 @@ class TestOpenID1SessionNegotiation extends PHPUnit_Framework_TestCase {
         $msg->setArg(Auth_OpenID_OPENID_NS, 'assoc_type', null);
         $msg->setArg(Auth_OpenID_OPENID_NS, 'session_type', 'new-session-type');
 
-        $this->consumer->return_messages = array($msg);
+        $this->consumer->return_messages = [$msg];
         $this->assertEquals($this->consumer->_negotiateAssociation($this->endpoint), null);
 
         // $this->failUnlessLogMatches('Server error when requesting an association')
@@ -241,7 +245,7 @@ class TestOpenID1SessionNegotiation extends PHPUnit_Framework_TestCase {
         $msg->setArg(Auth_OpenID_OPENID_NS, 'assoc_type', 'new-assoc-type');
         $msg->setArg(Auth_OpenID_OPENID_NS, 'session_type', null);
 
-        $this->consumer->return_messages = array($msg);
+        $this->consumer->return_messages = [$msg];
         $this->assertEquals($this->consumer->_negotiateAssociation($this->endpoint), null);
 
         // $this->failUnlessLogMatches('Server error when requesting an association');
@@ -249,7 +253,7 @@ class TestOpenID1SessionNegotiation extends PHPUnit_Framework_TestCase {
 
     function testNotAllowed()
     {
-        $allowed_types = array();
+        $allowed_types = [];
 
         $negotiator = new Auth_OpenID_SessionNegotiator($allowed_types);
         $this->consumer->negotiator = $negotiator;
@@ -260,7 +264,7 @@ class TestOpenID1SessionNegotiation extends PHPUnit_Framework_TestCase {
         $msg->setArg(Auth_OpenID_OPENID_NS, 'assoc_type', 'not-allowed');
         $msg->setArg(Auth_OpenID_OPENID_NS, 'session_type', 'not-allowed');
 
-        $this->consumer->return_messages = array($msg);
+        $this->consumer->return_messages = [$msg];
         $this->assertEquals($this->consumer->_negotiateAssociation($this->endpoint), null);
 
         // $this->failUnlessLogMatches('Server error when requesting an association')
@@ -277,7 +281,7 @@ class TestOpenID1SessionNegotiation extends PHPUnit_Framework_TestCase {
         $assoc = new Auth_OpenID_Association(
                    'handle', 'secretxx', 'issued', 10000, 'HMAC-SHA1');
 
-        $this->consumer->return_messages = array($assoc, $msg);
+        $this->consumer->return_messages = [$assoc, $msg];
 
         $result = $this->consumer->_negotiateAssociation($this->endpoint);
         $this->assertTrue($result === null);
@@ -290,7 +294,7 @@ class TestOpenID1SessionNegotiation extends PHPUnit_Framework_TestCase {
         $assoc = new Auth_OpenID_Association(
                    'handle', 'secret', 'issued', 10000, 'HMAC-SHA1');
 
-        $this->consumer->return_messages = array($assoc);
+        $this->consumer->return_messages = [$assoc];
         $this->assertTrue($this->consumer->_negotiateAssociation($this->endpoint) === $assoc);
         // $this->failUnlessLogEmpty()
     }
@@ -299,10 +303,10 @@ class TestOpenID1SessionNegotiation extends PHPUnit_Framework_TestCase {
 class TestNegotiatorBehaviors extends PHPUnit_Framework_TestCase {
     function setUp()
     {
-        $this->allowed_types = array(
-                                     array('HMAC-SHA1', 'no-encryption'),
-                                     array('HMAC-SHA256', 'no-encryption')
-                                     );
+        $this->allowed_types = [
+                                     ['HMAC-SHA1', 'no-encryption'],
+                                     ['HMAC-SHA256', 'no-encryption']
+        ];
 
         $this->n = new Auth_OpenID_SessionNegotiator($this->allowed_types);
     }
@@ -323,7 +327,7 @@ class TestNegotiatorBehaviors extends PHPUnit_Framework_TestCase {
         $this->assertTrue($this->n->addAllowedType($assoc_type));
 
         foreach (Auth_OpenID_getSessionTypes($assoc_type) as $typ) {
-            $this->assertTrue(in_array(array($assoc_type, $typ),
+            $this->assertTrue(in_array([$assoc_type, $typ],
                                        $this->n->allowed_types));
         }
     }

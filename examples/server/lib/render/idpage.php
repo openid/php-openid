@@ -18,14 +18,15 @@ function idpage_render($identity)
 {
     $xrdsurl = buildURL('userXrds')."?user=".urlencode($identity);
 
-    $headers = array(
-                     'X-XRDS-Location: '.$xrdsurl);
+    $headers = [
+                     'X-XRDS-Location: '.$xrdsurl
+    ];
 
 
     $body = sprintf(idpage_pat,
                     buildURL(),
                     $xrdsurl);
-    return array($headers, $body);
+    return [$headers, $body];
 }
 
 ?>

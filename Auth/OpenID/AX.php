@@ -130,7 +130,7 @@ class Auth_OpenID_AX_Message extends Auth_OpenID_Extension {
      */
     function _newArgs()
     {
-        return array('mode' => $this->mode);
+        return ['mode' => $this->mode];
     }
 }
 
@@ -248,7 +248,7 @@ class Auth_OpenID_AX_AttrInfo {
  */
 function Auth_OpenID_AX_toTypeURIs($namespace_map, $alias_list_s)
 {
-    $uris = array();
+    $uris = [];
 
     if ($alias_list_s) {
         foreach (explode(',', $alias_list_s) as $alias) {
@@ -295,7 +295,7 @@ class Auth_OpenID_AX_FetchRequest extends Auth_OpenID_AX_Message {
      *
      * @var array
      */
-    private $requested_attributes = array();
+    private $requested_attributes = [];
 
     function __construct($update_url=null)
     {
@@ -331,8 +331,8 @@ class Auth_OpenID_AX_FetchRequest extends Auth_OpenID_AX_Message {
     {
         $aliases = new Auth_OpenID_NamespaceMap();
 
-        $required = array();
-        $if_available = array();
+        $required = [];
+        $if_available = [];
 
         $ax_args = $this->_newArgs();
 
@@ -383,7 +383,7 @@ class Auth_OpenID_AX_FetchRequest extends Auth_OpenID_AX_Message {
      */
     function getRequiredAttrs()
     {
-        $required = array();
+        $required = [];
         foreach ($this->requested_attributes as $type_uri => $attribute) {
             if ($attribute->required) {
                 $required[] = $type_uri;
@@ -559,7 +559,7 @@ class Auth_OpenID_AX_FetchRequest extends Auth_OpenID_AX_Message {
 class Auth_OpenID_AX_KeyValueMessage extends Auth_OpenID_AX_Message {
 
     /** @var array */
-    protected $data = array();
+    protected $data = [];
 
     /**
      * Add a single value for the given attribute type to the
@@ -574,7 +574,7 @@ class Auth_OpenID_AX_KeyValueMessage extends Auth_OpenID_AX_Message {
     function addValue($type_uri, $value)
     {
         if (!array_key_exists($type_uri, $this->data)) {
-            $this->data[$type_uri] = array();
+            $this->data[$type_uri] = [];
         }
 
         $values =& $this->data[$type_uri];
@@ -609,7 +609,7 @@ class Auth_OpenID_AX_KeyValueMessage extends Auth_OpenID_AX_Message {
             $aliases = new Auth_OpenID_NamespaceMap();
         }
 
-        $ax_args = array();
+        $ax_args = [];
 
         foreach ($this->data as $type_uri => $values) {
             $alias = $aliases->add($type_uri);
@@ -683,7 +683,7 @@ class Auth_OpenID_AX_KeyValueMessage extends Auth_OpenID_AX_Message {
                                                     );
                 }
 
-                $values = array();
+                $values = [];
                 for ($i = 1; $i < $count + 1; $i++) {
                     $value_key = sprintf('value.%s.%d', $alias, $i);
 
@@ -710,9 +710,9 @@ class Auth_OpenID_AX_KeyValueMessage extends Auth_OpenID_AX_Message {
                 $value = $ax_args['value.' . $alias];
 
                 if ($value == '') {
-                    $values = array();
+                    $values = [];
                 } else {
-                    $values = array($value);
+                    $values = [$value];
                 }
             }
 
@@ -828,7 +828,7 @@ class Auth_OpenID_AX_FetchResponse extends Auth_OpenID_AX_KeyValueMessage {
     {
         $aliases = new Auth_OpenID_NamespaceMap();
 
-        $zero_value_types = array();
+        $zero_value_types = [];
 
         if ($request !== null) {
             // Validate the data in the context of the request (the
@@ -865,7 +865,7 @@ class Auth_OpenID_AX_FetchResponse extends Auth_OpenID_AX_KeyValueMessage {
                 if (array_key_exists($attr_info->type_uri, $this->data)) {
                     $values = $this->data[$attr_info->type_uri];
                 } else {
-                    $values = array();
+                    $values = [];
                     $zero_value_types[] = $attr_info;
                 }
 

@@ -34,7 +34,7 @@ define('about_body',
  */
 function about_render($error=false, $internal=true)
 {
-    $headers = array();
+    $headers = [];
     $body = sprintf(about_body, buildURL());
     if ($error) {
         $headers[] = $internal ? http_internal_error : http_bad_request;

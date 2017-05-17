@@ -143,7 +143,7 @@ abstract class Auth_Yadis_SessionLoader {
      */
     function prepareForLoad($data)
     {
-        return array();
+        return [];
     }
 
     /**
@@ -173,7 +173,7 @@ abstract class Auth_Yadis_SessionLoader {
      */
     function toSession($obj)
     {
-        $data = array();
+        $data = [];
         foreach ($obj as $k => $v) {
             $data[$k] = $v;
         }
@@ -198,7 +198,7 @@ abstract class Auth_Yadis_SessionLoader {
      */
     function prepareForSave($obj)
     {
-        return array();
+        return [];
     }
 }
 
@@ -216,7 +216,7 @@ class Auth_OpenID_ServiceEndpointLoader extends Auth_Yadis_SessionLoader {
     function requiredKeys()
     {
         $obj = new Auth_OpenID_ServiceEndpoint();
-        $data = array();
+        $data = [];
         foreach ($obj as $k => $v) {
             $data[] = $k;
         }
@@ -237,12 +237,14 @@ class Auth_OpenID_ServiceEndpointLoader extends Auth_Yadis_SessionLoader {
 class Auth_Yadis_ManagerLoader extends Auth_Yadis_SessionLoader {
     function requiredKeys()
     {
-        return array('starting_url',
+        return [
+            'starting_url',
                      'yadis_url',
                      'services',
                      'session_key',
                      '_current',
-                     'stale');
+                     'stale'
+        ];
     }
 
     function newObject($data)
@@ -261,21 +263,21 @@ class Auth_Yadis_ManagerLoader extends Auth_Yadis_SessionLoader {
     function prepareForLoad($data)
     {
         $loader = new Auth_OpenID_ServiceEndpointLoader();
-        $services = array();
+        $services = [];
         foreach ($data['services'] as $s) {
             $services[] = $loader->fromSession($s);
         }
-        return array('services' => $services);
+        return ['services' => $services];
     }
 
     function prepareForSave($obj)
     {
         $loader = new Auth_OpenID_ServiceEndpointLoader();
-        $services = array();
+        $services = [];
         foreach ($obj->services as $s) {
             $services[] = $loader->toSession($s);
         }
-        return array('services' => $services);
+        return ['services' => $services];
     }
 }
 
@@ -378,7 +380,7 @@ class Auth_Yadis_Manager {
      */
     function forURL($url)
     {
-        return in_array($url, array($this->starting_url, $this->yadis_url));
+        return in_array($url, [$this->starting_url, $this->yadis_url]);
     }
 
     /**
@@ -451,10 +453,10 @@ class Auth_Yadis_Discovery {
             $this->destroyManager();
 
             list($yadis_url, $services) = call_user_func_array($discover_cb,
-                                                               array(
+                                                               [
                                                                 $this->url,
                                                                 $fetcher,
-                                                               ));
+                                                               ]);
 
             $manager = $this->createManager($services, $yadis_url);
         }

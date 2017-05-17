@@ -169,7 +169,7 @@ function idFromURL($url)
 
     $q = $parsed['query'];
 
-    $parts = array();
+    $parts = [];
     parse_str($q, $parts);
 
     return @$parts['user'];

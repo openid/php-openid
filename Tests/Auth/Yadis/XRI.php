@@ -97,24 +97,24 @@ class Tests_Auth_Yadis_ProxyQueryTestCase extends PHPUnit_Framework_TestCase {
 class Tests_Auth_Yadis_TestGetRootAuthority extends PHPUnit_Framework_TestCase {
     function runTest()
     {
-        $xris = array(
-                      array("@foo", "@"),
-                      array("@foo*bar", "@"),
-                      array("@*foo*bar", "@"),
-                      array("@foo/bar", "@"),
-                      array("!!990!991", "!"),
-                      array("!1001!02", "!"),
-                      array("=foo*bar", "="),
-                      array("(example.com)/foo", "(example.com)"),
-                      array("(example.com)*bar/foo", "(example.com)"),
-                      array("baz.example.com/foo", "baz.example.com"),
-                      array("baz.example.com:8080/foo", "baz.example.com:8080")
+        $xris = [
+                      ["@foo", "@"],
+                      ["@foo*bar", "@"],
+                      ["@*foo*bar", "@"],
+                      ["@foo/bar", "@"],
+                      ["!!990!991", "!"],
+                      ["!1001!02", "!"],
+                      ["=foo*bar", "="],
+                      ["(example.com)/foo", "(example.com)"],
+                      ["(example.com)*bar/foo", "(example.com)"],
+                      ["baz.example.com/foo", "baz.example.com"],
+                      ["baz.example.com:8080/foo", "baz.example.com:8080"]
                       // Looking at the ABNF in XRI Syntax 2.0, I don't think you can
                       // have example.com*bar.  You can do (example.com)*bar, but that
                       // would mean something else.
                       // ("example.com*bar/(=baz)", "example.com*bar"),
                       // ("baz.example.com!01/foo", "baz.example.com!01"),
-                      );
+        ];
 
         foreach ($xris as $tupl) {
             list($thexri, $expected_root) = $tupl;

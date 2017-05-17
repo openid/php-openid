@@ -19,7 +19,7 @@ require_once 'PHPUnit/Framework.php';
 error_reporting(E_ALL | E_STRICT);
 
 global $__test_errors;
-$__test_errors = array();
+$__test_errors = [];
 
 function __handler($code, $message)
 {
@@ -64,7 +64,7 @@ function __getError()
 function loadTests($test_dir, $test_names)
 {
     global $_tests;
-    $suites = array();
+    $suites = [];
 
     foreach ($test_names as $filename) {
         $filename = $test_dir . $filename . '.php';
@@ -113,17 +113,17 @@ function global_require_once($name)
         return false;
     }
     foreach (get_defined_vars() as $k => $v) {
-        if (!in_array($k, array('name', 'GLOBALS'))) {
+        if (!in_array($k, ['name', 'GLOBALS'])) {
             $GLOBALS[$k] = $v;
         }
     }
     return true;
 }
 
-$_tests = array(
-                array(
+$_tests = [
+                [
                       'dir' => 'Tests/Auth/OpenID/',
-                      'files' => array(
+                      'files' => [
                                        'Association',
                                        'AssociationResponse',
                                        'AuthRequest',
@@ -149,26 +149,27 @@ $_tests = array(
                                        'TrustRoot',
                                        'URINorm',
                                        'Util',
-                                       'VerifyDisco'),
-                      ),
-                array(
+                                       'VerifyDisco'
+                      ],
+                ],
+                [
                       'dir' => 'Tests/Auth/Yadis/',
-                      'files' => array(
+                      'files' => [
                                        'ParseHTML',
                                        'XRDS',
                                        'Yadis',
                                        'Discover_Yadis',
                                        'XRI'
-                                       )
-                      )
-                );
+                      ]
+                ]
+];
 
 function selectTests($package, $names)
 {
     global $_tests;
     $lnames = array_map('strtolower', $names);
-    $include = array();
-    $exclude = array();
+    $include = [];
+    $exclude = [];
     foreach ($package['files'] as $t) {
         $l = strtolower($t);
         if (in_array($l, $lnames)) {
@@ -187,7 +188,7 @@ function selectTests($package, $names)
 function loadSuite($names=null)
 {
     global $_tests;
-    $result = array();
+    $result = [];
     foreach ($_tests as $package) {
         if (!$names) {
             $selected = $package['files'];

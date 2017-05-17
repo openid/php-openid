@@ -35,7 +35,7 @@ class Tests_Auth_OpenID_KVForm_TestCase extends PHPUnit_Framework_TestCase {
     {
         // Re-set the number of logged errors
         global $_Tests_Auth_OpenID_kverrors;
-        $_Tests_Auth_OpenID_kverrors = array();
+        $_Tests_Auth_OpenID_kverrors = [];
 
         set_error_handler("Tests_Auth_OpenID_kvHandleError");
 
@@ -115,115 +115,145 @@ class Tests_Auth_OpenID_KVForm extends PHPUnit_Framework_TestSuite {
     function __construct($name)
     {
         $this->setName($name);
-        $testdata_list = array(
-            array("name" => "simple",
+        $testdata_list = [
+            [
+                "name" => "simple",
                   "str" => "college:harvey mudd\n",
-                  "arr" => array("college" => "harvey mudd"),
-                  ),
-            array("name" => "empty",
+                  "arr" => ["college" => "harvey mudd"],
+            ],
+            [
+                "name" => "empty",
                   "str" => "",
-                  "arr" => array(),
-                  ),
-            array("name" => "empty (just newline)",
+                  "arr" => [],
+            ],
+            [
+                "name" => "empty (just newline)",
                   "str" => "\n",
-                  "arr" => array(),
+                  "arr" => [],
                   "lossy" => "str",
                   "errors" => 1,
-                  ),
-            array("name" => "empty (double newline)",
+            ],
+            [
+                "name" => "empty (double newline)",
                   "str" => "\n\n",
-                  "arr" => array(),
+                  "arr" => [],
                   "lossy" => "str",
                   "errors" => 2,
-                  ),
-            array("name" => "empty (no colon)",
+            ],
+            [
+                "name" => "empty (no colon)",
                   "str" => "East is least\n",
-                  "arr" => array(),
+                  "arr" => [],
                   "lossy" => "str",
                   "errors" => 1,
-                  ),
-            array("name" => "two keys",
+            ],
+            [
+                "name" => "two keys",
                   "str" => "city:claremont\nstate:CA\n",
-                  "arr" => array('city' => 'claremont',
-                                 'state' => 'CA'),
-                  ),
-            array("name" => "real life",
+                  "arr" => [
+                      'city' => 'claremont',
+                                 'state' => 'CA'
+                  ],
+            ],
+            [
+                "name" => "real life",
                   "str" => "is_valid:true\ninvalidate_handle:" .
                   "{HMAC-SHA1:2398410938412093}\n",
-                  "arr" => array('is_valid' => 'true',
+                  "arr" => [
+                      'is_valid' => 'true',
                                  'invalidate_handle' =>
-                                 '{HMAC-SHA1:2398410938412093}'),
-                  ),
-            array("name" => "empty key and value",
+                                 '{HMAC-SHA1:2398410938412093}'
+                  ],
+            ],
+            [
+                "name" => "empty key and value",
                   "str" => ":\n",
-                  "arr" => array(''=>''),
-                  ),
-            array("name" => "empty key, not value",
+                  "arr" => [''=>''],
+            ],
+            [
+                "name" => "empty key, not value",
                   "str" => ":missing key\n",
-                  "arr" => array(''=>'missing key'),
-                  ),
-            array("name" => "whitespace at front of key",
+                  "arr" => [''=>'missing key'],
+            ],
+            [
+                "name" => "whitespace at front of key",
                   "str" => " street:foothill blvd\n",
-                  "arr" => array('street'=>'foothill blvd'),
+                  "arr" => ['street'=>'foothill blvd'],
                   "lossy" => "str",
                   "errors" => 1,
-                  ),
-            array("name" => "whitespace at front of value",
+            ],
+            [
+                "name" => "whitespace at front of value",
                   "str" => "major: computer science\n",
-                  "arr" => array('major'=>'computer science'),
+                  "arr" => ['major'=>'computer science'],
                   "lossy" => "str",
                   "errors" => 1,
-                  ),
-            array("name" => "whitespace around key and value",
+            ],
+            [
+                "name" => "whitespace around key and value",
                   "str" => " dorm : east \n",
-                  "arr" => array('dorm'=>'east'),
+                  "arr" => ['dorm'=>'east'],
                   "lossy" => "str",
                   "errors" => 2,
-                  ),
-            array("name" => "missing trailing newline",
+            ],
+            [
+                "name" => "missing trailing newline",
                   "str" => "e^(i*pi)+1:0",
-                  "arr" => array('e^(i*pi)+1'=>'0'),
+                  "arr" => ['e^(i*pi)+1'=>'0'],
                   "lossy" => "str",
                   "errors" => 1,
-                  ),
-            array("name" => "missing trailing newline (two key)",
+            ],
+            [
+                "name" => "missing trailing newline (two key)",
                   "str" => "east:west\nnorth:south",
-                  "arr" => array('east'=>'west',
-                                 'north'=>'south'),
+                  "arr" => [
+                      'east'=>'west',
+                                 'north'=>'south'
+                  ],
                   "lossy" => "str",
                   "errors" => 1,
-                  ),
-            array("name" => "colon in key",
-                  "arr" => array("k:k" => 'v'),
+            ],
+            [
+                "name" => "colon in key",
+                  "arr" => ["k:k" => 'v'],
                   "errors" => 1,
-                  ),
-            array("name" => "newline in key",
-                  "arr" => array("k\nk" => 'v'),
+            ],
+            [
+                "name" => "newline in key",
+                  "arr" => ["k\nk" => 'v'],
                   "errors" => 1,
-                  ),
-            array("name" => "newline in value",
-                  "arr" => array('k' => "v\nv"),
+            ],
+            [
+                "name" => "newline in value",
+                  "arr" => ['k' => "v\nv"],
                   "errors" => 1,
-                  ),
-            array("name" => "array whitespace",
-                  "arr" => array(" k " => "v"),
+            ],
+            [
+                "name" => "array whitespace",
+                  "arr" => [" k " => "v"],
                   "lossy" => "both",
                   "str" => " k :v\n",
                   "errors" => 2,
-                  ),
-            array("name" => "array ordering 1",
-                  "arr" => array("a" => "x",
+            ],
+            [
+                "name" => "array ordering 1",
+                  "arr" => [
+                      "a" => "x",
                                  "b" => "x",
-                                 "c" => "x"),
+                                 "c" => "x"
+                  ],
                   "str" => "a:x\nb:x\nc:x\n",
-                  ),
-            array("name" => "array ordering 2",
-                  "arr" => array("a" => "x",
+            ],
+            [
+                "name" => "array ordering 2",
+                  "arr" => [
+                      "a" => "x",
                                  "c" => "x",
-                                 "b" => "x"),
+                                 "b" => "x"
+                  ],
                   "str" => "a:x\nc:x\nb:x\n",
-                  ),
-            );
+            ],
+        ];
 
         foreach ($testdata_list as $testdata) {
             if (isset($testdata['str'])) {

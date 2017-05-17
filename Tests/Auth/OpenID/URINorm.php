@@ -38,8 +38,8 @@ class Tests_Auth_OpenID_URINorm extends PHPUnit_Framework_TestSuite {
     function _readTestCases()
     {
         $lines = Tests_Auth_OpenID_readlines('urinorm.txt');
-        $cases = array();
-        $case = array();
+        $cases = [];
+        $case = [];
         for ($i = 0; $i < count($lines) && ($i + 3 <= count($lines)); $i += 4) {
             $name = trim($lines[$i]);
             $uri = trim($lines[$i + 1]);
@@ -47,7 +47,7 @@ class Tests_Auth_OpenID_URINorm extends PHPUnit_Framework_TestSuite {
             if ($expected == 'fail') {
                 $expected = null;
             }
-            $cases[] = array($name, $uri, $expected);
+            $cases[] = [$name, $uri, $expected];
         }
 
         return $cases;

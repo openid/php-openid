@@ -10,13 +10,13 @@ require_once "Auth/OpenID/Association.php";
 
 // Some values we can use for convenience (see mkAssocResponse)
 global $association_response_values;
-$association_response_values = array(
+$association_response_values = [
     'expires_in' => '1000',
     'assoc_handle' => 'a handle',
     'assoc_type' => 'a type',
     'session_type' => 'a session type',
     'ns' => Auth_OpenID_OPENID2_NS
-    );
+];
 
 /**
  * Build an association response message that contains the specified
@@ -29,7 +29,7 @@ function mkAssocResponse($keys)
 {
     global $association_response_values;
 
-    $args = array();
+    $args = [];
 
     foreach ($keys as $key) {
         $args[$key] = $association_response_values[$key];
@@ -67,27 +67,27 @@ class TestExtractAssociationMissingFieldsOpenID2 extends Tests_Auth_OpenID_Assoc
 
     function test_noFields_openid2()
     {
-        $this->_run(array('ns'));
+        $this->_run(['ns']);
     }
 
     function test_missingExpires_openid2()
     {
-        $this->_run(array('assoc_handle', 'assoc_type', 'session_type', 'ns'));
+        $this->_run(['assoc_handle', 'assoc_type', 'session_type', 'ns']);
     }
 
     function test_missingHandle_openid2()
     {
-        $this->_run(array('expires_in', 'assoc_type', 'session_type', 'ns'));
+        $this->_run(['expires_in', 'assoc_type', 'session_type', 'ns']);
     }
 
     function test_missingAssocType_openid2()
     {
-        $this->_run(array('expires_in', 'assoc_handle', 'session_type', 'ns'));
+        $this->_run(['expires_in', 'assoc_handle', 'session_type', 'ns']);
     }
 
     function test_missingSessionType_openid2()
     {
-        $this->_run(array('expires_in', 'assoc_handle', 'assoc_type', 'ns'));
+        $this->_run(['expires_in', 'assoc_handle', 'assoc_type', 'ns']);
     }
 }
 
@@ -98,27 +98,27 @@ class TestExtractAssociationMissingFieldsOpenID2 extends Tests_Auth_OpenID_Assoc
 class TestExtractAssociationMissingFieldsOpenID1 extends Tests_Auth_OpenID_AssociationResponse {
     function test_noFields_openid1()
     {
-        $this->_run(array());
+        $this->_run([]);
     }
 
     function test_missingExpires_openid1()
     {
-        $this->_run(array('assoc_handle', 'assoc_type'));
+        $this->_run(['assoc_handle', 'assoc_type']);
     }
 
     function test_missingHandle_openid1()
     {
-        $this->_run(array('expires_in', 'assoc_type'));
+        $this->_run(['expires_in', 'assoc_type']);
     }
 
     function test_missingAssocType_openid1()
     {
-        $this->_run(array('expires_in', 'assoc_handle'));
+        $this->_run(['expires_in', 'assoc_handle']);
     }
 }
 
 class DummyAssocationSession {
-    function __construct($session_type, $allowed_assoc_types=array())
+    function __construct($session_type, $allowed_assoc_types= [])
     {
         $this->session_type = $session_type;
         $this->allowed_assoc_types = $allowed_assoc_types;
@@ -187,7 +187,7 @@ class TestOpenID1AssociationResponseSessionType extends Tests_Auth_OpenID_Associ
         // Create a Message with just 'session_type' in it, since
         // that's all this function will use. 'session_type' may be
         // absent if it's set to None.
-        $args = array();
+        $args = [];
         if ($session_type_value !== null) {
             $args['session_type'] = $session_type_value;
         }
@@ -261,19 +261,19 @@ class TestInvalidFields extends Tests_Auth_OpenID_AssociationResponse {
         $this->assoc_handle = 'testing-assoc-handle';
 
         // These arguments should all be valid
-        $this->assoc_response = Auth_OpenID_Message::fromOpenIDArgs(array(
+        $this->assoc_response = Auth_OpenID_Message::fromOpenIDArgs([
             'expires_in' => '1000',
             'assoc_handle' => $this->assoc_handle,
             'assoc_type' => $this->assoc_type,
             'session_type' => $this->session_type,
             'ns' => Auth_OpenID_OPENID2_NS,
-            ));
+        ]);
 
         $this->assoc_session = new DummyAssociationSession();
 
         // Make the session for the response's session type
         $this->assoc_session->session_type = $this->session_type;
-        $this->assoc_session->allowed_assoc_types = array($this->assoc_type);
+        $this->assoc_session->allowed_assoc_types = [$this->assoc_type];
     }
 
     function test_worksWithGoodFields()
@@ -292,7 +292,7 @@ class TestInvalidFields extends Tests_Auth_OpenID_AssociationResponse {
     {
         // Make sure that the assoc type in the response is not valid
         // for the given session.
-        $this->assoc_session->allowed_assoc_types = array();
+        $this->assoc_session->allowed_assoc_types = [];
         $this->assertTrue(
              $this->consumer->_extractAssociation($this->assoc_response,
                                                   $this->assoc_session) === null);
@@ -326,7 +326,7 @@ class TestExtractAssociationDiffieHellman extends Tests_Auth_OpenID_AssociationR
         $server_resp['assoc_handle'] = 'handle';
         $server_resp['expires_in'] = '1000';
         $server_resp['session_type'] = 'DH-SHA1';
-        return array($sess, Auth_OpenID_Message::fromOpenIDArgs($server_resp));
+        return [$sess, Auth_OpenID_Message::fromOpenIDArgs($server_resp)];
     }
 
     function test_success()
@@ -344,8 +344,10 @@ class TestExtractAssociationDiffieHellman extends Tests_Auth_OpenID_AssociationR
     {
         // Use openid 2 type in endpoint so _setUpDH checks
         // compatibility mode state properly
-        $this->endpoint->type_uris = array(Auth_OpenID_TYPE_2_0,
-                                           Auth_OpenID_TYPE_1_1);
+        $this->endpoint->type_uris = [
+            Auth_OpenID_TYPE_2_0,
+                                           Auth_OpenID_TYPE_1_1
+        ];
         $this->test_success();
     }
 
@@ -363,13 +365,13 @@ class TestExtractAssociationDiffieHellman extends Tests_Auth_OpenID_AssociationR
 }
 
 global $Tests_Auth_OpenID_AssociationResponse_other;
-$Tests_Auth_OpenID_AssociationResponse_other = array(
+$Tests_Auth_OpenID_AssociationResponse_other = [
                                                      new TestInvalidFields(),
                                                      new TestOpenID1AssociationResponseSessionType(),
                                                      new ExtractAssociationSessionTypeMismatch(),
                                                      new TestExtractAssociationMissingFieldsOpenID1(),
                                                      new TestExtractAssociationMissingFieldsOpenID2()
-                                                     );
+];
 
 if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {
     $Tests_Auth_OpenID_AssociationResponse_other[] = new TestExtractAssociationDiffieHellman();

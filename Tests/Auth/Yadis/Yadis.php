@@ -56,7 +56,7 @@ class Tests_Auth_Yadis_Yadis extends PHPUnit_Framework_TestSuite {
     function parseTests($data)
     {
         $cases = explode("\n", $data);
-        $tests = array();
+        $tests = [];
 
         foreach ($cases as $line) {
             if ($line && ($line[0] != "#")) {

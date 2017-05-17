@@ -54,13 +54,14 @@ function link_render($url, $text=null) {
  */
 function redirect_render($redir_url)
 {
-    $headers = array(http_found,
+    $headers = [
+        http_found,
                      header_content_text,
                      header_connection_close,
                      'Location: ' . $redir_url,
-                     );
+    ];
     $body = sprintf(redirect_message, $redir_url);
-    return array($headers, $body);
+    return [$headers, $body];
 }
 
 function navigation_render($msg, $items)
@@ -92,13 +93,13 @@ function page_render($body, $user, $title, $h1=null, $login=false)
     if ($user) {
         $msg = sprintf(logged_in_pat, link_render(idURL($user), $user),
                        link_render(idURL($user)));
-        $nav = array('logout' => 'Log Out');
+        $nav = ['logout' => 'Log Out'];
 
         $navigation = navigation_render($msg, $nav);
     } else {
         if (!$login) {
             $msg = link_render(buildURL('login'), 'Log In');
-            $navigation = navigation_render($msg, array());
+            $navigation = navigation_render($msg, []);
         } else {
             $navigation = '';
         }
@@ -107,8 +108,8 @@ function page_render($body, $user, $title, $h1=null, $login=false)
     $style = getStyle();
     $text = sprintf(page_template, $title, $style, $navigation, $h1, $body);
     // No special headers here
-    $headers = array();
-    return array($headers, $text);
+    $headers = [];
+    return [$headers, $text];
 }
 
 ?>

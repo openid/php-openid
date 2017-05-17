@@ -36,7 +36,7 @@ function action_default()
     setRequestInfo($request);
 
     if (in_array($request->mode,
-                 array('checkid_immediate', 'checkid_setup'))) {
+                 ['checkid_immediate', 'checkid_setup'])) {
 
         if ($request->idSelect()) {
             // Perform IDP-driven identifier selection
@@ -94,7 +94,7 @@ function action_logout()
 function login_checkInput($input)
 {
     $openid_url = false;
-    $errors = array();
+    $errors = [];
 
     if (!isset($input['openid_url'])) {
         $errors[] = 'Enter an OpenID URL to continue';
@@ -102,7 +102,7 @@ function login_checkInput($input)
     if (count($errors) == 0) {
         $openid_url = $input['openid_url'];
     }
-    return array($errors, $openid_url);
+    return [$errors, $openid_url];
 }
 
 /**
@@ -130,7 +130,7 @@ function action_login()
             return doAuth($info);
         }
     default:
-        return login_render(array('Unsupported HTTP method: $method'));
+        return login_render(['Unsupported HTTP method: $method']);
     }
 }
 

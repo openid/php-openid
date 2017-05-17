@@ -109,14 +109,14 @@ class Auth_OpenID_TrustRoot {
             return false;
         }
 
-        $required_parts = array('scheme', 'host');
-        $forbidden_parts = array('user', 'pass', 'fragment');
+        $required_parts = ['scheme', 'host'];
+        $forbidden_parts = ['user', 'pass', 'fragment'];
         $keys = array_keys($parts);
         if (array_intersect($keys, $required_parts) != $required_parts) {
             return false;
         }
 
-        if (array_intersect($keys, $forbidden_parts) != array()) {
+        if (array_intersect($keys, $forbidden_parts) != []) {
             return false;
         }
 
@@ -125,7 +125,7 @@ class Auth_OpenID_TrustRoot {
         }
 
         $scheme = strtolower($parts['scheme']);
-        $allowed_schemes = array('http', 'https');
+        $allowed_schemes = ['http', 'https'];
         if (!in_array($scheme, $allowed_schemes)) {
             return false;
         }
@@ -343,7 +343,7 @@ class Auth_OpenID_TrustRoot {
  */
 function filter_extractReturnURL($endpoint)
 {
-    if ($endpoint->matchTypes(array(Auth_OpenID_RP_RETURN_TO_URL_TYPE))) {
+    if ($endpoint->matchTypes([Auth_OpenID_RP_RETURN_TO_URL_TYPE])) {
         return $endpoint;
     } else {
         return null;
@@ -352,7 +352,7 @@ function filter_extractReturnURL($endpoint)
 
 function &Auth_OpenID_extractReturnURL(&$endpoint_list)
 {
-    $result = array();
+    $result = [];
 
     foreach ($endpoint_list as $endpoint) {
         if (filter_extractReturnURL($endpoint)) {
@@ -398,10 +398,10 @@ function Auth_OpenID_getAllowedReturnURLs($relying_party_url, $fetcher,
               $discover_function=null)
 {
     if ($discover_function === null) {
-        $discover_function = array('Auth_Yadis_Yadis', 'discover');
+        $discover_function = ['Auth_Yadis_Yadis', 'discover'];
     }
 
-    $xrds_parse_cb = array('Auth_OpenID_ServiceEndpoint', 'consumerFromXRDS');
+    $xrds_parse_cb = ['Auth_OpenID_ServiceEndpoint', 'consumerFromXRDS'];
 
     list($rp_url_after_redirects, $endpoints) =
         Auth_Yadis_getServiceEndpoints($relying_party_url, $xrds_parse_cb,
@@ -413,9 +413,9 @@ function Auth_OpenID_getAllowedReturnURLs($relying_party_url, $fetcher,
     }
 
     call_user_func_array($discover_function,
-                         array($relying_party_url, $fetcher));
+                         [$relying_party_url, $fetcher]);
 
-    $return_to_urls = array();
+    $return_to_urls = [];
     $matching_endpoints = Auth_OpenID_extractReturnURL($endpoints);
 
     foreach ($matching_endpoints as $e) {
@@ -445,7 +445,7 @@ function Auth_OpenID_verifyReturnTo($realm_str, $return_to, $fetcher,
     }
 
     $allowable_urls = call_user_func_array($_vrfy,
-                           array($disco_url, $fetcher));
+                           [$disco_url, $fetcher]);
 
     // The realm_str could not be parsed.
     if ($allowable_urls === false) {

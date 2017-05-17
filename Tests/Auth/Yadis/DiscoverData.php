@@ -4,26 +4,26 @@ require_once "Auth/Yadis/Yadis.php";
 require_once "Tests/Auth/Yadis/TestUtil.php";
 
 global $testlist;
-$testlist = array(
+$testlist = [
                   // success,  input_name,          id_name,            result_name
-                  array(true,  "equiv",             "equiv",            "xrds"),
-                  array(true,  "header",            "header",           "xrds"),
-                  array(true,  "lowercase_header",  "lowercase_header", "xrds"),
-                  array(true,  "xrds",              "xrds",             "xrds"),
-                  array(true,  "xrds_ctparam",      "xrds_ctparam",     "xrds_ctparam"),
-                  array(true,  "xrds_ctcase",       "xrds_ctcase",      "xrds_ctcase"),
-                  array(false, "xrds_html",         "xrds_html",        "xrds_html"),
-                  array(true,  "redir_equiv",       "equiv",            "xrds"),
-                  array(true,  "redir_header",      "header",           "xrds"),
-                  array(true,  "redir_xrds",        "xrds",             "xrds"),
-                  array(false, "redir_xrds_html",   "xrds_html",        "xrds_html"),
-                  array(true,  "redir_redir_equiv", "equiv",            "xrds"),
-                  array(false, "404_server_response", null,             null),
-                  array(false, "404_with_header",     null,             null),
-                  array(false, "404_with_meta",       null,             null),
-                  array(false, "201_server_response", null,             null),
-                  array(false, "500_server_response", null,             null)
-                  );
+                  [true,  "equiv",             "equiv",            "xrds"],
+                  [true,  "header",            "header",           "xrds"],
+                  [true,  "lowercase_header",  "lowercase_header", "xrds"],
+                  [true,  "xrds",              "xrds",             "xrds"],
+                  [true,  "xrds_ctparam",      "xrds_ctparam",     "xrds_ctparam"],
+                  [true,  "xrds_ctcase",       "xrds_ctcase",      "xrds_ctcase"],
+                  [false, "xrds_html",         "xrds_html",        "xrds_html"],
+                  [true,  "redir_equiv",       "equiv",            "xrds"],
+                  [true,  "redir_header",      "header",           "xrds"],
+                  [true,  "redir_xrds",        "xrds",             "xrds"],
+                  [false, "redir_xrds_html",   "xrds_html",        "xrds_html"],
+                  [true,  "redir_redir_equiv", "equiv",            "xrds"],
+                  [false, "404_server_response", null,             null],
+                  [false, "404_with_header",     null,             null],
+                  [false, "404_with_meta",       null,             null],
+                  [false, "201_server_response", null,             null],
+                  [false, "500_server_response", null,             null]
+];
 
 function getExampleXRDS()
 {
@@ -37,7 +37,7 @@ global $default_test_file;
 $default_test_file = 'test1-discover.txt';
 
 global $discover_tests;
-$discover_tests = array();
+$discover_tests = [];
 
 function readTests($filename)
 {
@@ -47,7 +47,7 @@ function readTests($filename)
         return null;
     }
 
-    $tests = array();
+    $tests = [];
     foreach (preg_split("/\f\n/", $data) as $case) {
         list($name, $content) = explode("\n", $case, 2);
         $tests[$name] = $content;
@@ -77,11 +77,12 @@ function getData($filename, $name)
 
 function fillTemplate($test_name, $template, $base_url, $example_xrds)
 {
-    $mapping = array(
-                     array('URL_BASE/', $base_url),
-                     array('<XRDS Content>', $example_xrds),
-                     array('YADIS_HEADER', 'X-XRDS-Location'),
-                     array('NAME', $test_name));
+    $mapping = [
+                     ['URL_BASE/', $base_url],
+                     ['<XRDS Content>', $example_xrds],
+                     ['YADIS_HEADER', 'X-XRDS-Location'],
+                     ['NAME', $test_name]
+    ];
 
     foreach ($mapping as $pair) {
         list($k, $v) = $pair;
@@ -121,7 +122,7 @@ function generateResult($base_url, $input_name, $id_name, $result_name, $success
     // we represent by null
     if ($id_name === null) {
         // assert result_name is null
-        return array($input_url, null); // DiscoveryFailure
+        return [$input_url, null]; // DiscoveryFailure
     }
 
     $result = generateSample($result_name, $base_url);
@@ -147,6 +148,6 @@ function generateResult($base_url, $input_name, $id_name, $result_name, $success
     }
     $result->content_type = $ctype;
     $result->body = $content;
-    return array($input_url, $result);
+    return [$input_url, $result];
 }
 
