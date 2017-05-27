@@ -214,14 +214,20 @@ define('Auth_OpenID_PARSE_ERROR', 'parse error');
  */
 class Auth_OpenID_Consumer {
 
+    /** @var Auth_OpenID_GenericConsumer */
+    public $consumer;
+
+    /** @var Auth_Yadis_PHPSession */
+    public $session;
+
     private $discoverMethod = 'Auth_OpenID_discover';
 
     private $session_key_prefix = "_openid_consumer_";
 
     private $_token_suffix = "last_token";
 
-    /** @var Auth_OpenID_GenericConsumer */
-    public $consumer;
+    /** @var string */
+    private $_token_key;
 
     /**
      * Initialize a Consumer instance.
@@ -453,6 +459,9 @@ class Auth_OpenID_DiffieHellmanSHA1ConsumerSession {
     public $secret_size = 20;
     public $allowed_assoc_types = ['HMAC-SHA1'];
 
+    /** @var Auth_OpenID_DiffieHellman */
+    protected $dh;
+
     function __construct($dh = null)
     {
         if ($dh === null) {
@@ -599,6 +608,15 @@ class Auth_OpenID_GenericConsumer {
      * identifier to do discovery when verifying the response.
      */
     public $openid1_return_to_identifier_name = 'openid1_claimed_id';
+
+    /** @var Auth_Yadis_ParanoidHTTPFetcher|Auth_Yadis_PlainHTTPFetcher  */
+    public $fetcher;
+
+    /** @var array */
+    public $session_types;
+
+    /** @var Auth_OpenID_SessionNegotiator */
+    public $negotiator;
 
     /**
      * This method initializes a new {@link Auth_OpenID_Consumer}
@@ -1831,6 +1849,21 @@ class Auth_OpenID_GenericConsumer {
  * @package OpenID
  */
 class Auth_OpenID_AuthRequest {
+
+    /** @var Auth_OpenID_Association */
+    public $assoc;
+
+    /** @var Auth_OpenID_ServiceEndpoint */
+    public $endpoint;
+
+    /** @var array */
+    public $return_to_args;
+
+    /** @var Auth_OpenID_Message */
+    public $message;
+
+    /** @var bool */
+    public $_anonymous;
 
     /**
      * Initialize an authentication request with the specified token,

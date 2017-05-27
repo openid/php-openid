@@ -132,6 +132,10 @@ function Auth_OpenID_removeNamespaceAlias($namespace_uri, $alias)
  * @package OpenID
  */
 class Auth_OpenID_Mapping {
+
+    private $keys = [];
+    private $values = [];
+
     /**
      * Initialize a mapping.  If $classic_array is specified, its keys
      * and values are used to populate the mapping.
@@ -140,9 +144,6 @@ class Auth_OpenID_Mapping {
      */
     function __construct($classic_array = null)
     {
-        $this->keys = [];
-        $this->values = [];
-
         if (is_array($classic_array)) {
             foreach ($classic_array as $key => $value) {
                 $this->set($key, $value);
@@ -207,7 +208,7 @@ class Auth_OpenID_Mapping {
      * Sets a key-value pair in the mapping.  If the key already
      * exists, its value is replaced with the new value.
      *
-     * @param string $key
+     * @param string|array $key
      * @param mixed $value
      */
     function set($key, $value)
@@ -227,7 +228,7 @@ class Auth_OpenID_Mapping {
      * specified key.  If the key does not exist in the mapping,
      * $default is returned instead.
      *
-     * @param string $key
+     * @param string|array $key
      * @param mixed $default
      * @return mixed|null
      */
@@ -268,7 +269,7 @@ class Auth_OpenID_Mapping {
      * Deletes a key-value pair from the mapping with the specified
      * key.
      *
-     * @param string $key
+     * @param string|array $key
      * @return bool
      */
     function del($key)
@@ -288,12 +289,12 @@ class Auth_OpenID_Mapping {
      * Returns true if the specified value has a key in the mapping;
      * false if not.
      *
-     * @param string $value
+     * @param string|array $key
      * @return bool
      */
-    function contains($value)
+    function contains($key)
     {
-        return (array_search($value, $this->keys) !== false);
+        return array_search($key, $this->keys) !== false;
     }
 }
 
@@ -303,6 +304,22 @@ class Auth_OpenID_Mapping {
  * @package OpenID
  */
 class Auth_OpenID_NamespaceMap {
+
+    /**
+     * @var Auth_OpenID_Mapping
+     */
+    private $alias_to_namespace;
+
+    /**
+     * @var Auth_OpenID_Mapping
+     */
+    private $namespace_to_alias;
+
+    /**
+     * @var array
+     */
+    private $implicit_namespaces = [];
+
     function __construct()
     {
         $this->alias_to_namespace = new Auth_OpenID_Mapping();
@@ -443,20 +460,32 @@ class Auth_OpenID_NamespaceMap {
  */
 class Auth_OpenID_Message {
 
+    private $allowed_openid_namespaces = [
+        Auth_OpenID_OPENID1_NS,
+        Auth_OpenID_THE_OTHER_OPENID1_NS,
+        Auth_OpenID_OPENID2_NS
+    ];
+
+    /**
+     * @var Auth_OpenID_Mapping
+     */
+    private $args;
+
+    /**
+     * @var Auth_OpenID_NamespaceMap
+     */
+    private $namespaces;
+
+    /**
+     * @var null|string
+     */
+    private $_openid_ns_uri = null;
+
     function __construct($openid_namespace = null)
     {
-        // Create an empty Message
-        $this->allowed_openid_namespaces = [
-                               Auth_OpenID_OPENID1_NS,
-                               Auth_OpenID_THE_OTHER_OPENID1_NS,
-                               Auth_OpenID_OPENID2_NS
-        ];
-
         $this->args = new Auth_OpenID_Mapping();
         $this->namespaces = new Auth_OpenID_NamespaceMap();
-        if ($openid_namespace === null) {
-            $this->_openid_ns_uri = null;
-        } else {
+        if ($openid_namespace !== null) {
             $implicit = Auth_OpenID_isOpenID1($openid_namespace);
             $this->setOpenIDNamespace($openid_namespace, $implicit);
         }

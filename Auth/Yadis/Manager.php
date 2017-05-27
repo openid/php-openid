@@ -19,7 +19,7 @@ class Auth_Yadis_PHPSession {
      * Set a session key/value pair.
      *
      * @param string $name The name of the session key to add.
-     * @param string $value The value to add to the session.
+     * @param mixed $value The value to add to the session.
      */
     function set($name, $value)
     {
