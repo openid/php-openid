@@ -1263,7 +1263,7 @@ class Auth_OpenID_GenericConsumer {
             foreach ($to_match_endpoints as $to_match_endpoint) {
                 $result = $this->_verifyDiscoverySingle($endpoint, $to_match_endpoint);
 
-                if ($result && !Auth_OpenID::isFailure($result)) {
+                if (!Auth_OpenID::isFailure($result)) {
                     // It matches, so discover verification has
                     // succeeded. Return this endpoint.
                     return $endpoint;
