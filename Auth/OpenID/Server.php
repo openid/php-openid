@@ -1289,7 +1289,7 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
  */
 class Auth_OpenID_ServerResponse {
 
-    public $code = 0;
+    public $code;
 
     /** @var Auth_OpenID_Request */
     public $request;
