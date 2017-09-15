@@ -2076,10 +2076,10 @@ class Auth_OpenID_ConsumerResponse {
     public $status = null;
 
     /** @var null|string */
-    private $identity_url = null;
+    public $identity_url = null;
 
     /** @var Auth_OpenID_ServiceEndpoint */
-    private $endpoint;
+    public $endpoint;
 
     /**
      * @param Auth_OpenID_ServiceEndpoint|null $endpoint
@@ -2138,10 +2138,6 @@ class Auth_OpenID_ConsumerResponse {
 class Auth_OpenID_SuccessResponse extends Auth_OpenID_ConsumerResponse {
     public $status = Auth_OpenID_SUCCESS;
 
-    /** @var Auth_OpenID_ServiceEndpoint */
-    public $endpoint;
-    /** @var string */
-    public $identity_url;
     /** @var array */
     public $signed_args = array();
     /** @var Auth_OpenID_Message */
