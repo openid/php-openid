@@ -813,7 +813,7 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
 
     private $claimed_id = '';
 
-    private $identity = '';
+    public $identity = '';
 
     /**
      * @param Auth_OpenID_Message $message
