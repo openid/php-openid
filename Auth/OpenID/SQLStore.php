@@ -465,7 +465,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
                                 $associations);
 
                 // return the most recently issued one.
-                list($assoc) = $associations[0];
+                list(, $assoc) = $associations[0];
                 return $assoc;
             } else {
                 return null;
