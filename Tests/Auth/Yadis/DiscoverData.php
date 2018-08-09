@@ -5,24 +5,24 @@ require_once "Tests/Auth/Yadis/TestUtil.php";
 
 global $testlist;
 $testlist = [
-                  // success,  input_name,          id_name,            result_name
-                  [true,  "equiv",             "equiv",            "xrds"],
-                  [true,  "header",            "header",           "xrds"],
-                  [true,  "lowercase_header",  "lowercase_header", "xrds"],
-                  [true,  "xrds",              "xrds",             "xrds"],
-                  [true,  "xrds_ctparam",      "xrds_ctparam",     "xrds_ctparam"],
-                  [true,  "xrds_ctcase",       "xrds_ctcase",      "xrds_ctcase"],
-                  [false, "xrds_html",         "xrds_html",        "xrds_html"],
-                  [true,  "redir_equiv",       "equiv",            "xrds"],
-                  [true,  "redir_header",      "header",           "xrds"],
-                  [true,  "redir_xrds",        "xrds",             "xrds"],
-                  [false, "redir_xrds_html",   "xrds_html",        "xrds_html"],
-                  [true,  "redir_redir_equiv", "equiv",            "xrds"],
-                  [false, "404_server_response", null,             null],
-                  [false, "404_with_header",     null,             null],
-                  [false, "404_with_meta",       null,             null],
-                  [false, "201_server_response", null,             null],
-                  [false, "500_server_response", null,             null]
+// success, input_name,          id_name,            result_name
+    [true,  "equiv",             "equiv",            "xrds"],
+    [true,  "header",            "header",           "xrds"],
+    [true,  "lowercase_header",  "lowercase_header", "xrds"],
+    [true,  "xrds",              "xrds",             "xrds"],
+    [true,  "xrds_ctparam",      "xrds_ctparam",     "xrds_ctparam"],
+    [true,  "xrds_ctcase",       "xrds_ctcase",      "xrds_ctcase"],
+    [false, "xrds_html",         "xrds_html",        "xrds_html"],
+    [true,  "redir_equiv",       "equiv",            "xrds"],
+    [true,  "redir_header",      "header",           "xrds"],
+    [true,  "redir_xrds",        "xrds",             "xrds"],
+    [false, "redir_xrds_html",   "xrds_html",        "xrds_html"],
+    [true,  "redir_redir_equiv", "equiv",            "xrds"],
+    [false, "404_server_response", null,             null],
+    [false, "404_with_header",     null,             null],
+    [false, "404_with_meta",       null,             null],
+    [false, "201_server_response", null,             null],
+    [false, "500_server_response", null,             null],
 ];
 
 function getExampleXRDS()
@@ -78,10 +78,10 @@ function getData($filename, $name)
 function fillTemplate($test_name, $template, $base_url, $example_xrds)
 {
     $mapping = [
-                     ['URL_BASE/', $base_url],
-                     ['<XRDS Content>', $example_xrds],
-                     ['YADIS_HEADER', 'X-XRDS-Location'],
-                     ['NAME', $test_name]
+        ['URL_BASE/', $base_url],
+        ['<XRDS Content>', $example_xrds],
+        ['YADIS_HEADER', 'X-XRDS-Location'],
+        ['NAME', $test_name],
     ];
 
     foreach ($mapping as $pair) {

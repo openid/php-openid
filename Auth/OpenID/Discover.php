@@ -26,10 +26,10 @@ function Auth_OpenID_getOpenIDTypeURIs()
 {
     return [
         Auth_OpenID_TYPE_2_0_IDP,
-                 Auth_OpenID_TYPE_2_0,
-                 Auth_OpenID_TYPE_1_2,
-                 Auth_OpenID_TYPE_1_1,
-                 Auth_OpenID_TYPE_1_0
+        Auth_OpenID_TYPE_2_0,
+        Auth_OpenID_TYPE_1_2,
+        Auth_OpenID_TYPE_1_1,
+        Auth_OpenID_TYPE_1_0,
     ];
 }
 
@@ -261,14 +261,16 @@ class Auth_OpenID_ServiceEndpoint {
     static function fromHTML($uri, $html)
     {
         $discovery_types = [
-                                 [
-                                     Auth_OpenID_TYPE_2_0,
-                                       'openid2.provider', 'openid2.local_id'
-                                 ],
-                                 [
-                                     Auth_OpenID_TYPE_1_1,
-                                       'openid.server', 'openid.delegate'
-                                 ]
+            [
+                Auth_OpenID_TYPE_2_0,
+                'openid2.provider',
+                'openid2.local_id',
+            ],
+            [
+                Auth_OpenID_TYPE_1_1,
+                'openid.server',
+                'openid.delegate',
+            ],
         ];
 
         $services = [];
@@ -425,9 +427,9 @@ function Auth_OpenID_arrangeByType($service_list, $preferred_types)
     $prio_services = [];
     foreach ($service_list as $index => $service) {
         $prio_services[] = [
-            Auth_OpenID_bestMatchingService($service,
-                                                        $preferred_types),
-                                 $index, $service
+            Auth_OpenID_bestMatchingService($service, $preferred_types),
+            $index,
+            $service,
         ];
     }
 
@@ -451,11 +453,9 @@ function Auth_OpenID_arrangeByType($service_list, $preferred_types)
 // Returns a list of OpenIDServiceEndpoint objects."""
 function Auth_OpenID_getOPOrUserServices($openid_services)
 {
-    $op_services = Auth_OpenID_arrangeByType($openid_services,
-                                     [Auth_OpenID_TYPE_2_0_IDP]);
+    $op_services = Auth_OpenID_arrangeByType($openid_services, [Auth_OpenID_TYPE_2_0_IDP]);
 
-    $openid_services = Auth_OpenID_arrangeByType($openid_services,
-                                     Auth_OpenID_getOpenIDTypeURIs());
+    $openid_services = Auth_OpenID_arrangeByType($openid_services, Auth_OpenID_getOpenIDTypeURIs());
 
     if ($op_services) {
         return $op_services;
@@ -515,8 +515,7 @@ function Auth_OpenID_discoverWithYadis($uri, $fetcher,
         $discover_function = ['Auth_Yadis_Yadis', 'discover'];
     }
 
-    $response = call_user_func_array($discover_function,
-                                     [$uri, $fetcher]);
+    $response = call_user_func_array($discover_function, [$uri, $fetcher]);
 
     $yadis_url = $response->normalized_uri;
 

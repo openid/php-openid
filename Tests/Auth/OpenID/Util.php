@@ -40,12 +40,12 @@ class Tests_Auth_OpenID_Util extends PHPUnit_Framework_TestCase {
             }
 
         $cases = [
-                       "",
-                       "x",
-                       "\x00",
-                       "\x01",
-                       str_repeat("\x00", 100),
-                       implode("", array_map('chr', range(0, 255)))
+            "",
+            "x",
+            "\x00",
+            "\x01",
+            str_repeat("\x00", 100),
+            implode("", array_map('chr', range(0, 255))),
         ];
 
         foreach ($cases as $s) {
@@ -76,12 +76,12 @@ class Tests_Auth_OpenID_Util extends PHPUnit_Framework_TestCase {
     function test_urldefrag()
     {
         $cases = [
-                       ['http://foo.com', 'http://foo.com'],
-                       ['http://foo.com/', 'http://foo.com/'],
-                       ['http://foo.com/path', 'http://foo.com/path'],
-                       ['http://foo.com/path?query', 'http://foo.com/path?query'],
-                       ['http://foo.com/path?query=v', 'http://foo.com/path?query=v'],
-                       ['http://foo.com/?query=v', 'http://foo.com/?query=v'],
+            ['http://foo.com', 'http://foo.com'],
+            ['http://foo.com/', 'http://foo.com/'],
+            ['http://foo.com/path', 'http://foo.com/path'],
+            ['http://foo.com/path?query', 'http://foo.com/path?query'],
+            ['http://foo.com/path?query=v', 'http://foo.com/path?query=v'],
+            ['http://foo.com/?query=v', 'http://foo.com/?query=v'],
         ];
 
         foreach ($cases as $pair) {
@@ -140,35 +140,35 @@ class Tests_Auth_OpenID_Util extends PHPUnit_Framework_TestCase {
         }
 
         $non_ascii_domain_cases = [
-                                        [
-                                            "http://xn--vl1a.com/",
-                                              "\u8349.com"
-                                        ],
+            [
+                "http://xn--vl1a.com/",
+                "\u8349.com",
+            ],
 
-                                        [
-                                            "http://xn--vl1a.com/",
-                                              "http://\u8349.com"
-                                        ],
+            [
+                "http://xn--vl1a.com/",
+                "http://\u8349.com",
+            ],
 
-                                        [
-                                            "http://xn--vl1a.com/",
-                                              "\u8349.com/"
-                                        ],
+            [
+                "http://xn--vl1a.com/",
+                "\u8349.com/",
+            ],
 
-                                        [
-                                            "http://xn--vl1a.com/",
-                                              "http://\u8349.com/"
-                                        ],
+            [
+                "http://xn--vl1a.com/",
+                "http://\u8349.com/",
+            ],
 
-                                        [
-                                            "http://xn--vl1a.com/%E8%8D%89",
-                                              "\u8349.com/\u8349"
-                                        ],
+            [
+                "http://xn--vl1a.com/%E8%8D%89",
+                "\u8349.com/\u8349",
+            ],
 
-                                        [
-                                            "http://xn--vl1a.com/%E8%8D%89",
-                                              "http://\u8349.com/\u8349"
-                                        ],
+            [
+                "http://xn--vl1a.com/%E8%8D%89",
+                "http://\u8349.com/\u8349",
+            ],
         ];
 
         // XXX
@@ -201,172 +201,180 @@ assert not should_raise and actual == expected, case
         $simple = 'http://www.example.com/';
 
         $cases = [
-                       [
-                           'empty list',
-                             [$simple, []],
-                             $simple
-                       ],
+            [
+                'empty list',
+                [$simple, []],
+                $simple,
+            ],
 
-                       [
-                           'empty dict',
-                             [$simple, []],
-                             $simple
-                       ],
+            [
+                'empty dict',
+                [$simple, []],
+                $simple,
+            ],
 
-                       [
-                           'one list',
-                             [$simple, [['a', 'b']]],
-                             $simple . '?a=b'
-                       ],
+            [
+                'one list',
+                [$simple, [['a', 'b']]],
+                $simple . '?a=b',
+            ],
 
-                       [
-                           'one dict',
-                             [$simple, ['a' => 'b']],
-                             $simple . '?a=b'
-                       ],
+            [
+                'one dict',
+                [$simple, ['a' => 'b']],
+                $simple . '?a=b',
+            ],
 
-                       [
-                           'two list (same)',
-                             [
-                                 $simple, [
-                                 ['a', 'b'],
-                                                  ['a', 'c']
-                             ]
-                             ],
-                             $simple . '?a=b&a=c'
-                       ],
+            [
+                'two list (same)',
+                [
+                    $simple,
+                    [
+                        ['a', 'b'],
+                        ['a', 'c'],
+                    ],
+                ],
+                $simple . '?a=b&a=c',
+            ],
 
-                       [
-                           'two list',
-                             [
-                                 $simple, [
-                                 ['a', 'b'],
-                                                  ['b', 'c']
-                             ]
-                             ],
-                             $simple . '?a=b&b=c'
-                       ],
+            [
+                'two list',
+                [
+                    $simple,
+                    [
+                        ['a', 'b'],
+                        ['b', 'c'],
+                    ],
+                ],
+                $simple . '?a=b&b=c',
+            ],
 
-                       [
-                           'two list (order)',
-                             [
-                                 $simple, [
-                                 ['b', 'c'],
-                                                  ['a', 'b']
-                             ]
-                             ],
-                             $simple . '?b=c&a=b'
-                       ],
+            [
+                'two list (order)',
+                [
+                    $simple,
+                    [
+                        ['b', 'c'],
+                        ['a', 'b'],
+                    ],
+                ],
+                $simple . '?b=c&a=b',
+            ],
 
-                       [
-                           'two dict (order)',
-                             [
-                                 $simple, [
-                                 'b' => 'c',
-                                                  'a' => 'b'
-                             ]
-                             ],
-                             $simple . '?a=b&b=c'
-                       ],
+            [
+                'two dict (order)',
+                [
+                    $simple,
+                    [
+                        'b' => 'c',
+                        'a' => 'b',
+                    ],
+                ],
+                $simple . '?a=b&b=c',
+            ],
 
-                       [
-                           'escape',
-                             [$simple, [['=', '=']]],
-                             $simple . '?%3D=%3D'
-                       ],
+            [
+                'escape',
+                [$simple, [['=', '=']]],
+                $simple . '?%3D=%3D',
+            ],
 
-                       [
-                           'escape (URL)',
-                             [
-                                 $simple, [
-                                 [
-                                     'this_url',
-                                                        $simple
-                                 ]
-                             ]
-                             ],
-                             $simple .
-                             '?this_url=http%3A%2F%2Fwww.example.com%2F'
-                       ],
+            [
+                'escape (URL)',
+                [
+                    $simple,
+                    [
+                        [
+                            'this_url',
+                            $simple,
+                        ],
+                    ],
+                ],
+                $simple .
+                '?this_url=http%3A%2F%2Fwww.example.com%2F',
+            ],
 
-                       [
-                           'use dots',
-                             [
-                                 $simple, [
-                                 [
-                                     'openid.stuff',
-                                                        'bother'
-                                 ]
-                             ]
-                             ],
-                             $simple . '?openid.stuff=bother'
-                       ],
+            [
+                'use dots',
+                [
+                    $simple,
+                    [
+                        [
+                            'openid.stuff',
+                            'bother',
+                        ],
+                    ],
+                ],
+                $simple . '?openid.stuff=bother',
+            ],
 
-                       [
-                           'args exist (empty)',
-                             [$simple . '?stuff=bother', []],
-                             $simple . '?stuff=bother'
-                       ],
+            [
+                'args exist (empty)',
+                [$simple . '?stuff=bother', []],
+                $simple . '?stuff=bother',
+            ],
 
-                       [
-                           'args exist',
-                             [
-                                 $simple . '?stuff=bother',
-                                   [['ack', 'ack']]
-                             ],
-                             $simple . '?stuff=bother&ack=ack'
-                       ],
+            [
+                'args exist',
+                [
+                    $simple . '?stuff=bother',
+                    [['ack', 'ack']],
+                ],
+                $simple . '?stuff=bother&ack=ack',
+            ],
 
-                       [
-                           'args exist',
-                             [
-                                 $simple . '?stuff=bother',
-                                   [['ack', 'ack']]
-                             ],
-                             $simple . '?stuff=bother&ack=ack'
-                       ],
+            [
+                'args exist',
+                [
+                    $simple . '?stuff=bother',
+                    [['ack', 'ack']],
+                ],
+                $simple . '?stuff=bother&ack=ack',
+            ],
 
-                       [
-                           'args exist (dict)',
-                             [
-                                 $simple . '?stuff=bother',
-                                   ['ack' => 'ack']
-                             ],
-                             $simple . '?stuff=bother&ack=ack'
-                       ],
+            [
+                'args exist (dict)',
+                [
+                    $simple . '?stuff=bother',
+                    ['ack' => 'ack'],
+                ],
+                $simple . '?stuff=bother&ack=ack',
+            ],
 
-                       [
-                           'args exist (dict 2)',
-                             [
-                                 $simple . '?stuff=bother',
-                                   ['ack' => 'ack', 'zebra' => 'lion']
-                             ],
-                             $simple . '?stuff=bother&ack=ack&zebra=lion'
-                       ],
+            [
+                'args exist (dict 2)',
+                [
+                    $simple . '?stuff=bother',
+                    ['ack' => 'ack', 'zebra' => 'lion'],
+                ],
+                $simple . '?stuff=bother&ack=ack&zebra=lion',
+            ],
 
-                       [
-                           'three args (dict)',
-                             [
-                                 $simple, [
-                                 'stuff' => 'bother',
-                                                  'ack' => 'ack',
-                                                  'zebra' => 'lion'
-                             ]
-                             ],
-                             $simple . '?ack=ack&stuff=bother&zebra=lion'
-                       ],
+            [
+                'three args (dict)',
+                [
+                    $simple,
+                    [
+                        'stuff' => 'bother',
+                        'ack' => 'ack',
+                        'zebra' => 'lion',
+                    ],
+                ],
+                $simple . '?ack=ack&stuff=bother&zebra=lion',
+            ],
 
-                       [
-                           'three args (list)',
-                             [
-                                 $simple, [
-                                                  ['stuff', 'bother'],
-                                                  ['ack', 'ack'],
-                                                  ['zebra', 'lion']
-                             ]
-                             ],
-                             $simple . '?stuff=bother&ack=ack&zebra=lion'
-                       ],
+            [
+                'three args (list)',
+                [
+                    $simple,
+                    [
+                        ['stuff', 'bother'],
+                        ['ack', 'ack'],
+                        ['zebra', 'lion'],
+                    ],
+                ],
+                $simple . '?stuff=bother&ack=ack&zebra=lion',
+            ],
         ];
 
         // Tests.
@@ -381,16 +389,16 @@ assert not should_raise and actual == expected, case
     function test_getQuery()
     {
         $queries = [
-                         '' => [],
-                         'single' => [],
-                         'no&pairs' => [],
-                         'x%3Dy' => [],
-                         'single&real=value' => ['real' => 'value'],
-                         'x=y&m=x%3Dn' => ['x' => 'y', 'm' => 'x=n'],
-                         '&m=x%20y' => ['m' => 'x y'],
-                         'single&&m=x%20y&bogus' => ['m' => 'x y'],
-                         // Even with invalid encoding.  But don't do that.
-                         'too=many=equals&' => ['too' => 'many=equals']
+            '' => [],
+            'single' => [],
+            'no&pairs' => [],
+            'x%3Dy' => [],
+            'single&real=value' => ['real' => 'value'],
+            'x=y&m=x%3Dn' => ['x' => 'y', 'm' => 'x=n'],
+            '&m=x%20y' => ['m' => 'x y'],
+            'single&&m=x%20y&bogus' => ['m' => 'x y'],
+            // Even with invalid encoding.  But don't do that.
+            'too=many=equals&' => ['too' => 'many=equals'],
         ];
 
         foreach ($queries as $s => $data) {

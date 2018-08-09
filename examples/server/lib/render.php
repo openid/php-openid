@@ -56,9 +56,9 @@ function redirect_render($redir_url)
 {
     $headers = [
         http_found,
-                     header_content_text,
-                     header_connection_close,
-                     'Location: ' . $redir_url,
+        header_content_text,
+        header_connection_close,
+        'Location: ' . $redir_url,
     ];
     $body = sprintf(redirect_message, $redir_url);
     return [$headers, $body];

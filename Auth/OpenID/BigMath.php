@@ -394,18 +394,17 @@ function Auth_OpenID_math_extensions()
     $result = [];
 
     if (!defined('Auth_OpenID_BUGGY_GMP')) {
-        $result[] =
-            [
-                'modules' => ['gmp', 'php_gmp'],
-                  'extension' => 'gmp',
-                  'class' => 'Auth_OpenID_GmpMathWrapper'
-            ];
+        $result[] = [
+            'modules' => ['gmp', 'php_gmp'],
+            'extension' => 'gmp',
+            'class' => 'Auth_OpenID_GmpMathWrapper',
+        ];
     }
 
     $result[] = [
         'modules' => ['bcmath', 'php_bcmath'],
-                      'extension' => 'bcmath',
-                      'class' => 'Auth_OpenID_BcMathWrapper'
+        'extension' => 'bcmath',
+        'class' => 'Auth_OpenID_BcMathWrapper',
     ];
 
     return $result;

@@ -22,31 +22,31 @@ $__XRDS_BOILERPLATE = '<?xml version="1.0" encoding="UTF-8"?>
 // Different sets of server URLs for use in the URI tag
 global $__server_url_options;
 $__server_url_options = [
-           [], // This case should not generate an endpoint object
-           ['http://server.url/'],
-           ['https://server.url/'],
-           ['https://server.url/', 'http://server.url/'],
-           [
-               'https://server.url/',
-                 'http://server.url/',
-                 'http://example.server.url/'
-           ],
+    [], // This case should not generate an endpoint object
+    ['http://server.url/'],
+    ['https://server.url/'],
+    ['https://server.url/', 'http://server.url/'],
+    [
+        'https://server.url/',
+        'http://server.url/',
+        'http://example.server.url/',
+    ],
 ];
 
 // A couple of example extension type URIs. These are not at all
 // official, but are just here for testing.
 global $__ext_types;
 $__ext_types = [
-                     'http://janrain.com/extension/blah',
-                     'http://openid.net/sreg/1.0'
+    'http://janrain.com/extension/blah',
+    'http://openid.net/sreg/1.0',
 ];
 
 // All valid combinations of Type tags that should produce an OpenID
 // endpoint
 global $__openid_types;
 $__openid_types = [
-                        Auth_OpenID_TYPE_1_0,
-                        Auth_OpenID_TYPE_1_1
+    Auth_OpenID_TYPE_1_0,
+    Auth_OpenID_TYPE_1_1,
 ];
 
 $temp = [];
@@ -64,9 +64,9 @@ $__type_uri_options = $temp;
 // Range of valid Delegate tag values for generating test data
 global $__delegate_options;
 $__delegate_options = [
-                            null,
-                            'http://vanity.domain/',
-                            'https://somewhere/yadis/'
+    null,
+    'http://vanity.domain/',
+    'https://somewhere/yadis/',
 ];
 
 $temp = [];
@@ -96,10 +96,11 @@ function _mkService($uris = null, $type_uris = null,
     if ($type_uris) {
         foreach ($type_uris as $type_uri) {
             $chunks = array_merge($chunks,
-                                  [
-                                      $dent2 . '<Type>',
-                                        $type_uri, "</Type>\n"
-                                  ]);
+                [
+                    $dent2 . '<Type>',
+                    $type_uri,
+                    "</Type>\n",
+                ]);
         }
     }
 
@@ -120,10 +121,12 @@ function _mkService($uris = null, $type_uris = null,
 
     if ($delegate) {
         $chunks = array_merge($chunks,
-                              [
-                                  $dent2, '<openid:Delegate>',
-                                    $delegate, "</openid:Delegate>\n"
-                              ]);
+            [
+                $dent2,
+                '<openid:Delegate>',
+                $delegate,
+                "</openid:Delegate>\n",
+            ]);
     }
 
     $chunks = array_merge($chunks, [$dent, "</Service>\n"]);

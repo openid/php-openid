@@ -118,140 +118,140 @@ class Tests_Auth_OpenID_KVForm extends PHPUnit_Framework_TestSuite {
         $testdata_list = [
             [
                 "name" => "simple",
-                  "str" => "college:harvey mudd\n",
-                  "arr" => ["college" => "harvey mudd"],
+                "str" => "college:harvey mudd\n",
+                "arr" => ["college" => "harvey mudd"],
             ],
             [
                 "name" => "empty",
-                  "str" => "",
-                  "arr" => [],
+                "str" => "",
+                "arr" => [],
             ],
             [
                 "name" => "empty (just newline)",
-                  "str" => "\n",
-                  "arr" => [],
-                  "lossy" => "str",
-                  "errors" => 1,
+                "str" => "\n",
+                "arr" => [],
+                "lossy" => "str",
+                "errors" => 1,
             ],
             [
                 "name" => "empty (double newline)",
-                  "str" => "\n\n",
-                  "arr" => [],
-                  "lossy" => "str",
-                  "errors" => 2,
+                "str" => "\n\n",
+                "arr" => [],
+                "lossy" => "str",
+                "errors" => 2,
             ],
             [
                 "name" => "empty (no colon)",
-                  "str" => "East is least\n",
-                  "arr" => [],
-                  "lossy" => "str",
-                  "errors" => 1,
+                "str" => "East is least\n",
+                "arr" => [],
+                "lossy" => "str",
+                "errors" => 1,
             ],
             [
                 "name" => "two keys",
-                  "str" => "city:claremont\nstate:CA\n",
-                  "arr" => [
-                      'city' => 'claremont',
-                                 'state' => 'CA'
-                  ],
+                "str" => "city:claremont\nstate:CA\n",
+                "arr" => [
+                    'city' => 'claremont',
+                    'state' => 'CA',
+                ],
             ],
             [
                 "name" => "real life",
-                  "str" => "is_valid:true\ninvalidate_handle:" .
-                  "{HMAC-SHA1:2398410938412093}\n",
-                  "arr" => [
-                      'is_valid' => 'true',
-                                 'invalidate_handle' =>
-                                 '{HMAC-SHA1:2398410938412093}'
-                  ],
+                "str" => "is_valid:true\ninvalidate_handle:" .
+                         "{HMAC-SHA1:2398410938412093}\n",
+                "arr" => [
+                    'is_valid' => 'true',
+                    'invalidate_handle' =>
+                        '{HMAC-SHA1:2398410938412093}',
+                ],
             ],
             [
                 "name" => "empty key and value",
-                  "str" => ":\n",
-                  "arr" => [''=>''],
+                "str" => ":\n",
+                "arr" => ['' => ''],
             ],
             [
                 "name" => "empty key, not value",
-                  "str" => ":missing key\n",
-                  "arr" => [''=>'missing key'],
+                "str" => ":missing key\n",
+                "arr" => ['' => 'missing key'],
             ],
             [
                 "name" => "whitespace at front of key",
-                  "str" => " street:foothill blvd\n",
-                  "arr" => ['street'=>'foothill blvd'],
-                  "lossy" => "str",
-                  "errors" => 1,
+                "str" => " street:foothill blvd\n",
+                "arr" => ['street' => 'foothill blvd'],
+                "lossy" => "str",
+                "errors" => 1,
             ],
             [
                 "name" => "whitespace at front of value",
-                  "str" => "major: computer science\n",
-                  "arr" => ['major'=>'computer science'],
-                  "lossy" => "str",
-                  "errors" => 1,
+                "str" => "major: computer science\n",
+                "arr" => ['major' => 'computer science'],
+                "lossy" => "str",
+                "errors" => 1,
             ],
             [
                 "name" => "whitespace around key and value",
-                  "str" => " dorm : east \n",
-                  "arr" => ['dorm'=>'east'],
-                  "lossy" => "str",
-                  "errors" => 2,
+                "str" => " dorm : east \n",
+                "arr" => ['dorm' => 'east'],
+                "lossy" => "str",
+                "errors" => 2,
             ],
             [
                 "name" => "missing trailing newline",
-                  "str" => "e^(i*pi)+1:0",
-                  "arr" => ['e^(i*pi)+1'=>'0'],
-                  "lossy" => "str",
-                  "errors" => 1,
+                "str" => "e^(i*pi)+1:0",
+                "arr" => ['e^(i*pi)+1' => '0'],
+                "lossy" => "str",
+                "errors" => 1,
             ],
             [
                 "name" => "missing trailing newline (two key)",
-                  "str" => "east:west\nnorth:south",
-                  "arr" => [
-                      'east'=>'west',
-                                 'north'=>'south'
-                  ],
-                  "lossy" => "str",
-                  "errors" => 1,
+                "str" => "east:west\nnorth:south",
+                "arr" => [
+                    'east' => 'west',
+                    'north' => 'south',
+                ],
+                "lossy" => "str",
+                "errors" => 1,
             ],
             [
                 "name" => "colon in key",
-                  "arr" => ["k:k" => 'v'],
-                  "errors" => 1,
+                "arr" => ["k:k" => 'v'],
+                "errors" => 1,
             ],
             [
                 "name" => "newline in key",
-                  "arr" => ["k\nk" => 'v'],
-                  "errors" => 1,
+                "arr" => ["k\nk" => 'v'],
+                "errors" => 1,
             ],
             [
                 "name" => "newline in value",
-                  "arr" => ['k' => "v\nv"],
-                  "errors" => 1,
+                "arr" => ['k' => "v\nv"],
+                "errors" => 1,
             ],
             [
                 "name" => "array whitespace",
-                  "arr" => [" k " => "v"],
-                  "lossy" => "both",
-                  "str" => " k :v\n",
-                  "errors" => 2,
+                "arr" => [" k " => "v"],
+                "lossy" => "both",
+                "str" => " k :v\n",
+                "errors" => 2,
             ],
             [
                 "name" => "array ordering 1",
-                  "arr" => [
-                      "a" => "x",
-                                 "b" => "x",
-                                 "c" => "x"
-                  ],
-                  "str" => "a:x\nb:x\nc:x\n",
+                "arr" => [
+                    "a" => "x",
+                    "b" => "x",
+                    "c" => "x",
+                ],
+                "str" => "a:x\nb:x\nc:x\n",
             ],
             [
                 "name" => "array ordering 2",
-                  "arr" => [
-                      "a" => "x",
-                                 "c" => "x",
-                                 "b" => "x"
-                  ],
-                  "str" => "a:x\nc:x\nb:x\n",
+                "arr" => [
+                    "a" => "x",
+                    "c" => "x",
+                    "b" => "x",
+                ],
+                "str" => "a:x\nc:x\nb:x\n",
             ],
         ];
 

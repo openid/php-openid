@@ -283,7 +283,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
                 if ($association !== null) {
                     $matching_associations[] = [
                         $association->issued,
-                                                     $association
+                        $association
                     ];
                 }
             }
@@ -463,7 +463,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
                     if ($association->getExpiresIn() == 0) {
                         $all_associations[] = [
                             $association_filename,
-                                                    $association
+                            $association,
                         ];
                     }
                 }

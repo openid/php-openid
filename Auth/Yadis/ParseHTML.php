@@ -53,10 +53,10 @@ class Auth_Yadis_ParseHTML {
                                      $this->_re_flags);
 
         $this->_entity_replacements = [
-                                            'amp' => '&',
-                                            'lt' => '<',
-                                            'gt' => '>',
-                                            'quot' => '"'
+            'amp' => '&',
+            'lt' => '<',
+            'gt' => '>',
+            'quot' => '"',
         ];
 
         $this->_ent_replace =

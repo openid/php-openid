@@ -114,10 +114,10 @@ class Auth_OpenID_Parse {
                                     $this->_re_flags);
 
         $this->_entity_replacements = [
-                                            'amp' => '&',
-                                            'lt' => '<',
-                                            'gt' => '>',
-                                            'quot' => '"'
+            'amp' => '&',
+            'lt' => '<',
+            'gt' => '>',
+            'quot' => '"',
         ];
 
         $this->_attr_find = sprintf("/%s/%s",

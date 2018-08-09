@@ -49,7 +49,7 @@ class PapeRequestTestCase extends PHPUnit_Framework_TestCase {
     function test_parseExtensionArgs() {
       $args = [
           'preferred_auth_policies' => 'http://foo http://bar',
-                    'max_auth_age' => '9'
+          'max_auth_age' => '9',
       ];
       $this->req->parseExtensionArgs($args);
       $this->assertEquals(9, $this->req->max_auth_age);
@@ -90,7 +90,7 @@ class PapeRequestTestCase extends PHPUnit_Framework_TestCase {
         $this->req->addPolicyURI(PAPE_AUTH_MULTI_FACTOR);
         $pt = $this->req->preferredTypes([
             PAPE_AUTH_MULTI_FACTOR,
-                                               PAPE_AUTH_MULTI_FACTOR_PHYSICAL
+            PAPE_AUTH_MULTI_FACTOR_PHYSICAL,
         ]);
         $this->assertEquals([PAPE_AUTH_MULTI_FACTOR], $pt);
     }
@@ -171,7 +171,7 @@ class PapeResponseTestCase extends PHPUnit_Framework_TestCase {
   function test_parseExtensionArgs() {
     $args = [
         'auth_policies' => 'http://foo http://bar',
-                  'auth_time' => '2008-03-02T12:34:56Z'
+        'auth_time' => '2008-03-02T12:34:56Z',
     ];
     $this->req->parseExtensionArgs($args);
     $this->assertEquals('2008-03-02T12:34:56Z', $this->req->auth_time);
@@ -195,17 +195,17 @@ class PapeResponseTestCase extends PHPUnit_Framework_TestCase {
   function test_parseExtensionArgs_strict_bogus2() {
     $args = [
         'auth_policies' => 'http://foo http://bar',
-                  'auth_time' => '63',
-                  'nist_auth_level' => 'some'
+        'auth_time' => '63',
+        'nist_auth_level' => 'some',
     ];
-    $this->assertEquals(false, $this->req->parseExtensionArgs($args, true));
+      $this->assertEquals(false, $this->req->parseExtensionArgs($args, true));
   }
 
   function test_parseExtensionArgs_strict_good() {
     $args = [
         'auth_policies' => 'http://foo http://bar',
-                  'auth_time' => '2008-03-02T12:34:56Z',
-                  'nist_auth_level' => '0'
+        'auth_time' => '2008-03-02T12:34:56Z',
+        'nist_auth_level' => '0',
     ];
     $this->req->parseExtensionArgs($args, true);
     $this->assertEquals(['http://foo','http://bar'], $this->req->auth_policies);
@@ -216,8 +216,8 @@ class PapeResponseTestCase extends PHPUnit_Framework_TestCase {
   function test_parseExtensionArgs_nostrict_bogus() {
     $args = [
         'auth_policies' => 'http://foo http://bar',
-                  'auth_time' => 'the other day',
-                  'nist_auth_level' => 'some'
+        'auth_time' => 'the other day',
+        'nist_auth_level' => 'some',
     ];
     $this->req->parseExtensionArgs($args);
     $this->assertEquals(['http://foo','http://bar'], $this->req->auth_policies);

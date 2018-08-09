@@ -50,7 +50,7 @@ function Auth_Yadis_getNSMap()
 {
     return [
         'xrds' => Auth_Yadis_XMLNS_XRDS,
-                 'xrd' => Auth_Yadis_XMLNS_XRD_2_0
+        'xrd' => Auth_Yadis_XMLNS_XRD_2_0,
     ];
 }
 
@@ -428,7 +428,7 @@ class Auth_Yadis_XRDS {
         // If a bad filter mode is specified, return null.
         if (!in_array($filter_mode, [
             SERVICES_YADIS_MATCH_ANY,
-                                          SERVICES_YADIS_MATCH_ALL
+            SERVICES_YADIS_MATCH_ALL,
         ])) {
             return null;
         }

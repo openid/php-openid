@@ -24,9 +24,9 @@ require_once "Auth/OpenID.php";
 
 $store_types = [
     "Filesystem" => "Auth_OpenID_FileStore",
-                     "MySQL" => "Auth_OpenID_MySQLStore",
-                     "PostgreSQL" => "Auth_OpenID_PostgreSQLStore",
-                     "SQLite" => "Auth_OpenID_SQLiteStore"
+    "MySQL" => "Auth_OpenID_MySQLStore",
+    "PostgreSQL" => "Auth_OpenID_PostgreSQLStore",
+    "SQLite" => "Auth_OpenID_SQLiteStore",
 ];
 
 /**

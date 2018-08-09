@@ -30,13 +30,13 @@ class Tests_Auth_OpenID_Nonce extends PHPUnit_Framework_TestSuite {
     function makeSplitTests()
     {
         $cases = [
-                       '',
-                       '1970-01-01T00:00:00+1:00',
-                       '1969-01-01T00:00:00Z',
-                       '1970-00-01T00:00:00Z',
-                       '1970.01-01T00:00:00Z',
-                       'Thu Sep  7 13:29:31 PDT 2006',
-                       'monkeys',
+            '',
+            '1970-01-01T00:00:00+1:00',
+            '1969-01-01T00:00:00Z',
+            '1970-00-01T00:00:00Z',
+            '1970.01-01T00:00:00Z',
+            'Thu Sep  7 13:29:31 PDT 2006',
+            'monkeys',
         ];
 
         foreach ($cases as $nonce_str) {
@@ -54,29 +54,29 @@ class Tests_Auth_OpenID_Nonce extends PHPUnit_Framework_TestSuite {
     function makeCheckTimestampTests()
     {
         $cases = [
-                       // exact, no allowed skew
-                       ['1970-01-01T00:00:00Z', 0, 0, true],
+            // exact, no allowed skew
+            ['1970-01-01T00:00:00Z', 0, 0, true],
 
-                       // exact, large skew
-                       ['1970-01-01T00:00:00Z', 1000, 0, true],
+            // exact, large skew
+            ['1970-01-01T00:00:00Z', 1000, 0, true],
 
-                       // no allowed skew, one second old
-                       ['1970-01-01T00:00:00Z', 0, 1, false],
+            // no allowed skew, one second old
+            ['1970-01-01T00:00:00Z', 0, 1, false],
 
-                       // many seconds old, outside of skew
-                       ['1970-01-01T00:00:00Z', 10, 50, false],
+            // many seconds old, outside of skew
+            ['1970-01-01T00:00:00Z', 10, 50, false],
 
-                       // one second old, one second skew allowed
-                       ['1970-01-01T00:00:00Z', 1, 1, true],
+            // one second old, one second skew allowed
+            ['1970-01-01T00:00:00Z', 1, 1, true],
 
-                       // One second in the future, one second skew allowed
-                       ['1970-01-01T00:00:02Z', 1, 1, true],
+            // One second in the future, one second skew allowed
+            ['1970-01-01T00:00:02Z', 1, 1, true],
 
-                       // two seconds in the future, one second skew allowed
-                       ['1970-01-01T00:00:02Z', 1, 0, false],
+            // two seconds in the future, one second skew allowed
+            ['1970-01-01T00:00:02Z', 1, 0, false],
 
-                       // malformed nonce string
-                       ['monkeys', 0, 0, false]
+            // malformed nonce string
+            ['monkeys', 0, 0, false],
         ];
 
         foreach ($cases as $case) {

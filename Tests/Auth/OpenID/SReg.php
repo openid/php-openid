@@ -59,9 +59,9 @@ class SupportsSRegTest extends PHPUnit_Framework_TestCase {
         $this->assertfalse(Auth_OpenID_supportsSReg($endpoint));
         $this->assertEquals([
             Auth_OpenID_SREG_NS_URI_1_1,
-                                  Auth_OpenID_SREG_NS_URI_1_0
+            Auth_OpenID_SREG_NS_URI_1_0,
         ],
-                            $endpoint->checked_uris);
+            $endpoint->checked_uris);
     }
 
     function test_supported_1_1()
@@ -357,7 +357,7 @@ class SRegRequestTest extends PHPUnit_Framework_TestCase {
         $req = Auth_OpenID_SRegRequest::build();
         $this->assertTrue($req->parseExtensionArgs([
             'optional' => 'nickname',
-                                                         'required' => 'nickname'
+            'required' => 'nickname',
         ]));
         $this->assertEquals([], $req->optional);
         $this->assertEquals(['nickname'], $req->required);
@@ -367,11 +367,11 @@ class SRegRequestTest extends PHPUnit_Framework_TestCase {
     {
         $req = Auth_OpenID_SRegRequest::build();
         $this->assertFalse($req->parseExtensionArgs(
-                                                    [
-                                                        'optional' => 'nickname',
-                                                          'required' => 'nickname'
-                                                    ],
-                                                    true));
+            [
+                'optional' => 'nickname',
+                'required' => 'nickname',
+            ],
+            true));
     }
 
     function test_parseExtensionArgs_bothList()
@@ -379,7 +379,7 @@ class SRegRequestTest extends PHPUnit_Framework_TestCase {
         $req = Auth_OpenID_SRegRequest::build();
         $this->assertTrue($req->parseExtensionArgs([
             'optional' => 'nickname,email',
-                                                         'required' => 'country,postcode'
+            'required' => 'country,postcode',
         ],
                                                    true));
         $this->assertEquals(['nickname','email'], $req->optional);
@@ -547,33 +547,33 @@ class SRegRequestTest extends PHPUnit_Framework_TestCase {
 
         $this->assertTrue($req->requestField('nickname'));
         $this->assertEquals(['optional' => 'nickname'],
-                            $req->getExtensionArgs());
+            $req->getExtensionArgs());
 
         $this->assertTrue($req->requestField('email'));
         $this->assertEquals(['optional' => 'nickname,email'],
-                            $req->getExtensionArgs());
+            $req->getExtensionArgs());
 
         $this->assertTrue($req->requestField('gender', true));
         $this->assertEquals([
             'optional' => 'nickname,email',
-                                  'required' => 'gender'
+            'required' => 'gender',
         ],
-                            $req->getExtensionArgs());
+            $req->getExtensionArgs());
 
         $this->assertTrue($req->requestField('postcode', true));
         $this->assertEquals([
             'optional' => 'nickname,email',
-                                  'required' => 'gender,postcode'
+            'required' => 'gender,postcode',
         ],
-                            $req->getExtensionArgs());
+            $req->getExtensionArgs());
 
         $req->policy_url = 'http://policy.invalid/';
         $this->assertEquals([
             'optional' => 'nickname,email',
-                                  'required' => 'gender,postcode',
-                                  'policy_url' => 'http://policy.invalid/'
+            'required' => 'gender,postcode',
+            'policy_url' => 'http://policy.invalid/',
         ],
-                            $req->getExtensionArgs());
+            $req->getExtensionArgs());
     }
 }
 
@@ -638,14 +638,14 @@ class SendFieldsTest extends PHPUnit_Framework_TestCase {
         $resp->fields = $resp_msg;
 
         $data = [
-                      'nickname' => 'linusaur',
-                      'postcode' => '12345',
-                      'country' => 'US',
-                      'gender' => 'M',
-                      'fullname' => 'Leonhard Euler',
-                      'email' => 'president@whitehouse.gov',
-                      'dob' => '0000-00-00',
-                      'language' => 'en-us'
+            'nickname' => 'linusaur',
+            'postcode' => '12345',
+            'country' => 'US',
+            'gender' => 'M',
+            'fullname' => 'Leonhard Euler',
+            'email' => 'president@whitehouse.gov',
+            'dob' => '0000-00-00',
+            'language' => 'en-us',
         ];
 
         // Put the requested data fields in the response message
@@ -657,19 +657,19 @@ class SendFieldsTest extends PHPUnit_Framework_TestCase {
         // Extract the fields that were sent
         $sreg_data_resp = $resp->fields->getArgs(Auth_OpenID_SREG_NS_URI);
         $this->assertEquals(
-                            [
-                                'nickname' => 'linusaur',
-                                  'email' => 'president@whitehouse.gov',
-                                  'fullname' => 'Leonhard Euler'
-                            ],
-                            $sreg_data_resp);
+            [
+                'nickname' => 'linusaur',
+                'email' => 'president@whitehouse.gov',
+                'fullname' => 'Leonhard Euler',
+            ],
+            $sreg_data_resp);
     }
 
     function test()
     {
         foreach ([
                      Auth_OpenID_OPENID1_NS,
-                       Auth_OpenID_OPENID2_NS
+                     Auth_OpenID_OPENID2_NS,
                  ] as $uri) {
             $this->_test($uri);
         }

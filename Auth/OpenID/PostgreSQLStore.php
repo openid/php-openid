@@ -82,18 +82,27 @@ class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
         if ($result) {
             // Update the table since this associations already exists.
             $this->connection->query($this->sql['set_assoc']['update_assoc'],
-                                     [
-                                         $secret, $issued, $lifetime,
-                                           $assoc_type, $server_url, $handle
-                                     ]);
+                [
+                    $secret,
+                    $issued,
+                    $lifetime,
+                    $assoc_type,
+                    $server_url,
+                    $handle,
+                ]);
         } else {
             // Insert a new record because this association wasn't
             // found.
             $this->connection->query($this->sql['set_assoc']['insert_assoc'],
-                                     [
-                                         $server_url, $handle, $secret,
-                                           $issued, $lifetime, $assoc_type
-                                     ]);
+                [
+                    $server_url,
+                    $handle,
+                    $secret,
+                    $issued,
+                    $lifetime,
+                    $assoc_type,
+                ]
+            );
         }
     }
 

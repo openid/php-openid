@@ -79,8 +79,7 @@ class Auth_OpenID_PAPE_Request extends Auth_OpenID_Extension {
     function getExtensionArgs($request = null)
     {
         $ns_args = [
-                         'preferred_auth_policies' =>
-                           implode(' ', $this->preferred_auth_policies)
+            'preferred_auth_policies' => implode(' ', $this->preferred_auth_policies),
         ];
 
         if ($this->max_auth_age !== null) {

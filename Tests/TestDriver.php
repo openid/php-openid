@@ -121,47 +121,47 @@ function global_require_once($name)
 }
 
 $_tests = [
-                [
-                      'dir' => 'Tests/Auth/OpenID/',
-                      'files' => [
-                                       'Association',
-                                       'AssociationResponse',
-                                       'AuthRequest',
-                                       'AX',
-                                       'BigMath',
-                                       'Consumer',
-                                       'CryptUtil',
-                                       'DiffieHellman',
-                                       'Discover_OpenID',
-                                       'Extension',
-                                       'HMAC',
-                                       'KVForm',
-                                       'Message',
-                                       'Negotiation',
-                                       'Nonce',
-                                       'OpenID_Yadis',
-                                       'PAPE',
-                                       'Parse',
-                                       'RPVerify',
-                                       'Server',
-                                       'SReg',
-                                       'StoreTest',
-                                       'TrustRoot',
-                                       'URINorm',
-                                       'Util',
-                                       'VerifyDisco'
-                      ],
-                ],
-                [
-                      'dir' => 'Tests/Auth/Yadis/',
-                      'files' => [
-                                       'ParseHTML',
-                                       'XRDS',
-                                       'Yadis',
-                                       'Discover_Yadis',
-                                       'XRI'
-                      ]
-                ]
+    [
+        'dir' => 'Tests/Auth/OpenID/',
+        'files' => [
+            'Association',
+            'AssociationResponse',
+            'AuthRequest',
+            'AX',
+            'BigMath',
+            'Consumer',
+            'CryptUtil',
+            'DiffieHellman',
+            'Discover_OpenID',
+            'Extension',
+            'HMAC',
+            'KVForm',
+            'Message',
+            'Negotiation',
+            'Nonce',
+            'OpenID_Yadis',
+            'PAPE',
+            'Parse',
+            'RPVerify',
+            'Server',
+            'SReg',
+            'StoreTest',
+            'TrustRoot',
+            'URINorm',
+            'Util',
+            'VerifyDisco',
+        ],
+    ],
+    [
+        'dir' => 'Tests/Auth/Yadis/',
+        'files' => [
+            'ParseHTML',
+            'XRDS',
+            'Yadis',
+            'Discover_Yadis',
+            'XRI',
+        ],
+    ],
 ];
 
 function selectTests($package, $names)

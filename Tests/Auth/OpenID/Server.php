@@ -106,8 +106,8 @@ class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_Framework_TestCase {
         $this->assertTrue($e->hasReturnTo());
         $expected_args = [
             'openid.ns' => Auth_OpenID_OPENID2_NS,
-                               'openid.mode' => 'error',
-                               'openid.error' => 'plucky'
+            'openid.mode' => 'error',
+            'openid.error' => 'plucky',
         ];
 
         list($rt_base, $result_args_s) = explode('?', $e->encodeToURL(), 2);
@@ -133,8 +133,8 @@ class Tests_Auth_OpenID_Test_ServerError extends PHPUnit_Framework_TestCase {
         $this->assertTrue($e->hasReturnTo());
         $expected_args = [
             'openid.ns' => Auth_OpenID_OPENID2_NS,
-                               'openid.mode' => 'error',
-                               'openid.error' => 'plucky'
+            'openid.mode' => 'error',
+            'openid.error' => 'plucky',
         ];
 
         $this->assertTrue($e->whichEncoding() == Auth_OpenID_ENCODE_HTML_FORM);
@@ -490,9 +490,9 @@ class Tests_Auth_OpenID_Test_Decode extends PHPUnit_Framework_TestCase {
             return;
         }
         $args = [
-                      'openid.mode' => 'associate',
-                      'openid.session_type' => 'DH-SHA1',
-                      'openid.dh_consumer_public' => "Rzup9265tw=="
+            'openid.mode' => 'associate',
+            'openid.session_type' => 'DH-SHA1',
+            'openid.dh_consumer_public' => "Rzup9265tw==",
         ];
 
         $r = $this->decoder->decode($args);
@@ -1784,9 +1784,9 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_Framework_TestCase {
         $this->assertTrue($response->fields->getArg(Auth_OpenID_OPENID_NS, "dh_server_public"));
 
         $fields = [
-                        'assoc_type' => 'HMAC-SHA256',
-                        'assoc_handle' => $this->assoc->handle,
-                        'session_type' => 'DH-SHA256',
+            'assoc_type' => 'HMAC-SHA256',
+            'assoc_handle' => $this->assoc->handle,
+            'session_type' => 'DH-SHA256',
         ];
 
         foreach ($fields as $k => $v) {
@@ -1882,9 +1882,9 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_Framework_TestCase {
         // the session_typ is always returned in v2.
         $args = [
             'openid.mode' => 'associate',
-                      'openid.ns' => Auth_OpenID_OPENID2_NS,
-                      'openid.assoc_type' => 'HMAC-SHA1',
-                      'openid.session_type' => 'no-encryption'
+            'openid.ns' => Auth_OpenID_OPENID2_NS,
+            'openid.assoc_type' => 'HMAC-SHA1',
+            'openid.session_type' => 'no-encryption',
         ];
 
         $this->request = Auth_OpenID_AssociateRequest::fromMessage(
@@ -1927,20 +1927,20 @@ class Tests_Auth_OpenID_Associate extends PHPUnit_Framework_TestCase {
 
         $invalid_s1 = [
             'openid.assoc_type' => 'HMAC-SHA256',
-                            'openid.session_type' => 'DH-SHA1'
+            'openid.session_type' => 'DH-SHA1',
         ];
         $invalid_s1 = array_merge($invalid_s1, $s1_session->getRequest());
 
         $invalid_s1_2 = [
             'openid.assoc_type' => 'ROBOT-NINJA',
-                              'openid.session_type' => 'DH-SHA1'
+            'openid.session_type' => 'DH-SHA1',
         ];
         $invalid_s1_2 = array_merge($invalid_s1_2, $s1_session->getRequest());
 
         $bad_request_argss = [
             ['openid.assoc_type' => 'Wha?'],
-                                   $invalid_s1,
-                                   $invalid_s1_2
+            $invalid_s1,
+            $invalid_s1_2,
         ];
 
         foreach ($bad_request_argss as $request_args) {
@@ -2179,15 +2179,15 @@ class Tests_Auth_OpenID_ServerTest extends PHPUnit_Framework_TestCase {
         }
 
         $this->assertTrue($this->server->negotiator->setAllowedTypes(
-           [['HMAC-SHA256', 'DH-SHA256']]));
+            [['HMAC-SHA256', 'DH-SHA256']]));
 
         $query = [
-                       'openid.dh_consumer_public' =>
-                       'ALZgnx8N5Lgd7pCj8K86T/DDMFjJXSss1SKoLmxE72kJTzOtG6I2PaYrHX'.
-                       'xku4jMQWSsGfLJxwCZ6280uYjUST/9NWmuAfcrBfmDHIBc3H8xh6RBnlXJ'.
-                       '1WxJY3jHd5k1/ZReyRZOxZTKdF/dnIqwF8ZXUwI6peV0TyS/K1fOfF/s',
-                       'openid.assoc_type' => 'HMAC-SHA256',
-                       'openid.session_type' => 'DH-SHA256'
+            'openid.dh_consumer_public' =>
+                'ALZgnx8N5Lgd7pCj8K86T/DDMFjJXSss1SKoLmxE72kJTzOtG6I2PaYrHX' .
+                'xku4jMQWSsGfLJxwCZ6280uYjUST/9NWmuAfcrBfmDHIBc3H8xh6RBnlXJ' .
+                '1WxJY3jHd5k1/ZReyRZOxZTKdF/dnIqwF8ZXUwI6peV0TyS/K1fOfF/s',
+            'openid.assoc_type' => 'HMAC-SHA256',
+            'openid.session_type' => 'DH-SHA256'
         ];
 
         $message = Auth_OpenID_Message::fromPostArgs($query);

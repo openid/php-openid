@@ -227,12 +227,12 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         $empty = [];
 
         $required_sql_keys = [
-                                   'nonce_table',
-                                   'assoc_table',
-                                   'set_assoc',
-                                   'get_assoc',
-                                   'get_assocs',
-                                   'remove_assoc'
+            'nonce_table',
+            'assoc_table',
+            'set_assoc',
+            'get_assoc',
+            'get_assocs',
+            'remove_assoc',
         ];
 
         foreach ($required_sql_keys as $key) {
@@ -252,25 +252,25 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
     function _fixSQL()
     {
         $replacements = [
-                              [
-                                    'value' => $this->nonces_table_name,
-                                    'keys' => [
-                                        'nonce_table',
-                                                    'add_nonce',
-                                                    'clean_nonce'
-                                    ]
-                              ],
-                              [
-                                    'value' => $this->associations_table_name,
-                                    'keys' => [
-                                        'assoc_table',
-                                                    'set_assoc',
-                                                    'get_assoc',
-                                                    'get_assocs',
-                                                    'remove_assoc',
-                                                    'clean_assoc'
-                                    ]
-                              ]
+            [
+                'value' => $this->nonces_table_name,
+                'keys' => [
+                    'nonce_table',
+                    'add_nonce',
+                    'clean_nonce',
+                ],
+            ],
+            [
+                'value' => $this->associations_table_name,
+                'keys' => [
+                    'assoc_table',
+                    'set_assoc',
+                    'get_assoc',
+                    'get_assocs',
+                    'remove_assoc',
+                    'clean_assoc',
+                ],
+            ],
         ];
 
         foreach ($replacements as $item) {
@@ -280,8 +280,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
             foreach ($keys as $k) {
                 if (is_array($this->sql[$k])) {
                     foreach ($this->sql[$k] as $part_key => $part_value) {
-                        $this->sql[$k][$part_key] = sprintf($part_value,
-                                                            $value);
+                        $this->sql[$k][$part_key] = sprintf($part_value, $value);
                     }
                 } else {
                     $this->sql[$k] = sprintf($this->sql[$k], $value);
@@ -346,14 +345,14 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
                         $lifetime, $assoc_type)
     {
         return $this->connection->query($this->sql['set_assoc'],
-                                        [
-                                              $server_url,
-                                              $handle,
-                                              $secret,
-                                              $issued,
-                                              $lifetime,
-                                              $assoc_type
-                                        ]);
+            [
+                $server_url,
+                $handle,
+                $secret,
+                $issued,
+                $lifetime,
+                $assoc_type,
+            ]);
     }
 
     function storeAssociation($server_url, $association)
@@ -490,8 +489,8 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
         $sql = $this->sql['add_nonce'];
         $result = $this->connection->query($sql, [
             $server_url,
-                                                       $timestamp,
-                                                       $salt
+            $timestamp,
+            $salt,
         ]);
         if ($this->isError($result)) {
             $this->connection->rollback();

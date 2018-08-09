@@ -113,7 +113,7 @@ define('AUTH_OPENID_HTTP_ERROR', 400);
 global $_Auth_OpenID_Request_Modes;
 $_Auth_OpenID_Request_Modes = [
     'checkid_setup',
-                                    'checkid_immediate'
+    'checkid_immediate',
 ];
 
 /**
@@ -224,10 +224,11 @@ class Auth_OpenID_ServerError {
     function encodeToKVForm()
     {
         return Auth_OpenID_KVForm::fromArray(
-                                      [
-                                          'mode' => 'error',
-                                            'error' => $this->toString()
-                                      ]);
+            [
+                'mode' => 'error',
+                'error' => $this->toString(),
+            ]
+        );
     }
 
     function toFormMarkup($form_tag_attrs=null)
@@ -738,10 +739,11 @@ class Auth_OpenID_AssociateRequest extends Auth_OpenID_Request {
         $response = new Auth_OpenID_ServerResponse($this);
         $response->fields->updateArgs(Auth_OpenID_OPENID_NS,
            [
-                 'expires_in' => sprintf('%d', $assoc->getExpiresIn()),
-                 'assoc_type' => $this->assoc_type,
-                 'assoc_handle' => $assoc->handle
-           ]);
+               'expires_in' => sprintf('%d', $assoc->getExpiresIn()),
+               'assoc_type' => $this->assoc_type,
+               'assoc_handle' => $assoc->handle,
+           ]
+        );
 
         $response->fields->updateArgs(Auth_OpenID_OPENID_NS,
            $this->session->answer($assoc->secret));
@@ -1178,11 +1180,12 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
             }
 
             $response->fields->updateArgs(Auth_OpenID_OPENID_NS,
-                   [
-                       'mode' => $mode,
-                         'return_to' => $this->return_to,
-                         'response_nonce' => Auth_OpenID_mkNonce()
-                   ]);
+                [
+                    'mode' => $mode,
+                    'return_to' => $this->return_to,
+                    'response_nonce' => Auth_OpenID_mkNonce(),
+                ]
+            );
 
             if (!$this->message->isOpenID1()) {
                 $response->fields->setArg(Auth_OpenID_OPENID_NS,
@@ -1252,9 +1255,9 @@ class Auth_OpenID_CheckIDRequest extends Auth_OpenID_Request {
 
         $q = [
             'mode' => $this->mode,
-                   'identity' => $this->identity,
-                   'claimed_id' => $this->claimed_id,
-                   'return_to' => $this->return_to
+            'identity' => $this->identity,
+            'claimed_id' => $this->claimed_id,
+            'return_to' => $this->return_to,
         ];
 
         if ($this->trust_root) {

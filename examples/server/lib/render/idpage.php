@@ -19,7 +19,7 @@ function idpage_render($identity)
     $xrdsurl = buildURL('userXrds')."?user=".urlencode($identity);
 
     $headers = [
-                     'X-XRDS-Location: '.$xrdsurl
+        'X-XRDS-Location: ' . $xrdsurl,
     ];
 
 

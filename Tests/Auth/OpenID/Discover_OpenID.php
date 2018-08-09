@@ -31,11 +31,12 @@ class Tests_Auth_OpenID_ServiceEndpoint extends PHPUnit_Framework_TestCase {
         $this->endpoint = new Auth_OpenID_ServiceEndpoint();
     }
 
-    function test_getDisplayIdentifier_noFragment() {
+    function test_getDisplayIdentifier_noFragment()
+    {
         $urls = [
             "http://foo.bar.com/something",
-                      "http://foo.bar.com/something?else=what&nothing=0",
-                      "https://smoker.myopenid.com/"
+            "http://foo.bar.com/something?else=what&nothing=0",
+            "https://smoker.myopenid.com/",
         ];
 
         foreach ($urls as $url) {
@@ -44,18 +45,19 @@ class Tests_Auth_OpenID_ServiceEndpoint extends PHPUnit_Framework_TestCase {
         }
     }
 
-    function test_getDisplayIdentifier_withFragment() {
+    function test_getDisplayIdentifier_withFragment()
+    {
         $urls = [
             "http://foo.bar.com/something#fragged",
-                      "http://foo.bar.com/something?else=what&nothing=0#ow",
-                      "https://smoker.myopenid.com/#myentirelife"
+            "http://foo.bar.com/something?else=what&nothing=0#ow",
+            "https://smoker.myopenid.com/#myentirelife",
         ];
 
         foreach ($urls as $url) {
             $this->endpoint->claimed_id = $url;
             $split = explode('#', $url);
             $this->assertEquals($split[0],
-                                $this->endpoint->getDisplayIdentifier());
+                $this->endpoint->getDisplayIdentifier());
         }
     }
 }
@@ -66,15 +68,17 @@ class Tests_Auth_OpenID_DiscoveryFailure extends PHPUnit_Framework_TestCase {
     {
         // Response is ($code, $url, $body).
         $this->cases = [
-                             [null, 'http://network.error/', ''],
-                             [404, 'http://not.found/', ''],
-                             [400, 'http://bad.request/', ''],
-                             [500, 'http://server.error/', ''],
-                             [
-                                 200, 'http://header.found/', 200,
-                                   ['x-xrds-location' => 'http://xrds.missing/']
-                             ],
-                             [404, 'http://xrds.missing/', '']
+            [null, 'http://network.error/', ''],
+            [404, 'http://not.found/', ''],
+            [400, 'http://bad.request/', ''],
+            [500, 'http://server.error/', ''],
+            [
+                200,
+                'http://header.found/',
+                200,
+                ['x-xrds-location' => 'http://xrds.missing/'],
+            ],
+            [404, 'http://xrds.missing/', ''],
         ];
 
         $this->url = $responses[0]->final_url;
@@ -132,10 +136,10 @@ class Tests_Auth_OpenID_Discover_FetchException extends PHPUnit_Framework_TestCa
     {
         $this->cases = [
             E_AUTH_OPENID_EXCEPTION,
-                             E_AUTH_OPENID_DIDFETCH,
-                             E_AUTH_OPENID_VALUE_ERROR,
-                             E_AUTH_OPENID_RUNTIME_ERROR,
-                             E_AUTH_OPENID_OI
+            E_AUTH_OPENID_DIDFETCH,
+            E_AUTH_OPENID_VALUE_ERROR,
+            E_AUTH_OPENID_RUNTIME_ERROR,
+            E_AUTH_OPENID_OI,
         ];
     }
 
@@ -236,10 +240,10 @@ class _DiscoveryBase extends PHPUnit_Framework_TestCase {
         }
 
         $openid_types = [
-                              '1.1' => Auth_OpenID_TYPE_1_1,
-                              '1.0' => Auth_OpenID_TYPE_1_0,
-                              '2.0' => Auth_OpenID_TYPE_2_0,
-                              '2.0 OP' => Auth_OpenID_TYPE_2_0_IDP
+            '1.1' => Auth_OpenID_TYPE_1_1,
+            '1.0' => Auth_OpenID_TYPE_1_0,
+            '2.0' => Auth_OpenID_TYPE_2_0,
+            '2.0 OP' => Auth_OpenID_TYPE_2_0_IDP,
         ];
 
         $type_uris = [];
@@ -600,16 +604,16 @@ class TestXRIDiscovery extends _DiscoveryBase {
     function setUp() {
         parent::setUp();
 
-	$this->fetcher->documents = [
-        '=smoker' => [
-            'application/xrds+xml',
-							     Tests_Auth_OpenID_readdata('yadis_2entries_delegate.xml')
-        ],
-					  '=smoker*bad' => [
-                          'application/xrds+xml',
-								 Tests_Auth_OpenID_readdata('yadis_another_delegate.xml')
-                      ]
-    ];
+        $this->fetcher->documents = [
+            '=smoker' => [
+                'application/xrds+xml',
+                Tests_Auth_OpenID_readdata('yadis_2entries_delegate.xml'),
+            ],
+            '=smoker*bad' => [
+                'application/xrds+xml',
+                Tests_Auth_OpenID_readdata('yadis_another_delegate.xml'),
+            ],
+        ];
     }
 
     function test_xri() {
@@ -638,14 +642,15 @@ class TestXRIDiscovery extends _DiscoveryBase {
 
     function test_xriNoCanonicalID() {
         list($user_xri, $services) = Auth_OpenID_discoverXRI('=smoker*bad');
-	$this->assertFalse($services);
+	    $this->assertFalse($services);
     }
 
-    function test_useCanonicalID() {
+    function test_useCanonicalID()
+    {
         $endpoint = new Auth_OpenID_ServiceEndpoint();
-	$endpoint->claimed_id = Auth_Yadis_XRI("=!1000");
-	$endpoint->canonicalID = Auth_Yadis_XRI("=!1000");
-	$htis->assertEquals($endpoint->getLocalID(), Auth_Yadis_XRI("=!1000"));
+        $endpoint->claimed_id = Auth_Yadis_XRI("=!1000");
+        $endpoint->canonicalID = Auth_Yadis_XRI("=!1000");
+        $this->assertEquals($endpoint->getLocalID(), Auth_Yadis_XRI("=!1000"));
     }
 }
 
@@ -727,10 +732,10 @@ class Tests_Auth_OpenID_SSLSupport extends PHPUnit_Framework_TestCase {
         $id_url = 'http://bogus/';
 
         $d = [
-                   $id_url => [
-                       'application/xrds+xml',
-                                    Tests_Auth_OpenID_readdata('test_discover_openid_ssl.xml')
-                   ]
+            $id_url => [
+                'application/xrds+xml',
+                Tests_Auth_OpenID_readdata('test_discover_openid_ssl.xml'),
+            ],
         ];
 
         $f = new _FetcherWithoutSSL($d);
@@ -756,10 +761,10 @@ class Tests_Auth_OpenID_SSLSupport extends PHPUnit_Framework_TestCase {
         $id_url = 'http://bogus/';
 
         $d = [
-                   $id_url => [
-                       'application/xrds+xml',
-                                    Tests_Auth_OpenID_readdata('test_discover_openid_ssl.xml')
-                   ]
+            $id_url => [
+                'application/xrds+xml',
+                Tests_Auth_OpenID_readdata('test_discover_openid_ssl.xml'),
+            ],
         ];
 
         $f = new _FetcherWithSSL($d);
@@ -796,6 +801,6 @@ class Tests_Auth_OpenID_SSLSupport extends PHPUnit_Framework_TestCase {
 
 global $Tests_Auth_OpenID_Discover_OpenID_other;
 $Tests_Auth_OpenID_Discover_OpenID_other = [
-                                                 new Tests_Auth_OpenID_SSLSupport()
+    new Tests_Auth_OpenID_SSLSupport(),
 ];
 

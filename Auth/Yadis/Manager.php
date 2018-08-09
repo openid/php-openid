@@ -239,20 +239,20 @@ class Auth_Yadis_ManagerLoader extends Auth_Yadis_SessionLoader {
     {
         return [
             'starting_url',
-                     'yadis_url',
-                     'services',
-                     'session_key',
-                     '_current',
-                     'stale'
+            'yadis_url',
+            'services',
+            'session_key',
+            '_current',
+            'stale',
         ];
     }
 
     function newObject($data)
     {
         return new Auth_Yadis_Manager($data['starting_url'],
-                                          $data['yadis_url'],
-                                          $data['services'],
-                                          $data['session_key']);
+            $data['yadis_url'],
+            $data['services'],
+            $data['session_key']);
     }
 
     function check($data)

@@ -320,11 +320,11 @@ class Auth_OpenID_MDB2Store extends Auth_OpenID_OpenIDStore {
         $sql = "";
         $params = null;
         $types = [
-                       "text",
-                       "blob",
-                       "integer",
-                       "integer",
-                       "text"
+            "text",
+            "blob",
+            "integer",
+            "integer",
+            "text",
         ];
         if ($handle !== null) {
             $sql = sprintf("SELECT handle, secret, issued, lifetime, assoc_type " .
@@ -376,8 +376,8 @@ class Auth_OpenID_MDB2Store extends Auth_OpenID_OpenIDStore {
         }
 
         $fields = [
-                        "timestamp" => $timestamp,
-                        "salt" => $salt
+            "timestamp" => $timestamp,
+            "salt" => $salt,
         ];
 
         if (!empty($server_url)) {

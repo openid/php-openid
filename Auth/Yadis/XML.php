@@ -350,8 +350,8 @@ function Auth_Yadis_setDefaultParser($parser)
 function Auth_Yadis_getSupportedExtensions()
 {
     return [
-        'dom'    => 'Auth_Yadis_dom',
-                 'domxml' => 'Auth_Yadis_domxml'
+        'dom' => 'Auth_Yadis_dom',
+        'domxml' => 'Auth_Yadis_domxml',
     ];
 }
 

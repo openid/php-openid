@@ -98,22 +98,22 @@ class Tests_Auth_Yadis_TestGetRootAuthority extends PHPUnit_Framework_TestCase {
     function runTest()
     {
         $xris = [
-                      ["@foo", "@"],
-                      ["@foo*bar", "@"],
-                      ["@*foo*bar", "@"],
-                      ["@foo/bar", "@"],
-                      ["!!990!991", "!"],
-                      ["!1001!02", "!"],
-                      ["=foo*bar", "="],
-                      ["(example.com)/foo", "(example.com)"],
-                      ["(example.com)*bar/foo", "(example.com)"],
-                      ["baz.example.com/foo", "baz.example.com"],
-                      ["baz.example.com:8080/foo", "baz.example.com:8080"]
-                      // Looking at the ABNF in XRI Syntax 2.0, I don't think you can
-                      // have example.com*bar.  You can do (example.com)*bar, but that
-                      // would mean something else.
-                      // ("example.com*bar/(=baz)", "example.com*bar"),
-                      // ("baz.example.com!01/foo", "baz.example.com!01"),
+            ["@foo", "@"],
+            ["@foo*bar", "@"],
+            ["@*foo*bar", "@"],
+            ["@foo/bar", "@"],
+            ["!!990!991", "!"],
+            ["!1001!02", "!"],
+            ["=foo*bar", "="],
+            ["(example.com)/foo", "(example.com)"],
+            ["(example.com)*bar/foo", "(example.com)"],
+            ["baz.example.com/foo", "baz.example.com"],
+            ["baz.example.com:8080/foo", "baz.example.com:8080"]
+            // Looking at the ABNF in XRI Syntax 2.0, I don't think you can
+            // have example.com*bar.  You can do (example.com)*bar, but that
+            // would mean something else.
+            // ("example.com*bar/(=baz)", "example.com*bar"),
+            // ("baz.example.com!01/foo", "baz.example.com!01"),
         ];
 
         foreach ($xris as $tupl) {

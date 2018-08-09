@@ -55,15 +55,15 @@ function doAuth($info, $trusted=null, $fail_cancels=false,
 
         // Answer with some sample Simple Registration data.
         $sreg_data = [
-                           'fullname' => 'Example User',
-                           'nickname' => 'example',
-                           'dob' => '1970-01-01',
-                           'email' => 'invalid@example.com',
-                           'gender' => 'F',
-                           'postcode' => '12345',
-                           'country' => 'ES',
-                           'language' => 'eu',
-                           'timezone' => 'America/New_York'
+            'fullname' => 'Example User',
+            'nickname' => 'example',
+            'dob' => '1970-01-01',
+            'email' => 'invalid@example.com',
+            'gender' => 'F',
+            'postcode' => '12345',
+            'country' => 'ES',
+            'language' => 'eu',
+            'timezone' => 'America/New_York',
         ];
 
         // Add the simple registration response values to the OpenID

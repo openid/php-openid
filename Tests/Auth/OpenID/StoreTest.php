@@ -459,11 +459,11 @@ class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_Store {
         $connect_db_name = 'test_master';
 
         $dsn = [
-                     'phptype'  => 'pgsql',
-                     'username' => 'openid_test',
-                     'password' => '',
-                     'hostspec' => $_Auth_OpenID_db_test_host,
-                     'database' => $connect_db_name
+            'phptype' => 'pgsql',
+            'username' => 'openid_test',
+            'password' => '',
+            'hostspec' => $_Auth_OpenID_db_test_host,
+            'database' => $connect_db_name,
         ];
 
         $allowed_failures = 5;

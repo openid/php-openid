@@ -103,10 +103,10 @@ class TestAuthRequestMixin extends OpenIDTestMixin {
         $this->authreq->addExtensionArg('bag:', 'material', 'paper');
         $this->assertTrue($this->authreq->message->namespaces->contains('bag:'));
         $this->assertEquals($this->authreq->message->getArgs('bag:'),
-                            [
-                                'color' => 'brown',
-                                  'material' => 'paper'
-                            ]);
+            [
+                'color' => 'brown',
+                'material' => 'paper',
+            ]);
         $msg = $this->authreq->getMessage($this->realm, $this->return_to,
                                           $this->immediate);
 

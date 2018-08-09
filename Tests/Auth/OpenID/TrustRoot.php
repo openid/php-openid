@@ -67,8 +67,8 @@ function Tests_Auth_OpenID_parseHeadings($data, $c)
         $end = $matches[3][1];
         $headings[] = [
             'heading' => $heading,
-                            'start' => $offset + $start,
-                            'end' => $offset + $end,
+            'start' => $offset + $start,
+            'end' => $offset + $end,
         ];
         $offset += $end;
     }
@@ -104,8 +104,8 @@ function Tests_Auth_OpenID_trParseTests($head, $tests)
 {
     $tests = [
         'fail' => $tests[0],
-                   'insane' => $tests[1],
-                   'sane' => $tests[2]
+        'insane' => $tests[1],
+        'sane' => $tests[2],
     ];
     $testobjs = [];
     foreach ($tests as $expected => $testdata) {

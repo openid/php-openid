@@ -43,12 +43,12 @@ function microtime_float()
 
 $longopts = [
     'no-math',
-                  'buggy-gmp',
-                  'no-curl',
-                  'math-lib=',
-                  'insecure-rand',
-                  'thorough',
-                  'extra-tests='
+    'buggy-gmp',
+    'no-curl',
+    'math-lib=',
+    'insecure-rand',
+    'thorough',
+    'extra-tests=',
 ];
 
 $con  = new Console_Getopt;

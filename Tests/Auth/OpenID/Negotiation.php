@@ -304,8 +304,8 @@ class TestNegotiatorBehaviors extends PHPUnit_Framework_TestCase {
     function setUp()
     {
         $this->allowed_types = [
-                                     ['HMAC-SHA1', 'no-encryption'],
-                                     ['HMAC-SHA256', 'no-encryption']
+            ['HMAC-SHA1', 'no-encryption'],
+            ['HMAC-SHA256', 'no-encryption'],
         ];
 
         $this->n = new Auth_OpenID_SessionNegotiator($this->allowed_types);

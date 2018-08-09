@@ -346,7 +346,7 @@ class TestExtractAssociationDiffieHellman extends Tests_Auth_OpenID_AssociationR
         // compatibility mode state properly
         $this->endpoint->type_uris = [
             Auth_OpenID_TYPE_2_0,
-                                           Auth_OpenID_TYPE_1_1
+            Auth_OpenID_TYPE_1_1,
         ];
         $this->test_success();
     }
@@ -366,11 +366,11 @@ class TestExtractAssociationDiffieHellman extends Tests_Auth_OpenID_AssociationR
 
 global $Tests_Auth_OpenID_AssociationResponse_other;
 $Tests_Auth_OpenID_AssociationResponse_other = [
-                                                     new TestInvalidFields(),
-                                                     new TestOpenID1AssociationResponseSessionType(),
-                                                     new ExtractAssociationSessionTypeMismatch(),
-                                                     new TestExtractAssociationMissingFieldsOpenID1(),
-                                                     new TestExtractAssociationMissingFieldsOpenID2()
+    new TestInvalidFields(),
+    new TestOpenID1AssociationResponseSessionType(),
+    new ExtractAssociationSessionTypeMismatch(),
+    new TestExtractAssociationMissingFieldsOpenID1(),
+    new TestExtractAssociationMissingFieldsOpenID2(),
 ];
 
 if (!defined('Auth_OpenID_NO_MATH_SUPPORT')) {

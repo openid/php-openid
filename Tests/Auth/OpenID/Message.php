@@ -285,38 +285,38 @@ class Tests_Auth_OpenID_OpenID1Message extends MessageTest {
     {
         $this->msg = Auth_OpenID_Message::fromPostArgs([
             'openid.mode' => 'error',
-                                                             'openid.error' => 'unit test'
+            'openid.error' => 'unit test',
         ]);
     }
 
     function test_toPostArgs()
     {
         $this->assertEquals($this->msg->toPostArgs(),
-                               [
-                                   'openid.mode' => 'error',
-                                     'openid.error' => 'unit test'
-                               ]);
+            [
+                'openid.mode' => 'error',
+                'openid.error' => 'unit test',
+            ]);
     }
 
     function test_toArgs()
     {
         $this->assertEquals($this->msg->toArgs(),
-                               [
-                                   'mode' => 'error',
-                                     'error' => 'unit test'
-                               ]);
+            [
+                'mode' => 'error',
+                'error' => 'unit test',
+            ]);
     }
 
     function test_toKVForm()
     {
         $this->assertEquals($this->msg->toKVForm(),
-                            "error:unit test\nmode:error\n");
+            "error:unit test\nmode:error\n");
     }
 
     function test_toURLEncoded()
     {
         $this->assertEquals($this->msg->toURLEncoded(),
-                               'openid.error=unit+test&openid.mode=error');
+            'openid.error=unit+test&openid.mode=error');
     }
 
     function test_toURL()
@@ -332,7 +332,7 @@ class Tests_Auth_OpenID_OpenID1Message extends MessageTest {
 
         $this->assertEquals($parsed, [
             'openid.mode' => 'error',
-                                           'openid.error' => 'unit test'
+            'openid.error' => 'unit test',
         ]);
     }
 
@@ -438,8 +438,8 @@ class Tests_Auth_OpenID_OpenID1Message extends MessageTest {
         }
 
         $update_args = [
-                             'Camper van Beethoven' => 'David Lowery',
-                             'Magnolia Electric Co.' => 'Jason Molina'
+            'Camper van Beethoven' => 'David Lowery',
+            'Magnolia Electric Co.' => 'Jason Molina',
         ];
 
         $this->assertEquals($this->msg->getArgs($ns), $before);
@@ -572,8 +572,8 @@ class Tests_Auth_OpenID_OpenID1ExplicitMessage extends PHPUnit_Framework_TestCas
     {
         $this->msg = Auth_OpenID_Message::fromPostArgs([
             'openid.mode' => 'error',
-                                                             'openid.error' => 'unit test',
-                                                             'openid.ns' => Auth_OpenID_OPENID1_NS
+            'openid.error' => 'unit test',
+            'openid.ns' => Auth_OpenID_OPENID1_NS,
         ]);
     }
 
@@ -594,32 +594,32 @@ class Tests_Auth_OpenID_OpenID1ExplicitMessage extends PHPUnit_Framework_TestCas
         $this->assertEquals($this->msg->toPostArgs(),
                                [
                                    'openid.mode' => 'error',
-                                     'openid.error' => 'unit test',
-                                     'openid.ns' => Auth_OpenID_OPENID1_NS
+                                   'openid.error' => 'unit test',
+                                   'openid.ns' => Auth_OpenID_OPENID1_NS,
                                ]);
     }
 
     function test_toArgs()
     {
         $this->assertEquals($this->msg->toArgs(),
-                               [
-                                   'mode' => 'error',
-                                     'error' => 'unit test',
-                                     'ns' => Auth_OpenID_OPENID1_NS
-                               ]);
+            [
+                'mode' => 'error',
+                'error' => 'unit test',
+                'ns' => Auth_OpenID_OPENID1_NS,
+            ]);
     }
 
     function test_toKVForm()
     {
         $this->assertEquals($this->msg->toKVForm(),
-                            "error:unit test\nmode:error\nns:".
-                            Auth_OpenID_OPENID1_NS."\n");
+            "error:unit test\nmode:error\nns:" .
+            Auth_OpenID_OPENID1_NS . "\n");
     }
 
     function test_toURLEncoded()
     {
         $this->assertEquals($this->msg->toURLEncoded(),
-                               'openid.error=unit+test&openid.mode=error&openid.ns=http%3A%2F%2Fopenid.net%2Fsignon%2F1.0');
+            'openid.error=unit+test&openid.mode=error&openid.ns=http%3A%2F%2Fopenid.net%2Fsignon%2F1.0');
     }
 
     function test_toURL()
@@ -635,8 +635,8 @@ class Tests_Auth_OpenID_OpenID1ExplicitMessage extends PHPUnit_Framework_TestCas
 
         $this->assertEquals($parsed, [
             'openid.mode' => 'error',
-                                           'openid.error' => 'unit test',
-                                           'openid.ns' => Auth_OpenID_OPENID1_NS
+            'openid.error' => 'unit test',
+            'openid.ns' => Auth_OpenID_OPENID1_NS,
         ]);
     }
 }
@@ -646,8 +646,8 @@ class Tests_Auth_OpenID_OpenID2Message extends MessageTest {
     {
         $this->msg = Auth_OpenID_Message::fromPostArgs([
             'openid.mode' => 'error',
-                                                             'openid.error' => 'unit test',
-                                                             'openid.ns' => Auth_OpenID_OPENID2_NS
+            'openid.error' => 'unit test',
+            'openid.ns' => Auth_OpenID_OPENID2_NS,
         ]);
         $this->msg->setArg(Auth_OpenID_BARE_NS, "xey", "value");
     }
@@ -655,12 +655,12 @@ class Tests_Auth_OpenID_OpenID2Message extends MessageTest {
     function test_toPostArgs()
     {
         $this->assertEquals($this->msg->toPostArgs(),
-                            [
-                                'openid.mode' => 'error',
-                                  'openid.error' => 'unit test',
-                                  'openid.ns' => Auth_OpenID_OPENID2_NS,
-                                  'xey' => 'value'
-                            ]);
+            [
+                'openid.mode' => 'error',
+                'openid.error' => 'unit test',
+                'openid.ns' => Auth_OpenID_OPENID2_NS,
+                'xey' => 'value',
+            ]);
     }
 
     function test_toArgs()
@@ -668,11 +668,11 @@ class Tests_Auth_OpenID_OpenID2Message extends MessageTest {
         // This method can't tolerate BARE_NS.
         $this->msg->delArg(Auth_OpenID_BARE_NS, "xey");
         $this->assertEquals($this->msg->toArgs(),
-                               [
-                                   'mode' => 'error',
-                                     'error' => 'unit test',
-                                     'ns' => Auth_OpenID_OPENID2_NS
-                               ]);
+            [
+                'mode' => 'error',
+                'error' => 'unit test',
+                'ns' => Auth_OpenID_OPENID2_NS,
+            ]);
     }
 
     function test_toKVForm()
@@ -776,10 +776,10 @@ class Tests_Auth_OpenID_OpenID2Message extends MessageTest {
     function test_getArgsOpenID()
     {
         $this->assertEquals($this->msg->getArgs(Auth_OpenID_OPENID_NS),
-                               [
-                                   'mode' => 'error',
-                                     'error' => 'unit test'
-                               ]);
+            [
+                'mode' => 'error',
+                'error' => 'unit test',
+            ]);
     }
 
     function test_getArgsBARE()
@@ -796,10 +796,10 @@ class Tests_Auth_OpenID_OpenID2Message extends MessageTest {
     function test_getArgsNS2()
     {
         $this->assertEquals($this->msg->getArgs(Auth_OpenID_OPENID2_NS),
-                               [
-                                   'mode' => 'error',
-                                     'error' => 'unit test'
-                               ]);
+            [
+                'mode' => 'error',
+                'error' => 'unit test',
+            ]);
     }
 
     function test_getArgsNS3()
@@ -1212,10 +1212,10 @@ class Tests_Auth_OpenID_GeneralMessageTest extends PHPUnit_Framework_TestCase {
 
         $post_args = $m->toPostArgs();
         $this->assertEquals($post_args,
-                            [
-                                'openid.ns' =>
-                                  Auth_OpenID_THE_OTHER_OPENID1_NS
-                            ]);
+            [
+                'openid.ns' =>
+                    Auth_OpenID_THE_OTHER_OPENID1_NS,
+            ]);
     }
 
     function test_fromPostArgs_ns11()
@@ -1280,12 +1280,12 @@ class Tests_Auth_OpenID_Message extends PHPUnit_Framework_TestCase {
 
 global $Tests_Auth_OpenID_Message_other;
 $Tests_Auth_OpenID_Message_other = [
-                                         new Tests_Auth_OpenID_EmptyMessage(),
-                                         new Tests_Auth_OpenID_OpenID1Message(),
-                                         new Tests_Auth_OpenID_OpenID2Message(),
-                                         new Tests_Auth_OpenID_NamespaceMap(),
-                                         new Tests_Auth_OpenID_OpenID1ExplicitMessage(),
-                                         new Tests_Auth_OpenID_GeneralMessageTest()
+    new Tests_Auth_OpenID_EmptyMessage(),
+    new Tests_Auth_OpenID_OpenID1Message(),
+    new Tests_Auth_OpenID_OpenID2Message(),
+    new Tests_Auth_OpenID_NamespaceMap(),
+    new Tests_Auth_OpenID_OpenID1ExplicitMessage(),
+    new Tests_Auth_OpenID_GeneralMessageTest(),
 ];
 
 

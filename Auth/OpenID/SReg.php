@@ -48,15 +48,15 @@ require_once 'Auth/OpenID/Extension.php';
 // The data fields that are listed in the sreg spec
 global $Auth_OpenID_sreg_data_fields;
 $Auth_OpenID_sreg_data_fields = [
-                                      'fullname' => 'Full Name',
-                                      'nickname' => 'Nickname',
-                                      'dob' => 'Date of Birth',
-                                      'email' => 'E-mail Address',
-                                      'gender' => 'Gender',
-                                      'postcode' => 'Postal Code',
-                                      'country' => 'Country',
-                                      'language' => 'Language',
-                                      'timezone' => 'Time Zone'
+    'fullname' => 'Full Name',
+    'nickname' => 'Nickname',
+    'dob' => 'Date of Birth',
+    'email' => 'E-mail Address',
+    'gender' => 'Gender',
+    'postcode' => 'Postal Code',
+    'country' => 'Country',
+    'language' => 'Language',
+    'timezone' => 'Time Zone',
 ];
 
 /**
@@ -136,10 +136,7 @@ class Auth_OpenID_SRegBase extends Auth_OpenID_Extension {
 
         // See if there exists an alias for one of the two defined
         // simple registration types.
-        foreach ([
-                     Auth_OpenID_SREG_NS_URI_1_1,
-                       Auth_OpenID_SREG_NS_URI_1_0
-                 ] as $sreg_ns_uri) {
+        foreach ([Auth_OpenID_SREG_NS_URI_1_1, Auth_OpenID_SREG_NS_URI_1_0] as $sreg_ns_uri) {
             $alias = $message->namespaces->getAlias($sreg_ns_uri);
             if ($alias !== null) {
                 $found_ns_uri = $sreg_ns_uri;

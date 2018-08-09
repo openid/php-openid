@@ -432,10 +432,7 @@ class Auth_OpenID_Consumer {
                                               $current_url);
         $this->session->del($this->_token_key);
 
-        if (in_array($response->status, [
-            Auth_OpenID_SUCCESS,
-                                              Auth_OpenID_CANCEL
-        ])) {
+        if (in_array($response->status, [Auth_OpenID_SUCCESS, Auth_OpenID_CANCEL])) {
             if ($response->identity_url !== null) {
                 $disco = $this->getDiscoveryObject($this->session,
                                                    $response->identity_url,

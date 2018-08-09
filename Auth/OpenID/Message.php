@@ -190,7 +190,7 @@ class Auth_OpenID_Mapping {
         for ($i = 0; $i < count($this->keys); $i++) {
             $temp[] = [
                 $this->keys[$i],
-                            $this->values[$i]
+                $this->values[$i]
             ];
         }
         return $temp;

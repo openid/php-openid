@@ -27,7 +27,7 @@ class Auth_Yadis_ProxyResolver {
         $qxri = substr(Auth_Yadis_toURINormal($xri), 6);
         $hxri = $this->proxy_url . $qxri;
         $args = [
-                      '_xrd_r' => 'application/xrds+xml'
+            '_xrd_r' => 'application/xrds+xml',
         ];
 
         if ($service_type) {

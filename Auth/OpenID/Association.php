@@ -56,17 +56,17 @@ class Auth_OpenID_Association {
      * @access private
      */
     public $assoc_keys = [
-                            'version',
-                            'handle',
-                            'secret',
-                            'issued',
-                            'lifetime',
-                            'assoc_type'
+        'version',
+        'handle',
+        'secret',
+        'issued',
+        'lifetime',
+        'assoc_type',
     ];
 
     public $_macs = [
-                       'HMAC-SHA1' => 'Auth_OpenID_HMACSHA1',
-                       'HMAC-SHA256' => 'Auth_OpenID_HMACSHA256'
+        'HMAC-SHA1' => 'Auth_OpenID_HMACSHA1',
+        'HMAC-SHA256' => 'Auth_OpenID_HMACSHA256',
     ];
 
     /**
@@ -187,12 +187,12 @@ class Auth_OpenID_Association {
     function serialize()
     {
         $data = [
-                     'version' => '2',
-                     'handle' => $this->handle,
-                     'secret' => base64_encode($this->secret),
-                     'issued' => strval(intval($this->issued)),
-                     'lifetime' => strval(intval($this->lifetime)),
-                     'assoc_type' => $this->assoc_type
+            'version' => '2',
+            'handle' => $this->handle,
+            'secret' => base64_encode($this->secret),
+            'issued' => strval(intval($this->issued)),
+            'lifetime' => strval(intval($this->lifetime)),
+            'assoc_type' => $this->assoc_type,
         ];
 
         assert(array_keys($data) == $this->assoc_keys);

@@ -157,7 +157,7 @@ function Auth_Yadis_getServiceEndpoints($input_url, $xrds_parse_func,
     $endpoints = call_user_func_array($xrds_parse_func,
                       [
                           $yadis_result->normalized_uri,
-                            $yadis_result->response_text
+                          $yadis_result->response_text,
                       ]);
 
     if ($endpoints === null) {
@@ -338,7 +338,7 @@ class Auth_Yadis_Yadis {
 
         $headers = [
             "Accept: " . Auth_Yadis_CONTENT_TYPE .
-            ', text/html; q=0.3, application/xhtml+xml; q=0.5'
+            ', text/html; q=0.3, application/xhtml+xml; q=0.5',
         ];
 
         if ($fetcher === null) {
