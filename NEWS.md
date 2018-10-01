@@ -68,7 +68,7 @@ constructing Simple Registration requests and inspecting responses.
 `extensionResponse()` is still valid, but now takes a second parameter
 (bool) indicating whether extension args should be signed.
 
- - The Auth_OpenID_Server's response `answer()` method now takes
+ - The `Auth_OpenID_Server`'s response `answer()` method now takes
 additional parameters to support provider-driven identifier selection.
 See the example server and the documentation for
 `Auth_OpenID_CheckIDRequest::answer`.
