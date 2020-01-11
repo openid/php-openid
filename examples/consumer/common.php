@@ -58,7 +58,7 @@ function &getStore() {
         if (strpos(PHP_OS, 'WIN') === 0) {
             $store_path = $_ENV['TMP'];
             if (!isset($store_path)) {
-                $dir = 'C:\Windows\Temp';
+                $store_path = 'C:\Windows\Temp';
             }
         }
         else {
