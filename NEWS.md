@@ -1,5 +1,18 @@
-What's New in PHP OpenID 2.0
-============================
+# News
+
+## PHP OpenID 3.0
+
+The PHP OpenID project is now going to be strictly enforcing
+[SEMVER](http://semver.org/). In short, this means versions 
+will be `MAJOR`.`MINOR`.`PATCH`. `MAJOR` indicates either
+backwards incompatible changes or major platform shifts. `MINOR`
+releases will indicate backwards compatible changes that add new
+features. `PATCH` are bug fix releases. Going forward, it is
+recommeneded users subscribe to all releases in the 3.X series.
+
+
+
+## PHP OpenID 2.0
 
 This library implements both the OpenID 1 and OpenID 2 protocols.  The
 API changes in this version of the library are minimal and mostly
@@ -17,7 +30,7 @@ protocol.  Highlights include:
    information.)
  * OpenID provider-driven identifier selection.
  * "Negotiators" allow you to define which association types to use.
- * Improved examples/detect.php script (bugs fixed)
+ * Improved `examples/detect.php` script (bugs fixed)
  * Improved layout of example consumer (see examples/consumer)
  * An improved HTML parser implementation
  * Library is now immune to being included inside functions and
@@ -29,8 +42,7 @@ directly with it, you'll need to review the change notes for
 `Auth_OpenID_Interface` in `Auth/OpenID/Interface.php`.
 
 
-Upgrading from earlier versions of this library
------------------------------------------------
+### Upgrading from earlier versions of this library
 
 One of the additions to the OpenID protocol was a specified nonce
 format for one-way nonces.  As a result, the nonce table in the
@@ -52,8 +64,7 @@ never override $query, since the OpenID library uses its own logic to
 sidestep PHP's broken request-processing code.
 
 
-Summary of API Changes
-----------------------
+### Summary of API Changes
 
  - `Auth_OpenID::fixArgs` is now no longer necessary, and
 `Auth_OpenID_Consumer::complete` and `Auth_OpenID_Server::decodeRequest`
