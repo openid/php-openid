@@ -144,25 +144,27 @@ function Auth_Yadis_getServiceEndpoints($input_url, $xrds_parse_func,
                                         $discover_func=null, $fetcher=null)
 {
     if ($discover_func === null) {
-        $discover_func = array('Auth_Yadis_Yadis', 'discover');
+        $discover_func = ['Auth_Yadis_Yadis', 'discover'];
     }
 
     $yadis_result = call_user_func_array($discover_func,
-                                         array($input_url, $fetcher));
+                                         [$input_url, $fetcher]);
 
     if ($yadis_result === null) {
-        return array($input_url, array());
+        return [$input_url, []];
     }
 
     $endpoints = call_user_func_array($xrds_parse_func,
-                      array($yadis_result->normalized_uri,
-                            $yadis_result->response_text));
+                      [
+                          $yadis_result->normalized_uri,
+                          $yadis_result->response_text,
+                      ]);
 
     if ($endpoints === null) {
-        $endpoints = array();
+        $endpoints = [];
     }
 
-    return array($yadis_result->normalized_uri, $endpoints);
+    return [$yadis_result->normalized_uri, $endpoints];
 }
 
 /**
@@ -334,8 +336,10 @@ class Auth_Yadis_Yadis {
     {
         $result = new Auth_Yadis_DiscoveryResult($uri);
 
-        $headers = array("Accept: " . Auth_Yadis_CONTENT_TYPE .
-                         ', text/html; q=0.3, application/xhtml+xml; q=0.5');
+        $headers = [
+            "Accept: " . Auth_Yadis_CONTENT_TYPE .
+            ', text/html; q=0.3, application/xhtml+xml; q=0.5',
+        ];
 
         if ($fetcher === null) {
             $fetcher = Auth_Yadis_Yadis::getHTTPFetcher($timeout);
@@ -352,7 +356,7 @@ class Auth_Yadis_Yadis {
         $result->normalized_uri = $response->final_url;
         $result->content_type = Auth_Yadis_Yadis::_getHeader(
                                        $response->headers,
-                                       array('content-type'));
+                                       ['content-type']);
 
         if ($result->content_type &&
             (Auth_Yadis_Yadis::_getContentType($result->content_type) ==
@@ -361,7 +365,7 @@ class Auth_Yadis_Yadis {
         } else {
             $yadis_location = Auth_Yadis_Yadis::_getHeader(
                                                  $response->headers,
-                                                 array(Auth_Yadis_HEADER_NAME));
+                                                 [Auth_Yadis_HEADER_NAME]);
 
             if (!$yadis_location) {
                 $parser = new Auth_Yadis_ParseHTML();
@@ -381,7 +385,7 @@ class Auth_Yadis_Yadis {
 
                 $result->content_type = Auth_Yadis_Yadis::_getHeader(
                                                          $response->headers,
-                                                         array('content-type'));
+                                                         ['content-type']);
             }
         }
 

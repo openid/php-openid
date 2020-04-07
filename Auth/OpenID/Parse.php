@@ -113,12 +113,12 @@ class Auth_OpenID_Parse {
         $this->_link_find = sprintf("/<link\b(?!:)([^>]*)(?!<)>/%s",
                                     $this->_re_flags);
 
-        $this->_entity_replacements = array(
-                                            'amp' => '&',
-                                            'lt' => '<',
-                                            'gt' => '>',
-                                            'quot' => '"'
-                                            );
+        $this->_entity_replacements = [
+            'amp' => '&',
+            'lt' => '<',
+            'gt' => '>',
+            'quot' => '"',
+        ];
 
         $this->_attr_find = sprintf("/%s/%s",
                                     $this->_attr_find,
@@ -146,7 +146,7 @@ class Auth_OpenID_Parse {
         $expr = $this->_tag_expr;
 
         if ($close_tags) {
-            $options = implode("|", array_merge(array($tag_name), $close_tags));
+            $options = implode("|", array_merge([$tag_name], $close_tags));
             $closer = sprintf("(?:%s)", $options);
         } else {
             $closer = $tag_name;
@@ -170,7 +170,7 @@ class Auth_OpenID_Parse {
 
     function htmlBegin($s)
     {
-        $matches = array();
+        $matches = [];
         $result = preg_match($this->openTag('html'), $s,
                              $matches, PREG_OFFSET_CAPTURE);
         if ($result === false || !$matches) {
@@ -182,7 +182,7 @@ class Auth_OpenID_Parse {
 
     function htmlEnd($s)
     {
-        $matches = array();
+        $matches = [];
         $result = preg_match($this->closeTag('html'), $s,
                              $matches, PREG_OFFSET_CAPTURE);
         if ($result === false || !$matches) {
@@ -194,7 +194,7 @@ class Auth_OpenID_Parse {
 
     function headFind()
     {
-        return $this->tagMatcher('head', array('body', 'html'));
+        return $this->tagMatcher('head', ['body', 'html']);
     }
 
     function replaceEntities($str)
@@ -207,7 +207,7 @@ class Auth_OpenID_Parse {
 
     function removeQuotes($str)
     {
-        $matches = array();
+        $matches = [];
         $double = '/^"(.*)"$/';
         $single = "/^\'(.*)\'$/";
 
@@ -251,7 +251,7 @@ class Auth_OpenID_Parse {
         $html_end = $this->htmlEnd($stripped);
 
         if ($html_begin === false) {
-            return array();
+            return [];
         }
 
         if ($html_end === false) {
@@ -266,25 +266,25 @@ class Auth_OpenID_Parse {
 
         // Try to find the <HEAD> tag.
         $head_re = $this->headFind();
-        $head_match = array();
+        $head_match = [];
         if (!$this->match($head_re, $stripped, $head_match)) {
                      ini_set( 'pcre.backtrack_limit', $old_btlimit );
-                     return array();
+                     return [];
         }
 
-        $link_data = array();
-        $link_matches = array();
+        $link_data = [];
+        $link_matches = [];
 
         if (!preg_match_all($this->_link_find, $head_match[0],
                             $link_matches)) {
             ini_set( 'pcre.backtrack_limit', $old_btlimit );
-            return array();
+            return [];
         }
 
         foreach ($link_matches[0] as $link) {
-            $attr_matches = array();
+            $attr_matches = [];
             preg_match_all($this->_attr_find, $link, $attr_matches);
-            $link_attrs = array();
+            $link_attrs = [];
             foreach ($attr_matches[0] as $index => $full_match) {
                 $name = $attr_matches[1][$index];
                 $value = $this->replaceEntities(
@@ -328,7 +328,7 @@ class Auth_OpenID_Parse {
         // Filter the list of link attributes on whether it has
         // target_rel as a relationship.
         // XXX: TESTME
-        $result = array();
+        $result = [];
         foreach ($link_attrs_list as $attr) {
             if ($this->linkHasRel($attr, $target_rel)) {
                 $result[] = $attr;
@@ -368,7 +368,7 @@ function Auth_OpenID_legacy_discover($html_text, $server_rel,
     } else {
         $delegate_url = $p->findFirstHref($link_attrs,
                                           $delegate_rel);
-        return array($delegate_url, $server_url);
+        return [$delegate_url, $server_url];
     }
 }
 

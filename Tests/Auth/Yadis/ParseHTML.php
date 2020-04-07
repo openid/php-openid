@@ -55,7 +55,7 @@ class Tests_Auth_Yadis_ParseHTML extends PHPUnit_Framework_TestSuite {
 
     function parseTests($s)
     {
-        $tests = array();
+        $tests = [];
 
         $cases = preg_split("/\f\n/", $s);
 
@@ -66,7 +66,7 @@ class Tests_Auth_Yadis_ParseHTML extends PHPUnit_Framework_TestSuite {
             $result = $parts[0];
             $html_comment = $parts[1];
             $html_string = implode("\n", array_slice($parts, 2));
-            $tests[] = array($result, $html_comment, $html_string);
+            $tests[] = [$result, $html_comment, $html_string];
         }
 
         return $tests;

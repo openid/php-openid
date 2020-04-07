@@ -84,7 +84,7 @@ class Auth_OpenID_MDB2Store extends Auth_OpenID_OpenIDStore {
         // Be sure to set the fetch mode so the results are keyed on
         // column name instead of column index.
         $this->connection->setFetchMode(MDB2_FETCHMODE_ASSOC);
-        
+
         if (@PEAR::isError($this->connection->loadModule('Extended'))) {
             trigger_error("Unable to load MDB2_Extended module", E_USER_ERROR);
             return;
@@ -144,38 +144,38 @@ class Auth_OpenID_MDB2Store extends Auth_OpenID_OpenIDStore {
                         $this->connection->loadModule('Manager'))) {
                         return false;
                     }
-                    $fields = array(
-                        "server_url" => array(
+                    $fields = [
+                        "server_url" => [
                             "type" => "text",
                             "length" => 2047,
                             "notnull" => true
-                        ),
-                        "timestamp" => array(
+                        ],
+                        "timestamp" => [
                             "type" => "integer",
                             "notnull" => true
-                        ),
-                        "salt" => array(
+                        ],
+                        "salt" => [
                             "type" => "text",
                             "length" => 40,
                             "fixed" => true,
                             "notnull" => true
-                        )
-                    );
-                    $constraint = array(
+                        ]
+                    ];
+                    $constraint = [
                         "unique" => 1,
-                        "fields" => array(
+                        "fields" => [
                             "server_url" => true,
                             "timestamp" => true,
                             "salt" => true
-                        )
-                    );
-                    
+                        ]
+                    ];
+
                     $r = $this->connection->createTable($this->nonces_table_name,
                                                         $fields);
                     if (@PEAR::isError($r)) {
                         return false;
                     }
-                    
+
                     $r = $this->connection->createConstraint(
                         $this->nonces_table_name,
                         $this->nonces_table_name . "_constraint",
@@ -217,43 +217,43 @@ class Auth_OpenID_MDB2Store extends Auth_OpenID_OpenIDStore {
                         $this->connection->loadModule('Manager'))) {
                         return false;
                     }
-                    $fields = array(
-                        "server_url" => array(
+                    $fields = [
+                        "server_url" => [
                             "type" => "text",
                             "length" => 2047,
                             "notnull" => true
-                        ),
-                        "handle" => array(
+                        ],
+                        "handle" => [
                             "type" => "text",
                             "length" => 255,
                             "notnull" => true
-                        ),
-                        "secret" => array(
+                        ],
+                        "secret" => [
                             "type" => "blob",
                             "length" => "255",
                             "notnull" => true
-                        ),
-                        "issued" => array(
+                        ],
+                        "issued" => [
                             "type" => "integer",
                             "notnull" => true
-                        ),
-                        "lifetime" => array(
+                        ],
+                        "lifetime" => [
                             "type" => "integer",
                             "notnull" => true
-                        ),
-                        "assoc_type" => array(
+                        ],
+                        "assoc_type" => [
                             "type" => "text",
                             "length" => 64,
                             "notnull" => true
-                        )
-                    );
-                    $options = array(
-                        "primary" => array(
+                        ]
+                    ];
+                    $options = [
+                        "primary" => [
                             "server_url" => true,
                             "handle" => true
-                        )
-                    );
-                    
+                        ]
+                    ];
+
                     $r = $this->connection->createTable(
                         $this->associations_table_name,
                         $fields,
@@ -269,30 +269,30 @@ class Auth_OpenID_MDB2Store extends Auth_OpenID_OpenIDStore {
 
     function storeAssociation($server_url, $association)
     {
-        $fields = array(
-            "server_url" => array(
+        $fields = [
+            "server_url" => [
                 "value" => $server_url,
                 "key" => true
-            ),
-            "handle" => array(
+            ],
+            "handle" => [
                 "value" => $association->handle,
                 "key" => true
-            ),
-            "secret" => array(
+            ],
+            "secret" => [
                 "value" => $association->secret,
                 "type" => "blob"
-            ),
-            "issued" => array(
+            ],
+            "issued" => [
                 "value" => $association->issued
-            ),
-            "lifetime" => array(
+            ],
+            "lifetime" => [
                 "value" => $association->lifetime
-            ),
-            "assoc_type" => array(
+            ],
+            "assoc_type" => [
                 "value" => $association->assoc_type
-            )
-        );
-        
+            ]
+        ];
+
         return !@PEAR::isError($this->connection->replace(
                                   $this->associations_table_name,
                                   $fields));
@@ -319,25 +319,25 @@ class Auth_OpenID_MDB2Store extends Auth_OpenID_OpenIDStore {
     {
         $sql = "";
         $params = null;
-        $types = array(
-                       "text",
-                       "blob",
-                       "integer",
-                       "integer",
-                       "text"
-                       );
+        $types = [
+            "text",
+            "blob",
+            "integer",
+            "integer",
+            "text",
+        ];
         if ($handle !== null) {
             $sql = sprintf("SELECT handle, secret, issued, lifetime, assoc_type " .
                            "FROM %s WHERE server_url = ? AND handle = ?",
                            $this->associations_table_name);
-            $params = array($server_url, $handle);
+            $params = [$server_url, $handle];
         } else {
             $sql = sprintf("SELECT handle, secret, issued, lifetime, assoc_type " .
                            "FROM %s WHERE server_url = ? ORDER BY issued DESC",
                            $this->associations_table_name);
-            $params = array($server_url);
+            $params = [$server_url];
         }
-        
+
         $assoc = $this->connection->getRow($sql, $types, $params);
 
         if (!$assoc || @PEAR::isError($assoc)) {
@@ -359,8 +359,8 @@ class Auth_OpenID_MDB2Store extends Auth_OpenID_OpenIDStore {
         $r = $this->connection->execParam(
             sprintf("DELETE FROM %s WHERE server_url = ? AND handle = ?",
                     $this->associations_table_name),
-            array($server_url, $handle));
-        
+            [$server_url, $handle]);
+
         if (@PEAR::isError($r) || $r == 0) {
             return false;
         }
@@ -374,21 +374,21 @@ class Auth_OpenID_MDB2Store extends Auth_OpenID_OpenIDStore {
         if (abs($timestamp - time()) > $Auth_OpenID_SKEW ) {
             return false;
         }
-        
-        $fields = array(
-                        "timestamp" => $timestamp,
-                        "salt" => $salt
-                        );
-        
+
+        $fields = [
+            "timestamp" => $timestamp,
+            "salt" => $salt,
+        ];
+
         if (!empty($server_url)) {
             $fields["server_url"] = $server_url;
         }
-        
+
         $r = $this->connection->autoExecute(
             $this->nonces_table_name,
             $fields,
             MDB2_AUTOQUERY_INSERT);
-        
+
         if (@PEAR::isError($r)) {
             return false;
         }

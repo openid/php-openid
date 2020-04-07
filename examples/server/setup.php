@@ -22,16 +22,18 @@ require_once "Auth/OpenID.php";
  * Data.
  */
 
-$store_types = array("Filesystem" => "Auth_OpenID_FileStore",
-                     "MySQL" => "Auth_OpenID_MySQLStore",
-                     "PostgreSQL" => "Auth_OpenID_PostgreSQLStore",
-                     "SQLite" => "Auth_OpenID_SQLiteStore");
+$store_types = [
+    "Filesystem" => "Auth_OpenID_FileStore",
+    "MySQL" => "Auth_OpenID_MySQLStore",
+    "PostgreSQL" => "Auth_OpenID_PostgreSQLStore",
+    "SQLite" => "Auth_OpenID_SQLiteStore",
+];
 
 /**
  * Main.
  */
 
-$messages = array();
+$messages = [];
 
 session_start();
 init_session();
@@ -91,7 +93,7 @@ function check_session() {
 
     if ($_GET && isset($_GET['clear'])) {
         session_destroy();
-        $_SESSION = array();
+        $_SESSION = [];
         init_session();
         return false;
     }
@@ -385,23 +387,23 @@ function init_session() {
         $_SESSION['server_url'] = build_url();
     }
 
-    foreach (array('server_url', 'include_path', 'store_type') as $key) {
+    foreach (['server_url', 'include_path', 'store_type'] as $key) {
         if (!isset($_SESSION[$key])) {
             $_SESSION[$key] = "";
         }
     }
 
     if (!isset($_SESSION['store_data'])) {
-        $_SESSION['store_data'] = array();
+        $_SESSION['store_data'] = [];
     }
 
-    foreach (array('server_url', 'include_path', 'store_type') as $field) {
+    foreach (['server_url', 'include_path', 'store_type'] as $field) {
         if (array_key_exists($field, $_GET)) {
             $_SESSION[$field] = $_GET[$field];
         }
     }
 
-    foreach (array('username', 'password', 'database', 'host', 'fs_path', 'sqlite_path') as $field) {
+    foreach (['username', 'password', 'database', 'host', 'fs_path', 'sqlite_path'] as $field) {
         if (array_key_exists($field, $_GET)) {
             $_SESSION['store_data'][$field] = $_GET[$field];
         }
@@ -505,7 +507,7 @@ function getOpenIDStore()
     }
 
     $db->query("USE <?php print $_SESSION['store_data']['database']; ?>");
-        
+
     $s = new Auth_OpenID_MySQLStore($db);
 
     $s->createTables();

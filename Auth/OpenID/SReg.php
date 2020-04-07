@@ -47,16 +47,17 @@ require_once 'Auth/OpenID/Extension.php';
 
 // The data fields that are listed in the sreg spec
 global $Auth_OpenID_sreg_data_fields;
-$Auth_OpenID_sreg_data_fields = array(
-                                      'fullname' => 'Full Name',
-                                      'nickname' => 'Nickname',
-                                      'dob' => 'Date of Birth',
-                                      'email' => 'E-mail Address',
-                                      'gender' => 'Gender',
-                                      'postcode' => 'Postal Code',
-                                      'country' => 'Country',
-                                      'language' => 'Language',
-                                      'timezone' => 'Time Zone');
+$Auth_OpenID_sreg_data_fields = [
+    'fullname' => 'Full Name',
+    'nickname' => 'Nickname',
+    'dob' => 'Date of Birth',
+    'email' => 'E-mail Address',
+    'gender' => 'Gender',
+    'postcode' => 'Postal Code',
+    'country' => 'Country',
+    'language' => 'Language',
+    'timezone' => 'Time Zone',
+];
 
 /**
  * Check to see that the given value is a valid simple registration
@@ -135,8 +136,7 @@ class Auth_OpenID_SRegBase extends Auth_OpenID_Extension {
 
         // See if there exists an alias for one of the two defined
         // simple registration types.
-        foreach (array(Auth_OpenID_SREG_NS_URI_1_1,
-                       Auth_OpenID_SREG_NS_URI_1_0) as $sreg_ns_uri) {
+        foreach ([Auth_OpenID_SREG_NS_URI_1_1, Auth_OpenID_SREG_NS_URI_1_0] as $sreg_ns_uri) {
             $alias = $message->namespaces->getAlias($sreg_ns_uri);
             if ($alias !== null) {
                 $found_ns_uri = $sreg_ns_uri;
@@ -177,9 +177,9 @@ class Auth_OpenID_SRegRequest extends Auth_OpenID_SRegBase {
     /** @var string  */
     public $ns_alias = 'sreg';
     /** @var array  */
-    public $required = array();
+    public $required = [];
     /** @var array  */
-    public $optional = array();
+    public $optional = [];
     /** @var string  */
     public $policy_url = '';
 
@@ -201,8 +201,8 @@ class Auth_OpenID_SRegRequest extends Auth_OpenID_SRegBase {
         /** @var Auth_OpenID_SRegRequest $obj */
         $obj = new $cls();
 
-        $obj->required = array();
-        $obj->optional = array();
+        $obj->required = [];
+        $obj->optional = [];
         $obj->policy_url = $policy_url;
         $obj->ns_uri = $sreg_ns_uri;
 
@@ -241,8 +241,8 @@ class Auth_OpenID_SRegRequest extends Auth_OpenID_SRegBase {
     static function fromOpenIDRequest($request, $cls='Auth_OpenID_SRegRequest')
     {
 
-        $obj = call_user_func_array(array($cls, 'build'),
-                 array(null, null, null, Auth_OpenID_SREG_NS_URI, $cls));
+        $obj = call_user_func_array([$cls, 'build'],
+                 [null, null, null, Auth_OpenID_SREG_NS_URI, $cls]);
 
         // Since we're going to mess with namespace URI mapping, don't
         // mutate the object that was passed in.
@@ -290,7 +290,7 @@ class Auth_OpenID_SRegRequest extends Auth_OpenID_SRegBase {
      */
     function parseExtensionArgs($args, $strict=false)
     {
-        foreach (array('required', 'optional') as $list_name) {
+        foreach (['required', 'optional'] as $list_name) {
             $required = ($list_name == 'required');
             $items = Auth_OpenID::arrayGet($args, $list_name);
             if ($items) {
@@ -433,7 +433,7 @@ class Auth_OpenID_SRegRequest extends Auth_OpenID_SRegBase {
      */
     function getExtensionArgs($request = null)
     {
-        $args = array();
+        $args = [];
 
         if ($this->required) {
             $args['required'] = implode(',', $this->required);
@@ -465,7 +465,7 @@ class Auth_OpenID_SRegResponse extends Auth_OpenID_SRegBase {
     public $ns_alias = 'sreg';
 
     /** @var array */
-    public $data = array();
+    public $data = [];
 
     function __construct($data=null, $sreg_ns_uri=Auth_OpenID_SREG_NS_URI)
     {

@@ -60,8 +60,8 @@ class Tests_Auth_OpenID_HMAC extends PHPUnit_Framework_TestSuite {
     function _readTestCases($test_file_name, $digest_len)
     {
         $lines = Tests_Auth_OpenID_readlines($test_file_name);
-        $cases = array();
-        $case = array();
+        $cases = [];
+        $case = [];
         foreach ($lines as $line) {
             if ($line{0} == "#") {
                 continue;
@@ -70,9 +70,9 @@ class Tests_Auth_OpenID_HMAC extends PHPUnit_Framework_TestSuite {
             // Blank line separates test cases
             if ($line == "\n") {
                 $cases[] = $case;
-                $case = array();
+                $case = [];
             } else {
-                $match = array();
+                $match = [];
                 $pat = '/^([a-z0-9_-]+) =\s+(.*?)\n$/';
                 if (!preg_match($pat, $line, $match)) {
                     trigger_error("Bad test input: $line", E_USER_ERROR);
@@ -96,11 +96,11 @@ class Tests_Auth_OpenID_HMAC extends PHPUnit_Framework_TestSuite {
             $cases[] = $case;
         }
 
-        $final = array();
+        $final = [];
 
         // Normalize strings and check data integrity
         foreach ($cases as $case) {
-            $clean = array();
+            $clean = [];
             $clean["key"] =
                 Tests_Auth_OpenID_HMAC::_strConvert($case["key"]);
             if (defined(@$case["key_len"])) {
@@ -134,11 +134,14 @@ class Tests_Auth_OpenID_HMAC extends PHPUnit_Framework_TestSuite {
     function __construct($name)
     {
         $this->setName($name);
-        $hash_test_defs = array(array(
-            'Auth_OpenID_HMACSHA1', 'hmac-sha1.txt', 20));
+        $hash_test_defs = [
+            [
+            'Auth_OpenID_HMACSHA1', 'hmac-sha1.txt', 20
+            ]
+        ];
         if (Auth_OpenID_HMACSHA256_SUPPORTED) {
             $hash_test_defs[] =
-                array('Auth_OpenID_HMACSHA256', 'hmac-sha256.txt', 32);
+                ['Auth_OpenID_HMACSHA256', 'hmac-sha256.txt', 32];
         }
         foreach ($hash_test_defs as $params) {
             list($hash_func, $filename, $hash_len) = $params;

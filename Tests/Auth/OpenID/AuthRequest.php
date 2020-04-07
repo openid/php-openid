@@ -55,7 +55,7 @@ class TestAuthRequestMixin extends OpenIDTestMixin {
 
     function failUnlessAnonymous($msg)
     {
-        foreach (array('claimed_id', 'identity') as $key) {
+        foreach (['claimed_id', 'identity'] as $key) {
             $this->failIfOpenIDKeyExists($msg, $key);
         }
     }
@@ -103,8 +103,10 @@ class TestAuthRequestMixin extends OpenIDTestMixin {
         $this->authreq->addExtensionArg('bag:', 'material', 'paper');
         $this->assertTrue($this->authreq->message->namespaces->contains('bag:'));
         $this->assertEquals($this->authreq->message->getArgs('bag:'),
-                            array('color' => 'brown',
-                                  'material' => 'paper'));
+            [
+                'color' => 'brown',
+                'material' => 'paper',
+            ]);
         $msg = $this->authreq->getMessage($this->realm, $this->return_to,
                                           $this->immediate);
 
@@ -163,7 +165,7 @@ class TestAuthRequestOpenID2 extends TestAuthRequestMixin {
 
     function test_markup_returnToArgs()
     {
-        $this->authreq->return_to_args = array('extra' => 'args');
+        $this->authreq->return_to_args = ['extra' => 'args'];
         $result = $this->authreq->formMarkup($this->realm,
                                              null, false);
         $this->assertTrue(Auth_OpenID::isFailure($result));

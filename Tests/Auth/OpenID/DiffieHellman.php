@@ -72,9 +72,9 @@ class Tests_Auth_OpenID_DiffieHellman extends PHPUnit_Framework_TestSuite {
     function _readPrivateTestCases()
     {
         $lines = Tests_Auth_OpenID_readlines('dhpriv');
-        $cases = array();
+        $cases = [];
         foreach ($lines as $line) {
-            $case = array();
+            $case = [];
             if (!preg_match('/^(\d+) (\d+)\n$/', $line, $case)) {
                 trigger_error("Bad test input: $line", E_USER_ERROR);
             }
@@ -95,9 +95,9 @@ class Tests_Auth_OpenID_DiffieHellman extends PHPUnit_Framework_TestSuite {
     function _readExchTestCases()
     {
         $lines = Tests_Auth_OpenID_readlines('dhexch');
-        $cases = array();
+        $cases = [];
         foreach ($lines as $line) {
-            $case = array();
+            $case = [];
             if (!preg_match('/^(\d+) (\d+) (\d+)\n$/', $line, $case)) {
                 trigger_error("Bad test input: $line", E_USER_ERROR);
             }

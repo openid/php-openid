@@ -21,14 +21,14 @@ define('user_xrds_pat', '<?xml version="1.0" encoding="UTF-8"?>
 
 function userXrds_render($identity)
 {
-    $headers = array('Content-type: application/xrds+xml');
+    $headers = ['Content-type: application/xrds+xml'];
 
     $body = sprintf(user_xrds_pat,
                     Auth_OpenID_TYPE_2_0,
                     Auth_OpenID_TYPE_1_1,
                     buildURL());
 
-    return array($headers, $body);
+    return [$headers, $body];
 }
 
 ?>

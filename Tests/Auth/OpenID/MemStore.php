@@ -9,7 +9,7 @@ require_once 'Auth/OpenID/Nonce.php';
 class ServerAssocs {
     function __construct()
     {
-        $this->assocs = array();
+        $this->assocs = [];
     }
 
     function set($assoc)
@@ -55,7 +55,7 @@ class ServerAssocs {
      */
     function cleanup()
     {
-        $remove = array();
+        $remove = [];
         foreach ($this->assocs as $handle => $assoc) {
             if ($assoc->getExpiresIn() == 0) {
                 $remove[] = $handle;
@@ -66,7 +66,7 @@ class ServerAssocs {
             unset($this->assocs[$handle]);
         }
 
-        return array(count($remove), count($this->assocs));
+        return [count($remove), count($this->assocs)];
     }
 }
 
@@ -78,8 +78,8 @@ class ServerAssocs {
 class Tests_Auth_OpenID_MemStore extends Auth_OpenID_OpenIDStore {
     function __construct()
     {
-        $this->server_assocs = array();
-        $this->nonces = array();
+        $this->server_assocs = [];
+        $this->nonces = [];
     }
 
     function &_getServerAssocs($server_url)
@@ -121,7 +121,7 @@ class Tests_Auth_OpenID_MemStore extends Auth_OpenID_OpenIDStore {
             return false;
         }
 
-        $anonce = array($server_url, intval($timestamp), $salt);
+        $anonce = [$server_url, intval($timestamp), $salt];
 
         if (in_array($anonce, $this->nonces)) {
             return false;
@@ -136,7 +136,7 @@ class Tests_Auth_OpenID_MemStore extends Auth_OpenID_OpenIDStore {
         global $Auth_OpenID_SKEW;
 
         $now = time();
-        $expired = array();
+        $expired = [];
         foreach ($this->nonces as $anonce) {
             if (abs($anonce[1] - $now) > $Auth_OpenID_SKEW) {
                 // removing items while iterating over the set could
@@ -154,7 +154,7 @@ class Tests_Auth_OpenID_MemStore extends Auth_OpenID_OpenIDStore {
 
     function cleanupAssociations()
     {
-        $remove_urls = array();
+        $remove_urls = [];
         $removed_assocs = 0;
         foreach ($this->server_assocs as $server_url => $assocs) {
             list($removed, $remaining) = $assocs->cleanup();

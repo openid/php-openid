@@ -19,7 +19,7 @@ require_once 'Auth/OpenID/CryptUtil.php';
 class Tests_Auth_OpenID_CryptUtil extends PHPUnit_Framework_TestCase {
     function test_length()
     {
-        $cases = array(1, 10, 255);
+        $cases = [1, 10, 255];
         foreach ($cases as $length) {
             $data = Auth_OpenID_CryptUtil::getBytes($length);
             $this->assertEquals(Auth_OpenID::bytes($data), $length);

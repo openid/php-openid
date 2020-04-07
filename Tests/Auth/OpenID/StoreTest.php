@@ -325,7 +325,7 @@ explicitly');
 
         $server_url = 'http://www.myopenid.com/openid';
 
-        foreach (array($server_url, '') as $url) {
+        foreach ([$server_url, ''] as $url) {
             // Random nonce (not in store)
             $nonce1 = Auth_OpenID_mkNonce();
 
@@ -370,15 +370,15 @@ explicitly');
 
         $params = Auth_OpenID_splitNonce($old_nonce1);
         array_unshift($params, $server_url);
-        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
+        $this->assertTrue(call_user_func_array([$store, 'useNonce'], $params));
 
         $params = Auth_OpenID_splitNonce($old_nonce2);
         array_unshift($params, $server_url);
-        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
+        $this->assertTrue(call_user_func_array([$store, 'useNonce'], $params));
 
         $params = Auth_OpenID_splitNonce($recent_nonce);
         array_unshift($params, $server_url);
-        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
+        $this->assertTrue(call_user_func_array([$store, 'useNonce'], $params));
 
         $Auth_OpenID_SKEW = 3600;
         $cleaned = $store->cleanupNonces();
@@ -390,15 +390,15 @@ explicitly');
 
         $params = Auth_OpenID_splitNonce($old_nonce1);
         array_unshift($params, $server_url);
-        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
+        $this->assertTrue(call_user_func_array([$store, 'useNonce'], $params));
         $params = Auth_OpenID_splitNonce($old_nonce2);
         array_unshift($params, $server_url);
-        $this->assertTrue(call_user_func_array(array($store, 'useNonce'), $params));
+        $this->assertTrue(call_user_func_array([$store, 'useNonce'], $params));
 
         // The recent nonce wasn't cleaned, so it should still fail.
         $params = Auth_OpenID_splitNonce($recent_nonce);
         array_unshift($params, $server_url);
-        $this->assertFalse(call_user_func_array(array($store, 'useNonce'), $params));
+        $this->assertFalse(call_user_func_array([$store, 'useNonce'], $params));
 
         $Auth_OpenID_SKEW = $orig_skew;
     }
@@ -458,13 +458,13 @@ class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_Store {
 
         $connect_db_name = 'test_master';
 
-        $dsn = array(
-                     'phptype'  => 'pgsql',
-                     'username' => 'openid_test',
-                     'password' => '',
-                     'hostspec' => $_Auth_OpenID_db_test_host,
-                     'database' => $connect_db_name
-                     );
+        $dsn = [
+            'phptype' => 'pgsql',
+            'username' => 'openid_test',
+            'password' => '',
+            'hostspec' => $_Auth_OpenID_db_test_host,
+            'database' => $connect_db_name,
+        ];
 
         $allowed_failures = 5;
         $result = null;
@@ -615,12 +615,12 @@ class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_Store {
 
         global $_Auth_OpenID_db_test_host;
 
-        $dsn = array(
+        $dsn = [
                      'phptype'  => 'mysql',
                      'username' => 'openid_test',
                      'password' => '',
                      'hostspec' => $_Auth_OpenID_db_test_host
-                     );
+        ];
 
         $db =& DB::connect($dsn);
 
@@ -668,12 +668,12 @@ class Tests_Auth_OpenID_Included_StoreTest extends Tests_Auth_OpenID_Store {
 
         global $_Auth_OpenID_db_test_host;
 
-        $dsn = array(
+        $dsn = [
                      'phptype'  => 'mysql',
                      'username' => 'openid_test',
                      'password' => '',
                      'hostspec' => $_Auth_OpenID_db_test_host
-                     );
+        ];
 
         $db =& MDB2::connect($dsn);
 

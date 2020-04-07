@@ -55,7 +55,7 @@ abstract class Auth_OpenID_MathLibrary {
             return "\x00";
         }
 
-        $bytes = array();
+        $bytes = [];
 
         while ($this->cmp($long, 0) > 0) {
             array_unshift($bytes, $this->mod($long, 256));
@@ -137,7 +137,7 @@ abstract class Auth_OpenID_MathLibrary {
      */
     function rand($stop)
     {
-        static $duplicate_cache = array();
+        static $duplicate_cache = [];
 
         // Used as the key for the duplicate cache
         $rbytes = $this->longToBinary($stop);
@@ -158,10 +158,10 @@ abstract class Auth_OpenID_MathLibrary {
             $duplicate = $this->mod($mxrand, $stop);
 
             if (count($duplicate_cache) > 10) {
-                $duplicate_cache = array();
+                $duplicate_cache = [];
             }
 
-            $duplicate_cache[$rbytes] = array($duplicate, $nbytes);
+            $duplicate_cache[$rbytes] = [$duplicate, $nbytes];
         }
 
         do {
@@ -391,18 +391,21 @@ class Auth_OpenID_GmpMathWrapper extends Auth_OpenID_MathLibrary{
  */
 function Auth_OpenID_math_extensions()
 {
-    $result = array();
+    $result = [];
 
     if (!defined('Auth_OpenID_BUGGY_GMP')) {
-        $result[] =
-            array('modules' => array('gmp', 'php_gmp'),
-                  'extension' => 'gmp',
-                  'class' => 'Auth_OpenID_GmpMathWrapper');
+        $result[] = [
+            'modules' => ['gmp', 'php_gmp'],
+            'extension' => 'gmp',
+            'class' => 'Auth_OpenID_GmpMathWrapper',
+        ];
     }
 
-    $result[] = array('modules' => array('bcmath', 'php_bcmath'),
-                      'extension' => 'bcmath',
-                      'class' => 'Auth_OpenID_BcMathWrapper');
+    $result[] = [
+        'modules' => ['bcmath', 'php_bcmath'],
+        'extension' => 'bcmath',
+        'class' => 'Auth_OpenID_BcMathWrapper',
+    ];
 
     return $result;
 }
@@ -466,7 +469,7 @@ function Auth_OpenID_getMathLib()
     // works.
     $ext = Auth_OpenID_detectMathLibrary(Auth_OpenID_math_extensions());
     if ($ext === false) {
-        $tried = array();
+        $tried = [];
         foreach (Auth_OpenID_math_extensions() as $extinfo) {
             $tried[] = $extinfo['extension'];
         }

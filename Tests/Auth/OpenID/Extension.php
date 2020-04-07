@@ -9,7 +9,7 @@ class _ExtensionTest_DummyExtension extends Auth_OpenID_Extension {
 
     function getExtensionArgs()
     {
-        return array();
+        return [];
     }
 }
 

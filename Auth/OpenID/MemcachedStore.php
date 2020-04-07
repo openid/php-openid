@@ -74,7 +74,7 @@ class Auth_OpenID_MemcachedStore extends Auth_OpenID_OpenIDStore {
 
         // if no such list, initialize it with empty array
         if (!$serverAssociations) {
-            $serverAssociations = array();
+            $serverAssociations = [];
         }
         // and store given association key in it
         $serverAssociations[$association->issued] = $associationKey;

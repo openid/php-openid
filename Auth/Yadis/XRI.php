@@ -20,12 +20,12 @@ function Auth_Yadis_getDefaultProxy()
 
 function Auth_Yadis_getXRIAuthorities()
 {
-    return array('!', '=', '@', '+', '$', '(');
+    return ['!', '=', '@', '+', '$', '('];
 }
 
 function Auth_Yadis_getEscapeRE()
 {
-    $parts = array();
+    $parts = [];
     foreach (array_merge(Auth_Yadis_getUCSChars(),
                          Auth_Yadis_getIPrivateChars()) as $pair) {
         list($m, $n) = $pair;
@@ -112,9 +112,9 @@ function Auth_Yadis_XRIAppendArgs($url, $args)
     } else {
         $keys = array_keys($args);
         sort($keys);
-        $new_args = array();
+        $new_args = [];
         foreach ($keys as $key) {
-            $new_args[] = array($key, $args[$key]);
+            $new_args[] = [$key, $args[$key]];
         }
         $args = $new_args;
     }
@@ -166,7 +166,7 @@ function Auth_Yadis_rootAuthority($xri)
     } else {
         // IRI reference.
         $_segments = explode("!", $authority);
-        $segments = array();
+        $segments = [];
         foreach ($_segments as $s) {
             $segments = array_merge($segments, explode("*", $s));
         }

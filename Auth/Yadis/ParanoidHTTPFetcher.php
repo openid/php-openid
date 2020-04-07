@@ -28,7 +28,7 @@ require_once "Auth/OpenID.php";
  */
 class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
 
-    private $headers = array();
+    private $headers = [];
     private $data = '';
 
     function __construct()
@@ -38,7 +38,7 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
 
     function reset()
     {
-        $this->headers = array();
+        $this->headers = [];
         $this->data = "";
     }
 
@@ -133,9 +133,9 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
             }
 
             curl_setopt($c, CURLOPT_WRITEFUNCTION,
-                        array($this, "_writeData"));
+                        [$this, "_writeData"]);
             curl_setopt($c, CURLOPT_HEADERFUNCTION,
-                        array($this, "_writeHeader"));
+                        [$this, "_writeHeader"]);
 
             if ($extra_headers) {
                 curl_setopt($c, CURLOPT_HTTPHEADER, $extra_headers);
@@ -182,7 +182,7 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
                 return null;
             }
 
-            if (in_array($code, array(301, 302, 303, 307))) {
+            if (in_array($code, [301, 302, 303, 307])) {
                 $url = $this->_findRedirect($headers, $url);
                 $redir = true;
             } else {
@@ -195,7 +195,7 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
                     Auth_OpenID::log('OpenID: Verified SSL host %s using '.
                                      'curl/get', $url);
                 }
-                $new_headers = array();
+                $new_headers = [];
 
                 foreach ($headers as $header) {
                     if (strpos($header, ': ')) {
@@ -237,7 +237,7 @@ class Auth_Yadis_ParanoidHTTPFetcher extends Auth_Yadis_HTTPFetcher {
         curl_setopt($c, CURLOPT_TIMEOUT, $this->timeout);
         curl_setopt($c, CURLOPT_URL, $url);
         curl_setopt($c, CURLOPT_WRITEFUNCTION,
-                    array($this, "_writeData"));
+                    [$this, "_writeData"]);
 
         if (defined('Auth_OpenID_VERIFY_HOST')) {
             // set SSL verification options only if Auth_OpenID_VERIFY_HOST

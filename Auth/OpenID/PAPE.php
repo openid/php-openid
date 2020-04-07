@@ -38,13 +38,13 @@ class Auth_OpenID_PAPE_Request extends Auth_OpenID_Extension {
     public $ns_uri = Auth_OpenID_PAPE_NS_URI;
 
     private $max_auth_age = 0;
-    private $preferred_auth_policies = array();
+    private $preferred_auth_policies = [];
 
     function __construct($preferred_auth_policies=null,
                                       $max_auth_age=null)
     {
         if ($preferred_auth_policies === null) {
-            $preferred_auth_policies = array();
+            $preferred_auth_policies = [];
         }
 
         $this->preferred_auth_policies = $preferred_auth_policies;
@@ -78,10 +78,9 @@ class Auth_OpenID_PAPE_Request extends Auth_OpenID_Extension {
      */
     function getExtensionArgs($request = null)
     {
-        $ns_args = array(
-                         'preferred_auth_policies' =>
-                           implode(' ', $this->preferred_auth_policies)
-                         );
+        $ns_args = [
+            'preferred_auth_policies' => implode(' ', $this->preferred_auth_policies),
+        ];
 
         if ($this->max_auth_age !== null) {
             $ns_args['max_auth_age'] = strval($this->max_auth_age);
@@ -102,7 +101,7 @@ class Auth_OpenID_PAPE_Request extends Auth_OpenID_Extension {
         $obj = new Auth_OpenID_PAPE_Request();
         $args = $request->message->getArgs(Auth_OpenID_PAPE_NS_URI);
 
-        if ($args === null || $args === array()) {
+        if ($args === null || $args === []) {
             return null;
         }
 
@@ -120,7 +119,7 @@ class Auth_OpenID_PAPE_Request extends Auth_OpenID_Extension {
     {
         // preferred_auth_policies is a space-separated list of policy
         // URIs
-        $this->preferred_auth_policies = array();
+        $this->preferred_auth_policies = [];
 
         $policies_str = Auth_OpenID::arrayGet($args, 'preferred_auth_policies');
         if ($policies_str) {
@@ -156,7 +155,7 @@ class Auth_OpenID_PAPE_Request extends Auth_OpenID_Extension {
      */
     function preferredTypes($supported_types)
     {
-        $result = array();
+        $result = [];
 
         foreach ($supported_types as $st) {
             if (in_array($st, $this->preferred_auth_policies)) {
@@ -178,7 +177,7 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
 
     private $auth_time = 0;
     private $nist_auth_level = 0;
-    private $auth_policies = array();
+    private $auth_policies = [];
 
     function __construct($auth_policies=null, $auth_time=null,
                                        $nist_auth_level=null)
@@ -186,7 +185,7 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
         if ($auth_policies) {
             $this->auth_policies = $auth_policies;
         } else {
-            $this->auth_policies = array();
+            $this->auth_policies = [];
         }
 
         $this->auth_time = $auth_time;
@@ -227,7 +226,7 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
         // PAPE requires that the args be signed.
         $args = $success_response->getSignedNS(Auth_OpenID_PAPE_NS_URI);
 
-        if ($args === null || $args === array()) {
+        if ($args === null || $args === []) {
             return null;
         }
 
@@ -299,7 +298,7 @@ class Auth_OpenID_PAPE_Response extends Auth_OpenID_Extension {
      */
     function getExtensionArgs($request = null)
     {
-        $ns_args = array();
+        $ns_args = [];
         if (count($this->auth_policies) > 0) {
             $ns_args['auth_policies'] = implode(' ', $this->auth_policies);
         } else {

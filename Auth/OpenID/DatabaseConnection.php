@@ -48,7 +48,7 @@ class Auth_OpenID_DatabaseConnection {
      * underlying database engine.  This method is usually used when
      * the result of a query is not important, like a DDL query.
      */
-    function query($sql, $params = array())
+    function query($sql, $params = [])
     {
         return null;
     }
@@ -89,7 +89,7 @@ class Auth_OpenID_DatabaseConnection {
      * first row of the result set.  False if no such result was
      * found.
      */
-    function getOne($sql, $params = array())
+    function getOne($sql, $params = [])
     {
         return false;
     }
@@ -108,7 +108,7 @@ class Auth_OpenID_DatabaseConnection {
      * @return array|bool $result The first row of the result set, if any,
      * keyed on column name.  False if no such result was found.
      */
-    function getRow($sql, $params = array())
+    function getRow($sql, $params = [])
     {
         return false;
     }
@@ -126,9 +126,9 @@ class Auth_OpenID_DatabaseConnection {
      * @return array $result An array of arrays representing the
      * result of the query; each array is keyed on column name.
      */
-    function getAll($sql, $params = array())
+    function getAll($sql, $params = [])
     {
-        return array();
+        return [];
     }
 }
 

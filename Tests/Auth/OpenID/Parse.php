@@ -118,7 +118,7 @@ class Tests_Auth_OpenID_Parse extends PHPUnit_Framework_TestSuite {
         $optional = intval($parts[0] == 'Link*:');
         $this->_parseCheck($optional || ($parts[0] == 'Link:'), __FUNCTION__);
 
-        $attrs = array();
+        $attrs = [];
         foreach (array_slice($parts, 1) as $attr) {
             list($k, $v) = explode("=", $attr, 2);
             if ($k[strlen($k) - 1] == '*') {
@@ -128,10 +128,10 @@ class Tests_Auth_OpenID_Parse extends PHPUnit_Framework_TestSuite {
                 $attr_optional = 0;
             }
 
-            $attrs[$k] = array($attr_optional, $v);
+            $attrs[$k] = [$attr_optional, $v];
         }
 
-        return array($optional, $attrs);
+        return [$optional, $attrs];
     }
 
     function parseCase($s)
@@ -141,17 +141,17 @@ class Tests_Auth_OpenID_Parse extends PHPUnit_Framework_TestSuite {
         $name = array_shift($lines);
         $this->_parseCheck(strpos($name, 'Name: ') == 0, __FUNCTION__);
         $desc = substr($name, 6);
-        $parsed = array();
+        $parsed = [];
         foreach ($lines as $line) {
             $parsed[] = $this->parseLink($line);
         }
 
-        return array($desc, $markup, $parsed);
+        return [$desc, $markup, $parsed];
     }
 
     function parseTests($s)
     {
-        $tests = array();
+        $tests = [];
 
         $cases = explode("\n\n\n", $s);
         $header = array_shift($cases);
@@ -162,10 +162,10 @@ class Tests_Auth_OpenID_Parse extends PHPUnit_Framework_TestSuite {
 
         foreach (array_slice($cases, 0, count($cases) - 1) as $case) {
             list($desc, $markup, $links) = $this->parseCase($case);
-            $tests[] = array($desc, $markup, $links, $case);
+            $tests[] = [$desc, $markup, $links, $case];
         }
 
-        return array($num_tests, $tests);
+        return [$num_tests, $tests];
     }
 
     function __construct()

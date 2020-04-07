@@ -191,17 +191,18 @@ function detect_math($r, &$out)
 
         $gmp_lnk = $r->link('http://www.php.net/manual/en/ref.gmp.php', 'GMP');
         $bc_lnk = $r->link('http://www.php.net/manual/en/ref.bc.php', 'bcmath');
-        $out .= $r->ol(array(
+        $out .= $r->ol([
             'Install the ' . $gmp_lnk . ' PHP extension',
             'Install the ' . $bc_lnk . ' PHP extension',
             'If your site is low-security, call ' .
             'Auth_OpenID_setNoMathSupport(), defined in Auth/OpenID/BigMath.php. ',
-	    'The library will function, but ' .
+	        'The library will function, but ' .
             'the security of your OpenID server will depend on the ' .
             'security of the network links involved. If you are only ' .
             'using consumer support, you should still be able to operate ' .
             'securely when the users are communicating with a ' .
-            'well-implemented server.'));
+            'well-implemented server.'
+        ]);
         return false;
     } else {
         switch ($ext['extension']) {
@@ -312,8 +313,8 @@ function detect_stores($r, &$out)
 {
     $out .= $r->h2('Data storage');
 
-    $found = array();
-    foreach (array('sqlite', 'mysql', 'pgsql') as $dbext) {
+    $found = [];
+    foreach (['sqlite', 'mysql', 'pgsql'] as $dbext) {
         if (extension_loaded($dbext) || (function_exists('dl') && @dl($dbext . '.' . PHP_SHLIB_SUFFIX))) {
             $found[] = $dbext;
         }
@@ -439,7 +440,7 @@ function detect_fetcher($r, &$out)
     $result = $fetcher->get($fetch_url);
 
     if (isset($result)) {
-        $parts = array('An HTTP request was completed.');
+        $parts = ['An HTTP request was completed.'];
         // list ($code, $url, $data) = $result;
         if ($result->status != '200' && $result->status != '206') {
             $ok = false;
@@ -505,7 +506,7 @@ if (!$_include) {
         'path. Your PHP include path is currently:');
     $body .= $r->pre($path);
 } else {
-    $status = array();
+    $status = [];
 
     $status[] = detect_math($r, $body);
     $status[] = detect_random($r, $body);

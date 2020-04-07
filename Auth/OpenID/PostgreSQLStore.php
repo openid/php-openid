@@ -29,7 +29,7 @@ class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
                 "UNIQUE (server_url, timestamp, salt))";
 
         $this->sql['assoc_table'] =
-            "CREATE TABLE %s (server_url VARCHAR(2047) NOT NULL, ". 
+            "CREATE TABLE %s (server_url VARCHAR(2047) NOT NULL, ".
                              "handle VARCHAR(255) NOT NULL, ".
                              "secret BYTEA NOT NULL, ".
                              "issued INTEGER NOT NULL, ".
@@ -40,14 +40,14 @@ class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
             "(LENGTH(secret) <= 128))";
 
         $this->sql['set_assoc'] =
-            array(
+            [
                   'insert_assoc' => "INSERT INTO %s (server_url, handle, ".
                   "secret, issued, lifetime, assoc_type) VALUES ".
                   "(?, ?, '!', ?, ?, ?)",
                   'update_assoc' => "UPDATE %s SET secret = '!', issued = ?, ".
                   "lifetime = ?, assoc_type = ? WHERE server_url = ? AND ".
                   "handle = ?"
-                  );
+            ];
 
         $this->sql['get_assocs'] =
             "SELECT handle, secret, issued, lifetime, assoc_type FROM %s ".
@@ -82,14 +82,27 @@ class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
         if ($result) {
             // Update the table since this associations already exists.
             $this->connection->query($this->sql['set_assoc']['update_assoc'],
-                                     array($secret, $issued, $lifetime,
-                                           $assoc_type, $server_url, $handle));
+                [
+                    $secret,
+                    $issued,
+                    $lifetime,
+                    $assoc_type,
+                    $server_url,
+                    $handle,
+                ]);
         } else {
             // Insert a new record because this association wasn't
             // found.
             $this->connection->query($this->sql['set_assoc']['insert_assoc'],
-                                     array($server_url, $handle, $secret,
-                                           $issued, $lifetime, $assoc_type));
+                [
+                    $server_url,
+                    $handle,
+                    $secret,
+                    $issued,
+                    $lifetime,
+                    $assoc_type,
+                ]
+            );
         }
     }
 

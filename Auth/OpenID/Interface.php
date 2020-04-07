@@ -89,7 +89,7 @@ class Auth_OpenID_OpenIDStore {
      */
     function cleanup()
     {
-        return array($this->cleanupNonces(), $this->cleanupAssociations());
+        return [$this->cleanupNonces(), $this->cleanupAssociations()];
     }
 
     /**

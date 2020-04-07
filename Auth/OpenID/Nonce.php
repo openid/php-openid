@@ -53,7 +53,7 @@ function Auth_OpenID_splitNonce($nonce_string)
         return null;
     }
 
-    return array($timestamp, $uniquifier);
+    return [$timestamp, $uniquifier];
 }
 
 function Auth_OpenID_checkTimestamp($nonce_string,

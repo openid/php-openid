@@ -117,11 +117,11 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
         $name = Auth_OpenID_FileStore::_mkstemp($dir = $this->temp_dir);
         $file_obj = @fopen($name, 'wb');
         if ($file_obj !== false) {
-            return array($file_obj, $name);
+            return [$file_obj, $name];
         } else {
             Auth_OpenID_FileStore::_removeIfPresent($name);
         }
-        return array();
+        return [];
     }
 
     function cleanupNonces()
@@ -265,7 +265,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
         } else {
             $association_files =
                 Auth_OpenID_FileStore::_listdir($this->association_dir);
-            $matching_files = array();
+            $matching_files = [];
 
             // strip off the path to do the comparison
             $name = basename($filename);
@@ -276,18 +276,20 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
                 }
             }
 
-            $matching_associations = array();
+            $matching_associations = [];
             // read the matching files and sort by time issued
             foreach ($matching_files as $full_name) {
                 $association = $this->_getAssociation($full_name);
                 if ($association !== null) {
-                    $matching_associations[] = array($association->issued,
-                                                     $association);
+                    $matching_associations[] = [
+                        $association->issued,
+                        $association
+                    ];
                 }
             }
 
-            $issued = array();
-            $assocs = array();
+            $issued = [];
+            $assocs = [];
             foreach ($matching_associations as $key => $assoc) {
                 $issued[$key] = $assoc[0];
                 $assocs[$key] = $assoc[1];
@@ -436,7 +438,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
      */
     function _allAssocs()
     {
-        $all_associations = array();
+        $all_associations = [];
 
         $association_filenames =
             Auth_OpenID_FileStore::_listdir($this->association_dir);
@@ -459,8 +461,10 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
                                                  $association_filename);
                 } else {
                     if ($association->getExpiresIn() == 0) {
-                        $all_associations[] = array($association_filename,
-                                                    $association);
+                        $all_associations[] = [
+                            $association_filename,
+                            $association,
+                        ];
                     }
                 }
             }
@@ -509,7 +513,7 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
 
         if ($handle = opendir($dir)) {
             while (false !== ($item = readdir($handle))) {
-                if (!in_array($item, array('.', '..'))) {
+                if (!in_array($item, ['.', '..'])) {
                     if (is_dir($dir . $item)) {
 
                         if (!Auth_OpenID_FileStore::_rmtree($dir . $item)) {
@@ -580,9 +584,9 @@ class Auth_OpenID_FileStore extends Auth_OpenID_OpenIDStore {
     function _listdir($dir)
     {
         $handle = opendir($dir);
-        $files = array();
+        $files = [];
         while (false !== ($filename = readdir($handle))) {
-            if (!in_array($filename, array('.', '..'))) {
+            if (!in_array($filename, ['.', '..'])) {
                 $files[] = $dir . DIRECTORY_SEPARATOR . $filename;
             }
         }
