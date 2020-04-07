@@ -2323,10 +2323,10 @@ class Auth_OpenID_TypeURIMismatch extends Auth_OpenID_FailureResponse {
 class Auth_OpenID_ServerErrorContainer {
 
     /** @var Auth_OpenID_Message */
-    private $message;
+    public $message;
 
     /** @var string */
-    private $error_code;
+    public $error_code;
     /** @var string */
     private $error_text;
 
