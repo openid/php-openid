@@ -474,7 +474,7 @@ class Auth_OpenID_Message {
     /**
      * @var Auth_OpenID_NamespaceMap
      */
-    private $namespaces;
+    public $namespaces;
 
     /**
      * @var null|string
