@@ -530,7 +530,7 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
             } else if (ord($ch) == 0) {
                 $result .= "\\\\000";
             } else {
-                $result .= "\\" . strval(decoct(ord($ch)));
+                $result .= '\\' . str_pad(decoct(ord($ch)), 3, '0', STR_PAD_LEFT);
             }
         }
         return $result;
