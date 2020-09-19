@@ -546,24 +546,36 @@ class Auth_OpenID_SQLStore extends Auth_OpenID_OpenIDStore {
      */
     function _unoctify($str)
     {
-        $result = "";
+        $result = '';
         $i = 0;
+        $is_hexdec = (substr($str, 0, 2) === '\\x');
+
         while ($i < strlen($str)) {
             $char = $str[$i];
-            if ($char == "\\") {
-                // Look to see if the next char is a backslash and
-                // append it.
-                if ($str[$i + 1] != "\\") {
-                    $octal_digits = substr($str, $i + 1, 3);
-                    $dec = octdec($octal_digits);
-                    $char = chr($dec);
-                    $i += 4;
+            if ($is_hexdec) {
+                // We got ourselves a hexadecimal format.
+                if ($i < 2 || $char === ' ') {
+                    // Ignore the "\x" prefix and whitespaces.
+                    $char = '';
                 } else {
-                    $char = "\\";
-                    $i += 2;
+                    $hexdec_digits = $char . $str[$i + 1];
+                    $char = chr(hexdec($hexdec_digits));
+                    ++$i;
                 }
+                ++$i;
             } else {
-                $i += 1;
+                if ($char === '\\') {
+                    if ($str[$i + 1] !== '\\') {
+                        $octal_digits = substr($str, $i + 1, 3);
+                        $char = chr(octdec($octal_digits));
+                        $i += 3;
+                    } else {
+                        // If the next char is a backslash then append it.
+                        $char = '\\';
+                        ++$i;
+                    }
+                }
+                ++$i;
             }
 
             $result .= $char;

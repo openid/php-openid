@@ -119,6 +119,7 @@ class Auth_OpenID_PostgreSQLStore extends Auth_OpenID_SQLStore {
      */
     function blobDecode($blob)
     {
+        // @fixme Needs additional escaping without standard_conformant_strings
         return $this->_unoctify($blob);
     }
 }
