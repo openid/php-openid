@@ -1,0 +1,45 @@
+name: Build PHP-OpenID PHPDocs 
+
+on:
+  release:
+    types: published
+  workflow_dispatch:
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Download PHPDoc
+      run: wget https://phpdoc.org/phpDocumentor.phar 
+    - name: Build PHPDocs
+      run: | 
+        php phpDocumentor.phar \
+        --parseprivate \
+        --target doc \
+        --directory Auth,admin/tutorials \
+        --title "JanRain OpenID Library" \
+        --ignore \*~,BigMath.php,Discover.php,CryptUtil.php,DiffieHellman.php,HMACSHA1.php,KVForm.php,Parse.php,TrustRoot.php,HTTPFetcher.php,ParanoidHTTPFetcher.php,PlainHTTPFetcher.php,ParseHTML.php,URINorm.php,XRI.php,XRIRes.php,Misc.php \
+        --defaultpackagename="OpenID"
+      #-o "HTML:frames:phphtmllib" #I can't find this in the current phpDocumentor settings.
+    - name: Upload GitHub Pages artifact
+      uses: actions/upload-pages-artifact@v1.0.4
+      with:
+        # Path of the directory containing the static assets.
+        path: doc
+
+  deploy-docs:
+    needs: build-docs
+    permissions: 
+      id-token: write
+      pages: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+   
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
+
